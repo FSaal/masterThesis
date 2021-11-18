@@ -1,0 +1,77 @@
+\documentclass{paper}
+\usepackage[utf8]{inputenc}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\newcommand{\todo}[1]{\textcolor{red}{TODO: #1}}
+\newcommand{\questions}[1]{\textcolor{blue}{\\Questions: #1}}
+
+\title{Expose}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction and motivation}
+Parking is one of the most challenging driving tasks and the cause of almost half of the car accidents \cite{accident}. Current cars are already able to fully automated park on their own in parallel or perpendicular parking spaces. But due to the very limited space in cites, parking garages are often used in central areas \cite{7995971}. Automated valet parking (AVP) allows for a fully automated parking experience. The car is left in a drop-off zone and finds a parking spot on its own. Afterwards the driver can give a command and the car leaves the parking spot again and picks up the driver. AVP saves time, the hassle of remembering the parking level and spot and furthermore allows to use the available space more efficiently and also minimizes the risk of collisions. For this to work an exact mapping of the environment and localization of the car in the garage is necessary.\\
+This can be done either by simultaneous localization and mapping (SLAM) or the area can be mapped beforehand (e.g. using lidar sensors) in which case only a localization of the car is necessary.
+The mapping can be done in 2D or 3D. 2D maps only show information of the current level. Hence if the car is driven up or down a ramp, the new map of the corresponding floor has to be loaded. Because the localization usually only works in a 2D-plane, a change of levels would not be detected. To solve this problem, a ramp detection has to be implemented. 
+
+\section{Goal}
+The goal of this master thesis is to implement and test different methods for detecting a change of the parking level. To keep things simple, only one specific garage and car will be used. For this specific parking garage a high precision map was already created for one level. A VW e-Golf will be used as the car. Due to being fully electric, no vibrations of the motor etc. have to be take into account. The ramps of the test parking garage are straight and not curved, because of this no centripetal force has to be considered.\\
+It should be detected when the car is on a ramp and if that is the case, if it is going uphill or downhill. This should work if the car is currently moving on the ramp as well as if the car stands still on the ramp. And ideally a detection of the ramp before entering it would be preferred.  
+The ramp should also be labeled as a ramp in the mapping algorithm, so that it can be distinguished from flat surfaces.
+The focus of this thesis is only on the detection of the ramp, not the control of the car after it has detected a ramp.
+To achieve the goal different methods will be used and compared with each other.
+
+\section{State of the art}
+There already exist different approaches to estimate the road gradient. There exist multiple methods which rely on a GPS signal. But grade estimations from GPS measurements are not very precise, especially on short sections and furthermore is the GPS signal simply not available underground \cite{8103753}.
+An slope estimation method using accelerometer and gyroscope measurements together with odometry data has been proposed in \cite{palella2016sensor}. The accelerometer and gyroscope complement each other well, while the accelerometer error sources are high at high frequencies and low on low frequencies the gyroscope shows very little error at high frequencies but drift-related errors at low frequencies. To get the best out of both sensors a Kalman filter is used.\\
+If the car is moving, the vehicle acceleration has to be subtracted from the accelerometer signal. The remaining signal then only contains the gravitational acceleration. By knowing the orientation of the IMU in relation to the car the calculation of the road grade is then possible. The vehicle acceleration can be calculated by differentiating the wheel speed with respect to time \cite{patent}.\\
+\todo{More about visual methods}
+
+\section{Concept of research}
+Because the ramps between the different levels have a significant inclination angle, the inclination angle of the car could be measured and be used as an indication if the car is on a ramp. This can be achieved by using an inertial measurement unit (IMU). An IMU consists of an accelerometer, gyroscope and magnetometer. A special challenge in the case of the parking garage is that the magnetometer measurements will be influenced due to the other cars, which contain ferromagnetic materials, and will not be very reliable and hence may not be used \cite{6418880}.
+Therefore only the accelerometer and gyroscope data will be used and because of the absence of magnetometer data and the resulting lack of information about the heading a complete orientation estimation will not be possible. The accelerometer data will be used as primary source, but will be fused with the gyroscope data. The gyroscope data will be used to support the detection of the drive onto or off the ramp. As mentioned in the previous section the wheel measurements will be used as well, to calculate the vehicle acceleration.\\
+While this detection will be helpful, a detection of the ramp before entering it would be preferred. For this multiple different methods will be tested. Sensors to use for this task could be (from easiest to hardest) LiDAR, stereo camera, mono (2D) camera. Using LiDAR and/or stereo camera a generation of a point cloud will be possible, in which planes can be detected. Then the angle between the ground plane and the other plane in front of the car (e.g. wall or ramp) can be calculated and thus a ramp can be detected. When using a 2D-camera based approach machine learning most likely will be used. The required training data will be recorded using the test car and will be labeled by hand. The goal is not to create a new camera based algorithm to detect the ramps, but to use an existing one and adapt it for this specific use case.\\
+Furthermore a fusion of both methods (IMU and visual based method) will be tested and the advantages and disadvantages of each method on its own and in combination with each other will be examined.
+
+\section{Preliminary outline}
+\begin{enumerate}
+    \item Introduction
+        \begin{enumerate}
+            \item Motivation
+            \item Goal
+        \end{enumerate}
+    \item State of the art
+        \begin{enumerate}
+            \item IMU based methods
+            \item Camera based methods
+            \item Other (not feasible for us)
+        \end{enumerate}
+    \item Background
+    \begin{enumerate}
+        \item IMU
+        \item Sensor Fusion / Kalman Filter
+        \item Machine learning / camera
+    \end{enumerate}
+    \item Experimental setup
+        \begin{enumerate}
+            \item e-Golf
+            \item Sensors
+            \item Environment
+        \end{enumerate}
+    \item Methods
+    \begin{enumerate}
+        \item IMU
+        \item Camera
+        \item Different combinations
+    \end{enumerate}
+    \item Results
+    \item Outlook and Conclusion
+\end{enumerate}
+
+\bibliographystyle{plain} % We choose the "plain" reference style
+\bibliography{refs} % Entries are in the "refs.bib" file
+
+\end{document}
+
