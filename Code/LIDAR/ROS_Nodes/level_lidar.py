@@ -18,7 +18,7 @@ import numpy as np
 import math
 import scipy.stats as st
 
-# Calculates the pitch and roll angle of lidar (online)
+# Calculates the pitch and roll angle of lidar and publishes leveled pc
 class VisualDetection():
 
     def __init__(self):

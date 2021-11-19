@@ -7,7 +7,7 @@ os.environ["MKL_NUM_THREADS"] = "1"
 os.environ["NUMEXPR_NUM_THREADS"] = "1"
 os.environ["OMP_NUM_THREADS"] = "1"
 
-from tf.transformations import euler_from_quaternion, euler_matrix, unit_vector, vector_norm, quaternion_from_matrix
+from tf.transformations import euler_from_quaternion, unit_vector, vector_norm
 from sensor_msgs.msg import PointCloud2
 import ros_numpy
 import rospy
