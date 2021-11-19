@@ -4,15 +4,14 @@ import pcl
 import rospy
 from sensor_msgs.msg import PointCloud2
 import sensor_msgs.point_cloud2 as pc2
-from std_msgs.msg import String, Header
-import ros_numpy
+from std_msgs.msg import Header
 import os
 import glob
 import numpy as np
 from tf.transformations import euler_matrix
 
-# Publishes the map from the hdl_slam of the rosbag
-# Also publishes a trimmed pointcloud of the groundpoints and ramp region
+""" Publishes the map from the hdl_slam of the rosbag
+ Also publishes a trimmed pointcloud of the groundpoints and ramp region"""
 class EvalMap():
     def __init__(self):
         rospy.init_node('pcd_vis')

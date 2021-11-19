@@ -1,18 +1,14 @@
 #!/usr/bin/env python
+
 import rosbag
-from tf2_sensor_msgs.tf2_sensor_msgs import do_transform_cloud
-from tf.transformations import euler_from_quaternion, euler_matrix, unit_vector, vector_norm, quaternion_from_matrix
-from sensor_msgs.msg import PointCloud2
-import sensor_msgs.point_cloud2 as pc2
-from std_msgs.msg import Header, Float32, Float32MultiArray
+from tf.transformations import euler_from_quaternion, unit_vector, vector_norm
 import ros_numpy
-import rospy
 import pcl
 import numpy as np
 import glob
 import os
 
-# Calculates the estimated average pitch angle of rosbags
+"""Calculates the estimated average pitch angle of rosbags (offline)"""
 class pitchCalc():
     def align_lidar(self, pc_msg):
         """Calculate roll and pitch angle to align Lidar with car frame"""
