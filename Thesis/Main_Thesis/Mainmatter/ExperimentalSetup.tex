@@ -117,7 +117,8 @@ But this will not be used.
 \textbf{LI}ght \textbf{D}etection \textbf{A}nd \textbf{R}anging or also known as \textbf{L}ight \textbf{I}maging, \textbf{D}etection \textbf{A}nd \textbf{R}anging (LIDAR) is a method to measure distance to objects.
 Similar to other systems such as SONAR or RADAR, LIDAR uses the time-of-flight principle.
 A short laser pulse is sent into the environment and the reflected light is analyzed.
-The duration it took from sending to receiving gives information about the distance.
+The duration it took from sending to receiving can than be used to calculate the distance with 
+\[ s = v\delta \]
 The intensity and wavelength of the returning light are measured as well and can provide information about the reflectivity of the object (intensity) or the chemical composition of the air (wavelength).
 Common uses of LIDAR are the analysis of earth's atmosphere, 3D mapping of environments or in the field of autonomous driving for object detection, tracking and simultaneous localization and mapping (SLAM).
 Basically all applications which use RADAR can also be used with a LIDAR instead, allowing for a greater accuracy.
@@ -186,7 +187,7 @@ Both are mechanical LiDARs and have the same number of laser channels, but the V
 
 \subsection{Placement}
 \[ c = h - \frac{z}{\tan \alpha} \]
-It is ok
+
 \begin{figure}
 	\centering
 	\begin{tikzpicture}[scale=1.5]
@@ -197,7 +198,6 @@ It is ok
 		\coordinate (C2) at (7,0.45);
 		\coordinate (D) at (10,0);
 		\coordinate (L) at (0,2);
-
 
 		\filldraw[draw=black, fill=lightgray] (B) -- (D) -- (C);
 
