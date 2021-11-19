@@ -11,3 +11,173 @@ Complementary filter
 \begin{equation}
 	\theta = (1-\alpha)(\theta + gyrData\cdot dt) + \alpha(accData)
 \end{equation}
+
+\begin{figure}
+	\centering
+	\begin{tikzpicture}[scale=1]
+		% RAMP
+        % Define/Calc ramp parameters
+        % Ramp length
+        \def\rl{10};
+        % Ramp angle [deg]
+        \def\ra{15};
+        % Ramp height
+        \def\rh{{tan(\ra)*\rl}};
+        
+		% Define the points
+		\coordinate (A) at (0,0);
+		\coordinate (B) at ($(A) + (\rl,0)$);
+		\coordinate (C) at ($(B) + (0,\rh)$);
+        % Draw and fill ramp
+		\filldraw[draw=black, fill=lightgray!25] (A) -- (B) -- (C) -- cycle;
+        % Label length and draw angle
+        \path (A) -- (B) node [midway, below] {$d$}
+		pic[draw, ->, angle radius=40pt,
+		angle eccentricity=0.75, "$\alpha$"]{angle=B--A--C};
+        % Label height
+        \draw (B) -- (C) node [midway, right] {$h$};
+
+        % CAR
+        % Tilt whole car
+        \begin{scope}[scale=0.7, xshift=\rl*0.5 cm, yshift=1.9 cm, rotate=\ra]
+        % \begin{scope}[]
+            
+            % Car height
+            \def\ch{2}
+            % Car length
+            \def\cl{5}
+            % Car body height
+            \def\bh{\ch*0.65}
+            % Roof length
+            \def\rl{\cl*0.6}
+            % Roof height
+            \def\rh{\ch*0.35}
+            % Car tilt angle
+            \def\ct{6}
+            % Tilt body without wheels
+            \begin{scope}[rotate=\ct, yshift=-0.2cm]
+                % Anchor point is southwest
+                \coordinate (b) at (0,0);
+                % Offset to roof and wheels
+                \coordinate (r) at ($(b) +(\cl*0.17,\ch*0.65)$);
+                \coordinate (w) at ($(b) + (\cl*0.25,0)$);
+                % Body
+                \draw[black, fill=black!17, rounded corners=1.2ex, very thick] 
+                (b) -- ++(0,\bh) -- ++(\cl*1/5,0) --  ++(\cl*3/5,0) -- ++(\cl*1/5,-\bh*0.25)
+                -- ++(0, -\bh*0.75) -- (b) -- cycle;
+                % Roof
+                \draw[very thick, rounded corners=0.5ex, fill=black!20!blue!20!white,thick] 
+                (r) -- ++(0.2*\rl,\rh) -- ++(0.5*\rl,0) -- ++(0.3*\rl,-\rh) -- (r);
+				\draw[thick] (r)++(\rl*0.6,0) -- ++(0,\rh);
+                
+                % Car middle point
+                \coordinate (m) at (\cl*0.5, \bh*0.5);
+                \node at (m) {\textbullet};
+                % Line parallel to body
+                \draw (m) -- ++(7,0) coordinate (pb);
+                % Line parallel to ramp
+                \draw[rotate = -\ct] (m) -- ++(7,0) coordinate (pr);
+                % Line parallel to ground
+                \draw[rotate = -\ct-\ra] (m) -- ++(7,0) coordinate (pg);
+                % Draw angles
+                \path (pb) -- (pr)
+                pic[draw, ->, angle radius=60pt, angle eccentricity=1.2, "$\alpha$"] {angle = pg--m--pr}
+                pic[draw, ->, angle radius=80pt, angle eccentricity=1.1, "$\beta$"] {angle = pr--m--pb}
+                pic[draw, ->, angle radius=100pt, angle eccentricity=1.1, "$\theta$"] {angle = pg--m--pb};
+                
+            \end{scope}
+                % Wheels
+                \draw[draw=black,fill=gray!50,thick] (w) circle (.5);
+                \draw[draw=black,fill=gray!50,thick] (w) ++(\cl*0.55,0) circle (.5);
+                % Inner wheels
+                \draw[draw=black,fill=gray!80,semithick] (w) circle (.35);
+                \draw[draw=black,fill=gray!80,semithick] (w) ++(\cl*0.55,0) circle (.35);
+        \end{scope}
+	\end{tikzpicture}
+	\caption{This took forever}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\begin{tikzpicture}[scale=1]
+		% RAMP
+        % Define/Calc ramp parameters
+        % Ramp length
+        \def\rl{5};
+        % Ramp angle [deg]
+        \def\ra{15};
+        % Ramp height
+        \def\rh{{tan(\ra)*\rl}};
+        
+		% Define the points
+		\coordinate (A) at (0,0);
+		\coordinate (B) at ($(A) + (\rl,0)$);
+		\coordinate (C) at ($(B) + (0,\rh)$);
+        % Draw and fill ramp
+		\filldraw[draw=black, fill=lightgray!25] (A) -- (B) -- (C) -- cycle;
+        % Label length and draw angle
+        \path (A) -- (B) node [midway, below] {$d$}
+		pic[draw, ->, angle radius=40pt,
+		angle eccentricity=0.75, "$\alpha$"]{angle=B--A--C};
+        % Label height
+        \draw (B) -- (C) node [midway, right] {$h$};
+		% Ground and helpers
+		\coordinate (D) at ($(A) + (-10,0)$);
+		\draw [thick] (D) -- (A) -- (C);
+
+        % CAR
+        \begin{scope}[scale=0.7]
+            % Car height
+            \def\ch{2}
+            % Car length
+            \def\cl{5}
+            % Car body height
+            \def\bh{\ch*0.65}
+            % Roof length
+            \def\rl{\cl*0.6}
+            % Roof height
+            \def\rh{\ch*0.35}
+            % Car tilt angle
+            \def\ct{6}
+			% Anchor point is southwest
+			\coordinate (b) at ($(D) + (0,0.5)$);
+			% Offset to roof and wheels
+			\coordinate (r) at ($(b) +(\cl*0.17,\ch*0.65)$);
+			\coordinate (w) at ($(b) + (\cl*0.25,0)$);
+
+			% Body
+			\draw[black, fill=black!17, rounded corners=1.2ex, very thick] 
+			(b) -- ++(0,\bh) -- ++(\cl*1/5,0) --  ++(\cl*3/5,0) -- ++(\cl*1/5,-\bh*0.25)
+			-- ++(0, -\bh*0.75) -- (b) -- cycle;
+			% Roof
+			\draw[very thick, rounded corners=0.5ex, fill=black!20!blue!20!white,thick] 
+			(r) -- ++(0.2*\rl,\rh) -- ++(0.5*\rl,0) -- ++(0.3*\rl,-\rh) -- (r);
+			% \draw[thick] ($(r) + (\cl*0.5,\bh)$) -- ++(0,\rh);
+			\draw[thick] (r)++(\rl*0.6,0) -- ++(0,\rh);
+
+			% Wheels
+			\draw[draw=black,fill=gray!50,thick] (w) circle (.5);
+			\draw[draw=black,fill=gray!50,thick] (w) ++(\cl*0.55,0) circle (.5);
+			% Inner wheels
+			\draw[draw=black,fill=gray!80,semithick] (w) circle (.35);
+			\draw[draw=black,fill=gray!80,semithick] (w) ++(\cl*0.55,0) circle (.35);
+			
+			% Lidar
+			\draw[black, fill=red!50] ($(r) + (\cl*0.40,\rh)$) coordinate (le) arc(0:180:0.4) --cycle;
+			
+			% Car middle point
+			\coordinate (m) at (\cl*0.5, \bh*0.5);
+			% Lidar middle point
+			\coordinate (lm) at ($(le) + (-0.39,0.2)$);
+			\node at (lm) {\textbullet};
+
+			\dimline[extension start length=-.07, extension end length=-.07] {($(D)-(0,1)$)}{($(A)-(0,1)$)}{$d$};
+
+			% Laser lines
+			\draw[->,color=red,decorate,decoration={snake,amplitude=.2mm,segment length=1mm,post length=1mm}] (lm) -- (A);
+			\draw[->,color=red,decorate,decoration={snake,amplitude=.2mm,segment length=1mm,post length=1mm}] (lm) -- ($(A)!0.5!(C)$);
+                
+        \end{scope}
+	\end{tikzpicture}
+	\caption{Tikz is hard}
+\end{figure}
