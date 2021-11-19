@@ -184,6 +184,35 @@ Both are mechanical LiDARs and have the same number of laser channels, but the V
 
 \missingfigure{Picture of robosense or/and velodyne}
 
+\subsection{Placement}
+\[ c = h - \frac{z}{\tan \alpha} \]
+
+\begin{figure}
+	\centering
+	\begin{tikzpicture}[scale=1.5]
+		% Define the points
+		\coordinate (A) at (0,0);
+		\coordinate (B) at (5,0);
+		\coordinate (C) at (10,1);
+		\coordinate (C2) at (7,0.45);
+		\coordinate (D) at (10,0);
+		\coordinate (L) at (0,2);
+		% Draw lines between points
+		\draw [thick] (A) -- (B) -- (C);
+		\draw [dotted](A) -- (L);
+		\draw (A) -- (D)
+		pic[draw=gray, <-, angle radius=2cm, 
+		angle eccentricity=1.2, "$\epsilon$"]{angle=D--B--C};
+		% Laser line
+		\draw [dashdotted, red](L) -- (C2);
+		\draw [dashdotted, red](L) -- (C)
+			pic[draw=gray, solid, -> , "$\alpha$"]{angle = A--L--C};
+		% Angle lies at point L and starts at AL and ends at LC
+	\end{tikzpicture}
+	\caption{Tikz is hard}
+\end{figure}
+
+
 \subsection{Odometry}
 \todoin{
   \begin{itemize}
