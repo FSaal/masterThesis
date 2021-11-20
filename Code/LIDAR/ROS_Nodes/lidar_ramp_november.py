@@ -7,8 +7,7 @@ os.environ["MKL_NUM_THREADS"] = "1"
 os.environ["NUMEXPR_NUM_THREADS"] = "1"
 os.environ["OMP_NUM_THREADS"] = "1"
 
-from tf2_sensor_msgs.tf2_sensor_msgs import do_transform_cloud
-from tf.transformations import euler_from_quaternion, euler_matrix, unit_vector, vector_norm, quaternion_from_matrix
+from tf.transformations import euler_from_quaternion, euler_matrix, unit_vector, vector_norm
 from sensor_msgs.msg import PointCloud2
 import sensor_msgs.point_cloud2 as pc2
 from std_msgs.msg import Header, Float32, Float32MultiArray
@@ -22,7 +21,6 @@ class VisualDetection():
     def __init__(self):
         rospy.init_node('visual_detection', anonymous=True)
         # * Change lidar topic depending on used lidar
-        # lidar_topic = '/rslidar_points'
         lidar_topic = '/right/rslidar_points'
         self.sub_lidar = rospy.Subscriber(lidar_topic, PointCloud2, self.callback_lidar, queue_size=10)
         self.pub_angle = rospy.Publisher('/ramp_angle_lidar', Float32, queue_size=10)
@@ -31,13 +29,11 @@ class VisualDetection():
         self.subbed_lidar = False
         # Gets set True if initial tf from lidar to car frame has been performed
         self.calibrated = False
-        self.detect_counter = []
         self.buffer = []
         self.dist_buffer = []
         self.ang_filter = FilterClass()
         self.dist_filter = FilterClass()
-
-
+        
     def callback_lidar(self, msg):
         self.cloud = msg
         self.subbed_lidar = True
@@ -114,11 +110,10 @@ class VisualDetection():
         quat = self.quat_from_vectors(ground_vec_lidar, ground_vec_car)
         # Calculate euler angles
         roll, pitch, yaw = euler_from_quaternion(quat)
-        # TODO: Change from euler rotation to quaternion rotation (its cooler)
 
         print('Euler angles in deg to tf lidar to car frame:')
-        print('Roll: {:05.2f}\nPitch: {:05.2f}\nYaw: {:05.2f}'.format(
-            np.degrees(roll), np.degrees(pitch), np.degrees(yaw)))
+        print('Roll: {:05.2f}\nPitch: {:05.2f}'.format(
+            np.degrees(roll), np.degrees(pitch)))
         return [roll, pitch]
 
     def ground_detection(self, pc):
@@ -179,31 +174,34 @@ class VisualDetection():
     def plane_detection(self, pc, min_points, max_planes):
         """Detects all planes in point cloud
 
-        Iteratively detects most dominant plane and corresponding normal vector of the
-        point cloud until either max_planes amount of iterations have been performed or
-        if not enough points (min_points) are left. After each detection the plane gets
-        removed from the point cloud.
+        Iteratively detects most dominant plane and corresponding normal vector
+        of the point cloud until either max_planes amount of iterations have
+        been performed or if not enough points (min_points) are left. 
+        After each detection the plane gets removed from the point cloud.
 
-        :param pc:          Point cloud (PCL)
-        :param min_points:  At least min_points must be left to continue detection
-        :max_planes:        Max number of planes to detect before exiting (to limit computation time)
+        :param pc:          [PCL] Point cloud
+        :param min_points:  [Int] Min number of points left before exiting
+        :param max_planes:  [Int] Max number of planes to detect before exiting
+        :return (ramp_angle, ramp_distance)
         """
         # Ground vector
         g_vec = None
+        # Count number of iterations
         counter = 0
+        # Initialize ramp angle and distance
+        ramp_stats = (0,0)
         while pc.size > min_points and counter < max_planes:
             # Detect most dominate plane and get inliers and normal vector
             indices, coefficients = self.ransac(pc)
             # Normal vector of plane
             n_vec = coefficients[:-1]
 
-            # Split pointcloud in inliers and outliers of plane
+            # Split pointcloud in outliers of plane and inliers
             pc, plane = self.split_pc(pc, indices)
 
-            # Exit if plane is empty
+            # Exit if plane is empty (RANSAC did not find anything)
             if not plane:
-                print('ERROR: No plane could be detected')
-                return (0, 0, 0)
+                return ramp_stats
     
             # Ignore planes parallel to the side or front walls
             if self.is_plane_near_ground(n_vec):
@@ -212,16 +210,16 @@ class VisualDetection():
                     g_vec = n_vec
                 # Either ground is detected again or potential ramp
                 else:
-                    # Ramp conditions met
+                    # Check if ramp conditions are fullfilled
                     is_ramp, ramp_stats =  self.ramp_detection(
                         plane, g_vec, n_vec, 3, 8, 2, 6)
+                    # Ramp conditions met
                     if is_ramp:
                         return ramp_stats
-                    # Ramp conditions not met (probably ground detected again)
                     else:  
                         continue
             counter += 1
-        return (0, 0, 0)
+        return ramp_stats
 
     def ramp_detection(
             self, plane, g_vec, n_vec, min_angle, max_angle, 
@@ -239,23 +237,17 @@ class VisualDetection():
 
         # Calculate angle [deg] between normal vector of plane and ground
         angle = self.angle_calc(g_vec, n_vec)
-        # Get ramp width (Difference between y-values)
+        # Get ramp width (difference between y-values)
         width = max(plane_array[:, 1]) - min(plane_array[:, 1])
-        # Ramp distance (x-value of nearest point of the plane)
-        dist = min(plane_array[:,0])
-
-        # Better distance calculation: Average of n nearest points instead of 1
+        # Ramp distance (average x-value of nearest points of the plane)
         n_nearest = 10
-        dist_mean = np.mean(np.sort(plane_array[:n_nearest,0]))
+        dist = np.mean(np.sort(plane_array[:n_nearest,0]))
 
         # Assert ramp angle and width thresholds 
         if min_angle <= angle <= max_angle and min_width <= width <= max_width:
-            return True, (angle, dist, dist_mean)
+            return True, (angle, dist)
         else:
-            return False, (angle, dist, dist_mean)
-
-        # ramp_stats = collections.namedtuple('rs', ['ang', 'dist', 'dist_smooth', 'width'])
-        # return False, ramp_stats(angle, dist, dist_mean, width)
+            return False, (angle, dist)
 
     def ransac(self, pc):
         """Find inliers and normal vector of dominant plane"""
@@ -277,10 +269,10 @@ class VisualDetection():
     def split_pc(self, pc, inliers):
         """Extract detected plane from point cloud and split into two pcs
 
-        :param pc:              Point cloud (PCL)
-        :param inliers:         Indices of inliers of plane
-        :return pc_outliers:    PCL point cloud object w/o plane inliers
-        :return detected_plane: List of inlier points
+        :param pc:              [PCL] Point cloud
+        :param inliers:         [List] Indices of inliers of plane
+        :return pc_outliers:    [PCL] Point cloud w/o plane inliers
+        :return detected_plane: [List] Inlier points
         """
         # Get point cooridnates of plane
         detected_plane = [pc[i] for i in inliers]
@@ -308,7 +300,6 @@ class VisualDetection():
         if dot <= 1:
             angle = np.arccos(dot)
         else:
-            print('ERROR: dot product > 1')
             angle = 0
 
         if degrees is True:
