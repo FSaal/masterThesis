@@ -8,14 +8,15 @@
 \subsection{IMU}
 An \gls{imu} is used to track the orientation and position of an object. 
 Common uses are in the aerospace or automotive industry, often in combination with other sensors, to give information about the pose and position of a vehicle. 
-More recently with the invention of MEMS-IMUs \todo{might have to define MEMS here} which allow for a very small form factor at a low cost, IMUs are also used in consumer electronics such as smartphones or fitness tracker. 
+More recently with the invention of \gls{mems} and specifically MEMS-IMUs which allow for a very small form factor at a low cost, IMUs are also used in consumer electronics such as smartphones or fitness tracker. 
 An IMU usually consists of the three following sensors.
-The acceleration is measured using an accelerometer and can be used to determine the velocity the covered distance by integrating once respectively twice.
+The acceleration is measured using an accelerometer and can be used to determine the velocity and the covered distance by integrating once respectively twice.
 The gyroscope gives information about the change of orientation. 
-Often times a magnetometer is used as well, which is able to measure the earth's magnetic field and is used to correct the measurements of the gyroscope. It allows for the determination of the absolute heading, whereas the gyroscope can only measure relative change. But because it is very sensitive to other magnetic objects, it is often omitted.
+Often times a magnetometer is used as well, which is able to measure the earth's magnetic field and is used to correct the measurements of the gyroscope.
+It allows for the determination of the absolute heading, whereas the gyroscope can only measure relative change. But because it is very sensitive to other magnetic objects, it is often omitted.
 IMUs can be typically divided into the two following categories.
 
-In the first type, the stable platform systems, the inertial sensors are mounted such that they are always aligned with the reference frame.
+In the first type, the stable platform systems, the inertial sensors are mounted in such way, that they are always aligned with the reference frame.
 This is achieved using gimbals, which allow movement along all three axes. 
 The gyroscopes on the platform measure the rotation and send them to torque motors, which rotate the gimbals to keep the platform in alignment with the reference frame. 
 The advantage of stable platform systems is that the calculation of orientation and position is straight forward. 
@@ -27,13 +28,14 @@ The second type are strapdown systems, which are mostly used today. \todo{refere
 As the name suggests all the parts are fixed onto the device and are thus not anymore always aligned with the reference frame.
 Advantages are that due to the lack of gimbals and motors a significantly smaller build is possible and lower production costs can be achieved.
 A disadvantage is that the calculation of the orientation and position is more complex, the rate gyroscopes have to be integrated to get the orientation and can then be used to transform the accelerometer signals into the reference frame.
-But with the decrease of computational cost this disadvantages continues to diminish. And even though they are continually improved, the accuracy does not quite match the of strapdown systems.
+But with the decrease of computational cost this disadvantages continues to diminish. And even though they are continually improved, the accuracy does not quite match the of stable platform systems.
 
-There are many different types of gyroscopes and accelerometers such as mechanical, optical or solid state, but only the functionality of \gls{mems} will be described, because those will also be used in the experiment. Information about the working principle of other systems and also much more information about IMUs in general can be found in \cite{Woodman07anintroduction}.
+There are many different types of gyroscopes and accelerometers such as mechanical, optical or solid state, but only the functionality of MEMS will be described, because those will also be used in the experiment.
+Information about the working principle of other systems and also much more information about IMUs in general can be found in \cite{Woodman07anintroduction}.
 
 MEMS consist of electrical and/or mechanical components in the size of \SI{100}{\nano\metre} to \SI{1}{\milli\metre}, allowing for a very small form factor.
 Other characteristics of MEMS are that they can easily be mass produced allowing for low cost and usually also need less power than traditional systems, because everything is integrated on the chip \cite{Shaeffer2013}.
-Almost all consumer grade electronics uses MEMS-IMUs nowadays, but they also find more and more use in non-critical industry segments \cite{Perlmutter2016}.
+Almost all consumer grade electronics uses MEMS-IMUs nowadays, but they also find more and more use in many industry segments, as their accuracy continues to improve \cite{Perlmutter2016}.
 
 \subsubsection{MEMS Accelerometer}
 \begin{figure}[htb]
@@ -46,7 +48,7 @@ Almost all consumer grade electronics uses MEMS-IMUs nowadays, but they also fin
 The accelerometer is used to measure the acceleration.
 Besides dynamic acceleration there is the static and constant gravity acceleration on earth in upward direction. 
 This allows for the determination of one axis of the IMU, even if it is not moving.
-Often times only the dynamic acceleration are of interest, to get them the acceleration data during stand still must be measured and subtracted.
+Often times only the dynamic accelerations are of interest and to get them the acceleration data during stand still must be measured and subtracted.
 The micro structure of a MEMS accelerometer is shown in figure \ref{fig:MEMS_Accelerometer}.
 A mass is suspended by springs along one axis and if an acceleration along this axis occurs, the mass moves in the opposite direction due to Newton's second law.
 The mass has little fingers perpendicular to the moving direction axis, which affect the capacity between the fixed plates.
@@ -91,29 +93,29 @@ Maybe a sentence about idc about problems, because raw measurements are mostly u
 	\caption{Setup of a mechanical spinning Lidar \cite{Li2020}}
 	\label{fig:lidar}
 \end{figure}
-\gls{lidar} or also known as \textbf{L}ight \textbf{I}maging, \textbf{D}etection \textbf{A}nd \textbf{R}anging is a method to measure distance to objects.
-Similar to other systems such as SONAR or RADAR, LIDAR uses the time-of-flight principle.
-A short laser pulse is sent into the environment and the reflected light is analyzed.
-The duration it took from sending to receiving can than be used to calculate the distance with 
-\[ s = v\delta \]
-The intensity and wavelength of the returning light are measured as well and can provide information about the reflectivity of the object (intensity) or the chemical composition of the air (wavelength).
-Common uses of LIDAR are the analysis of earth's atmosphere, 3D mapping of environments or in the field of autonomous driving for object detection, tracking and simultaneous localization and mapping (SLAM).
-Basically all applications which use RADAR can also be used with a LIDAR instead, allowing for a greater accuracy.
+\gls{lidar} is a method to measure distance to objects.
+Similar to other systems such as \gls{sonar} or \gls{radar}, LiDAR uses the time-of-flight principle.
+A short laser pulse with the velocity $v$ is sent into the environment and the reflected light is analyzed.
+The duration $\Delta t$ it took from sending to receiving can then be used to calculate the distance $s$ with 
+\[ s = v\frac{\Delta t}{2}. \]
+The change of intensity and wavelength of the returning light are measured as well and can provide information about the reflectivity of the object (intensity) or the chemical composition of the air (wavelength).
+Common uses of LiDAR are the analysis of earth's atmosphere, 3D mapping of environments or in the field of autonomous driving for object detection, tracking and simultaneous localization and mapping (SLAM).
+Basically all applications which use RADAR can also be used with a LiDAR instead, allowing for a greater accuracy.
 
-There are different LIDAR types but the principles are similar.
+There are different LiDAR types but the principles are similar.
 A transmitter generates a signal and sends it into the environment using a scanning system and a transmission optic.
-As transmitter a laser with a wavelength of \SIrange{850}{950}{\nano\metre} is typically used.
+As transmitter a laser with a wavelength of \SIrange{850}{950}{\nano\metre} (near-infrared) is typically used.
 The scanning system allows the laser to explore a large area instead of only a single point by steering the light at different azimuths and vertical angles and can be divided in mechanical spinning or solid state systems.
 Mechanical spinning systems is the oldest technology and is still mainly used today.
-A mirror which can be rotated around an axis is used, allowing for a greater vertical field of view.
-Also the whole LIDAR base on which the laser is mounted can be rotated independently from the mirror, allowing for a 360° horizontal view.
-To get a sufficient resolution the mirror has to spin at very high speeds, but some LIDARs also use additionally a vertical array of lasers instead of only one to further increase the density of the generated point cloud.
+A mirror which can be rotated around an axis is used, allowing for a greater vertical \gls{fov}.
+Also the whole LiDAR base on which the laser is mounted can be rotated independently from the mirror, allowing for a 360° horizontal FOV.
+To get a sufficient resolution the LiDAR has to spin at a high speed, but some LiDARs also use additionally a vertical array of lasers instead of only one to further increase the density of the generated point cloud.
+The working principle of a LiDAR using the mechanical spinning method is shown in figure \ref{fig:lidar}.
 While mechanical spinning systems are very precise, they are bulky, need a lot of power and are expensive.
-The working principle of a LIDAR using the mechanical spinning method is shown in figure \ref{fig:lidar}.
 
-Solid state systems and especially MEMS try to overcome those problems.
-MEMS LIDAR are quasi-static, the only part that moves is the on the chip embedded mirror, but due to the small size (\SIrange{1}{7}{\milli\metre} diameter) very little power has to be used to move it.
-They can be rotated on up to two axes, but because the laser cannot be rotated a horizontal view of 360° is not possible.
+Solid state systems and especially MEMS LiDARs try to overcome those problems.
+MEMS LiDAR are quasi-static, the only part that moves is the on the chip embedded mirror, but due to the small size (\SIrange{1}{7}{\milli\metre} diameter) very little power has to be used to move it.
+They can be rotated on up to two axes, but because the laser cannot be rotated a horizontal view of 360° is not possible \todo{fact check, might have understood it wrong}.
 But advantages compared to mechanical systems are the smaller former factor and lower cost.
 
 After transmitting the laser signal the reflected light passes through the receiving optic and is received by photodetectors.
@@ -122,12 +124,6 @@ A processing unit then generates a 3D point cloud from all the received measurem
 \itodo{Sort citations and maybe add some more}
 \cite{Wang2020}
 \cite{Vaughan2006}
-\todoin{\begin{itemize}
-		\item What is lidar and where used
-		\item How does it work
-		\item Advantages and disadvantages
-		\item Information about lidar used in experiment
-\end{itemize}}
 
 \section{ROS}
 Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
