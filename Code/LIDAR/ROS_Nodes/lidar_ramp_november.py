@@ -73,25 +73,13 @@ class VisualDetection():
             # self.publish_pc(pc_small.to_list(), 'pc')
 
             # Perform RANSAC until no new planes are being detected
-            ramp_stats = self.plane_detection(pc_small, 100, 4)
+            ramp_angle, ramp_distance = self.plane_detection(pc_small, 100, 4)
+            
+            # Smooth signals
+            avg_angle = self.ang_filter.moving_average(ramp_angle, 5)
+            avg_dist = self.dist_filter.moving_average(ramp_distance, 5)
 
-            # self.buffer.append(ramp_stats)
-            # avg_angle = self.ang_filter.moving_average_zero(ramp_stats[0], 5)
-            # avg_dist = self.dist_filter.moving_average_zero(ramp_stats[2], 5)
-            # # print(x[0][0])
-            # if len(self.buffer) % 5 == 0:
-            #     det = [x for x in self.buffer if x[0] != 0]
-            #     print('Ramp detected in {} out of {} cases'.format(len(det), len(self.buffer)))
-            #     print('Average angle: {}\nAverage distance: {}\n'.format(avg_angle, avg_dist))
-            #     self.buffer = []
-
-            # ang = ramp_stats[0]
-            # ang_f = self.stats_filter.moving_average(ang, 10)
-            # ang_fz = self.stats_filter.moving_average_zero(ang, 10)
-            # ang_fz2 = self.stats_filter.moving_average_zero(ang, 10)
-            # msg = Float32MultiArray(data=[ang, ang_f, ang_fz, ang_fz2])
-            # self.pub_stuff.publish(msg)
-
+            print('{:.2f} vs {:.2f}'.format(avg_angle, avg_dist))
             r.sleep()
             
     def align_lidar(self, pc_array):
@@ -182,13 +170,13 @@ class VisualDetection():
         :param pc:          [PCL] Point cloud
         :param min_points:  [Int] Min number of points left before exiting
         :param max_planes:  [Int] Max number of planes to detect before exiting
-        :return (ramp_angle, ramp_distance)
+        :return:            (ramp angle, distance), (0,0) if no ramp detected
         """
         # Ground vector
         g_vec = None
         # Count number of iterations
         counter = 0
-        # Initialize ramp angle and distance
+        # Standard values for ramp angle and distance if no detection
         ramp_stats = (0,0)
         while pc.size > min_points and counter < max_planes:
             # Detect most dominate plane and get inliers and normal vector
@@ -211,11 +199,11 @@ class VisualDetection():
                 # Either ground is detected again or potential ramp
                 else:
                     # Check if ramp conditions are fullfilled
-                    is_ramp, ramp_stats =  self.ramp_detection(
+                    is_ramp, ramp_ang, ramp_dist =  self.ramp_detection(
                         plane, g_vec, n_vec, 3, 8, 2, 6)
                     # Ramp conditions met
                     if is_ramp:
-                        return ramp_stats
+                        return (ramp_ang, ramp_dist)
                     else:  
                         continue
             counter += 1
@@ -245,9 +233,9 @@ class VisualDetection():
 
         # Assert ramp angle and width thresholds 
         if min_angle <= angle <= max_angle and min_width <= width <= max_width:
-            return True, (angle, dist)
+            return True, angle, dist
         else:
-            return False, (angle, dist)
+            return False, angle, dist
 
     def ransac(self, pc):
         """Find inliers and normal vector of dominant plane"""
@@ -323,7 +311,7 @@ class FilterClass():
         self.values = []
         self.sum = 0
 
-    def moving_average_zero(self, val, window_size):
+    def moving_average(self, val, window_size):
         """Moving average filter, acts as lowpass filter
 
         :param val:         Measured value (scalar)
