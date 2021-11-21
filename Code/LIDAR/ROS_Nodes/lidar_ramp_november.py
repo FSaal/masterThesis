@@ -75,15 +75,15 @@ class VisualDetection():
             # Perform RANSAC until no new planes are being detected
             ramp_stats = self.plane_detection(pc_small, 100, 4)
 
-            self.buffer.append(ramp_stats)
-            avg_angle = self.ang_filter.moving_average_zero(ramp_stats[0], 5)
-            avg_dist = self.dist_filter.moving_average_zero(ramp_stats[2], 5)
-            # print(x[0][0])
-            if len(self.buffer) % 5 == 0:
-                det = [x for x in self.buffer if x[0] != 0]
-                print('Ramp detected in {} out of {} cases'.format(len(det), len(self.buffer)))
-                print('Average angle: {}\nAverage distance: {}\n'.format(avg_angle, avg_dist))
-                self.buffer = []
+            # self.buffer.append(ramp_stats)
+            # avg_angle = self.ang_filter.moving_average_zero(ramp_stats[0], 5)
+            # avg_dist = self.dist_filter.moving_average_zero(ramp_stats[2], 5)
+            # # print(x[0][0])
+            # if len(self.buffer) % 5 == 0:
+            #     det = [x for x in self.buffer if x[0] != 0]
+            #     print('Ramp detected in {} out of {} cases'.format(len(det), len(self.buffer)))
+            #     print('Average angle: {}\nAverage distance: {}\n'.format(avg_angle, avg_dist))
+            #     self.buffer = []
 
             # ang = ramp_stats[0]
             # ang_f = self.stats_filter.moving_average(ang, 10)
@@ -93,7 +93,7 @@ class VisualDetection():
             # self.pub_stuff.publish(msg)
 
             r.sleep()
-
+            
     def align_lidar(self, pc_array):
         """Calculate roll and pitch angle to align Lidar with car frame"""
         # Convert numpy array to pcl point cloud
@@ -317,6 +317,36 @@ class VisualDetection():
         pc = pc2.create_cloud_xyz32(header, pc_list)
         # Publish message
         rospy.Publisher(pub_name, PointCloud2, queue_size=10).publish(pc)
+        
+class FilterClass():
+    def __init__(self):
+        self.values = []
+        self.sum = 0
+
+    def moving_average_zero(self, val, window_size):
+        """Moving average filter, acts as lowpass filter
+
+        :param val:         Measured value (scalar)
+        :param window_size: Window size, how many past values should be considered
+        :return filtered:   Filtered signal
+        """
+        # Only add to average if detection
+        # Because value is zero if no ramp was detected
+        if val != 0:
+            self.values.append(val)
+            self.sum += val
+            # Limit number of values used for filtering
+            if len(self.values) > window_size:
+                self.sum -= self.values.pop(0)
+        # Remove oldest from list if no detection
+        else:
+            if len(self.values) > 0:
+                self.sum -= self.values.pop(0)
+        # Prevent division by zero
+        try:
+            return float(self.sum) / len(self.values)
+        except ZeroDivisionError:
+            return 0
 
 class PerformanceMeasure():
     def __init__(self):
@@ -336,47 +366,9 @@ class PerformanceMeasure():
                 duration, avg_time, 1/avg_time, name))
         self.counter += 1
 
-class FilterClass():
-    def __init__(self):
-        self.values = []
-        self.sum = 0
-
-    def moving_average_zero(self, val, window_size):
-        """Moving average filter, acts as lowpass filter
-
-        :param val:         Measured value (scalar)
-        :param window_size: Window size, how many past values should be considered
-        :return filtered:   Filtered signal
-        """
-        # Only add to average if detection
-        if val != 0:
-            self.values.append(val)
-            self.sum += val
-            if len(self.values) > window_size:
-                self.sum -= self.values.pop(0)
-        # Remove oldest from list if no detection
-        else:
-            if len(self.values) > 0:
-                self.sum -= self.values.pop(0)
-        # Prevent division by zero
-        try:
-            return float(self.sum) / len(self.values)
-        except ZeroDivisionError:
-            return 0
-
-
 if __name__ == "__main__":
     try:
         vd = VisualDetection()
         vd.spin()
     except rospy.ROSInterruptException:
         pass
-
-
-"""
-Information about the rosbag hdl_odom_localize_only.bag:
-50s - 60s driving around corner with straight wall
-75s - 85s driving around other corner with straight wall (to the right is the ramp, but not captured by lidar)
-115s - a ramp is being captured!
-165s - 175s driving to straight wall
-"""
