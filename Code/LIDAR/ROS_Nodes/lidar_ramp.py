@@ -28,7 +28,7 @@ class VisualDetection():
         # Gets set True if lidar topic has started publishing
         self.subbed_lidar = False
         # Gets set True if initial tf from lidar to car frame has been performed
-        self.calibrated = False
+        self.is_calibrated = False
         self.buffer = []
         self.dist_buffer = []
         self.ang_filter = FilterClass()
@@ -50,10 +50,10 @@ class VisualDetection():
             pc_array = ros_numpy.point_cloud2.pointcloud2_to_xyz_array(self.cloud, remove_nans=True)
 
             # Get transformation from lidar to car frame
-            if not self.calibrated:
+            if not self.is_calibrated:
                 # Get euler angles (roll and pitch) to align lidar with car frame
                 self.rp = self.align_lidar(pc_array)
-                self.calibrated = True
+                self.is_calibrated = True
 
             # Apply lidar to car frame transformation (adjust yaw angle manually)
             pc_array_tf = self.transform_pc(pc_array, roll=self.rp[0], pitch=self.rp[1], 
