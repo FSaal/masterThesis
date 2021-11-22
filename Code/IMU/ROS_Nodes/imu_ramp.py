@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-from re import S
 import numpy as np
 from math import isnan
 import rospy
