@@ -121,9 +121,10 @@ class VisualDetection():
 
         # Rotation axis
         ax = c / vector_norm(c)
-        # Rotation angle
+        # Rotation angle (rad)
         a = np.arctan2(vector_norm(c), d)
-        # Quaternion
+        
+        # Quaternion ([x,y,z,w])
         quat = np.append(ax*np.sin(a/2), np.cos(a/2))
         return quat
 

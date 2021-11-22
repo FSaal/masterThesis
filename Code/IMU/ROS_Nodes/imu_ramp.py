@@ -43,6 +43,7 @@ class ImuTransform():
         # Outlier filter
         self.buffer = []
         self.last_change = 0
+        self.s = 0
 
     def callback_imu(self, msg):
         self.lin_acc_msg = [msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z]
@@ -62,27 +63,36 @@ class ImuTransform():
                 lin_acc, ang_vel = self.transform_imu()
                 car_angle = self.pitch_car(lin_acc[0], ang_vel[1])
                 print(car_angle)
-                self.pub_pitch.publish(car_angle)
+                self.is_ramp(car_angle)
+                # print(self.covered_distance())
+                # self.pub_pitch.publish(car_angle)
             r.sleep()
      
-     # TODO: method to calculate covered distance (just integrate velocity)
-     def covered_distance(self):
-         s = 0
-         return s 
+    def covered_distance(self):
+        # Car velocity
+        v = self.vel_from_odom(self.odom_msg)
+        
+        # Get covered distance by integrating with respect to time
+        self.s += v * 1.0/self.rate
+        return self.s
      
-     # TODO: method to determine if car is on a ramp or not
-     # (Use threshold for car angle)
-     def is_ramp(self):
-         return False
+    def is_ramp(self, car_angle):
+        # TODO: Move to fusion node
+         if 3 < car_angle:
+             print('ON A RAMP')
+             print(self.covered_distance())
+             return True
+         else:
+             return False
             
     def align_imu(self):
         # Print calibration msg 1 once and wait for user to start
         if not self.lin_acc and not self.flag:
             print('Welcome to the IMU to car alignment calibration')
             print('In the first step the gravitational acceleration is being measured.')
-            raw_input('Please stand still for {}s.\nIf ready, press enter\n'.format(self.rec_win_g))
+            raw_input('Please stand still for {}s.\nIf ready, press enter'.format(self.rec_win_g))
             # Convert window length from [s] to samples
-            self.rec_win_g = self.rec_win_g*self.f_imu
+            self.rec_win_g = self.rec_win_g * self.rate
 
         # Collect samples
         if len(self.lin_acc) < self.rec_win_g and not self.flag:
@@ -101,11 +111,12 @@ class ImuTransform():
         if self.flag:
             # Print calibration msg 2 once and wait for user to start
             if not self.lin_acc:
-                print('\nIn the second step the yaw angle is being determined.')
+                print('In the second step the yaw angle is being determined.')
                 print('For this please accelerate in a straight line forward.')
-                raw_input('The recording will automatically stop afer {}s.\nIf ready, press enter\n'.format(self.rec_win_fwd))
+                raw_input('The recording will automatically stop after {}s.'.format(self.rec_win_fwd))
+                print('If ready, press enter')
                 # Convert window length from [s] to samples
-                self.rec_win_fwd = self.rec_win_fwd*self.f_odom
+                self.rec_win_fwd = self.rec_win_fwd*self.rate
 
             # Collect samples
             if len(self.lin_acc) < self.rec_win_fwd:
@@ -113,30 +124,30 @@ class ImuTransform():
 
                 if len(self.lin_acc) == self.rec_win_fwd:
                     print('Forward acceleration measured successfully')
-                    self.is_calibrated = True
                     # Second rotation to correct heading
                     tf_imu_car = self.trafo2(self.lin_acc, self.rot_mat1)
+                    # Do not call method
+                    self.is_calibrated = True
                     return tf_imu_car
                 
     def trafo1(self, lin_acc):
-        """Rotation to align IMU measured g-vector with car z-axis
+        """Rotation to align IMU measured g-vector with car z-axis (up)
                 
         :param lin_acc: Linear acceleration while car stands still
         :return:        Rotation matrix
         """
-        self.g_mag = vector_norm(np.mean(lin_acc, axis=0))
-        print('Average linear acceleration magnitude: {}  (should ideally be 9.81)'.format(round(self.g_mag, 2)))
-        g_imu = unit_vector(np.mean(lin_acc, axis=0))
+        # Take average over 2 s
+        lin_acc_avg = np.mean(lin_acc, axis=0)
+        # Magnitude of measured g vector (should be around 9.81)
+        self.g_mag = vector_norm(lin_acc_avg)
+        print('Average linear acceleration magnitude: {:.2f}'.format(self.g_mag))
+        g_imu = unit_vector(lin_acc_avg)
         quat = self.quat_from_vectors(g_imu, self.g_car)
         rot_mat1 = quaternion_matrix(quat)[:3, :3]
         return rot_mat1
 
     def quat_from_vectors(self, vec1, vec2):
         """Quaternion that aligns vec1 to vec2
-
-        :param vec1: A 3d "source" vector
-        :param vec2: A 3d "destination" vector
-        :return quat: A quaternion [x, y, z, w] which when applied to vec1, aligns it with vec2
         """
         a, b = unit_vector(vec1), unit_vector(vec2)
         c = np.cross(a, b)
@@ -144,53 +155,18 @@ class ImuTransform():
 
         # Rotation axis
         ax = c / vector_norm(c)
-        # Rotation angle
+        # Rotation angle (rad)
         a = np.arctan2(vector_norm(c), d)
 
+        # Quaternion ([x,y,z,w])
         quat = np.append(ax*np.sin(a/2), np.cos(a/2))
         return quat
-
-    def pitch_imu(self, lin_acc):
-        """Inclination angle of IMU (0 if cam is facing fwd, 90 if up) 
-
-        :param lin_acc: Linear acceleration vector while car stands still
-        :return: None (print)
-        """
-        g_imu = unit_vector(np.mean(lin_acc, axis=0))
-        g_imu2D = self.rot3Dto2D(g_imu)
-        dot = np.dot([0, -1, 0], g_imu2D)
-        pitch = np.arccos(dot)
-        print('Mount pitch angle in degree: {}'.format(round(np.degrees(pitch), 3)))
-
-    def rot3Dto2D(self, g_imu):
-        """Project 3D vector into yz-plane (of imu)
-
-        Find the rotation angle around z-axis, which makes x-axis parallel to the ground and then apply the
-        rotation to the input vector
-
-        :param g_imu:       (Normed) 3D gravitational linear acceleration vector of the IMU
-        :return g_imu_2D:   Gravitational linear acceleration vector in the yz-plane (because x-value is now almost zero)
-        """
-        cost = 100
-        # Max expected rot angle deviation in deg of x-axis from IMU not being parallel to ground plane
-        ang_error = np.deg2rad(30)
-        ang_precision = 0.1
-        for z_angle in np.arange(-ang_error, ang_error, np.deg2rad(ang_precision)):
-            rot_z = euler_matrix(0, 0, z_angle, 'sxyz')[:3,:3]
-            cost_new = abs(np.inner(rot_z, g_imu).T[0])
-            if cost_new < cost:
-                z_angle_opt = z_angle
-                cost = cost_new
-
-        rot_z = euler_matrix(0, 0, z_angle_opt, 'sxyz')[:3,:3]
-        g_imu_2D = np.inner(rot_z, g_imu).T
-        return g_imu_2D
 
     def trafo2(self, lin_acc, rot_mat1):
         """Second rotation to align IMU with car frame
         
-        Use previously rotated data to correct remaining yaw angle error and combine with previous rotation matrix
-        to get the final rotation matrix
+        Use previously rotated data to correct remaining yaw angle error 
+        and combine with previous rotation matrix to get the final rotation matrix
 
         :param lin_acc:             Linear acceleration while car accelerates
         :param rot_mat1:            Rotation matrix from the first transform step
@@ -229,7 +205,6 @@ class ImuTransform():
                 x_mean_old = x_mean
                 ang_opt = i
 
-        print('Yaw angle was corrected by {} degree'.format(np.degrees(ang_opt)))
         return ang_opt
                 
     def transform_imu(self):
