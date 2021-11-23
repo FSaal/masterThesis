@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""Calculates the pitch and roll angle of lidar (online)"""
 
 # Limit CPU usage (of numpy)
 # ! must be called before importing numpy
@@ -6,15 +7,14 @@ import os
 os.environ["MKL_NUM_THREADS"] = "1"
 os.environ["NUMEXPR_NUM_THREADS"] = "1"
 os.environ["OMP_NUM_THREADS"] = "1"
-
-from tf.transformations import euler_from_quaternion, unit_vector, vector_norm
-from sensor_msgs.msg import PointCloud2
+import numpy as np
+import pcl
 import ros_numpy
 import rospy
-import pcl
-import numpy as np
+from sensor_msgs.msg import PointCloud2
+from tf.transformations import euler_from_quaternion, unit_vector, vector_norm
 
-"""Calculates the pitch and roll angle of lidar (online)"""
+
 class VisualDetection():
 
     def __init__(self):
@@ -27,9 +27,10 @@ class VisualDetection():
             lidar_topic = lidar_topic[1]
         else:
             lidar_topic = lidar_topic[0]
-        self.sub_lidar = rospy.Subscriber(lidar_topic, PointCloud2, self.callback_lidar, queue_size=10)
+        self.sub_lidar = rospy.Subscriber(
+            lidar_topic, PointCloud2, self.callback_lidar, queue_size=10)
         self.flag = False
-        
+
     def callback_lidar(self, msg):
         self.cloud = msg
         self.flag = True
@@ -42,7 +43,8 @@ class VisualDetection():
             if not self.flag:
                 continue
             # Convert PointCloud2 msg to numpy array
-            pc_array = ros_numpy.point_cloud2.pointcloud2_to_xyz_array(self.cloud, remove_nans=True)
+            pc_array = ros_numpy.point_cloud2.pointcloud2_to_xyz_array(
+                self.cloud, remove_nans=True)
 
             # Get transformation from lidar to car frame
             self.align_lidar(pc_array)
@@ -108,7 +110,7 @@ class VisualDetection():
 
 if __name__ == "__main__":
     try:
-        vd = VisualDetection()
-        vd.spin()
+        VD = VisualDetection()
+        VD.spin()
     except rospy.ROSInterruptException:
         pass

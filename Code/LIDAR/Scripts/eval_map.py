@@ -1,17 +1,19 @@
 #!/usr/bin/env python
+""" Publishes the map from the hdl_slam of the rosbag
+ Also publishes a trimmed pointcloud of the groundpoints and ramp region"""
 
-import pcl 
+from __future__ import print_function
+import os
+import glob
+import pcl
 import rospy
 from sensor_msgs.msg import PointCloud2
 import sensor_msgs.point_cloud2 as pc2
 from std_msgs.msg import Header
-import os
-import glob
 import numpy as np
 from tf.transformations import euler_matrix
 
-""" Publishes the map from the hdl_slam of the rosbag
- Also publishes a trimmed pointcloud of the groundpoints and ramp region"""
+
 class EvalMap():
     def __init__(self):
         rospy.init_node('pcd_vis')
@@ -31,7 +33,6 @@ class EvalMap():
         if region:
             x_range, y_range = region
             self.pub_ramp_flag = True
-
 
         # Static publisher of the point cloud map
         while not rospy.is_shutdown():
@@ -54,10 +55,10 @@ class EvalMap():
     def ground_only(self, pc_msg):
         pc_array = np.array(pc_msg)
         # Remove points with z > 0.5 --> leaves mostly the ground points
-        pc_cut = pc_array[pc_array[:,2] < 0.5]
+        pc_cut = pc_array[pc_array[:, 2] < 0.5]
         # pc_array_rot = self.transform_pc(pc_array, yaw=np.deg2rad(0))
 
-        # Convert numpy array to pointcloud msg 
+        # Convert numpy array to pointcloud msg
         pc_ground = pc2.create_cloud_xyz32(self.header, list(pc_cut))
         return pc_ground
 
@@ -65,14 +66,14 @@ class EvalMap():
         pc_array = np.array(pc_msg)
         # Trim down to ramp region
         pc_cut = pc_array[
-            (pc_array[:,2] < 0.5) & 
-            (pc_array[:,0] > x_range[0]) & 
-            (pc_array[:,0] < x_range[1]) &
-            (pc_array[:,1] > y_range[0]) & 
-            (pc_array[:,1] < y_range[1])
-            ] 
+            (pc_array[:, 2] < 0.5) &
+            (pc_array[:, 0] > x_range[0]) &
+            (pc_array[:, 0] < x_range[1]) &
+            (pc_array[:, 1] > y_range[0]) &
+            (pc_array[:, 1] < y_range[1])
+            ]
 
-        # Convert numpy array to pointcloud msg 
+        # Convert numpy array to pointcloud msg
         pc_ramp = pc2.create_cloud_xyz32(self.header, list(pc_cut))
         return pc_ramp
 
@@ -89,13 +90,13 @@ class EvalMap():
         # Map list
         map_list = []
         for b in bag_list:
-            bag_name, ext = b.split(".")
+            bag_name, _ = b.split(".")
             map_name = bag_name + "_map.pcd"
             map_list.append(map_name)
 
         # Ask user what map to load
         print("The map of which bag do you want to see?")
-        for i,v in enumerate(map_list):
+        for i, v in enumerate(map_list):
             print('Enter {} for {}'.format(i, v))
         while True:
             idx = raw_input("Enter now: ")
@@ -110,11 +111,11 @@ class EvalMap():
         pc_map = pcl.load(map_filename)
 
         region = [
-            [[24, 36], [-2.6, 1.5]], 
+            [[24, 36], [-2.6, 1.5]],
             [],
             [],
             [[20, 32], [-1.4, 2.5]],
-            [], 
+            [],
             [],
             [[14.5, 24], [1.5, 5.8]]
             ]
@@ -129,6 +130,7 @@ class EvalMap():
         pc_tf = np.inner(pc, rot)
         return pc_tf
 
+
 if __name__ == '__main__':
-    em = EvalMap()
-    em.spin()
+    EM = EvalMap()
+    EM.spin()

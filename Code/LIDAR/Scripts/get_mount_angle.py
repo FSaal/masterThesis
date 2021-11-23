@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""Calculates the estimated average pitch angle of rosbags (offline)"""
 
 import rosbag
 from tf.transformations import euler_from_quaternion, unit_vector, vector_norm
@@ -8,7 +9,6 @@ import numpy as np
 import glob
 import os
 
-"""Calculates the estimated average pitch angle of rosbags (offline)"""
 class pitchCalc():
     def align_lidar(self, pc_msg):
         """Calculate roll and pitch angle to align Lidar with car frame"""

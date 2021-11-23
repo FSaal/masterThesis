@@ -9,6 +9,7 @@ from tf.transformations import (euler_matrix, quaternion_about_axis, quaternion_
 from sensor_msgs.msg import Imu
 from std_msgs.msg import Float32, Float32MultiArray
 
+
 class ImuRampDetect():
     """Calculate car pitch angle using IMU, decide whether or not car is on
     ramp and if so, measure distance and angle of ramp
@@ -36,14 +37,13 @@ class ImuRampDetect():
         self.wheelbase = 2.631      # eGolf wheelbase [m]
         self.vel_x_car_filt_old = 0 # Initialize previous car velocity (for calc of acceleration)
         self.angle_est = 0          # Initialize previous car pitch angle (for complementary filter)
-        self.dist = 0                  # Travelled distance
+        self.dist = 0               # Travelled distance
 
         # Moving Average Filter
         self.imu_filt_class = FilterClass()
         self.odom_filt_class = FilterClass()
         # Window length, results in a delay of win_len/200 [s]
         self.win_len = 50
-
 
     def callback_imu(self, msg):
         """Get msg from IMU"""
@@ -284,6 +284,7 @@ class FilterClass():
         if len(self.values) > window_size:
             self.sum -= self.values.pop(0)
         return float(self.sum) / len(self.values)
+
 
 if __name__ == "__main__":
     IRD = ImuRampDetect()

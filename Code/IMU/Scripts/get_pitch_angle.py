@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
 import rospy
-import sys
 import numpy as np
 from sensor_msgs.msg import Imu
-from std_msgs.msg import String, Float32, Float32MultiArray
+from std_msgs.msg import Float32, Float32MultiArray
 from tf.transformations import unit_vector, vector_norm, euler_matrix, quaternion_matrix
 
-class ImuTransform():
+
+class PitchAngle():
 
     def __init__(self):
         """
@@ -34,29 +34,16 @@ class ImuTransform():
         # self.odom_filt_class = FilterClass()
         self.smooth_angle = FilterClass()
 
-
     def callback_imu(self, msg):
         acc_msg = [msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z]
 
-        # if not self.lin_acc and not self.flag:
-        #     print('Welcome to the IMU to car alignment calibration')
-        #     raw_input('In the first step the gravitational acceleration is being measured. Please stand still for {0}s.\nIf ready, press enter\n'.format(self.rec_win_g/100.0))
-
-        # if len(self.lin_acc) < self.rec_win_g  and not self.flag:
-        #     self.lin_acc.append(acc_msg)
-
-        #     if len(self.lin_acc) == self.rec_win_g:
-        #         print('Gravity acceleration measured successfully')
-                # First rotation to align "g-axis" of IMU with z-axis of car
-        # self.rot_mat1 = self.trafo1(acc_msg)
-        # self.rot_mat1 = self.trafo1(self.lin_acc)
         # Get mount pitch angle
         pitch_angle = self.pitch_imu(acc_msg)
         pitch_angle_smooth = self.smooth_angle.moving_average(pitch_angle, 10)
         if self.counter % 100 == 0:
             print('Average of last 1s: {}'.format(pitch_angle_smooth))
         self.counter += 1
-   
+
     def spin(self):
         self.rate = 100
         r = rospy.Rate(self.rate)
@@ -67,13 +54,13 @@ class ImuTransform():
             r.sleep()
 
     def trafo1(self, lin_acc):
-        """ Find quaternion to rotate IMU frame such that only the z-axis measures the gravitational acceleration
+        """ Find quaternion to rotate IMU frame such that only the z-axis measures
+            the gravitational acceleration
         :param lin_acc: Linear acceleration while car stands still
         :return:        Rotation matrix
         """
         # self.g_mag = vector_norm(np.mean(lin_acc, axis=0))
         self.g_mag = vector_norm(lin_acc, axis=0)
-        # print('Average linear acceleration magnitude: {}  (should ideally be 9.81)'.format(round(self.g_mag, 2)))
         # g_imu = unit_vector(np.mean(lin_acc, axis=0))
         g_imu = unit_vector(lin_acc, axis=0)
         quat = self.quat_from_vectors(g_imu, self.g_car)
@@ -122,15 +109,16 @@ class ImuTransform():
         ang_error = np.deg2rad(30)
         ang_precision = 0.1
         for z_angle in np.arange(-ang_error, ang_error, np.deg2rad(ang_precision)):
-            rot_z = euler_matrix(0, 0, z_angle, 'sxyz')[:3,:3]
+            rot_z = euler_matrix(0, 0, z_angle, 'sxyz')[:3, :3]
             cost_new = abs(np.inner(rot_z, g_imu).T[0])
             if cost_new < cost:
                 z_angle_opt = z_angle
                 cost = cost_new
 
-        rot_z = euler_matrix(0, 0, z_angle_opt, 'sxyz')[:3,:3]
+        rot_z = euler_matrix(0, 0, z_angle_opt, 'sxyz')[:3, :3]
         g_imu_2D = np.inner(rot_z, g_imu).T
         return g_imu_2D
+
 
 class FilterClass():
     def __init__(self):
@@ -144,6 +132,7 @@ class FilterClass():
             self.sum -= self.values.pop(0)
         return float(self.sum) / len(self.values)
 
+
 if __name__ == "__main__":
-    tf = ImuTransform()
-    tf.spin()
+    PA = PitchAngle()
+    PA.spin()

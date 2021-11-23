@@ -16,6 +16,7 @@ os.environ["NUMEXPR_NUM_THREADS"] = "1"
 os.environ["OMP_NUM_THREADS"] = "1"
 import numpy as np
 
+
 class VisualDetection():
     """Detect ramps using LIDAR, get angle and distance to ramp"""
     def __init__(self):
@@ -318,6 +319,7 @@ class VisualDetection():
         # Publish message
         rospy.Publisher(pub_name, PointCloud2, queue_size=10).publish(pc)
 
+
 class FilterClass():
     """Filters a signal"""
     def __init__(self):
@@ -349,6 +351,7 @@ class FilterClass():
         except ZeroDivisionError:
             return 0
 
+
 class PerformanceMeasure():
     """Can be used to measure time between two statements"""
     def __init__(self):
@@ -368,6 +371,7 @@ class PerformanceMeasure():
             print('Took {:.5f}s and on average {:.5}s which is {:5.4}Hz - {}'.format(
                 duration, avg_time, 1/avg_time, name))
         self.counter += 1
+
 
 if __name__ == "__main__":
     try:
