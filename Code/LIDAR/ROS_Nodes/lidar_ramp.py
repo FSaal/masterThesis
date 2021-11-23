@@ -1,28 +1,29 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+import pcl
+import ros_numpy
+import rospy
+from sensor_msgs.msg import PointCloud2
+import sensor_msgs.point_cloud2 as pc2
+from std_msgs.msg import Header, Float32, Float32MultiArray
+from tf.transformations import euler_from_quaternion, euler_matrix, unit_vector, vector_norm
 # Limit CPU usage (of numpy)
 # ! must be called before importing numpy
 import os
 os.environ["MKL_NUM_THREADS"] = "1"
 os.environ["NUMEXPR_NUM_THREADS"] = "1"
 os.environ["OMP_NUM_THREADS"] = "1"
-
-from tf.transformations import euler_from_quaternion, euler_matrix, unit_vector, vector_norm
-from sensor_msgs.msg import PointCloud2
-import sensor_msgs.point_cloud2 as pc2
-from std_msgs.msg import Header, Float32, Float32MultiArray
-import ros_numpy
-import rospy
-import pcl
 import numpy as np
 
 class VisualDetection():
-
+    """Detect ramps using LIDAR, get angle and distance to ramp"""
     def __init__(self):
         rospy.init_node('visual_detection', anonymous=True)
         # * Change lidar topic depending on used lidar
         lidar_topic = '/right/rslidar_points'
-        self.sub_lidar = rospy.Subscriber(lidar_topic, PointCloud2, self.callback_lidar, queue_size=10)
+        self.sub_lidar = rospy.Subscriber(
+            lidar_topic, PointCloud2, self.callback_lidar, queue_size=10)
         self.pub_angle = rospy.Publisher('/ramp_angle_lidar', Float32, queue_size=10)
         self.pub_stuff = rospy.Publisher('/some_stats', Float32MultiArray, queue_size=10)
         # Gets set True if lidar topic has started publishing
@@ -33,12 +34,14 @@ class VisualDetection():
         self.dist_buffer = []
         self.ang_filter = FilterClass()
         self.dist_filter = FilterClass()
-        
+
     def callback_lidar(self, msg):
+        """Get msg from LIDAR"""
         self.cloud = msg
         self.subbed_lidar = True
 
     def spin(self):
+        """Run node until crash or user exit"""
         # Robosense Lidar has a rate of 10 Hz, set rate of node to the same
         r = rospy.Rate(10)
 
@@ -52,18 +55,16 @@ class VisualDetection():
             # Get transformation from lidar to car frame
             if not self.is_calibrated:
                 # Get euler angles (roll and pitch) to align lidar with car frame
-                self.rp = self.align_lidar(pc_array)
+                roll, pitch = self.align_lidar(pc_array)
                 self.is_calibrated = True
 
             # Apply lidar to car frame transformation (adjust yaw angle manually)
-            pc_array_tf = self.transform_pc(pc_array, roll=self.rp[0], pitch=self.rp[1], 
-                yaw=0, transl_x=-1.944)
+            pc_array_tf = self.transform_pc(pc_array, rpy=(roll, pitch, 0), transl_x=-1.944)
 
             # Filter unwanted points (to reduce point cloud size) with passthrough filter
-            # TODO: Check if Points further than 30m have intensity less than 10%
             # * Max Range of lidar is 100m (30m @ 10% NIST)
-            pc_array_cut = self.reduce_pc(pc_array_tf, 0, 30, -3.5, 3.5, -1, 1.5)
-                
+            pc_array_cut = self.reduce_pc(pc_array_tf, (0, 30), (-3.5, 3.5), (-1, 1.5))
+
             # Convert numpy array to pcl object
             pc_cut = pcl.PointCloud()
             pc_cut.from_array(pc_array_cut.astype('float32'))
@@ -74,14 +75,14 @@ class VisualDetection():
 
             # Perform RANSAC until no new planes are being detected
             ramp_angle, ramp_distance = self.plane_detection(pc_small, 100, 4)
-            
+
             # Smooth signals
             avg_angle = self.ang_filter.moving_average(ramp_angle, 5)
             avg_dist = self.dist_filter.moving_average(ramp_distance, 5)
 
             print('{:.2f} vs {:.2f}'.format(avg_angle, avg_dist))
             r.sleep()
-            
+
     def align_lidar(self, pc_array):
         """Calculate roll and pitch angle to align Lidar with car frame"""
         # Convert numpy array to pcl point cloud
@@ -90,19 +91,19 @@ class VisualDetection():
 
         # Get normal vector of ground plane
         ground_vec_lidar = self.ground_detection(pc)
-        # Normal vector ground plane in car frame 
+        # Normal vector ground plane in car frame
         # (assuming car stands on a flat surface)
         ground_vec_car = [0, 0, 1]
 
         # Quaternion to align lidar vec to car vec
         quat = self.quat_from_vectors(ground_vec_lidar, ground_vec_car)
         # Calculate euler angles
-        roll, pitch, yaw = euler_from_quaternion(quat)
+        roll, pitch, _ = euler_from_quaternion(quat)
 
         print('Euler angles in deg to tf lidar to car frame:')
         print('Roll: {:05.2f}\nPitch: {:05.2f}'.format(
             np.degrees(roll), np.degrees(pitch)))
-        return [roll, pitch]
+        return (roll, pitch)
 
     def ground_detection(self, pc):
         """Detect ground plane and get normal vector"""
@@ -112,7 +113,8 @@ class VisualDetection():
         ground_vec = coefficients[:-1]
         return ground_vec
 
-    def quat_from_vectors(self, vec1, vec2):
+    @staticmethod
+    def quat_from_vectors(vec1, vec2):
         """Quaternion that aligns vec1 to vec2"""
         # Normalize vectors
         a, b = unit_vector(vec1), unit_vector(vec2)
@@ -120,16 +122,19 @@ class VisualDetection():
         d = np.dot(a, b)
 
         # Rotation axis
-        ax = c / vector_norm(c)
+        axis = c / vector_norm(c)
         # Rotation angle (rad)
-        a = np.arctan2(vector_norm(c), d)
-        
+        ang = np.arctan2(vector_norm(c), d)
+
         # Quaternion ([x,y,z,w])
-        quat = np.append(ax*np.sin(a/2), np.cos(a/2))
+        quat = np.append(axis*np.sin(ang/2), np.cos(ang/2))
         return quat
 
-    def transform_pc(self, pc, roll=0, pitch=0, yaw=0, transl_x=1.753, transl_y=0, transl_z=1.156):
+    @staticmethod
+    def transform_pc(pc, rpy=(0, 0, 0), transl_x=1.753, transl_y=0, transl_z=1.156):
         """Transformation from Lidar frame to car frame. Rotation in rad and translation in m."""
+        # Extract euler angles
+        roll, pitch, yaw = rpy
         # Rotation matrix
         rot = euler_matrix(roll, pitch, yaw, 'sxyz')[:3, :3]
         # Apply rotation
@@ -140,19 +145,22 @@ class VisualDetection():
         pc_tf += translation
         return pc_tf
 
-    def reduce_pc(self, pc, x_lower, x_upper, y_lower, y_upper, z_lower, z_upper):
+    @staticmethod
+    def reduce_pc(pc, x_range, y_range, z_range):
         """Removes points outside of box"""
+        # Filter array
         pc_cut = pc[
-            (pc[:, 0] > x_lower) & 
-            (pc[:, 0] < x_upper) & 
-            (pc[:, 1] > y_lower) & 
-            (pc[:, 1] < y_upper) & 
-            (pc[:, 2] > z_lower) & 
-            (pc[:, 2] < z_upper)
+            (pc[:, 0] > x_range[0]) &
+            (pc[:, 0] < x_range[1]) &
+            (pc[:, 1] > y_range[0]) &
+            (pc[:, 1] < y_range[1]) &
+            (pc[:, 2] > z_range[0]) &
+            (pc[:, 2] < z_range[1])
             ]
         return pc_cut
 
-    def voxel_filter(self, pc, leaf_size):
+    @staticmethod
+    def voxel_filter(pc, leaf_size):
         """Downsample point cloud using voxel filter"""
         vgf = pc.make_voxel_grid_filter()
         # Leaf_size is the length of the side of the voxel cube in m
@@ -165,7 +173,7 @@ class VisualDetection():
 
         Iteratively detects most dominant plane and corresponding normal vector
         of the point cloud until either max_planes amount of iterations have
-        been performed or if not enough points (min_points) are left. 
+        been performed or if not enough points (min_points) are left.
         After each detection the plane gets removed from the point cloud.
 
         :param pc:          [PCL] Point cloud
@@ -178,7 +186,7 @@ class VisualDetection():
         # Count number of iterations
         counter = 0
         # Standard values for ramp angle and distance if no detection
-        ramp_stats = (0,0)
+        ramp_stats = (0, 0)
         while pc.size > min_points and counter < max_planes:
             # Detect most dominate plane and get inliers and normal vector
             indices, coefficients = self.ransac(pc)
@@ -191,7 +199,7 @@ class VisualDetection():
             # Exit if plane is empty (RANSAC did not find anything)
             if not plane:
                 return ramp_stats
-    
+
             # Ignore planes parallel to the side or front walls
             if self.is_plane_near_ground(n_vec):
                 # First ground like detection is most probably the ground
@@ -200,22 +208,21 @@ class VisualDetection():
                 # Either ground is detected again or potential ramp
                 else:
                     # Check if ramp conditions are fullfilled
-                    is_ramp, ramp_ang, ramp_dist =  self.ramp_detection(
-                        plane, g_vec, n_vec, 3, 8, 2, 6)
+                    is_ramp, ramp_ang, ramp_dist = self.ramp_detection(
+                        plane, g_vec, n_vec, (3, 8), (2, 6))
                     # Ramp conditions met
                     if is_ramp:
                         return (ramp_ang, ramp_dist)
-                    else:  
+                    else:
                         continue
             counter += 1
         return ramp_stats
 
     def ramp_detection(
-            self, plane, g_vec, n_vec, min_angle, max_angle, 
-            min_width, max_width, logging=False):
+            self, plane, g_vec, n_vec, angle_range, width_range):
         """Checks if conditions to be considered a ramp are fullfilled.
-        
-        The following values of the plane are being calculated and 
+
+        The following values of the plane are being calculated and
         checked whether they lie within the desired range:
         - angle (calculated between normal vec of ground_plane and this plane)
         - width
@@ -230,15 +237,16 @@ class VisualDetection():
         width = max(plane_array[:, 1]) - min(plane_array[:, 1])
         # Ramp distance (average x-value of nearest points of the plane)
         n_nearest = 10
-        dist = np.mean(np.sort(plane_array[:n_nearest,0]))
+        dist = np.mean(np.sort(plane_array[:n_nearest, 0]))
 
-        # Assert ramp angle and width thresholds 
-        if min_angle <= angle <= max_angle and min_width <= width <= max_width:
+        # Assert ramp angle and width thresholds
+        if (angle_range[0] <= angle <= angle_range[1] and
+                width_range[0] <= width <= width_range[1]):
             return True, angle, dist
-        else:
-            return False, angle, dist
+        return False, angle, dist
 
-    def ransac(self, pc):
+    @staticmethod
+    def ransac(pc):
         """Find inliers and normal vector of dominant plane"""
         # 50?
         seg = pc.make_segmenter_normals(50)
@@ -255,7 +263,8 @@ class VisualDetection():
         indices, coefficients = seg.segment()
         return indices, coefficients
 
-    def split_pc(self, pc, inliers):
+    @staticmethod
+    def split_pc(pc, inliers):
         """Extract detected plane from point cloud and split into two pcs
 
         :param pc:              [PCL] Point cloud
@@ -274,12 +283,14 @@ class VisualDetection():
 
         return pc_outliers, detected_plane
 
-    def is_plane_near_ground(self, v, threshold=0.8):
+    @staticmethod
+    def is_plane_near_ground(v, threshold=0.8):
         """Returns True if plane is on the ground (and false if e.g. side wall)"""
         # z-axis points up
         return abs(v[2]) > threshold
 
-    def angle_calc(self, v1, v2, degrees=True):
+    @staticmethod
+    def angle_calc(v1, v2, degrees=True):
         """Calculate angle between two vectors (planes)"""
         # Assuming both vectors can be rotated alongside one axis to be aligned
         dot = np.dot(v1, v2)
@@ -293,10 +304,10 @@ class VisualDetection():
 
         if degrees is True:
             return np.degrees(angle)
-        else:
-            return angle
+        return angle
 
-    def publish_pc(self, pc_list, pub_name):
+    @staticmethod
+    def publish_pc(pc_list, pub_name):
         """Publishes a point cloud from point list"""
         # Initialize pc2 msg
         header = Header()
@@ -306,8 +317,9 @@ class VisualDetection():
         pc = pc2.create_cloud_xyz32(header, pc_list)
         # Publish message
         rospy.Publisher(pub_name, PointCloud2, queue_size=10).publish(pc)
-        
+
 class FilterClass():
+    """Filters a signal"""
     def __init__(self):
         self.values = []
         self.sum = 0
@@ -329,7 +341,7 @@ class FilterClass():
                 self.sum -= self.values.pop(0)
         # Remove oldest from list if no detection
         else:
-            if len(self.values) > 0:
+            if self.values:
                 self.sum -= self.values.pop(0)
         # Prevent division by zero
         try:
@@ -338,11 +350,13 @@ class FilterClass():
             return 0
 
 class PerformanceMeasure():
+    """Can be used to measure time between two statements"""
     def __init__(self):
         self.total_time = 0
         self.counter = 1
 
     def performance_calc(self, start_time, name=""):
+        """Prints the time"""
         end = rospy.get_time()
         duration = end - start_time
         self.total_time += duration
@@ -357,7 +371,7 @@ class PerformanceMeasure():
 
 if __name__ == "__main__":
     try:
-        vd = VisualDetection()
-        vd.spin()
+        VD = VisualDetection()
+        VD.spin()
     except rospy.ROSInterruptException:
         pass
