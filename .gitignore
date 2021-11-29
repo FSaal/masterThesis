@@ -415,3 +415,4 @@ TSWLatexianTemp*
 # VS Code workspace
 *.code-workspace
 .sync.ffs_db
+.vscode/settings.json
