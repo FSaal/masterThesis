@@ -28,7 +28,7 @@ Complementary filter
         \def\ra{15};
         % Ramp height
         \def\rh{{tan(\ra)*\rl}};
-        
+
 		% Define the points
 		\coordinate (A) at (0,0);
 		\coordinate (B) at ($(A) + (\rl,0)$);
@@ -46,7 +46,7 @@ Complementary filter
         % Tilt whole car
         \begin{scope}[scale=0.7, xshift=\rl*0.5 cm, yshift=1.9 cm, rotate=\ra]
         % \begin{scope}[]
-            
+
             % Car height
             \def\ch{2}
             % Car length
@@ -67,14 +67,14 @@ Complementary filter
                 \coordinate (r) at ($(b) +(\cl*0.17,\ch*0.65)$);
                 \coordinate (w) at ($(b) + (\cl*0.25,0)$);
                 % Body
-                \draw[black, fill=black!17, rounded corners=1.2ex, very thick] 
+                \draw[black, fill=black!17, rounded corners=1.2ex, very thick]
                 (b) -- ++(0,\bh) -- ++(\cl*1/5,0) --  ++(\cl*3/5,0) -- ++(\cl*1/5,-\bh*0.25)
                 -- ++(0, -\bh*0.75) -- (b) -- cycle;
                 % Roof
-                \draw[very thick, rounded corners=0.5ex, fill=black!20!blue!20!white,thick] 
+                \draw[very thick, rounded corners=0.5ex, fill=black!20!blue!20!white,thick]
                 (r) -- ++(0.2*\rl,\rh) -- ++(0.5*\rl,0) -- ++(0.3*\rl,-\rh) -- (r);
 				\draw[thick] (r)++(\rl*0.6,0) -- ++(0,\rh);
-                
+
                 % Car middle point
                 \coordinate (m) at (\cl*0.5, \bh*0.5);
                 \node at (m) {\textbullet};
@@ -89,7 +89,7 @@ Complementary filter
                 pic[draw, ->, angle radius=60pt, angle eccentricity=1.2, "$\alpha$"] {angle = pg--m--pr}
                 pic[draw, ->, angle radius=80pt, angle eccentricity=1.1, "$\beta$"] {angle = pr--m--pb}
                 pic[draw, ->, angle radius=100pt, angle eccentricity=1.1, "$\theta$"] {angle = pg--m--pb};
-                
+
             \end{scope}
                 % Wheels
                 \draw[draw=black,fill=gray!50,thick] (w) circle (.5);
@@ -99,7 +99,7 @@ Complementary filter
                 \draw[draw=black,fill=gray!80,semithick] (w) ++(\cl*0.55,0) circle (.35);
         \end{scope}
 	\end{tikzpicture}
-	\caption{This took forever}
+	\caption{Car driving on a ramp. Due to forward acceleration the car tilts back.}
 \end{figure}
 
 \section{IMU + Odometer}
@@ -120,7 +120,7 @@ Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod 
         \def\ra{15};
         % Ramp height
         \def\rh{{tan(\ra)*\rl}};
-        
+
 		% Define the points
 		\coordinate (A) at (0,0);
 		\coordinate (B) at ($(A) + (\rl,0)$);
@@ -156,11 +156,11 @@ Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod 
 			\coordinate (w) at ($(b) + (\cl*0.25,0)$);
 
 			% Body
-			\draw[black, fill=black!17, rounded corners=1.2ex, very thick] 
+			\draw[black, fill=black!17, rounded corners=1.2ex, very thick]
 			(b) -- ++(0,\bh) -- ++(\cl*1/5,0) --  ++(\cl*3/5,0) -- ++(\cl*1/5,-\bh*0.25)
 			-- ++(0, -\bh*0.75) -- (b) -- cycle;
 			% Roof
-			\draw[very thick, rounded corners=0.5ex, fill=black!20!blue!20!white,thick] 
+			\draw[very thick, rounded corners=0.5ex, fill=black!20!blue!20!white,thick]
 			(r) -- ++(0.2*\rl,\rh) -- ++(0.5*\rl,0) -- ++(0.3*\rl,-\rh) -- (r);
 			% \draw[thick] ($(r) + (\cl*0.5,\bh)$) -- ++(0,\rh);
 			\draw[thick] (r)++(\rl*0.6,0) -- ++(0,\rh);
@@ -171,10 +171,10 @@ Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod 
 			% Inner wheels
 			\draw[draw=black,fill=gray!80,semithick] (w) circle (.35);
 			\draw[draw=black,fill=gray!80,semithick] (w) ++(\cl*0.55,0) circle (.35);
-			
+
 			% Lidar
 			\draw[black, fill=red!50] ($(r) + (\cl*0.40,\rh)$) coordinate (le) arc(-10:180:0.4) --cycle;
-			
+
 			% Car middle point
 			\coordinate (m) at (\cl*0.5, \bh*0.5);
 			% Lidar middle point
