@@ -9,16 +9,69 @@ Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod 
 At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
 
 \section{IMU only}
+\subsection{Calibration}
+\todoin{Strucutre:
+\begin{itemize}
+    \item Problem: Measurements are in IMU frame, but we want them in car frame
+    \item Solution p1: Rotate such that both z axes align (up)
+    \item Solution p2:
+\end{itemize}}
+
+\dots IMU (device) frame $\mathcal{I}$ has to be aligned with the car frame $\mathcal{C}$.
+
 \begin{equation}
-	ABC\subInd{abc}
+    { }_{\mathcal{I}}^{\mathcal{C}} \mathbf{p}
 \end{equation}
-Complementary filter
 \begin{equation}
-	\theta = (1-\alpha)(\theta + gyrData\cdot dt) + \alpha(accData)
+    { }_{\text{car}}^{\text{imu}} \mathbf{p}
+\end{equation}
+which means "p-$\mathcal{C} \text{ in } \mathcal{I}-\text{coordinates}$"
+
+A rotation matrix ${ }_{\mathcal{C}}^{\mathcal{I}}\mathbf{M}$ that transforms the measurements ${}_{\mathcal{I}}\mathbf{p}$ from the IMU frame to the car frame
+\begin{equation}
+    { }_{\mathcal{C}}\mathbf{p} = { }_{\mathcal{C}}^{\mathcal{I}}\mathbf{M} {}_{\mathcal{I}}\mathbf{p} \quad \forall_{\mathcal{I}} \mathbf{p} \in \mathbb{R}^{3}
 \end{equation}
 
+According to Euler's rotation theorem, which says that any abritary rotation of a rigid body while holding one point (origin) fixed can be achieved by a rotation around a single fixed axis passing through the origin
+The rotation axis is perpendicular to both axes
+\begin{equation}
+    \vb{j} = \frac{\vb{c}}{\norm{\vb{c}}}
+\end{equation}
+with
+\begin{equation}
+    \vb{c} = \vb{a}\cp\vb{b}
+\end{equation}
+and rotation angle
+\begin{equation}
+    \alpha = \arctan(\norm{\vb{c}}, \vb{d})
+\end{equation}
+with
+\begin{equation}
+    \vb{d} = \vb{a}\cdot\vb{b}
+\end{equation}
+
+During standstill, the only measurable acceleration should be the gravity acceleration.
+As a first step, the coordinate frame of the IMU will be rotated in such way, that the gravity axis of the IMU frame aligns with the z axis of the car frame.
+A vector $v1$ can be aligned with vector $v2$ using
+\begin{equation}
+    q = \frac{\hat{v_1}\hat{v_2}}{123}
+\end{equation}
+with
+\begin{equation}
+    \hat{v_1} = \frac{\vec{v_1}}{\left|\vec{v_1}\right|}
+ \end{equation}
+ being the unit vector
+
+$$ax = \frac{g_\mathrm{imu}\cdot g_\mathrm{car}}{\lVert g_\mathrm{imu}\times g_\mathrm{car} \rVert}$$
+and the needed rotation angle
+$$\alpha = \arctan\left(\frac{\lVert g_\mathrm{imu}\times g_\mathrm{car}\rVert}{g_\mathrm{imu}\cdot g_\mathrm{car}}\right) $$
+which then leads to the following quaternion $$q=[ax\cdot\sin(\frac{\alpha}{2}),\quad \cos(\frac{\alpha}{2})]$$
+
+\missingfigure{Coordinate frame of car (standing on flat ground) and IMU}
+
+
 \begin{figure}[htpb]
-	\centering
+    \centering
 	\begin{tikzpicture}[scale=1]
 		% RAMP
         % Define/Calc ramp parameters
@@ -45,7 +98,6 @@ Complementary filter
         % CAR
         % Tilt whole car
         \begin{scope}[scale=0.7, xshift=\rl*0.5 cm, yshift=1.9 cm, rotate=\ra]
-        % \begin{scope}[]
 
             % Car height
             \def\ch{2}
@@ -59,6 +111,7 @@ Complementary filter
             \def\rh{\ch*0.35}
             % Car tilt angle
             \def\ct{6}
+
             % Tilt body without wheels
             \begin{scope}[rotate=\ct, yshift=-0.2cm]
                 % Anchor point is southwest
@@ -89,8 +142,8 @@ Complementary filter
                 pic[draw, ->, angle radius=60pt, angle eccentricity=1.2, "$\alpha$"] {angle = pg--m--pr}
                 pic[draw, ->, angle radius=80pt, angle eccentricity=1.1, "$\beta$"] {angle = pr--m--pb}
                 pic[draw, ->, angle radius=100pt, angle eccentricity=1.1, "$\theta$"] {angle = pg--m--pb};
-
             \end{scope}
+
                 % Wheels
                 \draw[draw=black,fill=gray!50,thick] (w) circle (.5);
                 \draw[draw=black,fill=gray!50,thick] (w) ++(\cl*0.55,0) circle (.5);
@@ -101,6 +154,11 @@ Complementary filter
 	\end{tikzpicture}
 	\caption{Car driving on a ramp. Due to forward acceleration the car tilts back.}
 \end{figure}
+
+Complementary filter
+\begin{equation}
+	\theta = (1-\alpha)(\theta + gyrData\cdot dt) + \alpha(accData)
+\end{equation}
 
 \section{IMU + Odometer}
 Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
