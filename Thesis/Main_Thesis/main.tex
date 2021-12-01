@@ -40,6 +40,12 @@
 \newcommand{\todoin}[2][]{\todo[inline, caption={2do}, #1]{
 		\begin{minipage}{\textwidth-4pt}#2\end{minipage}}}
 \newcommand{\todoFig}[1]{\\\color{red}{\textbf{TODO: }}#1}
+% Vector #1 in coordinate frame #2
+\newcommand{\vincs}[2]{\ensuremath{{}^{\mathcal{\MakeUppercase{#2}}}\mathbf{{#1}}}}
+% Quaternion to transform from cs #1 to cs #2
+\newcommand{\qtf}[2]{\ensuremath{{}_{\mathcal{\MakeUppercase{#2}}}^{\mathcal{\MakeUppercase{#1}}}\mathbf{{q}}}}
+% Rotation matrix to transform from cs #1 to cs #2
+\newcommand{\mtf}[2]{\ensuremath{{}_{\mathcal{\MakeUppercase{#2}}}^{\mathcal{\MakeUppercase{#1}}}\mathbf{{M}}}}
 
 % Start document and load all parts
 \input{Frontmatter/Glossary.tex}
