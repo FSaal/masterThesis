@@ -11,22 +11,25 @@ At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergr
 \section{IMU only}
 \subsection{Calibration}
 Because the measurements of the IMU are measured in the coordinate frame of the IMU $\mathcal{I}$, which is not aligned with the car frame $\mathcal{C}$, they have to be transformed.
-This can be achieved using a rotation matrix \mtf{i}{c} which transforms the measurements of the linear acceleration $\vincs{A}{I} \in \mathbb{R}^{n\times3}$ and angular velocity ${\vincs{V}{I} \in \mathbb{R}^{n\times3}}$ into the car frame. $n$ are the number of measurements.\\
-During standstill, the only measurable acceleration should be the gravity acceleration.
-Assuming the car stands on flat ground, the measured acceleration in the car frame should be pointing straight up in z-direction.
-The measured linear acceleration in the IMU frame should be equal to the gravity acceleration and thus can be normed and rotated onto the z-axis of the car.
+This can be achieved using a rotation matrix \mtf{i}{c} which transforms the measurements of the linear acceleration $\vincs{a}{I}_n \in \mathbb{R}^{1\times3}$ and angular velocity ${\vincs{v}{I}_n \in \mathbb{R}^{1\times3}}$ into the car frame. $n \in \mathbb{N}$ is the time step.
+
+During standstill, the only measurable acceleration besides noise and bias is the acceleration due to gravity.
+Assuming the car stands on flat ground, the gravity acceleration in the car frame should be pointing straight up in z-direction.
+In a first step, the measured linear acceleration (gravity) in the IMU frame will be aligned with the z-axis of the car.
 According to Euler's rotation theorem, which says that any arbitrary rotation of a rigid body while holding one point (origin) fixed can be achieved by a rotation around a single fixed axis passing through the origin, there exists one rotation axis $\mathbf{j}$ and rotation angle $\alpha$ to achieve this.\\
 In the first step, a quaternion \qtf{i}{b} which transforms the measurements from the device frame $\mathcal{I}$ to an intermediate coordinate system $\mathcal{B}$, which has the z-axis up, will be found.
-Meaning  $\vincs{z}{b} = \vincs{z}{c} = \mathbf{e}_\mathrm{z} = \left(\begin{array}{lll} 0 & 0 & 1 \end{array}\right)^{\top}$.
-
-The rotation axis $\vb{j}$ is perpendicular to both vectors
+Resulting in $\vincs{z}{b} = \vincs{z}{c} = \mathbf{e}_\mathrm{z} = \left(\begin{array}{lll} 0 & 0 & 1 \end{array}\right)^{\top}$.
+This usually is not the case for the other axes $\vincs{x}{b}\neq\vincs{x}{c}$ and $\vincs{z}{b}\neq\vincs{z}{c}$.
+Using linear algebra \todo{better explaination} the rotation axis $\vb{j}$, which is perpendicular to \dots, can be found with
 \begin{equation}
     \vb{j} = \frac{\vincs{\vu{a}}{i} \vdot \vincs{a}{c}}{\norm{\vincs{\vu{a}}{i} \cp \vincs{a}{c}}}
+    = \frac{\vincs{\vu{a}}{i} \vdot \vb{e}_\mathrm{z} }{\norm{\vincs{\vu{a}}{i} \cp \vb{e}_\mathrm{z}}}
+    = \frac{\vincs{\vu{a}_\mathrm{z}}{i}}{\norm{\vincs{\vu{a}_\mathrm{y}}{i}\vb{e}_\mathrm{x} - \vincs{\vu{a}_\mathrm{x}}{i}\vb{e}_\mathrm{y}}}
 \end{equation}
 with $\mathbf{a} \in \mathbb{R}^{1\times3}$ being the measured linear acceleration (average) in the IMU or car frame respectively and $\vu{a}$ being the unit vector of it.\\
 The rotation angle can be calculated using
 \begin{equation}
-    \tan(\alpha) = \frac{\vincs{\vu{a}}{i} \cp \vincs{a}{c}}{\vincs{\vu{a}}{i} \vdot \vincs{a}{c}} \implies
+    \tan(\alpha) = \frac{\norm{\vincs{\vu{a}}{i} \cp \vincs{a}{c}}}{\vincs{\vu{a}}{i} \vdot \vincs{a}{c}} \implies
     \alpha = \arctan(\frac{\norm{\vincs{\vu{a}}{i} \cp \vincs{a}{c}}}{\vincs{\vu{a}}{i} \vdot \vincs{a}{c}})
 \end{equation}
 resulting in the quaternion
@@ -224,11 +227,11 @@ but because discrete numerical differentiation e.g. forward difference with step
             % Draw vectors
             \draw[red, ->, very thick, rotate=-\ra] (m) -- ++(0,\gl) node[anchor=south west, black](g_end){$\mathbf{g}$};
             \draw[red, thin, ->] (m) -- ++(\gxl,0) node[anchor=north]{$g_\mathrm{x}$};
-            \draw[red, thin, ->] (m) -- ++(0,\gzl) node[anchor=east]{$g_\mathrm{z}$};
+            \draw[red, thin, ->] (m) -- ++(0,-\gzl) node[anchor=east]{$g_\mathrm{z}$};
             \draw[red, dotted] ($(m)+(\gxl,0)$) -- ++(0,\gzl) -- ++(-\gxl,0);
         \end{scope}
 	\end{tikzpicture}
-	\caption{Gravity measured by IMU (in car frame). Maybe g is upside down (would make sense for calc, but Seel said up)}
+	\caption{Gravity measured by IMU (in car frame). Show that g_z etc }
 \end{figure}
 
 \begin{figure}[htpb]
@@ -404,6 +407,7 @@ Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod 
         \dimline[extension start length=-\dd, extension end length=-\dd] {($(A)+(0,-\dd)$)}{($(B)+(0,-\dd)$)}{$l$};
         \dimline[extension start length=-\dd, extension end length=-\dd] {($(B)+(\dd,0)$)}{($(C)+(\dd,0)$)}{$h_\mathrm{r}$};
         \dimline[extension start length=\dd, extension end length=\dd+1.7cm] {($(D)+(-\dd,0)$)}{($(lm -| D)+(-\dd,0)$)}{$h$};
+
         % \draw (D) -- (lm -| D);
         % \dimline[extension start length=-\dd, extension end length=-\dd] {($(lm)+(\dd,0)$)}{($(C)+(\dd,0)$)}{$h_2$};
         % \dimline[extension start length=\dd, extension end length=\dd] {($(A)+(0,\dd)$)}{($(C)+(0,\dd)$)}{$d$};

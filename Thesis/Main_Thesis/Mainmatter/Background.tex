@@ -6,25 +6,25 @@
 
 \section{Sensors}
 \subsection{IMU}
-An \gls{imu} is used to track the orientation and position of an object. 
-Common uses are in the aerospace or automotive industry, often in combination with other sensors, to give information about the pose and position of a vehicle. 
-More recently with the invention of \gls{mems} and specifically MEMS-IMUs which allow for a very small form factor at a low cost, IMUs are also used in consumer electronics such as smartphones or fitness tracker. 
+An \gls{imu} is used to track the orientation and position of an object.
+Common uses are in the aerospace or automotive industry, often in combination with other sensors, to give information about the pose and position of a vehicle.
+More recently with the invention of \gls{mems} and specifically MEMS-IMUs which allow for a very small form factor at a low cost, IMUs are also used in consumer electronics such as smartphones or fitness tracker.
 An IMU usually consists of the three following sensors.
 The acceleration is measured using an accelerometer and can be used to determine the velocity and the covered distance by integrating once respectively twice.
-The gyroscope gives information about the change of orientation. 
+The gyroscope gives information about the change of orientation.
 Often times a magnetometer is used as well, which is able to measure the earth's magnetic field and is used to correct the measurements of the gyroscope.
 It allows for the determination of the absolute heading, whereas the gyroscope can only measure relative change. But because it is very sensitive to other magnetic objects, it is often omitted.
 IMUs can be typically divided into the two following categories.
 
 In the first type, the stable platform systems, the inertial sensors are mounted in such way, that they are always aligned with the reference frame.
-This is achieved using gimbals, which allow movement along all three axes. 
-The gyroscopes on the platform measure the rotation and send them to torque motors, which rotate the gimbals to keep the platform in alignment with the reference frame. 
-The advantage of stable platform systems is that the calculation of orientation and position is straight forward. 
+This is achieved using gimbals, which allow movement along all three axes.
+The gyroscopes on the platform measure the rotation and send them to torque motors, which rotate the gimbals to keep the platform in alignment with the reference frame.
+The advantage of stable platform systems is that the calculation of orientation and position is straight forward.
 The angles of the gimbals can be measured to get the orientation and to get the position, the accelerometer measurements have to be be corrected for gravity (which is \SI{9.8}{\metre\per\second^2} in upward direction) and be integrated two times.
 No coordinate transformation is necessary.
 The disadvantages are that the mechanical structure of the setup is complex, needs regular maintenance, requires a lot of space and has high costs.
 
-The second type are strapdown systems, which are mostly used today. \todo{reference?} 
+The second type are strapdown systems, which are mostly used today. \todo{reference?}
 As the name suggests all the parts are fixed onto the device and are thus not anymore always aligned with the reference frame.
 Advantages are that due to the lack of gimbals and motors a significantly smaller build is possible and lower production costs can be achieved.
 A disadvantage is that the calculation of the orientation and position is more complex, the rate gyroscopes have to be integrated to get the orientation and can then be used to transform the accelerometer signals into the reference frame.
@@ -46,7 +46,7 @@ Almost all consumer grade electronics uses MEMS-IMUs nowadays, but they also fin
 	\label{fig:MEMS_Accelerometer}
 \end{figure}
 The accelerometer is used to measure the acceleration.
-Besides dynamic acceleration there is the static and constant gravity acceleration on earth in upward direction. 
+Besides dynamic acceleration there is the static and constant gravity acceleration on earth in upward direction.
 This allows for the determination of one axis of the IMU, even if it is not moving.
 Often times only the dynamic accelerations are of interest and to get them the acceleration data during stand still must be measured and subtracted.
 The micro structure of a MEMS accelerometer is shown in figure \ref{fig:MEMS_Accelerometer}.
@@ -77,6 +77,11 @@ Therefore indoor use while getting reliable data is rarely possible.
 
 \subsubsection{Typical MEMS errors}
 Maybe a sentence about idc about problems, because raw measurements are mostly used.
+The first type of errors are calibration errors, which can be eliminated.
+Common calibration errors are a constant bias (offset), scaling or misalignment (axes are not orthogonal to each other).
+The turn-on bias is different each time the IMU starts up, but can be removed as well.
+
+
 \todoin{
   \begin{itemize}
 	\item Calibration errors
@@ -84,6 +89,7 @@ Maybe a sentence about idc about problems, because raw measurements are mostly u
 	\item Bias instability
 	\item Bias Correction methods
 	\item VERY BRIEF
+	\item maybe as table
   \end{itemize}}
 
 \subsection{Lidar}
@@ -96,7 +102,7 @@ Maybe a sentence about idc about problems, because raw measurements are mostly u
 \gls{lidar} is a method to measure distance to objects.
 Similar to other systems such as \gls{sonar} or \gls{radar}, LiDAR uses the time-of-flight principle.
 A short laser pulse with the velocity $v$ is sent into the environment and the reflected light is analyzed.
-The duration $\Delta t$ it took from sending to receiving can then be used to calculate the distance $s$ with 
+The duration $\Delta t$ it took from sending to receiving can then be used to calculate the distance $s$ with
 \[ s = v\frac{\Delta t}{2}. \]
 The change of intensity and wavelength of the returning light are measured as well and can provide information about the reflectivity of the object (intensity) or the chemical composition of the air (wavelength).
 Common uses of LiDAR are the analysis of earth's atmosphere, 3D mapping of environments or in the field of autonomous driving for object detection, tracking and simultaneous localization and mapping (SLAM).
