@@ -6,8 +6,14 @@ import ros_numpy
 import rospy
 from sensor_msgs.msg import PointCloud2
 import sensor_msgs.point_cloud2 as pc2
-from std_msgs.msg import Header, Float32, Float32MultiArray
-from tf.transformations import euler_from_quaternion, euler_matrix, unit_vector, vector_norm
+from std_msgs.msg import Header, Float32
+from tf.transformations import (
+    euler_from_quaternion,
+    euler_matrix,
+    unit_vector,
+    vector_norm,
+)
+
 # Limit CPU usage (of numpy)
 # ! must be called before importing numpy
 import os
@@ -17,16 +23,17 @@ os.environ["OMP_NUM_THREADS"] = "1"
 import numpy as np
 
 
-class VisualDetection():
+class VisualDetection:
     """Detect ramps using LIDAR, get angle and distance to ramp"""
+
     def __init__(self):
         rospy.init_node('visual_detection', anonymous=True)
         # * Change lidar topic depending on used lidar
-        lidar_topic = '/right/rslidar_points'
+        lidar_topic = '/velodyne_points'
+        # lidar_topic = '/right/rslidar_points'
         self.sub_lidar = rospy.Subscriber(
             lidar_topic, PointCloud2, self.callback_lidar, queue_size=10)
         self.pub_angle = rospy.Publisher('/ramp_angle_lidar', Float32, queue_size=10)
-        self.pub_stuff = rospy.Publisher('/some_stats', Float32MultiArray, queue_size=10)
         # Gets set True if lidar topic has started publishing
         self.subbed_lidar = False
         # Gets set True if initial tf from lidar to car frame has been performed
@@ -56,23 +63,27 @@ class VisualDetection():
             # Get transformation from lidar to car frame
             if not self.is_calibrated:
                 # Get euler angles (roll and pitch) to align lidar with car frame
-                roll, pitch = self.align_lidar(pc_array)
+                roll, pitch, height = self.align_lidar(pc_array)
                 self.is_calibrated = True
 
             # Apply lidar to car frame transformation (adjust yaw angle manually)
-            pc_array_tf = self.transform_pc(pc_array, rpy=(roll, pitch, 0), transl_x=-1.944)
+            pc_array_tf = self.transform_pc(pc_array, rpy=(roll, pitch, np.pi),
+                                            translation_xyz=(1.14, 0.005, -height))
+
+            # Original cloud after transformation
+            self.publish_pc(pc_array_tf, 'pc_big')
 
             # Filter unwanted points (to reduce point cloud size) with passthrough filter
             # * Max Range of lidar is 100m (30m @ 10% NIST)
-            pc_array_cut = self.reduce_pc(pc_array_tf, (0, 30), (-3.5, 3.5), (-1, 1.5))
+            pc_array_cut = self.reduce_pc(pc_array_tf, (0, 30), (-2, 2), (-1, 2))
 
             # Convert numpy array to pcl object
-            pc_cut = pcl.PointCloud()
-            pc_cut.from_array(pc_array_cut.astype('float32'))
+            pc_cut = self.array_to_pcl(pc_array_cut)
 
+            self.publish_pc(pc_cut, 'pc_small_before')
             # Downsample point cloud using voxel filter to further decrease size
             pc_small = self.voxel_filter(pc_cut, 0.1)
-            # self.publish_pc(pc_small.to_list(), 'pc')
+            self.publish_pc(pc_small, 'pc_small')
 
             # Perform RANSAC until no new planes are being detected
             ramp_angle, ramp_distance = self.plane_detection(pc_small, 100, 4)
@@ -81,38 +92,67 @@ class VisualDetection():
             avg_angle = self.ang_filter.moving_average(ramp_angle, 5)
             avg_dist = self.dist_filter.moving_average(ramp_distance, 5)
 
-            print('{:.2f} vs {:.2f}'.format(avg_angle, avg_dist))
+            print('angle: {:.2f}, dist: {:.2f}'.format(avg_angle, avg_dist))
             r.sleep()
+
+    @staticmethod
+    def array_to_pcl(pc_array):
+        """Get pcl point cloud from numpy array"""
+        pc = pcl.PointCloud()
+        pc.from_array(pc_array.astype('float32'))
+        return pc
 
     def align_lidar(self, pc_array):
         """Calculate roll and pitch angle to align Lidar with car frame"""
         # Convert numpy array to pcl point cloud
-        pc = pcl.PointCloud()
-        pc.from_array(pc_array.astype('float32'))
+        pc = self.array_to_pcl(pc_array)
 
-        # Get normal vector of ground plane
-        ground_vec_lidar = self.ground_detection(pc)
+        # Get normal vector of ceiling plane
+        ceiling_vec_lidar, _ = self.ground_or_ceiling_detection(pc)
         # Normal vector ground plane in car frame
         # (assuming car stands on a flat surface)
         ground_vec_car = [0, 0, 1]
 
         # Quaternion to align lidar vec to car vec
-        quat = self.quat_from_vectors(ground_vec_lidar, ground_vec_car)
+        quat = self.quat_from_vectors(ceiling_vec_lidar, ground_vec_car)
         # Calculate euler angles
         roll, pitch, _ = euler_from_quaternion(quat)
+        # Apply rotation
+        rot = euler_matrix(roll, pitch, 0, 'sxyz')[:3, :3]
+        pc_array_tf = np.inner(pc, rot)
+
+        # Detect ground plane after applied rotation to measure distance to ground
+        # Cut ceiling points, ground is always below LIDAR
+        pc_array_wo_ceiling = pc_array_tf[pc_array_tf[:, 2] < 0]
+        # Convert numpy array to pcl point cloud
+        pc_wo_ceiling = self.array_to_pcl(pc_array_wo_ceiling)
+        # Get distance to ground
+        _, height = self.ground_or_ceiling_detection(pc_wo_ceiling)
 
         print('Euler angles in deg to tf lidar to car frame:')
         print('Roll: {:05.2f}\nPitch: {:05.2f}'.format(
             np.degrees(roll), np.degrees(pitch)))
-        return (roll, pitch)
+        print('{:.2f} m to ground'.format(height))
+        return (roll, pitch, height)
 
-    def ground_detection(self, pc):
-        """Detect ground plane and get normal vector"""
-        # Get most dominant plane (assume that this is the ground plane)
-        indices, coefficients = self.ransac(pc)
-        # Remove 4th plane coefficient (translation) to get normal vector
-        ground_vec = coefficients[:-1]
-        return ground_vec
+    def ground_or_ceiling_detection(self, pc):
+        """Detect ground or ceiling plane and get normal vector and distance to ground"""
+        # Initialize
+        ground_vec = [0, 0, 0]
+        # Prevent accidental wall detection
+        while not abs(ground_vec[2]) > 0.7:
+            # Get most dominant plane
+            inliers_idx, coefficients = self.ransac(pc)
+
+            # Split point cloud in inliers and outliers of plane
+            plane = pc.extract(inliers_idx)
+            pc = pc.extract(inliers_idx, negative=True)
+
+            # Remove 4th plane coefficient (translation) to get normal vector
+            ground_vec = coefficients[:-1]
+            # Get distance to ground (from lidar)
+            dist_to_ground = np.mean(plane, axis=0)[2]
+        return ground_vec, dist_to_ground
 
     @staticmethod
     def quat_from_vectors(vec1, vec2):
@@ -132,16 +172,25 @@ class VisualDetection():
         return quat
 
     @staticmethod
-    def transform_pc(pc, rpy=(0, 0, 0), transl_x=1.753, transl_y=0, transl_z=1.156):
+    def transform_pc(pc, rpy=(0, 0, 0), translation_xyz=(1.7, 0, 1.7)):
         """Transformation from Lidar frame to car frame. Rotation in rad and translation in m."""
         # Extract euler angles
         roll, pitch, yaw = rpy
+        # Extract translations
+        transl_x, transl_y, transl_z = translation_xyz
+
         # Rotation matrix
         rot = euler_matrix(roll, pitch, yaw, 'sxyz')[:3, :3]
         # Apply rotation
         pc_tf = np.inner(pc, rot)
-        # Translation
-        translation = [transl_x, transl_y, transl_z]
+
+        # Translation to rear wheel axis
+        translation_to_base_link = [transl_x, transl_y, transl_z]
+        # Translation to front of the car
+        # TODO: Get accurate data
+        translation_to_front = [-3, 0, 0]
+        # Combine both translations
+        translation = np.add(translation_to_base_link, translation_to_front)
         # Combine rotation and translation
         pc_tf += translation
         return pc_tf
@@ -151,12 +200,12 @@ class VisualDetection():
         """Removes points outside of box"""
         # Filter array
         pc_cut = pc[
-            (pc[:, 0] > x_range[0]) &
-            (pc[:, 0] < x_range[1]) &
-            (pc[:, 1] > y_range[0]) &
-            (pc[:, 1] < y_range[1]) &
-            (pc[:, 2] > z_range[0]) &
-            (pc[:, 2] < z_range[1])
+            (pc[:, 0] > x_range[0])
+            & (pc[:, 0] < x_range[1])
+            & (pc[:, 1] > y_range[0])
+            & (pc[:, 1] < y_range[1])
+            & (pc[:, 2] > z_range[0])
+            & (pc[:, 2] < z_range[1])
             ]
         return pc_cut
 
@@ -190,15 +239,16 @@ class VisualDetection():
         ramp_stats = (0, 0)
         while pc.size > min_points and counter < max_planes:
             # Detect most dominate plane and get inliers and normal vector
-            indices, coefficients = self.ransac(pc)
+            inliers_idx, coefficients = self.ransac(pc)
             # Normal vector of plane
             n_vec = coefficients[:-1]
 
             # Split pointcloud in outliers of plane and inliers
-            pc, plane = self.split_pc(pc, indices)
+            plane = pc.extract(inliers_idx)
+            pc = pc.extract(inliers_idx, negative=True)
 
             # Exit if plane is empty (RANSAC did not find anything)
-            if not plane:
+            if plane.size == 0:
                 return ramp_stats
 
             # Ignore planes parallel to the side or front walls
@@ -206,6 +256,7 @@ class VisualDetection():
                 # First ground like detection is most probably the ground
                 if g_vec is None:
                     g_vec = n_vec
+                    self.publish_pc(plane, 'ground')
                 # Either ground is detected again or potential ramp
                 else:
                     # Check if ramp conditions are fullfilled
@@ -213,14 +264,14 @@ class VisualDetection():
                         plane, g_vec, n_vec, (3, 8), (2, 6))
                     # Ramp conditions met
                     if is_ramp:
+                        self.publish_pc(plane, 'ramp')
                         return (ramp_ang, ramp_dist)
                     else:
                         continue
             counter += 1
         return ramp_stats
 
-    def ramp_detection(
-            self, plane, g_vec, n_vec, angle_range, width_range):
+    def ramp_detection(self, plane, g_vec, n_vec, angle_range, width_range):
         """Checks if conditions to be considered a ramp are fullfilled.
 
         The following values of the plane are being calculated and
@@ -230,7 +281,7 @@ class VisualDetection():
         If all conditions are met return True, else False
         """
         # Convert pcl plane to numpy array
-        plane_array = np.array(plane)
+        plane_array = plane.to_array()
 
         # Calculate angle [deg] between normal vector of plane and ground
         angle = self.angle_calc(g_vec, n_vec)
@@ -241,8 +292,8 @@ class VisualDetection():
         dist = np.mean(np.sort(plane_array[:n_nearest, 0]))
 
         # Assert ramp angle and width thresholds
-        if (angle_range[0] <= angle <= angle_range[1] and
-                width_range[0] <= width <= width_range[1]):
+        if (angle_range[0] <= angle <= angle_range[1]
+                and width_range[0] <= width <= width_range[1]):
             return True, angle, dist
         return False, angle, dist
 
@@ -261,28 +312,8 @@ class VisualDetection():
         seg.set_normal_distance_weight(0.01)
         # How many tries
         seg.set_max_iterations(100)
-        indices, coefficients = seg.segment()
-        return indices, coefficients
-
-    @staticmethod
-    def split_pc(pc, inliers):
-        """Extract detected plane from point cloud and split into two pcs
-
-        :param pc:              [PCL] Point cloud
-        :param inliers:         [List] Indices of inliers of plane
-        :return pc_outliers:    [PCL] Point cloud w/o plane inliers
-        :return detected_plane: [List] Inlier points
-        """
-        # Get point cooridnates of plane
-        detected_plane = [pc[i] for i in inliers]
-        # Point cloud of detected plane (inliers)
-        # pc_inliers = pc.extract(inliers)
-
-        # Point cloud of outliers, difference between whole pc and plane inliers
-        outlier_indices = list(set(np.arange(pc.size)).symmetric_difference(inliers))
-        pc_outliers = pc.extract(outlier_indices)
-
-        return pc_outliers, detected_plane
+        inliers_idx, coefficients = seg.segment()
+        return inliers_idx, coefficients
 
     @staticmethod
     def is_plane_near_ground(v, threshold=0.8):
@@ -308,20 +339,31 @@ class VisualDetection():
         return angle
 
     @staticmethod
-    def publish_pc(pc_list, pub_name):
+    def publish_pc(pc, pub_name):
         """Publishes a point cloud from point list"""
+        # Make sure that pc is a list
+        if isinstance(pc, list):
+            pass
+        # Convert to list if numpy array
+        elif isinstance(pc, np.ndarray):
+            pc = list(pc)
+        # Convert to list if pcl point cloud
+        else:
+            pc = pc.to_list()
+
         # Initialize pc2 msg
         header = Header()
         header.stamp = rospy.Time.now()
         header.frame_id = '/rslidar'
         # Convert point cloud list to pc2 msg
-        pc = pc2.create_cloud_xyz32(header, pc_list)
+        pc = pc2.create_cloud_xyz32(header, pc)
         # Publish message
         rospy.Publisher(pub_name, PointCloud2, queue_size=10).publish(pc)
 
 
-class FilterClass():
+class FilterClass:
     """Filters a signal"""
+
     def __init__(self):
         self.values = []
         self.sum = 0
@@ -352,8 +394,9 @@ class FilterClass():
             return 0
 
 
-class PerformanceMeasure():
+class PerformanceMeasure:
     """Can be used to measure time between two statements"""
+
     def __init__(self):
         self.total_time = 0
         self.counter = 1
