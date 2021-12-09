@@ -2,41 +2,48 @@
 
 from __future__ import print_function
 import numpy as np
+import message_filters
 import rospy
 from ackermann_tools.msg import EGolfOdom
 from tf.transformations import (euler_matrix, quaternion_about_axis, quaternion_matrix,
                                 quaternion_multiply, unit_vector, vector_norm)
 from sensor_msgs.msg import Imu
 from std_msgs.msg import Float32, Float32MultiArray
+from message_filters import Cache, Subscriber
+# import message_filter
 
 
-class ImuRampDetect():
+class ImuRampDetect(object):
     """Calculate car pitch angle using IMU, decide whether or not car is on
     ramp and if so, measure distance and angle of ramp
     """
     def __init__(self):
         # ROS stuff
         rospy.init_node('imu_transformation', anonymous=True)
-        self.sub_imu = rospy.Subscriber('/imu/data', Imu, self.callback_imu, queue_size=1)
+        # imu_topic = '/imu/data'
+        imu_topic = '/zed2i/zed_node/imu/data'
+        self.sub_imu = rospy.Subscriber(imu_topic, Imu, self.callback_imu, queue_size=1)
         self.sub_odom = rospy.Subscriber(
             '/eGolf/sensors/odometry', EGolfOdom, self.callback_odom, queue_size=1)
         self.pub_pitch = rospy.Publisher('/car_angle_new', Float32, queue_size=5)
         self.pub_debug = rospy.Publisher('/debug', Float32MultiArray, queue_size=5)
         self.rate = 100             # Because both IMU and odom publish with 100 Hz
+        self.is_subbed = False      # True if lidar topic has started publishing
 
         # Variables for transformation from IMU to car frame
         self.flag = False           # True after first imu car frame alignment (pitch, roll)
         self.is_calibrated = False  # True after second alignment (heading)
         self.lin_acc = []           # Buffer used for calibration
-        self.g_car = (0, 0, 1)      # g vector in car frame
         self.quat1 = [0, 0, 0, 1]   # Init quaternion used for first rotation
         self.rec_win_g = 1          # Recording length g vector [s]
         self.rec_win_fwd = 2        # Recording length forward acceleration [s]
 
         # Variables for calculation of car pitch angle
         self.wheelbase = 2.631      # eGolf wheelbase [m]
-        self.vel_x_car_filt_old = 0 # Initialize previous car velocity (for calc of acceleration)
-        self.angle_est = 0          # Initialize previous car pitch angle (for complementary filter)
+        self.vel_x_car_filt_old = 0 # Initialize previous car velocity
+                                    # (for calc of acceleration)
+        self.angle_est = 0          # Initialize previous car pitch angle
+                                    # (for complementary filter)
         self.dist = 0               # Travelled distance
 
         # Moving Average Filter
@@ -45,11 +52,16 @@ class ImuRampDetect():
         # Window length, results in a delay of win_len/200 [s]
         self.win_len = 50
 
+        self.sub = message_filters.Subscriber('/zed2i/zed_node/imu/data', Imu)
+        self.cache = message_filters.Cache(self.sub, 400)
+
     def callback_imu(self, msg):
         """Get msg from IMU"""
         self.lin_acc_msg = [
             msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z]
-        self.ang_vel_msg = [msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]
+        self.ang_vel_msg = [
+            msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]
+        self.is_subbed = True
 
     def callback_odom(self, msg):
         """Get msg from odometer"""
@@ -59,16 +71,35 @@ class ImuRampDetect():
         """Run node until crash or user exit"""
         r = rospy.Rate(self.rate)
         while not rospy.is_shutdown():
+            # Wait until imu msgs are received
+            if not self.is_subbed:
+                continue
+            # Get transformation from imu frame to car frame
             if not self.is_calibrated:
-                rot_mat = self.align_imu()
-            else:
-                # Transform
-                lin_acc, ang_vel = self.transform_imu(rot_mat)
-                car_angle = self.pitch_car(lin_acc[0], ang_vel[1])
-                print(car_angle)
-                # self.is_ramp(car_angle)
-                # print(self.covered_distance())
-                # self.pub_pitch.publish(car_angle)
+                # rot_mat = self.align_imu()
+                pass
+
+
+            # print(self.cache.getInterval)
+            now = rospy.Time.now()
+            then = rospy.Duration(1)
+            than = now - then
+            cac = self.cache
+            coc = cac.getInterval(than, now)
+            # self.cache.s
+            print(cac.cache_size)
+            print(coc)
+            # a = now - rospy.Duration(1)
+            # print(self.cache.getInterval(now - rospy.Duration(1), now))
+            # self.collect_samples(50)
+            # Transform
+            # lin_acc, ang_vel = self.transform_imu(rot_mat)
+            # Calculate pitch angle
+            # car_angle = self.pitch_car(lin_acc[0], ang_vel[1])
+            # print(car_angle)
+            # self.is_ramp(car_angle)
+            # print(self.covered_distance())
+            # self.pub_pitch.publish(car_angle)
             r.sleep()
 
     def covered_distance(self):
@@ -89,17 +120,21 @@ class ImuRampDetect():
         return False
 
     def align_imu(self):
-        """Aligns IMU Frame with car frame"""
+        quat1 = self.trafo1()
+        tf_imu_car = self.trafo2()
+
+    def collect_samples(self, duration, rate=100):
+        lin_acc = []
+        while len(lin_acc) <  duration*rate:
+            lin_acc.append(self.lin_acc_msg)
+        print(lin_acc[:20])
+
+
+    def align_imu_old(self):
+        """Align IMU frame with car frame"""
         # First calibration step
-        # Print calibration msg 1 once and wait for user to start
-        if not self.lin_acc and not self.flag:
-            print('Welcome to the IMU to car alignment calibration')
-            print('In the first step the gravitational acceleration is being measured.')
-            raw_input('Please stand still for {}s.\nIf ready, press enter'.format(self.rec_win_g))
-            # Convert window length from [s] to samples
-            self.rec_win_g = self.rec_win_g * self.rate
-        # Collect samples
-        if len(self.lin_acc) < self.rec_win_g and not self.flag:
+        # Collect samples (for 1s)
+        if len(self.lin_acc) < self.rate and not self.flag:
             self.lin_acc.append(self.lin_acc_msg)
             # Take average of recording and calculate first rotmat
             if len(self.lin_acc) == self.rec_win_g:
@@ -134,17 +169,30 @@ class ImuRampDetect():
                     return tf_imu_car
 
     def trafo1(self, lin_acc):
-        """Rotation to align IMU measured g-vector with car z-axis (up)
+        """First rotation to align IMU measured g-vector with car z-axis (up)
         :param lin_acc: Linear acceleration while car stands still
         :return:        Quaternion
         """
+        # First calibration step
+        # Collect samples (for 1s)
+        if len(self.lin_acc) < self.rate and not self.flag:
+            self.lin_acc.append(self.lin_acc_msg)
+            # Take average of recording and calculate first rotmat
+            if len(self.lin_acc) == self.rec_win_g:
+                print('Gravity acceleration measured successfully')
+                # First rotation to align "g-axis" of IMU with z-axis of car
+                self.quat1 = self.trafo1(self.lin_acc)
+                # Now go to next calibration step
+                self.lin_acc = []
+                self.flag = True
+
         # Take average over 2 s
         lin_acc_avg = np.mean(lin_acc, axis=0)
         # Magnitude of measured g vector (should be around 9.81)
         self.g_mag = vector_norm(lin_acc_avg)
         print('Average linear acceleration magnitude: {:.2f}'.format(self.g_mag))
         g_imu = unit_vector(lin_acc_avg)
-        quat = self.quat_from_vectors(g_imu, self.g_car)
+        quat = self.quat_from_vectors(g_imu, (0, 0, 1))
         return quat
 
     @staticmethod
@@ -175,12 +223,13 @@ class ImuRampDetect():
         """
         # Apply first rotation (trafo1)
         lin_acc_rot1 = np.inner(quaternion_matrix(quat1)[:3, :3], lin_acc).T
+        print(lin_acc_rot1 == lin_acc_rot1.T)
         # Get angle for second rotation (axis is z)
         z_angle = self.find_z_angle(lin_acc_rot1)
         # Get second quaternion for yaw correction
         quat2 = quaternion_about_axis(z_angle, (0, 0, 1))
         # Apply second rotation to first (always in reverse order)
-        quat = quaternion_multiply(quat2, self.quat1)
+        quat = quaternion_multiply(quat2, quat1)
         # Get rotation matrix from quaternion
         rot_mat_imu_car = quaternion_matrix(quat)[:3, :3]
         return rot_mat_imu_car
@@ -188,7 +237,6 @@ class ImuRampDetect():
     @staticmethod
     def find_z_angle(lin_acc_rot):
         """Yaw angle to align IMU x-axis with x-axis of car
-
         :param lin_acc_rot: Linear acceleration while car accelerates,
                             after first rotation (z-axes aligned)
         :return ang_opt:    Rotation angle around z-axis in rad
@@ -266,7 +314,7 @@ class ImuRampDetect():
         return angle_est
 
 
-class FilterClass():
+class FilterClass(object):
     """Filters a signal"""
     def __init__(self):
         self.values = []
