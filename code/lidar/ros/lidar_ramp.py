@@ -36,7 +36,8 @@ class VisualDetection:
             lidar_topic = '/velodyne_points'
         self.sub_lidar = rospy.Subscriber(
             lidar_topic, PointCloud2, self.callback_lidar, queue_size=10)
-        self.pub_angle = rospy.Publisher('/ramp_angle_lidar', Float32, queue_size=10)
+        self.pub_angle = rospy.Publisher('/lidar_ang', Float32, queue_size=10)
+        self.pub_distance = rospy.Publisher('/lidar_dist', Float32, queue_size=10)
         # Gets set True if lidar topic has started publishing
         self.subbed_lidar = False
         # Gets set True if initial tf from lidar to car frame has been performed
@@ -100,6 +101,9 @@ class VisualDetection:
             avg_dist = self.dist_filter.moving_average(ramp_distance, 5)
 
             print('angle: {:.2f}, dist: {:.2f}'.format(avg_angle, avg_dist))
+
+            self.pub_angle.publish(avg_angle)
+            self.pub_distance.publish(avg_dist)
             r.sleep()
 
     def align_lidar(self, pc_array):
@@ -268,10 +272,11 @@ class VisualDetection:
                     return (ramp_ang, ramp_dist)
                 # Ground
                 else:
-                    print('Ground ({:.2f} deg)'.format(ramp_ang))
+                    # print('Ground ({:.2f} deg)'.format(ramp_ang))
                     self.publish_pc(plane, 'ground')
             else:
-                print('WALL')
+                # print('WALL')
+                pass
             counter += 1
         return ramp_stats
 
@@ -345,27 +350,28 @@ class VisualDetection:
     # @staticmethod
     def publish_pc(self, pc, pub_name):
         """Publishes a point cloud from point list"""
-        # Make sure that pc is a list
-        if isinstance(pc, list):
-            pass
-        # Convert to list if numpy array
-        elif isinstance(pc, np.ndarray):
-            pc = list(pc)
-        # Convert to list if pcl point cloud
-        else:
-            pc = pc.to_list()
+        # # Make sure that pc is a list
+        # if isinstance(pc, list):
+        #     pass
+        # # Convert to list if numpy array
+        # elif isinstance(pc, np.ndarray):
+        #     pc = list(pc)
+        # # Convert to list if pcl point cloud
+        # else:
+        #     pc = pc.to_list()
 
-        # Initialize pc2 msg
-        header = Header()
-        header.stamp = rospy.Time.now()
-        if self.is_robos:
-            header.frame_id = '/rslidar'
-        else:
-            header.frame_id = '/velodyne'
-        # Convert point cloud list to pc2 msg
-        pc = pc2.create_cloud_xyz32(header, pc)
-        # Publish message
-        rospy.Publisher(pub_name, PointCloud2, queue_size=10).publish(pc)
+        # # Initialize pc2 msg
+        # header = Header()
+        # header.stamp = rospy.Time.now()
+        # if self.is_robos:
+        #     header.frame_id = '/rslidar'
+        # else:
+        #     header.frame_id = '/velodyne'
+        # # Convert point cloud list to pc2 msg
+        # pc = pc2.create_cloud_xyz32(header, pc)
+        # # Publish message
+        # rospy.Publisher(pub_name, PointCloud2, queue_size=10).publish(pc)
+        pass
 
 
 class FilterClass:
