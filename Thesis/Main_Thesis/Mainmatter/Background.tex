@@ -146,3 +146,15 @@ Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod 
 At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
 Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
 At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+
+\section{Signal processing}
+\dots is necessary.
+\dots can be divided into filtering and smoothing.
+Filtering can be used in live applications and produces an estimate of the current value by taking the past values into account, whereas smoothing uses past and future samples and thus introduces a delay if used on live data \todo{filtering also often introduces a delay}.
+Because the detection should be live, only the filtering methods will be examined.
+\itodo{How much about dsp? E.g. also noise, aa etc or only type of filters?}
+
+Digital filters can be generally divided into two different categories.
+\gls{fir} filter rely on a fixed number of recent input values. An example would be the moving average filter, which takes the past $n$ values into account.
+\gls{iir} filter rely on previous output as well as most recent input by summing all points with a certain weight (e.g. exponential filter).
+This also explains the naming of the two types, the FIR filter "forgets" past values, whereas the IIR filter uses the previous estimate and thus theoretically takes all past values into account.
