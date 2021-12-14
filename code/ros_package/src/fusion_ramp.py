@@ -5,12 +5,9 @@ import numpy as np
 from std_msgs.msg import Float32
 from ramp_detection.msg import ramp_properties
 
-# TODO: IMU and LiDAR Nodes will both publish their information (angle for IMU) and (angle, distance for LiDAR)
-# If angle for IMU hit a threshold, record the covered distance from that point, until angle is going down again
-# Prevent accidental IMU detections by checking if LiDAR did also detect something before
-# Maybe also use calc avg angle from LiDAR before ramp and compare it to results from IMU
 
-class FusionRamp():
+class FusionRamp(object):
+    """Combines data from imu and lidar to detect ramps and measure angle and dist"""
     def __init__(self):
         # ROS stuff
         rospy.init_node('ramp_detection_fusion', anonymous=True)
@@ -25,24 +22,32 @@ class FusionRamp():
 
         # Define subscriber callback messages
         self.imu_ang = None
+        self.imu_dist = None
         self.lidar_ang = None
+        self.lidar_dist = None
 
     def callback_imu(self, msg):
+        """Get imu angle"""
         self.imu_ang = msg.data
 
     def callback_imu2(self, msg):
+        """Get length of ramp"""
         self.imu_dist = msg.data
 
     def callback_lidar(self, msg):
+        """Get lidar angle"""
         self.lidar_ang = msg.data
 
     def callback_lidar2(self, msg):
+        """Get distance to ramp"""
         self.lidar_dist = msg.data
 
     def spin(self):
+        """Run node until crash or user exit"""
+        # Frequency at which node runs
         r = rospy.Rate(self.rate)
         # Wait for both nodes (imu and lidar) to publish
-        while self.imu_ang == None or self.lidar_ang == None:
+        while self.imu_ang is None or self.lidar_ang is None:
             if rospy.is_shutdown():
                 break
             r.sleep()
@@ -54,17 +59,23 @@ class FusionRamp():
             msg.ang_lidar = self.lidar_ang
             msg.dist_on_ramp = self.imu_dist
             msg.dist_to_ramp = self.lidar_dist
+
             if self.imu_ang < 2:
-                print('Not on a ramp, but lidar says there is one in {:.2f} m'.format(self.lidar_dist))
+                # print('Not on a ramp, but lidar says there is one in {:.2f} m'.format(
+                    # self.lidar_dist))
                 msg.on_ramp = False
             else:
-                print('ON A RAMP with ang {:.2f} and dist {:.2f}'.format(self.imu_ang, self.imu_dist))
+                # print('ON A RAMP with ang {:.2f} and dist {:.2f}'.format(
+                    # self.imu_ang, self.imu_dist))
                 msg.on_ramp = True
-            # print('IMU {:.2f} vs LIDAR {:.2f}'.format(self.imu_ang, self.lidar_ang))
+
             self.pub_props.publish(msg)
             r.sleep()
 
 
 if __name__ == "__main__":
-    FR = FusionRamp()
-    FR.spin()
+    try:
+        FR = FusionRamp()
+        FR.spin()
+    except rospy.ROSInterruptException:
+        pass

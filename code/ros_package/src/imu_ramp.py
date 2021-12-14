@@ -36,7 +36,6 @@ class ImuRampDetect(object):
 
         # Subscriber and publisher
         rospy.Subscriber(imu_topic, Imu, self.callback_imu, queue_size=10)
-        print(imu_topic)
         rospy.Subscriber(
             '/eGolf/sensors/odometry', EGolfOdom, self.callback_odom, queue_size=1)
         self.pub_pitch = rospy.Publisher('/imu_ang', Float32, queue_size=5)
@@ -125,7 +124,6 @@ class ImuRampDetect(object):
                 self.buffer = []
                 # Prevent repeated execution
                 self.z_calibrated = True
-                print('Accelerate forward to complete calibration')
 
         # Second (final) rotation, only execute after first rotation was
         # calculated and car starts accelerating forward
@@ -167,8 +165,10 @@ class ImuRampDetect(object):
         quat = quaternion_multiply(quat2, self.quat1)
         # Get euler angles to show the difference between the two frames
         euler_angles = euler_from_quaternion(quat)
-        print('Correct angles by (rpy in deg): {:.2f} {:.2f} {:.2f}'.format(
-            *[np.rad2deg(x) for x in euler_angles]))
+        print('\n__________IMU__________')
+        print('Euler angles in deg to tf imu to car frame:')
+        print('Roll: {:.2f}\nPitch: {:.2f}\nYaw: {:.2f}\n'.format(
+            *np.rad2deg(euler_angles)))
 
         # Get rotation matrix from quaternion
         rot_mat_imu_car = quaternion_matrix(quat)[:3, :3]
@@ -280,8 +280,6 @@ class ImuRampDetect(object):
     def is_ramp(self, car_angle):
         """Checks if car is on ramp"""
         if car_angle > 2:
-            print('ON A RAMP')
-            print(self.covered_distance())
             return True
         return False
 

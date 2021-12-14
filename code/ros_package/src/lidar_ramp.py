@@ -126,10 +126,11 @@ class VisualDetection(object):
         # Get distance to ground
         _, height = self.ground_or_ceiling_detection(pc_wo_ceiling)
 
+        print('\n__________LIDAR__________')
         print('Euler angles in deg to tf lidar to car frame:')
-        print('Roll: {:05.2f}\nPitch: {:05.2f}'.format(
-            np.degrees(roll), np.degrees(pitch)))
-        print('{:.2f} m to ground'.format(height))
+        print('Roll: {:.2f}\nPitch: {:.2f}'.format(
+            *np.degrees([roll, pitch])))
+        print('Distance to ground: {:.2f} m\n'.format(height))
         return (roll, pitch, height)
 
     def ground_or_ceiling_detection(self, pc):
