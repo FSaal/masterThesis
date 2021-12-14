@@ -1,0 +1,87 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<root version="2.3.8">
+ <tabbed_widget parent="main_window" name="Main Window">
+  <Tab containers="1" tab_name="tab1">
+   <Container>
+    <DockSplitter orientation="-" sizes="0.176647;0.494012;0.329341" count="3">
+     <DockArea name="Car on ramp?">
+      <plot mode="TimeSeries" style="Lines">
+       <range left="0.000000" right="4.999812" bottom="0.900000" top="1.100000"/>
+       <limitY/>
+       <curve color="#f14cc1" name="/ramp_properties/on_ramp"/>
+      </plot>
+     </DockArea>
+     <DockSplitter orientation="|" sizes="0.5;0.5" count="2">
+      <DockArea name="Ramp angle imu (only works on ramp)">
+       <plot mode="TimeSeries" style="Lines">
+        <range left="0.000000" right="4.999812" bottom="8.226468" top="9.319763"/>
+        <limitY/>
+        <curve color="#1f77b4" name="/ramp_properties/ang_imu"/>
+       </plot>
+      </DockArea>
+      <DockArea name="Ramp angle lidar (only works before ramp)">
+       <plot mode="TimeSeries" style="Lines">
+        <range left="0.000000" right="4.999812" bottom="8.088610" top="8.288610"/>
+        <limitY/>
+        <curve color="#d62728" name="/ramp_properties/ang_lidar"/>
+       </plot>
+      </DockArea>
+     </DockSplitter>
+     <DockSplitter orientation="|" sizes="0.5;0.5" count="2">
+      <DockArea name="Length of ramp">
+       <plot mode="TimeSeries" style="Lines">
+        <range left="0.000000" right="4.999812" bottom="3.862729" top="4.540854"/>
+        <limitY/>
+        <curve color="#1ac938" name="/ramp_properties/dist_on_ramp"/>
+       </plot>
+      </DockArea>
+      <DockArea name="Distance to ramp">
+       <plot mode="TimeSeries" style="Lines">
+        <range left="0.000000" right="4.999812" bottom="6.118186" top="6.318186"/>
+        <limitY/>
+        <curve color="#ff7f0e" name="/ramp_properties/dist_to_ramp"/>
+       </plot>
+      </DockArea>
+     </DockSplitter>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <currentTabIndex index="0"/>
+ </tabbed_widget>
+ <use_relative_time_offset enabled="1"/>
+ <!-- - - - - - - - - - - - - - - -->
+ <!-- - - - - - - - - - - - - - - -->
+ <Plugins>
+  <plugin ID="DataLoad CSV">
+   <default time_axis=""/>
+  </plugin>
+  <plugin ID="DataLoad ROS bags">
+   <use_header_stamp value="false"/>
+   <use_renaming_rules value="true"/>
+   <discard_large_arrays value="true"/>
+   <max_array_size value="100"/>
+  </plugin>
+  <plugin ID="DataLoad ULog"/>
+  <plugin ID="LSL Subscriber"/>
+  <plugin ID="MQTT Subscriber"/>
+  <plugin ID="ROS Topic Subscriber">
+   <use_header_stamp value="false"/>
+   <use_renaming_rules value="true"/>
+   <discard_large_arrays value="true"/>
+   <max_array_size value="100"/>
+  </plugin>
+  <plugin ID="UDP Server"/>
+  <plugin ID="WebSocket Server"/>
+  <plugin ID="ZMQ Subscriber"/>
+  <plugin status="idle" ID="ROS /rosout Visualization"/>
+  <plugin status="idle" ID="ROS Topic Re-Publisher"/>
+ </Plugins>
+ <!-- - - - - - - - - - - - - - - -->
+ <previouslyLoaded_Datafiles/>
+ <previouslyLoaded_Streamer name="ROS Topic Subscriber"/>
+ <!-- - - - - - - - - - - - - - - -->
+ <customMathEquations/>
+ <snippets/>
+ <!-- - - - - - - - - - - - - - - -->
+</root>
+

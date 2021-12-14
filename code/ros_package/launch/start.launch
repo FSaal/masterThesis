@@ -1,0 +1,8 @@
+<launch>
+    <arg name="imu_topic" default="zed"/>
+    <arg name="lidar_topic" default="velodyne"/>
+    
+    <node name="imu_ramp" pkg="ramp_detection" type="imu_ramp.py" args="$(arg imu_topic)"/>
+    <node name="lidar_ramp" pkg="ramp_detection" type="lidar_ramp.py" args="$(arg lidar_topic)"/>
+    <node name="fusion_ramp" pkg="ramp_detection" type="fusion_ramp.py" output="screen"/>
+</launch>
