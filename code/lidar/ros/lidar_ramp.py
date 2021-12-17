@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
+from __future__ import division, print_function
+import numpy as np
 import pcl
 import ros_numpy
 import rospy
@@ -8,44 +9,44 @@ from sensor_msgs.msg import PointCloud2
 import sensor_msgs.point_cloud2 as pc2
 from std_msgs.msg import Header, Float32
 from tf.transformations import (
+    euler_from_matrix,
     euler_from_quaternion,
     euler_matrix,
     unit_vector,
     vector_norm,
 )
 
-# Limit CPU usage (of numpy)
-# ! must be called before importing numpy
-import os
-os.environ["MKL_NUM_THREADS"] = "1"
-os.environ["NUMEXPR_NUM_THREADS"] = "1"
-os.environ["OMP_NUM_THREADS"] = "1"
-import numpy as np
 
-
-class VisualDetection:
+class VisualDetection(object):
     """Detect ramps using LIDAR, get angle and distance to ramp"""
 
     def __init__(self):
-        rospy.init_node('visual_detection', anonymous=True)
-        # * Change lidar topic depending on used lidar
+        # ROS stuff
+        rospy.init_node('lidar_ramp_detection', anonymous=True)
+        # Frequency of node [Hz]
+        self.rate = 10
+        #! Change lidar topic depending on used lidar
         self.is_robos = False
         if self.is_robos:
             lidar_topic = '/right/rslidar_points'
         else:
             lidar_topic = '/velodyne_points'
-        self.sub_lidar = rospy.Subscriber(
-            lidar_topic, PointCloud2, self.callback_lidar, queue_size=10)
+
+        # Subscriber and publisher
+        rospy.Subscriber(lidar_topic, PointCloud2, self.callback_lidar, queue_size=10)
         self.pub_angle = rospy.Publisher('/lidar_ang', Float32, queue_size=10)
         self.pub_distance = rospy.Publisher('/lidar_dist', Float32, queue_size=10)
-        # Gets set True if lidar topic has started publishing
-        self.subbed_lidar = False
-        # Gets set True if initial tf from lidar to car frame has been performed
+
+        # Define subscriber callback message
+        self.cloud = None
+        # Flag for lidar car frame alignment, True after tf has been calculated
         self.is_calibrated = False
-        self.buffer = []
-        self.dist_buffer = []
+
+        # Moving average filter
         self.ang_filter = FilterClass()
         self.dist_filter = FilterClass()
+
+        self.pf1 = PerformanceMeasure()
 
     def callback_lidar(self, msg):
         """Get msg from LIDAR"""
@@ -54,13 +55,16 @@ class VisualDetection:
 
     def spin(self):
         """Run node until crash or user exit"""
-        # Robosense Lidar has a rate of 10 Hz, set rate of node to the same
-        r = rospy.Rate(10)
+        # Frequency at which node runs
+        r = rospy.Rate(self.rate)
+        # Wait until lidar msgs are received
+        while self.cloud is None:
+            if rospy.is_shutdown():
+                break
+            r.sleep()
 
         while not rospy.is_shutdown():
-            # Wait until lidar msgs are received
-            if not self.subbed_lidar:
-                continue
+            t0 = rospy.get_time()
             # Convert PointCloud2 msg to numpy array
             pc_array = ros_numpy.point_cloud2.pointcloud2_to_xyz_array(self.cloud, remove_nans=True)
 
@@ -71,13 +75,8 @@ class VisualDetection:
                 self.is_calibrated = True
 
             # Apply lidar to car frame transformation (adjust yaw angle manually)
-            if self.is_robos:
-                pc_array_tf = self.transform_pc(pc_array, rpy=(roll, pitch, 0),
-                                                translation_xyz=(1.14, 0, -height))
-            else:
-                pc_array_tf = self.transform_pc(pc_array, rpy=(0, pitch, np.pi),
-                                                translation_xyz=(1.14, 0.005, -height))
-
+            pc_array_tf = self.transform_pc(pc_array, rpy=(roll, pitch, 0),
+                                            translation_xyz=(1.14, 0.005, -height))
             # Original cloud after transformation
             self.publish_pc(pc_array_tf, 'pc_big')
 
@@ -104,59 +103,103 @@ class VisualDetection:
 
             self.pub_angle.publish(avg_angle)
             self.pub_distance.publish(avg_dist)
+            self.pf1.performance_calc(t0)
             r.sleep()
 
     def align_lidar(self, pc_array):
         """Calculate roll and pitch angle to align Lidar with car frame"""
         # Convert numpy array to pcl point cloud
         pc = self.array_to_pcl(pc_array)
+        # Reduce point cloud size a bit by downsampling
+        pc_small = self.voxel_filter(pc, 0.05)
 
-        # Get normal vector of ceiling plane
-        ceiling_vec_lidar, _ = self.ground_or_ceiling_detection(pc)
-        # Normal vector ground plane in car frame
-        # (assuming car stands on a flat surface)
-        ground_vec_car = [0, 0, 1]
+        # Rotation to make ground perpendicular to car z axis
+        rot, lidar_height = self.get_ground_plane(pc_small)
+        roll, pitch, _ = euler_from_matrix(rot)
 
-        # Quaternion to align lidar vec to car vec
-        quat = self.quat_from_vectors(ceiling_vec_lidar, ground_vec_car)
-        # Calculate euler angles
-        roll, pitch, _ = euler_from_quaternion(quat)
-        # Apply rotation
-        rot = euler_matrix(roll, pitch, 0, 'sxyz')[:3, :3]
-        pc_array_tf = np.inner(pc, rot)
-
-        # Detect ground plane after applied rotation to measure distance to ground
-        # Cut ceiling points, ground is always below LIDAR
-        pc_array_wo_ceiling = pc_array_tf[pc_array_tf[:, 2] < 0]
-        # Convert numpy array to pcl point cloud
-        pc_wo_ceiling = self.array_to_pcl(pc_array_wo_ceiling)
-        # Get distance to ground
-        _, height = self.ground_or_ceiling_detection(pc_wo_ceiling)
-
+        print('\n__________LIDAR__________')
         print('Euler angles in deg to tf lidar to car frame:')
-        print('Roll: {:05.2f}\nPitch: {:05.2f}'.format(
-            np.degrees(roll), np.degrees(pitch)))
-        print('{:.2f} m to ground'.format(height))
-        return (roll, pitch, height)
+        print('Roll: {:.2f}\nPitch: {:.2f}'.format(
+            np.rad2deg(roll), np.rad2deg(pitch)))
+        print('Lidar height above ground: {:.2f} m\n'.format(lidar_height))
 
-    def ground_or_ceiling_detection(self, pc):
-        """Detect ground or ceiling plane and get normal vector and distance to ground"""
-        # Initialize
-        ground_vec = [0, 0, 0]
-        # Prevent accidental wall detection
-        while not abs(ground_vec[2]) > 0.7:
+        return (roll, pitch, lidar_height)
+
+    def get_ground_plane(self, pc, max_iter=10):
+        """123"""
+        counter = 0
+        while True:
             # Get most dominant plane
             inliers_idx, coefficients = self.ransac(pc)
 
             # Split point cloud in inliers and outliers of plane
             plane = pc.extract(inliers_idx)
             pc = pc.extract(inliers_idx, negative=True)
+            # Calculate normal vector of plane
+            est_ground_vec = coefficients[:-1]
 
-            # Remove 4th plane coefficient (translation) to get normal vector
-            ground_vec = coefficients[:-1]
-            # Get distance to ground (from lidar)
-            dist_to_ground = np.mean(plane, axis=0)[2]
-        return ground_vec, dist_to_ground
+            # Test if plane could be the ground
+            is_ground = self.test_ground_estimation(plane, est_ground_vec)
+
+            # Exit if ground has been detected
+            if is_ground:
+                # Get rotation to align plane with ground
+                rot = self.level_plane(est_ground_vec)
+                # Apply rotation
+                plane_tf = np.inner(plane, rot)
+
+                # Calculate estimated distance from lidar to ground
+                dist_to_ground = np.mean(plane_tf, axis=0)[2]
+
+                return rot, dist_to_ground
+
+            # Prevent infinite loop
+            counter += 1
+            if counter == max_iter:
+                raise RuntimeError ('Ground could not be detected')
+
+    def test_ground_estimation(self, plane, est_ground_vec, lidar_height=1):
+        """Tests whether or not plane is ground (True) or not (False)
+        :param: plane:          [PCL] Point cloud
+        :param: est_ground_vec  [List]
+        :param: lidar_height    [Float]
+        :return:                [Bool]
+        """
+        # Get rotation to align plane with ground
+        rot = self.level_plane(est_ground_vec)
+        # Apply rotation
+        plane_tf = np.inner(plane, rot)
+
+        # Calculate estimated distance from lidar to ground
+        dist_to_ground = np.mean(plane_tf, axis=0)[2]
+
+        # Check if both conditions are fullfilled
+        # Is plane not a side wall (assumption only true if
+        # roll angle is below 45 deg)
+        is_not_sidewall = abs(est_ground_vec[2]) > 0.7
+        # Lidar is mounted 1m above --> ground must be lower
+        is_not_ceiling = dist_to_ground < -lidar_height
+
+        if is_not_sidewall and is_not_ceiling:
+            return True
+        return False
+
+    def level_plane(self, plane_normal, roll0=False):
+        """Get rotation (matrix) to make plane perpendicular to z axis of car"""
+        # Normal vector ground plane in car frame
+        # (assuming car stands on a flat surface)
+        ground_vec = (0, 0, 1)
+
+        # Get rotation to align detected plane with real ground plane
+        quat = self.quat_from_vectors(plane_normal, ground_vec)
+        # Calculate euler angles
+        roll, pitch, _ = euler_from_quaternion(quat)
+        # Ignore roll angle if roll=0 has been measured
+        if roll0:
+            roll = 0
+        # Get rotation matrix (ignoring yaw angle)
+        rot = euler_matrix(roll, pitch, 0, 'sxyz')[:3, :3]
+        return rot
 
     @staticmethod
     def array_to_pcl(pc_array):
@@ -167,16 +210,16 @@ class VisualDetection:
 
     @staticmethod
     def quat_from_vectors(vec1, vec2):
-        """Quaternion that aligns vec1 to vec2"""
-        # Normalize vectors
-        a, b = unit_vector(vec1), unit_vector(vec2)
-        c = np.cross(a, b)
-        d = np.dot(a, b)
+        """Quaternion that aligns vector 1 to vector 2"""
+        # Make sure both vectors are unit vectors
+        v1_uv, v2_uv = unit_vector(vec1), unit_vector(vec2)
+        cross_prod = np.cross(v1_uv, v2_uv)
+        dot_prod = np.dot(v1_uv, v2_uv)
 
         # Rotation axis
-        axis = c / vector_norm(c)
+        axis = cross_prod / vector_norm(cross_prod)
         # Rotation angle (rad)
-        ang = np.arctan2(vector_norm(c), d)
+        ang = np.arctan2(vector_norm(cross_prod), dot_prod)
 
         # Quaternion ([x,y,z,w])
         quat = np.append(axis*np.sin(ang/2), np.cos(ang/2))
@@ -287,6 +330,7 @@ class VisualDetection:
         checked whether they lie within the desired range:
         - angle (calculated between normal vec of ground_plane and this plane)
         - width
+
         If all conditions are met return True, else False
         """
         # Convert pcl plane to numpy array
@@ -374,7 +418,7 @@ class VisualDetection:
         pass
 
 
-class FilterClass:
+class FilterClass(object):
     """Filters a signal"""
 
     def __init__(self):
@@ -401,13 +445,13 @@ class FilterClass:
             if self.values:
                 self.sum -= self.values.pop(0)
         # Prevent division by zero
-        try:
-            return float(self.sum) / len(self.values)
-        except ZeroDivisionError:
+        if len(self.values) != 0:
+            return self.sum / len(self.values)
+        else:
             return 0
 
 
-class PerformanceMeasure:
+class PerformanceMeasure(object):
     """Can be used to measure time between two statements"""
 
     def __init__(self):
