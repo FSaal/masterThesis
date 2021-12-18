@@ -3,7 +3,7 @@
 from __future__ import division, print_function
 import numpy as np
 import pcl
-import ros_numpy
+from ros_numpy.point_cloud2 import pointcloud2_to_xyz_array
 import rospy
 from sensor_msgs.msg import PointCloud2
 import sensor_msgs.point_cloud2 as pc2
@@ -18,9 +18,10 @@ from tf.transformations import (
 
 
 class VisualDetection(object):
-    """Detect ramps using LIDAR, get angle and distance to ramp"""
+    """Detects ramps using lidar, gets angle and distance to ramp"""
 
     def __init__(self):
+        """Initialize class variables"""
         # ROS stuff
         rospy.init_node('lidar_ramp_detection', anonymous=True)
         # Frequency of node [Hz]
@@ -46,10 +47,8 @@ class VisualDetection(object):
         self.ang_filter = FilterClass()
         self.dist_filter = FilterClass()
 
-        self.pf1 = PerformanceMeasure()
-
     def callback_lidar(self, msg):
-        """Get msg from LIDAR"""
+        """Get msg from lidar"""
         self.cloud = msg
         self.subbed_lidar = True
 
@@ -64,32 +63,34 @@ class VisualDetection(object):
             r.sleep()
 
         while not rospy.is_shutdown():
-            t0 = rospy.get_time()
             # Convert PointCloud2 msg to numpy array
-            pc_array = ros_numpy.point_cloud2.pointcloud2_to_xyz_array(self.cloud, remove_nans=True)
+            pc_array = pointcloud2_to_xyz_array(self.cloud, remove_nans=True)
 
             # Get transformation from lidar to car frame
             if not self.is_calibrated:
-                # Get euler angles (roll and pitch) to align lidar with car frame
+                # Get euler angles (roll and pitch) to align lidar with
+                # car frame as well as distance of lidar to the ground
                 roll, pitch, height = self.align_lidar(pc_array)
                 self.is_calibrated = True
 
-            # Apply lidar to car frame transformation (adjust yaw angle manually)
+            # Apply lidar to car frame transformation
+            #! Adjust yaw angle and x,y translation manually
             pc_array_tf = self.transform_pc(pc_array, rpy=(roll, pitch, 0),
                                             translation_xyz=(1.14, 0.005, -height))
             # Original cloud after transformation
             self.publish_pc(pc_array_tf, 'pc_big')
 
-            # Filter unwanted points (to reduce point cloud size) with passthrough filter
-            # * Max Range of lidar is 100m (30m @ 10% NIST)
+            # Reduce point cloud size with a passthrough filter
             pc_array_cut = self.reduce_pc(pc_array_tf, (0, 30), (-2, 2), (-1, 2))
 
             # Convert numpy array to pcl object
             pc_cut = self.array_to_pcl(pc_array_cut)
 
             self.publish_pc(pc_cut, 'pc_small_before')
+
             # Downsample point cloud using voxel filter to further decrease size
             pc_small = self.voxel_filter(pc_cut, 0.1)
+
             self.publish_pc(pc_small, 'pc_small')
 
             # Perform RANSAC until no new planes are being detected
@@ -103,31 +104,54 @@ class VisualDetection(object):
 
             self.pub_angle.publish(avg_angle)
             self.pub_distance.publish(avg_dist)
-            self.pf1.performance_calc(t0)
             r.sleep()
 
     def align_lidar(self, pc_array):
-        """Calculate roll and pitch angle to align Lidar with car frame"""
+        """Calculates roll and pitch angle of lidar relative to car
+        as well as lidar distance to ground.
+
+        Args:
+            pc_array (ndarray): Nx3 array of pointcloud with N points
+
+        Returns:
+            (float, float, float): Roll, pitch angle in radians,
+            lidar distance to ground in m
+        """
         # Convert numpy array to pcl point cloud
         pc = self.array_to_pcl(pc_array)
         # Reduce point cloud size a bit by downsampling
         pc_small = self.voxel_filter(pc, 0.05)
 
-        # Rotation to make ground perpendicular to car z axis
+        # Get rotation to make ground perpendicular to car z axis
         rot, lidar_height = self.get_ground_plane(pc_small)
+        # Calculate euler angles from rotation matrix
         roll, pitch, _ = euler_from_matrix(rot)
 
+        # Display calculated transform
         print('\n__________LIDAR__________')
         print('Euler angles in deg to tf lidar to car frame:')
         print('Roll: {:.2f}\nPitch: {:.2f}'.format(
             np.rad2deg(roll), np.rad2deg(pitch)))
         print('Lidar height above ground: {:.2f} m\n'.format(lidar_height))
-
         return (roll, pitch, lidar_height)
 
     def get_ground_plane(self, pc, max_iter=10):
-        """123"""
+        """Calculates rotation matrix to make z axis of car perpendicular
+        to the ground plane.
+
+        Args:
+            pc (pcl): Full point cloud
+            max_iter (int, optional): Allowed tries to detect ground
+            before exiting. Defaults to 10.
+
+        Raises:
+            RuntimeError: If ground plane has not been found after max_iter tries.
+
+        Returns:
+            (ndarray, float): 3x3 rotation matrix, lidar distance to ground in m
+        """
         counter = 0
+        # Extract different planes using RANSAC until ground has been identified
         while True:
             # Get most dominant plane
             inliers_idx, coefficients = self.ransac(pc)
@@ -150,20 +174,24 @@ class VisualDetection(object):
 
                 # Calculate estimated distance from lidar to ground
                 dist_to_ground = np.mean(plane_tf, axis=0)[2]
-
                 return rot, dist_to_ground
 
             # Prevent infinite loop
             counter += 1
             if counter == max_iter:
-                raise RuntimeError ('Ground could not be detected')
+                raise RuntimeError ('No ground could be detected.')
 
     def test_ground_estimation(self, plane, est_ground_vec, lidar_height=1):
-        """Tests whether or not plane is ground (True) or not (False)
-        :param: plane:          [PCL] Point cloud
-        :param: est_ground_vec  [List]
-        :param: lidar_height    [Float]
-        :return:                [Bool]
+        """Tests if detected plane fullfills conditions to be considered the ground.
+
+        Args:
+            plane (pcl): Point cloud of plane
+            est_ground_vec (list): Normal vector of plane
+            lidar_height (float, optional): Height at which lidar is mounted
+            above ground (guess conservatively (low)). Defaults to 1 m.
+
+        Returns:
+            bool: Is plane the ground plane?
         """
         # Get rotation to align plane with ground
         rot = self.level_plane(est_ground_vec)
@@ -173,13 +201,13 @@ class VisualDetection(object):
         # Calculate estimated distance from lidar to ground
         dist_to_ground = np.mean(plane_tf, axis=0)[2]
 
-        # Check if both conditions are fullfilled
         # Is plane not a side wall (assumption only true if
         # roll angle is below 45 deg)
         is_not_sidewall = abs(est_ground_vec[2]) > 0.7
-        # Lidar is mounted 1m above --> ground must be lower
+        # Is detected plane well below lidar?
         is_not_ceiling = dist_to_ground < -lidar_height
 
+        # Check if both conditions are fullfilled
         if is_not_sidewall and is_not_ceiling:
             return True
         return False
@@ -210,7 +238,7 @@ class VisualDetection(object):
 
     @staticmethod
     def quat_from_vectors(vec1, vec2):
-        """Quaternion that aligns vector 1 to vector 2"""
+        """Gets quaternion to align vector 1 with vector 2"""
         # Make sure both vectors are unit vectors
         v1_uv, v2_uv = unit_vector(vec1), unit_vector(vec2)
         cross_prod = np.cross(v1_uv, v2_uv)
@@ -227,7 +255,8 @@ class VisualDetection(object):
 
     @staticmethod
     def transform_pc(pc, rpy=(0, 0, 0), translation_xyz=(1.7, 0, 1.7)):
-        """Transformation from Lidar frame to car frame. Rotation in rad and translation in m."""
+        """Transformation from lidar frame to car frame.
+        Rotation in rad and translation in m."""
         # Extract euler angles
         roll, pitch, yaw = rpy
         # Extract translations
