@@ -17,21 +17,29 @@ class ImuRampDetect(object):
     def __init__(self):
         # ROS stuff
         rospy.init_node('imu_ramp_detection', anonymous=True)
+        #! Select imu topic
         # imu_topic = '/imu/data'
         imu_topic = '/zed2i/zed_node/imu/data'
+        self.rate = 100
+
+        # Subscriber and publisher
         rospy.Subscriber(imu_topic, Imu, self.callback_imu, queue_size=10)
         rospy.Subscriber(
             '/eGolf/sensors/odometry', EGolfOdom, self.callback_odom, queue_size=1)
         self.pub_pitch = rospy.Publisher('/car_angle_new', Float32, queue_size=5)
         self.pub_debug = rospy.Publisher('/debug', Float32MultiArray, queue_size=5)
-        self.rate = 100             # Because both imu and odom publish with 100 Hz
-        self.is_subbed = False      # True if imu topic has started publishing
+
+        # Define subscriber callback messages
+        self.lin_acc_msg = None
+        self.ang_vel_msg = None
+        self.odom_msg = None
 
         # Variables for transformation from imu to car frame
+        self.buffer = []            # Buffer used to collect imu msgs to calculate average
+        self.g_mag = None           # Define gravity magnitude
+        self.quat1 = None           # Define quaternion used for first rotation
         self.z_calibrated = False   # True after first imu car frame alignment (pitch, roll)
         self.is_calibrated = False  # True after second alignment (heading)
-        self.buffer = []            # Buffer used to collect imu msgs for alignment
-        self.quat1 = [0, 0, 0, 1]   # Init quaternion used for first rotation
 
         # Variables for calculation of car pitch angle
         self.wheelbase = 2.631      # eGolf wheelbase [m]
@@ -40,7 +48,6 @@ class ImuRampDetect(object):
         self.angle_est = 0          # Initialize previous car pitch angle
                                     # (for complementary filter)
         self.dist = 0               # Travelled distance
-        self.lin_acc_msg = 0
 
         # Moving Average Filter
         self.imu_filt_class = FilterClass()
@@ -54,7 +61,6 @@ class ImuRampDetect(object):
             msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z]
         self.ang_vel_msg = [
             msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]
-        self.is_subbed = True
 
     def callback_odom(self, msg):
         """Get msg from odometer"""
@@ -62,11 +68,15 @@ class ImuRampDetect(object):
 
     def spin(self):
         """Run node until crash or user exit"""
+        # Frequency at which node runs
         r = rospy.Rate(self.rate)
+        # Wait until imu and odom msgs are received
+        while self.lin_acc_msg == None or self.odom_msg == None:
+            if rospy.is_shutdown():
+                break
+            r.sleep()
+
         while not rospy.is_shutdown():
-            # Wait until imu msgs are received
-            if not self.is_subbed:
-                continue
             # Get transformation from imu frame to car frame
             if not self.is_calibrated:
                 rot_mat = self.align_imu()
@@ -202,10 +212,12 @@ class ImuRampDetect(object):
         acc_x_imu_filt = self.imu_filt_class.moving_average(acc_x_imu, self.win_len)
 
         # Car acceleration from car velocity
+        print(vel_x_car_filt, self.vel_x_car_filt_old)
         acc_x_car = (vel_x_car_filt - self.vel_x_car_filt_old) / (1 / self.rate)
         self.vel_x_car_filt_old = vel_x_car_filt
 
         # Car pitch angle (imu acc + odom only)
+        print(acc_x_imu_filt, acc_x_car, self.g_mag)
         car_angle_filt = np.rad2deg(np.arcsin((acc_x_imu_filt - acc_x_car) / self.g_mag))
 
         # Car pitch angle (imu acc + odom + imu angular vel --> Complementary filter)
