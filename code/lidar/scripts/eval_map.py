@@ -31,13 +31,18 @@ class EvalMap():
         pc_map, region = self.select_bag()
         # Make sure region was specified
         if region:
+            print('Ramp region is published as separate point cloud')
             x_range, y_range = region
             self.pub_ramp_flag = True
+        else:
+            print('Ramp region does not seem to be specified yet')
 
         # Static publisher of the point cloud map
         while not rospy.is_shutdown():
+            # Downsample pc
+            pc_smol = self.voxel_filter(pc_map, 0.1)
             # Convert pcl object to list
-            pc_map_lst = pc_map.to_list()
+            pc_map_lst = pc_smol.to_list()
             # Get PointCloud2 msg from list
             pc = pc2.create_cloud_xyz32(self.header, pc_map_lst)
             # Publish map
@@ -49,24 +54,24 @@ class EvalMap():
 
             if self.pub_ramp_flag:
                 # Publish ramp region seperately
-                pc_ramp = self.ramp_region(pc_map_lst, x_range, y_range)
+                pc_ramp = self.get_ramp_region(pc_map_lst, x_range, y_range)
                 self.ramp_pub.publish(pc_ramp)
 
     def ground_only(self, pc_msg):
         pc_array = np.array(pc_msg)
-        # Remove points with z > 0.5 --> leaves mostly the ground points
-        pc_cut = pc_array[pc_array[:, 2] < 0.5]
+        # Remove points with z > 2 --> leaves mostly the ground points
+        pc_cut = pc_array[pc_array[:, 2] < 2]
         # pc_array_rot = self.transform_pc(pc_array, yaw=np.deg2rad(0))
 
         # Convert numpy array to pointcloud msg
         pc_ground = pc2.create_cloud_xyz32(self.header, list(pc_cut))
         return pc_ground
 
-    def ramp_region(self, pc_msg, x_range, y_range):
+    def get_ramp_region(self, pc_msg, x_range, y_range):
         pc_array = np.array(pc_msg)
         # Trim down to ramp region
         pc_cut = pc_array[
-            (pc_array[:, 2] < 0.5) &
+            (pc_array[:, 2] < 2) &
             (pc_array[:, 0] > x_range[0]) &
             (pc_array[:, 0] < x_range[1]) &
             (pc_array[:, 1] > y_range[0]) &
@@ -77,48 +82,55 @@ class EvalMap():
         pc_ramp = pc2.create_cloud_xyz32(self.header, list(pc_cut))
         return pc_ramp
 
+    def voxel_filter(self, pc, leaf_size):
+        """Downsample point cloud using voxel filter"""
+        vgf = pc.make_voxel_grid_filter()
+        # Leaf_size is the length of the side of the voxel cube in m
+        vgf.set_leaf_size(leaf_size, leaf_size, leaf_size)
+        pc_filtered = vgf.filter()
+        return pc_filtered
+
     def select_bag(self):
         # Get list of bag files
-        path = "/home/user/rosbags/big/evaluation"
+        path = "/home/user/rosbags/final/slam"
         os.chdir(path)
-        bag_list = glob.glob('*.bag')
-        # Remove hdl bags (by check if something has been added to number before .bag)
-        bag_list = [b for b in bag_list if b[-6:-4].isdigit()]
+        map_lst = glob.glob('*.pcd')
         # Sort list alphabetically
-        bag_list.sort()
+        map_lst.sort()
 
         # Map list
-        map_list = []
-        for b in bag_list:
-            bag_name, _ = b.split(".")
-            map_name = bag_name + "_map.pcd"
-            map_list.append(map_name)
 
         # Ask user what map to load
         print("The map of which bag do you want to see?")
-        for i, v in enumerate(map_list):
+        for i, v in enumerate(map_lst):
             print('Enter {} for {}'.format(i, v))
         while True:
             idx = raw_input("Enter now: ")
             # Make sure number is right
-            if idx.isdigit() and -1 < int(idx) < len(map_list):
+            if idx.isdigit() and -1 < int(idx) < len(map_lst):
                 i = int(idx)
                 break
             print("Please enter a valid number")
 
-        map_filename = os.path.join(path, map_list[i])
+        map_filename = os.path.join(path, map_lst[i])
         print(map_filename)
         pc_map = pcl.load(map_filename)
 
         region = [
-            [[24, 36], [-2.6, 1.5]],
-            [],
-            [],
-            [[20, 32], [-1.4, 2.5]],
-            [],
-            [],
-            [[14.5, 24], [1.5, 5.8]]
-            ]
+        [],
+        [],
+        [],
+        [],
+        # u_c2s_half
+        [[20.3, 33], [-0.9, 2.8]],
+        [],
+        [],
+        [],
+        # u_d2e
+        [[32.5, 44], [2, 5.5]],
+        [],
+        [],
+        ]
 
         return pc_map, region[i]
 
