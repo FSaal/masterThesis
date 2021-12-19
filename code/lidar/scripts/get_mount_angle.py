@@ -205,17 +205,20 @@ def filelist_from_dir(dir, extension):
     return lst
 
 #! Change path to directory which contains the rosbags
-path = "/home/user/rosbags/final"
+path = "/home/user/rosbags/final2"
+# path = "/home/user/rosbags/final/robos"
+
 # Get file list
 bag_lst = filelist_from_dir(path, 'bag')
 
 #! Change lidar topic
 lidar_topic = '/velodyne_points'
+# lidar_topic = '/left/rslidar_points'
 
 #! Publish pointcloud of detected ground?
-show_ground = True
+show_ground = False
 
-# Define list to collect values
+# Initialize empty list to collect values
 props = []
 
 rospy.init_node('check_ground')
@@ -240,4 +243,10 @@ means = np.mean(np.asarray(props), axis=0)
 print('Average angles / height of all rosbags')
 print('Roll: {:.2f}\nPitch: {:.2f}\nHeight: {:.2f}'.format(
     np.rad2deg(means[0]), np.rad2deg(means[1]), means[2]
+))
+
+# Static transform to insert in hdl slam launch file
+static_tf = [1.14-3.5, -0.05, -means[2], 0, means[1], means[0]]
+print('Static transform xyzypr: {} {} {:.4f} {} {:.4f} {:.4f}'.format(
+    *static_tf
 ))
