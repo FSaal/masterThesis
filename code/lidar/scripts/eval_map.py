@@ -25,6 +25,7 @@ class EvalMap():
         self.header.stamp = rospy.Time.now()
         self.header.frame_id = '/map_lidar'
         self.pub_ramp_flag = False
+        self.pub_ramps_flag = False
 
     def spin(self):
         # Ask user to select bag
@@ -32,7 +33,6 @@ class EvalMap():
         # Make sure region was specified
         if region:
             print('Ramp region is published as separate point cloud')
-            x_range, y_range = region
             self.pub_ramp_flag = True
         else:
             print('Ramp region does not seem to be specified yet')
@@ -54,33 +54,56 @@ class EvalMap():
 
             if self.pub_ramp_flag:
                 # Publish ramp region seperately
-                pc_ramp = self.get_ramp_region(pc_map_lst, x_range, y_range)
+                pc_ramp = self.get_ramp_region(pc_map_lst, region)
                 self.ramp_pub.publish(pc_ramp)
 
     def ground_only(self, pc_msg):
         pc_array = np.array(pc_msg)
         # Remove points with z > 2 --> leaves mostly the ground points
-        pc_cut = pc_array[pc_array[:, 2] < 2]
+        pc_cut = pc_array[pc_array[:, 2] < 0.5]
         # pc_array_rot = self.transform_pc(pc_array, yaw=np.deg2rad(0))
 
         # Convert numpy array to pointcloud msg
         pc_ground = pc2.create_cloud_xyz32(self.header, list(pc_cut))
         return pc_ground
 
-    def get_ramp_region(self, pc_msg, x_range, y_range):
+    def get_ramp_region(self, pc_msg, ramps):
+        """Cut all points which are not ramps and publish only the ramp points"""
+        # Convert from list to numpy array
         pc_array = np.array(pc_msg)
+        # First initialize, that every index/point is not a ramp
+        ramps_indices = np.zeros(len(pc_array), dtype=bool)
+
+        # Check if more than one ramp has been specified
+        if np.asarray(ramps).ndim > 2:
+            # At least two ramps
+            for ramp in ramps:
+                x_range, y_range = ramp
+                ramp_indices = self.cut_pc(pc_array, x_range, y_range)
+                ramps_indices += ramp_indices
+        # Only one ramp
+        else:
+            x_range, y_range = ramps
+            ramp_indices = self.cut_pc(pc_array, x_range, y_range)
+            ramps_indices += ramp_indices
+
         # Trim down to ramp region
-        pc_cut = pc_array[
+        pc_cut = pc_array[ramps_indices]
+
+        # Convert numpy array to pointcloud msg
+        pc_ramp = pc2.create_cloud_xyz32(self.header, list(pc_cut))
+        return pc_ramp
+
+    def cut_pc(self, pc_array, x_range, y_range):
+        """Pointcloud row indices of points, which are on the ramp"""
+        ramp_idx = (
             (pc_array[:, 2] < 2) &
             (pc_array[:, 0] > x_range[0]) &
             (pc_array[:, 0] < x_range[1]) &
             (pc_array[:, 1] > y_range[0]) &
             (pc_array[:, 1] < y_range[1])
-            ]
-
-        # Convert numpy array to pointcloud msg
-        pc_ramp = pc2.create_cloud_xyz32(self.header, list(pc_cut))
-        return pc_ramp
+        )
+        return ramp_idx
 
     def voxel_filter(self, pc, leaf_size):
         """Downsample point cloud using voxel filter"""
@@ -118,8 +141,13 @@ class EvalMap():
 
         region = [
         [],
-        [],
-        [],
+        # d_d2r2s_odom
+        [
+            [[25, 36], [-2.6, 1.4]],
+            [[26, 36], [37, 41]],
+            ],
+        # d_e2q (width and length are swapped)
+        [[24.5, 28.5], [3.3, 15]],
         [],
         # u_c2s_half
         [[20.3, 33], [-0.9, 2.8]],
@@ -129,7 +157,8 @@ class EvalMap():
         # u_d2e
         [[32.5, 44], [2, 5.5]],
         [],
-        [],
+        # u_s2c_half (hard because ramp is not straight)
+        [[42, 56], [-2.2, 2]],
         ]
 
         return pc_map, region[i]
