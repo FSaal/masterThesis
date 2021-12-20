@@ -25,7 +25,7 @@ class FusionRamp():
 
             try:
                 (trans, rot) = self.tf.lookupTransform(target_frame, source_frame, rospy.Time.now())
-                print('Translation: {}\nRotation: {}\n(Euler (rpy)):{:.3f} {:.3f} {:.3f}'.format(
+                print('trans = {}\nquat = {}\n(Euler (rpy)):{:.3f} {:.3f} {:.3f}\n'.format(
                     trans, rot, *np.rad2deg(euler_from_quaternion(rot))))
             except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
                 continue
