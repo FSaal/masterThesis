@@ -13,8 +13,15 @@ At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergr
 Because the measurements of the IMU are measured in the coordinate frame of the IMU $\mathcal{I}$, which is not aligned with the car frame $\mathcal{C}$, they have to be transformed.
 This can be achieved using a rotation matrix \mtf{i}{c} which transforms the measurements of the linear acceleration $\vincs{a}{I}_n \in \mathbb{R}^{1\times3}$ and angular velocity ${\vincs{v}{I}_n \in \mathbb{R}^{1\times3}}$ into the car frame. $n \in \mathbb{N}$ is the time step.
 
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=0.7\linewidth]{lidarCalibration.pdf}
+	\caption{Algo for lidar alignment}
+	\label{fig:lidarCalibration}
+\end{figure}
+
 During standstill, the only measurable acceleration besides noise and bias is the acceleration due to gravity.
-Assuming the car stands on flat ground, the gravity acceleration in the car frame should be pointing straight up in z-direction.
+Assuming the car stands on flat ground, the gravity acceleration in the car frame is measured in upwards z-direction.
 In a first step, the measured linear acceleration (gravity) in the IMU frame will be aligned with the z-axis of the car.
 According to Euler's rotation theorem, which says that any arbitrary rotation of a rigid body while holding one point (origin) fixed can be achieved by a rotation around a single fixed axis passing through the origin, there exists one rotation axis $\mathbf{j}$ and rotation angle $\alpha$ to achieve this.\\
 In the first step, a quaternion \qtf{i}{b} which transforms the measurements from the device frame $\mathcal{I}$ to an intermediate coordinate system $\mathcal{B}$, which has the z-axis up, will be found.
