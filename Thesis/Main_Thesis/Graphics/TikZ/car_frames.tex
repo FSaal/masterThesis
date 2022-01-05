@@ -1,0 +1,61 @@
+\documentclass{standalone}
+\usepackage{tikz}
+\usetikzlibrary{angles, calc, decorations.pathmorphing, quotes, spy}
+
+\begin{document}
+\begin{tikzpicture}[scale=1]
+    % Define car parameters
+    % Car height
+    \def\ch{2}
+    % Car length
+    \def\cl{5}
+    % Car body height
+    \def\bh{\ch*0.65}
+    % Roof length
+    \def\rl{\cl*0.6}
+    % Roof height
+    \def\rh{\ch*0.35}
+    % Car tilt angle
+    \def\ct{6}
+    % Anchor point is southwest
+    \coordinate (b) at (0,0);
+    % Offset to roof and wheels
+    \coordinate (r) at ($(b) +(\cl*0.17,\ch*0.65)$);
+    \coordinate (w) at ($(b) + (\cl*0.25,0)$);
+
+    % Body
+    \draw[black, fill=black!17, rounded corners=1.2ex, very thick]
+    (b) -- ++(0,\bh) -- ++(\cl*1/5,0) --  ++(\cl*3/5,0) -- ++(\cl*1/5,-\bh*0.25)
+    -- ++(0, -\bh*0.75) -- (b) -- cycle;
+    % Roof
+    \draw[very thick, rounded corners=0.5ex, fill=black!20!blue!20!white,thick]
+    (r) -- ++(0.2*\rl,\rh) -- ++(0.5*\rl,0) -- ++(0.3*\rl,-\rh) -- (r);
+    % \draw[thick] ($(r) + (\cl*0.5,\bh)$) -- ++(0,\rh);
+    \draw[thick] (r)++(\rl*0.6,0) -- ++(0,\rh);
+
+    % Wheels
+    \draw[draw=black,fill=gray!50,thick] (w) circle (.5);
+    \draw[draw=black,fill=gray!50,thick] (w) ++(\cl*0.55,0) circle (.5);
+    % Inner wheels
+    \draw[draw=black,fill=gray!80,semithick] (w) circle (.35);
+    \draw[draw=black,fill=gray!80,semithick] (w) ++(\cl*0.55,0) circle (.35);
+
+    % Car middle point
+    \coordinate (m) at (\cl*0.5, \bh*0.5);
+    \filldraw (m) circle (2pt) node[below] {car ($\mathcal{C}$)};
+    % Coordinate frames
+    \draw[thick,->, red] (m) -- ++(1,0,0) node[anchor=north east]{$x$};
+    \draw[thick,->, black!35!green] (m) -- ++(0,0,-1) node[anchor=west]{$y$};
+    \draw[thick,->, blue] (m) -- ++(0,1,0) node[anchor=south]{$z$};
+
+    % IMU middle point (random)
+    \begin{scope}[rotate=15]
+        \coordinate (mi) at (\cl*0.2, \bh*0.5);
+        \filldraw (mi) circle (2pt) node[below left] {IMU ($\mathcal{I}$)};
+        % Coordinate frames
+        \draw[thick,->, red] (mi) -- ++(1,0,0) node[anchor=north east]{$x$};
+        \draw[thick,->, black!35!green] (mi) -- ++(0,0,-1) node[anchor=west]{$y$};
+        \draw[thick,->, blue] (mi) -- ++(0,1,0) node[anchor=south]{$z$};
+    \end{scope}
+\end{tikzpicture}
+\end{document}
