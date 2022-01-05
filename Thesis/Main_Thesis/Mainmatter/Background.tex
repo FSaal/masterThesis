@@ -1,8 +1,17 @@
 %\pagestyle{fancy}
 \chapter{Background}
 \label{ch:Background}
+
 \section{Mathematical}
-\itodo{Might not be neccessary}
+\todoin{E. g.
+	\begin{itemize}
+	\item Vector projection
+    \item Quaternions
+    \item Rotation matrix
+\end{itemize}
+}
+
+
 
 \section{Sensors}
 \subsection{IMU}
@@ -37,6 +46,7 @@ MEMS consist of electrical and/or mechanical components in the size of \SI{100}{
 Other characteristics of MEMS are that they can easily be mass produced allowing for low cost and usually also need less power than traditional systems, because everything is integrated on the chip \cite{Shaeffer2013}.
 Almost all consumer grade electronics uses MEMS-IMUs nowadays, but they also find more and more use in many industry segments, as their accuracy continues to improve \cite{Perlmutter2016}.
 
+
 \subsubsection{MEMS Accelerometer}
 \begin{figure}[htb]
 	\centering
@@ -67,7 +77,7 @@ E.g.\ if the mass oscillates along the x-axis and a rotation around the z-axis i
 By measuring the amplitude and phase of the secondary oscillation the absolute value and direction of the angular velocity can be calculated.
 While MEMS gyroscopes do not achieve the same accuracy as optical gyroscopes they offer many advantages such as smaller physical properties (weight and size), lower power consumption and startup time as well as a significantly lower cost.
 Optical gyroscopes cost in the range of \$10,000 whereas MEMS gyroscopes can cost as low as \$3 \cite{Perlmutter2016}.
-But this comes at the cost of a worse angle drift which increases from 0.01 to 0.1 deg/h \todo{SIUnit} for optical gyroscopes to 10 deg/h \todo{check what type of deg/h there are, daytoday vs in-run} for MEMS-IMUs.
+But this comes at the cost of a worse angle drift which increases from 0.01 to 0.1 deg/h for optical gyroscopes to 10 deg/h \todo{check what type of deg/h there are, daytoday vs in-run} for MEMS-IMUs.
 MEMS gyroscopes have replaced other gyroscope types in most areas, but in areas where the highest precision possible is necessary, typically in military industry, optical gyroscopes are still used today.
 
 \subsubsection{(MEMS) Magnetometer}
@@ -80,8 +90,6 @@ Maybe a sentence about idc about problems, because raw measurements are mostly u
 The first type of errors are calibration errors, which can be eliminated.
 Common calibration errors are a constant bias (offset), scaling or misalignment (axes are not orthogonal to each other).
 The turn-on bias is different each time the IMU starts up, but can be removed as well.
-
-
 \todoin{
   \begin{itemize}
 	\item Calibration errors
@@ -91,6 +99,7 @@ The turn-on bias is different each time the IMU starts up, but can be removed as
 	\item VERY BRIEF
 	\item maybe as table
   \end{itemize}}
+
 
 \subsection{Lidar}
 \begin{figure}[htb]
@@ -126,26 +135,29 @@ But advantages compared to mechanical systems are the smaller former factor and 
 
 After transmitting the laser signal the reflected light passes through the receiving optic and is received by photodetectors.
 A processing unit then generates a 3D point cloud from all the received measurements.
-
 \itodo{Sort citations and maybe add some more}
 \cite{Wang2020}
 \cite{Vaughan2006}
 
-\section{ROS}
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
-At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
-At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
-At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
 
-\section{Sensor Fusion stuff (maybe)}
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
-At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
-At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
-At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+\subsection{Odometer?}
+\itodo{Probably brief explaination}
+
+
+\subsection{Camera?}
+\itodo{Probably not necessary, as everyone knows what a camera is}
+
+
+
+\section{ROS}
+\todoin{Brief introduction to ROS}
+
+
+
+\section{Sensor Fusion stuff?}
+\todoin{Could also just be explained in methods}
+
+
 
 \section{Signal processing}
 \dots is necessary.
@@ -153,8 +165,11 @@ At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergr
 Filtering can be used in live applications and produces an estimate of the current value by taking the past values into account, whereas smoothing uses past and future samples and thus introduces a delay if used on live data \todo{filtering also often introduces a delay}.
 Because the detection should be live, only the filtering methods will be examined.
 \itodo{How much about dsp? E.g. also noise, aa etc or only type of filters?}
-
 Digital filters can be generally divided into two different categories.
 \gls{fir} filter rely on a fixed number of recent input values. An example would be the moving average filter, which takes the past $n$ values into account.
 \gls{iir} filter rely on previous output as well as most recent input by summing all points with a certain weight (e.g. exponential filter).
-This also explains the naming of the two types, the FIR filter "forgets" past values, whereas the IIR filter uses the previous estimate and thus theoretically takes all past values into account.
+This also explains the naming of the two types, the FIR filter "forgets" past values, whereas the IIR filter uses the previous estimate and thus theoretically takes all past values into account.\\
+Savitzky-Golay filter
+\begin{equation}
+	y = \frac{1}{h}\sum_{i =\frac{1 - m}{2}}^{\frac{m - 1}{2}}C
+\end{equation}
