@@ -11,11 +11,15 @@
 \usepackage{graphicx}			% Pictures / Graphics
 \usepackage[hidelinks]{hyperref}% Clickable links in PDF
 \usepackage{listings}			% Typeset programming languages
+\usepackage{pdfpages}			% Allows for inclusion of pdf files
+\usepackage{pgfplots}			% Draw plots
 \usepackage{physics}			% Vector stuff
+\usepackage{standalone}			% Used for TikZ code outsourcing
 \usepackage{siunitx}			% SI Units
 \usepackage{tikz}				% Powerful drawing tool for latex
-\usepackage{tikz-dimline}		% Dimension (Measure) lines for TikZ
+\usepackage{tikz-dimline}		% Dimension (measure) lines for TikZ
 \usepackage{todonotes}			% Todo commands
+% Additional tikz libraries
 \usetikzlibrary{angles, calc, decorations.pathmorphing, quotes, spy}
 % Graphic paths
 \graphicspath{{Graphics/}{Graphics/ExperimentalSetup/}{Graphics/Methods/}}
@@ -30,18 +34,21 @@
 % text specifier: pageNum (\thepage), chapter (\thechapter)
 
 % Customize package settings
+\pgfplotsset{compat=1.15}		% Use old version to prevent warning
 % SI Units
 \sisetup{range-phrase=--}		% - instead of to, e.g. "1-7 nm" instead of "1 to 7 nm "
 \sisetup{range-units=single}	% Only one unit after second value (and none after first)
 
 % My own commands
 \newcommand{\subInd}[1]{_\mathrm{#1}}
+% Note todo in an own line
 \newcommand{\itodo}[1]{\todo[inline]{#1}}
+% Note todo in an own line but itemize possible
 \newcommand{\todoin}[2][]{\todo[inline, caption={2do}, #1]{
 		\begin{minipage}{\textwidth-4pt}#2\end{minipage}}}
 \newcommand{\todoFig}[1]{\\\color{red}{\textbf{TODO: }}#1}
 % Vector #1 in coordinate frame #2
-\newcommand{\vincs}[2]{\ensuremath{{}^{\mathcal{\MakeUppercase{#2}}}\mathbf{{#1}}}}
+\newcommand{\vincs}[2]{\ensuremath{{}_{\mathcal{\MakeUppercase{#2}}}\mathbf{{#1}}}}
 % Quaternion to transform from cs #1 to cs #2
 \newcommand{\qtf}[2]{\ensuremath{{}_{\mathcal{\MakeUppercase{#2}}}^{\mathcal{\MakeUppercase{#1}}}\mathbf{{q}}}}
 % Rotation matrix to transform from cs #1 to cs #2
@@ -51,16 +58,21 @@
 \input{Frontmatter/Glossary.tex}
 \begin{document}
 \input{Frontmatter/Titlepage}
+% Preamble stuff should not count to page numbers
 \pagenumbering{roman}
+% MDT Fachgebiet Erklaerung
+\includepdf[pages=-]{Frontmatter/Aufgabenstellung_Saalfrank.pdf}
 \input{Frontmatter/Kurzfassung}
 \input{Frontmatter/Abstract}
 \input{Frontmatter/Declaration}
+% Overview of different objects
 \tableofcontents
 \listoffigures
 \listoftables
 \printglossaries
 \listoftodos
 \newpage
+% Start page counter
 \pagenumbering{arabic}
 \input{Mainmatter/Introduction}
 \input{Mainmatter/StateOfTheArt}
@@ -69,6 +81,7 @@
 \input{Mainmatter/Methods}
 \input{Mainmatter/Results}
 \input{Mainmatter/Conclusion}
+% References
 \bibliographystyle{plain}
 \bibliography{References/library.bib}
 \input{Endmatter/Appendix}
