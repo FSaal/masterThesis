@@ -53,8 +53,12 @@ Both are mechanical LiDARs and have the same number of laser channels, but the V
 \missingfigure{Picture of robosense or/and velodyne}
 
 
+\subsection{Odometry}
+\todoin{I think this can be ommited? (functioning already explained in background and velocity calculation in methods)}
 
-\section{Placement}
+
+
+\section{Sensor placement}
 \begin{figure}[htpb]
 	\centering
 	\input{Graphics/TikZ/lidar_mount.tex}
@@ -66,17 +70,16 @@ The LiDAR will be placed on top of the car, to get a greater FOV.
 The pitch angle at which the LiDAR will be mounted should be chosen so that the number of points in the area at the beginning of the ramp are maximized.
 This allows for an easier detection of planes with different inclination angles.
 The coordinates at which the lasers hit the ground and ramp depend on the height of the LiDAR $ h_\mathrm{L} $, the distance to the ramp $d$, the angle of the ramp $\alpha$, the pitch angle $\gamma$ at which the LiDAR is mounted and finally on the vertical resolution and FOV of the LiDAR. The coordinates can be calculated in the following way.\\
-Up to $d$ the points will hit the ground, the
-\itodo{Make a good sketch again with labels etc and check if its easy understandable, only then continue in tikz and latex}
+Assuming there is no ramp, the x-coordinate where the laser waves hit the ground can be calculated with
 \begin{equation}
-	\alpha
+	x = \frac{h}{\tan(n\beta - \gamma)}
 \end{equation}
+with $n$ being the "laserID" starting from the lowest opening angle and going to the highest.
+When the ground is not a flat anymore, this assumption does not hold anymore. The x distance between two laser points reduces on a ramp.
+\dots whatever who cares
+\itodo{Make a good sketch again with labels etc and check if its easy understandable, only then continue in tikz and latex}
 \[ c = h - \frac{z}{\tan \alpha} \]
 \itodo{Lidar pitch angle at which most point hit area before ramp can be calculated, explaination here using sketch \ref{fig:tikz_lidar_mount}}
-
-
-\subsection{Odometry}
-\todoin{I think this can be ommited? (functioning already explained in background and velocity calculation in methods)}
 
 
 
