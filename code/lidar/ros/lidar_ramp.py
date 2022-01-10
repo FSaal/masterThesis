@@ -50,7 +50,6 @@ class VisualDetection(object):
     def callback_lidar(self, msg):
         """Get msg from lidar"""
         self.cloud = msg
-        self.subbed_lidar = True
 
     def spin(self):
         """Run node until crash or user exit"""
@@ -352,7 +351,7 @@ class VisualDetection(object):
             counter += 1
         return ramp_stats
 
-    def ramp_detection(self, plane, n_vec, angle_range, width_range):
+    def ramp_detection(self, plane, n_vec, angle_range, width_range, n_nearest=20):
         """Checks if conditions to be considered a ramp are fullfilled.
 
         The following values of the plane are being calculated and
@@ -367,11 +366,12 @@ class VisualDetection(object):
 
         # Calculate angle [deg] between normal vector of plane and ground
         angle = self.angle_calc([0, 0, 1], n_vec)
-        # Get ramp width (difference between y-values)
-        width = max(plane_array[:, 1]) - min(plane_array[:, 1])
-        # Ramp distance (average x-value of nearest points of the plane)
-        n_nearest = 10
-        dist = np.mean(np.sort(plane_array[:n_nearest, 0]))
+        # Get ramp width (difference between highest and lowest y-values)
+        # Sort y vector from lowest to highest
+        y_points_sorted = np.sort(plane_array[:, 1])
+        width = np.mean(y_points_sorted[-n_nearest:]) - np.mean(y_points_sorted[:n_nearest])
+        # Ramp distance (median x-value of nearest points of the plane)
+        dist = np.median(np.sort(plane_array[:, 0])[:n_nearest])
 
         # Assert ramp angle and width thresholds
         if (angle_range[0] <= angle <= angle_range[1]
