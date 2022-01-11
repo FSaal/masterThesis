@@ -27,6 +27,7 @@ Two different LiDARs will be used during the experiment.
 The RS-Bpearl and the Velodyne UltraPuck.
 The most relevant specifications of the two LiDARs can be seen in table \ref{tab:lidar_datasheets}.
 Both are mechanical LiDARs and have the same number of laser channels, but the Velodyne has a significant better vertical resolution, due to the smaller vertical FOV.
+\itodo{Add vertical FOV ranges to table (e.g. 0 to 90 deg for BP or -15 to 25 or whatever velodyne has)}
 \begin{table}[ht]
 	\centering
 	% todo: Manual citation prop wrong
@@ -73,9 +74,10 @@ The coordinates at which the lasers hit the ground and ramp depend on the height
 Assuming there is no ramp, the x-coordinate where the laser waves hit the ground can be calculated with
 \begin{equation}
 	x = \frac{h}{\tan(n\beta - \gamma)}
+	\label{eq:ground_points}
 \end{equation}
 with $n$ being the "laserID" starting from the lowest opening angle and going to the highest.
-When the ground is not a flat anymore, this assumption does not hold anymore. The x distance between two laser points reduces on a ramp.
+When the ground is not a flat anymore, the assumption from \ref{eq:ground_points} does not hold anymore. The x distance between two laser points reduces on a ramp.
 \dots whatever who cares
 \itodo{Make a good sketch again with labels etc and check if its easy understandable, only then continue in tikz and latex}
 \[ c = h - \frac{z}{\tan \alpha} \]
@@ -85,7 +87,12 @@ When the ground is not a flat anymore, this assumption does not hold anymore. Th
 
 \section{Car}
 \missingfigure{Picture of eGolf}
-\todoin{Some stats as height, track width etc, electric car hence less vibrations}
+\todoin{\begin{itemize}
+	\item Some stats as height, track width etc, electric car hence less vibrations
+	\item Problem with speed limit and odometer (no odometer when driving ramp up)
+	\item Connection setup (maybe own section or maybe not interesting at all)
+\end{itemize}
+}
 
 
 
