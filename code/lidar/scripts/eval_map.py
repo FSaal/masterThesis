@@ -30,6 +30,14 @@ class EvalMap():
     def spin(self):
         # Ask user to select bag
         pc_map, region = self.select_bag()
+
+        # Downsample pc
+        pc_smol = self.voxel_filter(pc_map, 0.1)
+        # Convert pcl object to list
+        pc_map_lst = pc_smol.to_list()
+        # Get PointCloud2 msg from list
+        self.pc = pc2.create_cloud_xyz32(self.header, pc_map_lst)
+
         # Make sure region was specified
         if region:
             print('Ramp region is published as separate point cloud')
@@ -37,31 +45,26 @@ class EvalMap():
         else:
             print('Ramp region does not seem to be specified yet')
 
-        # Static publisher of the point cloud map
+        # Remove non ground points
+        pc_ground = self.ground_only(pc_map_lst)
+
+        # Select ramp region
+        if self.pub_ramp_flag:
+            pc_ramp = self.get_ramp_region(pc_map_lst, region)
+
         while not rospy.is_shutdown():
-            # Downsample pc
-            pc_smol = self.voxel_filter(pc_map, 0.1)
-            # Convert pcl object to list
-            pc_map_lst = pc_smol.to_list()
-            # Get PointCloud2 msg from list
-            pc = pc2.create_cloud_xyz32(self.header, pc_map_lst)
             # Publish map
-            self.pcd_pub.publish(pc)
-
+            self.pcd_pub.publish(self.pc)
             # Publish ground seperately
-            pc_ground = self.ground_only(pc_map_lst)
             self.pcd_pub2.publish(pc_ground)
-
             if self.pub_ramp_flag:
                 # Publish ramp region seperately
-                pc_ramp = self.get_ramp_region(pc_map_lst, region)
                 self.ramp_pub.publish(pc_ramp)
 
     def ground_only(self, pc_msg):
         pc_array = np.array(pc_msg)
-        # Remove points with z > 2 --> leaves mostly the ground points
+        # Remove points above threshold
         pc_cut = pc_array[pc_array[:, 2] < 0.5]
-        # pc_array_rot = self.transform_pc(pc_array, yaw=np.deg2rad(0))
 
         # Convert numpy array to pointcloud msg
         pc_ground = pc2.create_cloud_xyz32(self.header, list(pc_cut))
