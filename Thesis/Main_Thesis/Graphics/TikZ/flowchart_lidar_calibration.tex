@@ -1,0 +1,42 @@
+\documentclass[12pt]{standalone}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows}
+
+% Define shapes
+\tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!30]
+\tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30]
+\tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, text width=3.5cm, draw=black, fill=orange!30]
+\tikzstyle{decision} = [diamond, aspect=3, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=green!30]
+\tikzstyle{arrow} = [thick,->,>=stealth]
+
+\begin{document}
+\begin{tikzpicture}[node distance=1.5cm]
+    % \node (start) [startstop] {Start};
+    % \node (raw) [io, below of=start] {Raw \acrshort{lidar} point cloud};
+    \node (raw) [io] {Raw LiDAR point cloud};
+    \node (downsample) [process, below of=raw] {Downsample};
+    \node (ransac) [process, below of=downsample] {RANSAC};
+    \node (nv) [process, below of=ransac] {Normal vector};
+    \node (rot) [process, below of=nv] {Rotate plane};
+    \node (is_plane_down) [decision, below of=rot, yshift=-0.3cm] {Below lidar?};
+    \node (is_not_sidewall) [decision, below of=is_plane_down, yshift=-0.5cm] {Not a side wall?};
+    \node (reduce) [process, right of=is_plane_down, xshift=4cm] {Remove plane};
+    \node (rotmat) [io, below of=is_not_sidewall, yshift=-0.3cm] {Rotation matrix};
+    % \node (end) [startstop, below of=rotmat] {Stop};
+
+
+    % Connect the nodes
+    % \draw [arrow] (start) -- (raw);
+    \draw [arrow] (raw) -- (downsample);
+    \draw [arrow] (downsample) -- (ransac);
+    \draw [arrow] (ransac) -- (nv);
+    \draw [arrow] (nv) -- (rot);
+    \draw [arrow] (rot) -- (is_plane_down);
+    \draw [arrow] (is_plane_down) -- node[anchor=east] {yes} (is_not_sidewall);
+    \draw [arrow] (is_plane_down) -- node[anchor=north] {no} (reduce);
+    \draw [arrow] (is_not_sidewall) -| node[anchor=north] {no} (reduce);
+    \draw [arrow] (reduce) |- (ransac);
+    \draw [arrow] (is_not_sidewall) -- node[anchor=east] {yes} (rotmat);
+    % \draw [arrow] (rotmat) -- (end);
+\end{tikzpicture}
+\end{document}
