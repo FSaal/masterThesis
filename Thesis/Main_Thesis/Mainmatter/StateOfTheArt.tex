@@ -6,21 +6,21 @@
 
 
 
-\section{IMU}
+\section{\glsentrytext{imu}}
 In \cite{Jauch2018} different methods to estimate the road grade angle are discussed.
-\itodo{Not really IMU, maybe in prev section instead}
+\itodo{Not really \acrshort{imu}, maybe in prev section instead}
 There exist methods without Inertial Sensors relying on a model describing the longitudinal movement of the vehicle and the topology of the road.
 Both models are fused using a Kalman filter to improve the accuracy of the estimation \cite{SAHLHOLM200755}.
-A Kalman filter is also used in \cite{Sahlholm2010}, where vehicle sensor data and \gls{gps} data are fused.
+A Kalman filter is also used in \cite{Sahlholm2010}, where vehicle sensor data and \acrfull{gps} data are fused.
 Besides the road grade, the vehicle mass is often also unknown and estimated as well \cite{Sahlholm2010,Maleej2015}.
-Another method using GPS data and IMUs to calculate the vertical and horizontal velocity change respectively and thereby the road grade is proposed in \cite{Ryu2004}.
-\cite{YazdaniBoroujeni2014} omits the IMU and relies on a GPS sensor and a barometer.\\
-GPS satellites broadcast information about their position and exact time to a GPS receiver, which than can calculate its position using triangulation \cite{Koyuncu2010}.
+Another method using \acrshort{gps} data and \acrshort{imu}s to calculate the vertical and horizontal velocity change respectively and thereby the road grade is proposed in \cite{Ryu2004}.
+\cite{YazdaniBoroujeni2014} omits the \acrshort{imu} and relies on a \acrshort{gps} sensor and a barometer.\\
+\acrshort{gps} satellites broadcast information about their position and exact time to a \acrshort{gps} receiver, which than can calculate its position using triangulation \cite{Koyuncu2010}.
 While an accuracy of up to \SI{1}{\metre} can be achieved when outside, the performance significantly drops when used indoors.
 The radio waves sent from the satellites are scattered, attenuated or blocked completely by walls and other obstacles, resulting in a very weak or even a complete loss of the signal \cite{Ozdenizci2015}.\\
-Most methods mentioned above do not seem fit for the task, due to the use of GPS.
+Most methods mentioned above do not seem fit for the task, due to the use of \acrshort{gps}.
 Furthermore many internal measurements such as the engine torque, brake system usage, selected gear etc. can not easily be accessed and thus might not be available.\\
-A method which does not use GPS, but only accelerometers and wheel odometers instead is described in \cite{Nilsson2012}.
+A method which does not use \acrshort{gps}, but only accelerometers and wheel odometers instead is described in \cite{Nilsson2012}.
 The vehicle acceleration, calculated by deriving the wheel speed measurements in respect to time, is subtracted from the accelerometer signal in longitudinal direction.
 The remaining part is then the gravitational acceleration and can be used to calculate the road grade angle.
 A similar approach is used in \cite{Sentouh2008}.
@@ -35,9 +35,9 @@ A similar approach is used in \cite{Sentouh2008}.
 
 
 
-\section{LiDAR}
+\section{\glsentrytext{lidar}}
 \todoin{\begin{itemize}
-    \item Lidar methods for plane detection
+    \item \acrshort{lidar} methods for plane detection
     \item If found, methods for elevation estimation
 \end{itemize}
 }

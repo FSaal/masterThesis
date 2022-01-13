@@ -15,15 +15,15 @@
 \end{figure}
 
 
-\section{IMU only}
+\section{\glsentrytext{imu} only}
 \subsection{Calibration}
-Because the measurements of the IMU are measured in the device frame $\mathcal{I}$, which is not aligned with the car frame $\mathcal{C}$, they have to be transformed.
+Because the measurements of the \acrshort{imu} are measured in the device frame $\mathcal{I}$, which is not aligned with the car frame $\mathcal{C}$, they have to be transformed.
 This can be achieved using a rotation matrix \mtf{i}{c} $\in \mathbb{R}^{3\times3}$ which transforms the measurements of the linear acceleration $\vincs{a}{I}_n \in \mathbb{R}^{1\times3}$ and angular velocity ${\vincs{v}{I}_n \in \mathbb{R}^{1\times3}}$ into the car frame.
 Note that the upper index? to the left of the matrix symbol denotes the source frame, whereas the destination frame is written below it.
  $n \in \mathbb{N}$ is the time step.\\
 During standstill, the only measurable acceleration besides noise and bias is the acceleration due to gravity.
 Assuming the car stands on flat ground, the gravity acceleration in the car frame is measured in upwards z-direction.
-In a first step, the measured linear acceleration (gravity) in the IMU frame will be aligned with the z-axis of the car.
+In a first step, the measured linear acceleration (gravity) in the \acrshort{imu} frame will be aligned with the z-axis of the car.
 According to Euler's rotation theorem, which says that any arbitrary rotation of a rigid body while holding one point (origin) fixed can be achieved by a rotation around a single fixed axis passing through the origin, there exists one rotation axis $\mathbf{j}$ and rotation angle $\alpha$ to achieve this.\\
 In the first step, the quaternion \qtf{i}{b} which describes the rotation from the device frame $\mathcal{I}$ to an intermediate coordinate system $\mathcal{B}$, which has the z-axis up, will be found.
 Resulting in $\vincs{z}{b} = \vincs{z}{c} = \mathbf{e}_\mathrm{z} = \left(\begin{array}{lll} 0 & 0 & 1 \end{array}\right)^{\top}$.
@@ -34,7 +34,7 @@ Using linear algebra \todo{better explaination} the rotation axis $\vb{j} \in \m
     = \frac{\vincs{\vu{a}}{i} \vdot \vb{e}_\mathrm{z} }{\norm{\vincs{\vu{a}}{i} \cp \vb{e}_\mathrm{z}}}
     = \frac{\vincs{\vu{a}_\mathrm{z}}{i}}{\norm{\vincs{\vu{a}_\mathrm{y}}{i}\vb{e}_\mathrm{x} - \vincs{\vu{a}_\mathrm{x}}{i}\vb{e}_\mathrm{y}}}
 \end{equation}
-with $\mathbf{a} \in \mathbb{R}^{1\times3}$ being the measured linear acceleration (average) in the IMU or car frame respectively and $\vu{a}$ being the unit vector of it.\\
+with $\mathbf{a} \in \mathbb{R}^{1\times3}$ being the measured linear acceleration (average) in the \acrshort{imu} or car frame respectively and $\vu{a}$ being the unit vector of it.\\
 The rotation angle can be calculated using
 \begin{equation}
     \tan(\alpha) = \frac{\norm{\vincs{\vu{a}}{i} \cp \vb{e}_\mathrm{z}}}{\vincs{\vu{a}}{i} \vdot \vb{e}_\mathrm{z}} \implies
@@ -107,15 +107,18 @@ And finally the measurements $\mathbf{A}$ can be transformed using
 
 
 
-\section{LiDAR only}
+\section{\glsentrytext{lidar} only}
 \subsection{Calibration}
-\itodo{Describe lidar calibration algorithm}
+\itodo{Describe \acrshort{lidar} calibration algorithm}
+Same as for the \acrshort{imu}, a transformation from the \acrshort{lidar} frame to the car frame is necessary.
+... using \acrfull{ransac}
+
 A flow chart of the described algorithm is shown in figure \ref{fig:lidarCalibration}.
 \itodo{Not sure if flow chart is best way to help understand explaination. Algorithm pseudo code might be better}
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=0.7\linewidth]{lidarCalibration.pdf}
-	\caption{Algo for lidar alignment}
+	\caption{Algo for \acrshort{lidar} alignment}
 	\label{fig:lidarCalibration}
 \end{figure}
 
@@ -133,7 +136,7 @@ A flow chart of the described algorithm is shown in figure \ref{fig:lidarCalibra
 \itodo{Brief explaination what sensor fusion is and why useful}
 
 
-\subsection{IMU and Odometer}
+\subsection{\glsentrytext{imu} and Odometer}
 
 \subsubsection{Car acceleration from odometer data}
 Because the odometer only delivers the speed of each wheel, the car velocity has to be calculated first.
@@ -165,7 +168,7 @@ with $h$ being the step size, which depends on the rate of the sensor.
 \begin{figure}[htpb]
     \centering
     \input{Graphics/TikZ/car_gravity.tex}
-    \caption{Gravity measured by IMU (in car frame). Show that $g_z$ etc}
+    \caption{Gravity measured by \acrshort{imu} (in car frame). Show that $g_z$ etc}
     \label{fig:tikz_car_gravity}
 \end{figure}
 \todoin{\begin{itemize}
@@ -175,7 +178,7 @@ with $h$ being the step size, which depends on the rate of the sensor.
 }
 
 
-\subsection{IMU and odometer and LiDAR}
+\subsection{\glsentrytext{imu} and odometer and \glsentrytext{lidar}}
 \todoin{\begin{itemize}
     \item Algo description
 \end{itemize}
