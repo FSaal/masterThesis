@@ -111,16 +111,73 @@ And finally the measurements $\mathbf{A}$ can be transformed using
 \subsection{Calibration}
 \itodo{Describe \acrshort{lidar} calibration algorithm}
 Same as for the \acrshort{imu}, a transformation from the \acrshort{lidar} frame to the car frame is necessary.
-... using \acrfull{ransac}
 
-A flow chart of the described algorithm is shown in figure \ref{fig:lidarCalibration}.
+\acrfull{ransac} \cite{Fischler1981} is an algorithm to remove outliers.
+It is often used in computer vision \dots.
+\acrshort{ransac} can also be used for plane segmentation in 3D point clouds.
+Consider a point cloud with $n$ points, where each point has a $x, y, z$ coordinate.
+In a first step, three random points from the point cloud are selected.
+Three, because this is the minimum number of points needed to get a plane.
+Now the parameters $a, b, c, d$ of the plane equation
+\begin{equation}
+    ax + by + cz + d = 0
+\end{equation}
+can be calculated.
+Then the deviation of the other points from the proposed plane can be calculated with
+\begin{equation}
+    dist = \frac{ax_i + by_i + cz_i + d}{\sqrt{a^2 + b^2 + c^2}}
+\end{equation}
+with i being \todo{pc set without 3 random points}.
+If the distance is within the threshold, the point counts as inlier.
+After iterating through the whole point cloud, the number of inlier points and their coordinates are stored.
+This process is then repeated again until the maximal number of iterations are reached.
+The plane with the greatest number of inliers is then selected.
+
+A flow chart of the described algorithm is shown in figure \ref{fig:flowchart_lidar_calibration}.
 \itodo{Not sure if flow chart is best way to help understand explaination. Algorithm pseudo code might be better}
+
 \begin{figure}[htb]
-	\centering
-	\includegraphics[width=0.7\linewidth]{lidarCalibration.pdf}
-	\caption{Algo for \acrshort{lidar} alignment}
-	\label{fig:lidarCalibration}
+    \centering
+    \input{Graphics/TikZ/flowchart_lidar_calibration.tex}
+    \caption{Algo for \acrshort{lidar} alignment}
+    \label{fig:flowchart_lidar_calibration}
 \end{figure}
+
+\subsection{algo}
+Because the raw \acrshort{lidar} data is too big to process in real time, preprocessing is necessary.
+It consists of a passthrough fiylter to remove unwanted points (e.g. behind the car) and a voxel grid filter to downsample the point cloud.
+The passthrough filter removes all the points which lie outside the specified x, y and z limits.
+Because the car drives forward, only points in front of the car are of interest.
+By removing points above a certain threshold in z direction, all the ceiling points are not taken into account anymore.
+This furthermore ensures that the ground and not the ceiling is detected first by \acrshort{ransac}.
+The exact values used in the implementation can be seen along the other parameters in table \ref{tab:lidar_params}.
+The next step in reducing the point cloud size is the voxel grid filter.
+The filter creates a 3D voxel grid, where each cube has the same dimension determined by the leaf size.
+All the points inside a cube are then reduced to their most centroid point.
+An visual representation of the algorithm can be seen in
+\begin{figure}[htb]
+    \centering
+    \input{Graphics/TikZ/flowchart_lidar.tex}
+    \caption{Algo for ramp detection}
+    \label{fig:flowchart_lidar}
+\end{figure}
+
+\begin{table}[ht]
+	\centering
+	% todo: Manual citation prop wrong
+	\caption{Used parameters for lidar algo}
+	\label{tab:lidar_params}
+	\begin{tabular}[t]{lcc}
+	\toprule
+	&\textbf{min} & \textbf{max}\\
+	\midrule
+	x 				& \SI{0}{\metre}	& \SI{30}{\metre}\\
+    y 				& \SI{-2}{\metre}  & \SI{2}{\metre}\\
+	z			    & \SI{-1}{\metre}  & \SI{2}{\metre}\\
+	\bottomrule
+	\end{tabular}
+\end{table}%
+
 
 
 \subsection{Algo description (Only have one)}
