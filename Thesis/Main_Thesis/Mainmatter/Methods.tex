@@ -111,9 +111,13 @@ And finally the measurements $\mathbf{A}$ can be transformed using
 \subsection{Calibration}
 \itodo{Describe \acrshort{lidar} calibration algorithm}
 Same as for the \acrshort{imu}, a transformation from the \acrshort{lidar} frame to the car frame is necessary.
-
-\acrfull{ransac} \cite{Fischler1981} is an algorithm to remove outliers.
-It is often used in computer vision \dots.
+The calibration is very similar to that of the \acrshort{imu}.
+At first both z-axes will be aligned.
+This is achieved by detecting the ground plane in the point cloud and finding the transform, such that the normal vector of the plane aligns with the z-axis of the car (the plane gets projected onto the xy-plane of the car frame).
+This results in the correct pitch and roll angle and the missing yaw angle is assumed to be zero.
+Should it not be zero it can also be measured by hand and given as parameter.\\
+For the ground plane detection \acrfull{ransac} \cite{Fischler1981} is used.
+\acrshort{ransac} is a non-deterministic algorithm to remove outliers and is often used in computer vision.
 \acrshort{ransac} can also be used for plane segmentation in 3D point clouds.
 Consider a point cloud with $n$ points, where each point has a $x, y, z$ coordinate.
 In a first step, three random points from the point cloud are selected.
@@ -144,17 +148,24 @@ A flow chart of the described algorithm is shown in figure \ref{fig:flowchart_li
 \end{figure}
 
 \subsection{algo}
-Because the raw \acrshort{lidar} data is too big to process in real time, preprocessing is necessary.
-It consists of a passthrough fiylter to remove unwanted points (e.g. behind the car) and a voxel grid filter to downsample the point cloud.
-The passthrough filter removes all the points which lie outside the specified x, y and z limits.
+Because the raw \acrshort{lidar} data is too big to allow for real time processing, preprocessing is necessary.
+It consists of a passthrough filter to remove unwanted points (e.g. behind the car) and a voxel grid filter to downsample the point cloud.
+Before the passthrough filter can be applied, the point cloud must be transformed to the car frame.
+The in the previous section described calibration algorithm is performed once at the start and its returned rotation is then applied to every new measurement.\\
+The passthrough filter then removes all the points which lie outside the specified x, y and z limits.
 Because the car drives forward, only points in front of the car are of interest.
-By removing points above a certain threshold in z direction, all the ceiling points are not taken into account anymore.
-This furthermore ensures that the ground and not the ceiling is detected first by \acrshort{ransac}.
-The exact values used in the implementation can be seen along the other parameters in table \ref{tab:lidar_params}.
-The next step in reducing the point cloud size is the voxel grid filter.
-The filter creates a 3D voxel grid, where each cube has the same dimension determined by the leaf size.
+Furthermore the points further away than a certain threshold are neglected, because the resolution of the measurements of the \acrshort{lidar} decrease with increasing distance.
+The ceiling points are removed by limiting in z-direction.
+The exact values used for the passthrough filter can be seen along the other parameters in table \ref{tab:lidar_params}.
+The next step in reducing the point cloud size is the voxel grid filter \cite{Vosselman2004}.
+The point cloud is converted into a 3D grid consisting of small cubes called voxels.
+Each cube can contain multiple points, the size of the voxels (also known as leaf size) determines the resolution.
 All the points inside a cube are then reduced to their most centroid point.
-An visual representation of the algorithm can be seen in
+If the cube does not contain any points, it is neglected.\\
+Now that the point cloud size is reduced greatly the actual ramp detection can be performed with sufficient performance.
+The \acrshort{ransac} algorithm is applied iteratively to detect all the planes.
+The \acrshort{ransac} algorithm returns the
+An visual representation of the algorithm is depicted in fig. \ref{fig:flowchart_lidar}.
 \begin{figure}[htb]
     \centering
     \input{Graphics/TikZ/flowchart_lidar.tex}
