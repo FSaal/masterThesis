@@ -114,7 +114,7 @@ At first both z-axes will be aligned.
 This is achieved by detecting the ground plane in the point cloud and finding the transform, such that the normal vector of the plane aligns with the z-axis of the car (the plane gets projected onto the xy-plane of the car frame).
 This results in the correct pitch and roll angle and the missing yaw angle is assumed to be zero.
 Should it not be zero it can also be measured by hand and given as parameter.\\
-For the ground plane detection \acrfull{ransac} \cite{Fischler1981} is used.
+For the ground plane detection \acrfull{ransac} \cite{Fischler1981} is used.\\
 \acrshort{ransac} is a non-deterministic algorithm to remove outliers and is often used in computer vision.
 \acrshort{ransac} can also be used for plane segmentation in 3D point clouds.
 Consider a point cloud with $n$ points, where each point $i$ has the coordinates $x_i, y_i, z_i$.
