@@ -27,7 +27,6 @@ Two different \acrshort{lidar}s will be used during the experiment.
 The RS-Bpearl and the Velodyne UltraPuck.
 The most relevant specifications of the two \acrshort{lidar}s can be seen in table \ref{tab:lidar_datasheets}.
 Both are mechanical \acrshort{lidar}s and have the same number of laser channels, but the Velodyne has a significant better vertical resolution, due to the smaller vertical \acrshort{fov}.
-\itodo{Add vertical \acrshort{fov} ranges to table (e.g. 0 to 90 deg for BP or -15 to 25 or whatever velodyne has)}
 \begin{table}[ht]
 	\centering
 	% todo: Manual citation prop wrong
@@ -37,17 +36,17 @@ Both are mechanical \acrshort{lidar}s and have the same number of laser channels
 	\toprule
 	&\textbf{RS-Bpearl} & \textbf{Velodyne Ultra Puck}\\
 	\midrule
-	Channels 				& 32 							& 32\\
-	Range 					& \SI{100}{\metre}				& \SI{200}{\metre}\\
-	Range accuracy			& $\pm\SI{3}{\centi\metre}$		& $\pm\SI{3}{\centi\metre}$\\
-	Horizontal \acrshort{fov}		 	& \SI{360}{\degree}				& \SI{360}{\degree}\\
-	Vertical \acrshort{fov} 			& \SI{90}{\degree}				& \SI{40}{\degree}\\
-	Horizontal resolution	& \SIrange{0.2}{0.4}{\degree} 	& \SIrange{0.1}{0.4}{\degree}\\
-	Vertical resolution		& \SI{2.81}{\degree} 			& \SI{0.33}{\degree}\\
-	Frame rate 				& \SIrange{10}{20}{\hertz}		& \SIrange{5}{20}{\hertz}\\
-	Laser wavelength 		& \SI{905}{\nano\metre} 		& \SI{903}{\nano\metre}\\
+	Channels 					& 32 							& 32\\
+	Range 						& \SI{100}{\metre}				& \SI{200}{\metre}\\
+	Range accuracy				& $\pm\SI{3}{\centi\metre}$		& $\pm\SI{3}{\centi\metre}$\\
+	Horizontal \acrshort{fov}	& \SI{360}{\degree}				& \SI{360}{\degree}\\
+	Vertical \acrshort{fov} 	& \SI{90}{\degree} 				& \SI{40}{\degree} (\SIrange{-25}{15}{\degree})\\
+	Horizontal resolution		& \SIrange{0.2}{0.4}{\degree} 	& \SIrange{0.1}{0.4}{\degree}\\
+	Vertical resolution			& \SI{2.81}{\degree} 			& \SI{0.33}{\degree}\\
+	Frame rate 					& \SIrange{10}{20}{\hertz}		& \SIrange{5}{20}{\hertz}\\
+	Laser wavelength 			& \SI{905}{\nano\metre} 		& \SI{903}{\nano\metre}\\
 	% \midrule
-	Points per second 		& 576,000						& 600,000		\\
+	Points per second 			& 576,000						& 600,000		\\
 	\bottomrule
 	\end{tabular}
 	\end{table}%
