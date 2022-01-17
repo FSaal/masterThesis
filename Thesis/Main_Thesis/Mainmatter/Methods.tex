@@ -103,13 +103,11 @@ And finally the measurements $\mathbf{A}$ can be transformed using
 
 
 \subsection{Complementary filter}
-\itodo{Or is combination of linear acceleration and angular velocity not already sensor fusion?}
 
 
 
 \section{\glsentrytext{lidar} only}
 \subsection{Calibration}
-\itodo{Describe \acrshort{lidar} calibration algorithm}
 Same as for the \acrshort{imu}, a transformation from the \acrshort{lidar} frame to the car frame is necessary.
 The calibration is very similar to that of the \acrshort{imu}.
 At first both z-axes will be aligned.
@@ -119,26 +117,45 @@ Should it not be zero it can also be measured by hand and given as parameter.\\
 For the ground plane detection \acrfull{ransac} \cite{Fischler1981} is used.
 \acrshort{ransac} is a non-deterministic algorithm to remove outliers and is often used in computer vision.
 \acrshort{ransac} can also be used for plane segmentation in 3D point clouds.
-Consider a point cloud with $n$ points, where each point has a $x, y, z$ coordinate.
+Consider a point cloud with $n$ points, where each point $i$ has the coordinates $x_i, y_i, z_i$.
 In a first step, three random points from the point cloud are selected.
-Three, because this is the minimum number of points needed to get a plane.
+Three, because this is the minimum number of points needed for a plane.
 Now the parameters $a, b, c, d$ of the plane equation
 \begin{equation}
     ax + by + cz + d = 0
 \end{equation}
 can be calculated.
-Then the deviation of the other points from the proposed plane can be calculated with
+Then for every other point the deviation from the proposed plane can be calculated with
 \begin{equation}
     dist = \frac{ax_i + by_i + cz_i + d}{\sqrt{a^2 + b^2 + c^2}}
 \end{equation}
-with i being \todo{pc set without 3 random points}.
-If the distance is within the threshold, the point counts as inlier.
+and is then summed up.
+If the distance is within a certain threshold, the point counts as an inlier.
 After iterating through the whole point cloud, the number of inlier points and their coordinates are stored.
 This process is then repeated again until the maximal number of iterations are reached.
-The plane with the greatest number of inliers is then selected.
-
+The plane with the greatest number of inliers is then selected.\\
+Then the normal vector of the plane, which can be conducted from the plane equation as follows
+\begin{equation}
+    \vb{n} = \left(\begin{array}{lll} a & b & c \end{array}\right)^{\top}
+\end{equation}
+is projected onto the z-axis of the car.
+The necessary rotation is then applied to the detected plane.
+Now that a plane has been found it must be ensured, that it really is the ground plane.
+Typically either the ceiling, ground or a side wall gets detected with \acrshort{ransac}.
+The greater the plane is (or the more points lie inside a plane), the more likely is the detection of the plane.
+Due to the mounting of the lidar, the ceiling usually does have the most points and is thus detected in the first iteration.\\
+An accidental ceiling detected can be prevented by looking at the average z-values of the detected plane.
+Because the lidar is mounted on the roof of the car, the z-values of the detected plane must be negative.
+If they are positive, the ceiling has been detected.
+Furthermore it is known, that the WHICH angle to rotate the lidar to level ground should not exceed the mount angle.
+If that is the case, most likely a side wall has been detected.
+If either condition has not been fulfilled, the detected plane does get removed from the point cloud and using \acrshort{ransac} a new ground plane estimation is made and validated.
+This process is repeated until both conditions are fulfilled.
+The yaw angle and the x- and y-translation from the \acrshort{lidar} to car
+\itodo{point at the front of the car, centered laterally (same y-coordinates as base\_link, but z at ground level and x further in front)}
+must be entered manually, but the pitch and roll angle and the distance from the \acrshort{lidar} to the ground are used from the calibration.
 A flow chart of the described algorithm is shown in figure \ref{fig:flowchart_lidar_calibration}.
-\itodo{Not sure if flow chart is best way to help understand explaination. Algorithm pseudo code might be better}
+\itodo{FLow chart for calibration can probably removed, flowchart for algo should be enough (very similar)}
 
 \begin{figure}[htb]
     \centering
@@ -147,24 +164,31 @@ A flow chart of the described algorithm is shown in figure \ref{fig:flowchart_li
     \label{fig:flowchart_lidar_calibration}
 \end{figure}
 
-\subsection{algo}
+\subsection{Algorithm}
 Because the raw \acrshort{lidar} data is too big to allow for real time processing, preprocessing is necessary.
 It consists of a passthrough filter to remove unwanted points (e.g. behind the car) and a voxel grid filter to downsample the point cloud.
 Before the passthrough filter can be applied, the point cloud must be transformed to the car frame.
 The in the previous section described calibration algorithm is performed once at the start and its returned rotation is then applied to every new measurement.\\
 The passthrough filter then removes all the points which lie outside the specified x, y and z limits.
 Because the car drives forward, only points in front of the car are of interest.
-Furthermore the points further away than a certain threshold are neglected, because the resolution of the measurements of the \acrshort{lidar} decrease with increasing distance.
+Furthermore the points further away than a certain threshold are neglected, because the resolution and accuracy of the measurements of the \acrshort{lidar} decrease with increasing distance.
 The ceiling points are removed by limiting in z-direction.
-The exact values used for the passthrough filter can be seen along the other parameters in table \ref{tab:lidar_params}.
+The exact values used for the passthrough filter can be seen along the other parameters in table \ref{tab:lidar_params}.\\
 The next step in reducing the point cloud size is the voxel grid filter \cite{Vosselman2004}.
 The point cloud is converted into a 3D grid consisting of small cubes called voxels.
-Each cube can contain multiple points, the size of the voxels (also known as leaf size) determines the resolution.
+Each cube can contain multiple points or none, the size of the voxels (also known as leaf size) determines the resolution.
 All the points inside a cube are then reduced to their most centroid point.
 If the cube does not contain any points, it is neglected.\\
 Now that the point cloud size is reduced greatly the actual ramp detection can be performed with sufficient performance.
-The \acrshort{ransac} algorithm is applied iteratively to detect all the planes.
-The \acrshort{ransac} algorithm returns the
+The \acrshort{ransac} algorithm usually detects the following types of planes: ceiling, ground, side wall or the desired ramp.
+\acrshort{ransac} is applied iteratively until a plane of type ramp has been found, each time a different type of plane has been found it gets removed.
+To prevent an infinite loop the algorithm will exit after either a certain number of iterations has been performed, or if after the removal of a plane not enough points are left in the point cloud.\\
+The accidental detection of the ceiling was already prevented during the passthrough filter step, where the ceiling points have been removed from the point cloud.
+By limiting the maximal angle between the ground plane and the detected plane the side walls are ignored.
+Similarly, the detected plane gets classified as ground plane, if the angle between the ground plane and the detected plane is near zero (or below the specified minimum angle).
+Beside the angle, the width of the plane (y-range) is being calculated and compared to the parameters, to make sure that the plane is indeed a drivable ramp for cars and not e.g. a small ramp for wheel chairs \todo{no idea if wheel chair ramps are common in parking garages?}.
+If a ramp has been detected, the estimated angle and distance from the car front to the beginning of the ramp are returned.\\
+\itodo{Add down ramp detection}
 An visual representation of the algorithm is depicted in fig. \ref{fig:flowchart_lidar}.
 \begin{figure}[htb]
     \centering
@@ -173,26 +197,34 @@ An visual representation of the algorithm is depicted in fig. \ref{fig:flowchart
     \label{fig:flowchart_lidar}
 \end{figure}
 
-\begin{table}[ht]
+\begin{table}[htb]
 	\centering
-	% todo: Manual citation prop wrong
 	\caption{Used parameters for lidar algo}
 	\label{tab:lidar_params}
-	\begin{tabular}[t]{lcc}
+	\begin{tabular}[t]{lc}
 	\toprule
-	&\textbf{min} & \textbf{max}\\
+	\textbf{parameter}  &\textbf{value} \\
 	\midrule
-	x 				& \SI{0}{\metre}	& \SI{30}{\metre}\\
-    y 				& \SI{-2}{\metre}  & \SI{2}{\metre}\\
-	z			    & \SI{-1}{\metre}  & \SI{2}{\metre}\\
+    \textbf{Passthrough filter}\\
+	x 				    & \SIrange{0}{30}{\metre}\\
+    y 				    & \SIrange{-2}{2}{\metre}\\
+	z                   & \SIrange{-1}{2}{\metre}\\
+	\midrule
+    \textbf{Voxel filter}\\
+    leaf\_size          & \SI{0.1}{\metre}\\
+    \midrule
+    \textbf{\acrshort{ransac}}\\
+    max\_iter           & 100\\
+    distance\_threshold & \SI{0.11}{\metre}\\
+    normal\_distance\_w & 0.01\\
+    \midrule
+    \textbf{rd}\\
+    angle               & \SIrange{3}{9}{\degree}\\
+    width               & \SIrange{2}{6}{\metre}\\
+    $o$                 & 4\\
 	\bottomrule
 	\end{tabular}
 \end{table}%
-
-
-
-\subsection{Algo description (Only have one)}
-\itodo{Probably add flow chart / pseudo-code algorithm as well}
 
 
 
