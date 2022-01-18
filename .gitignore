@@ -416,3 +416,11 @@ TSWLatexianTemp*
 *.code-workspace
 .sync.ffs_db
 .vscode/settings.json
+Thesis/Main_Thesis/main.glg-abr
+Thesis/Main_Thesis/main.glo-abr
+Thesis/Main_Thesis/main.gls-abr
+Thesis/Main_Thesis/main.slg
+Thesis/Main_Thesis/main.slo
+Thesis/Main_Thesis/main.sls
+Thesis/Main_Thesis/main.syg
+Thesis/Main_Thesis/main.syi
