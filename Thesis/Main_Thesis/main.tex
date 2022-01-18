@@ -5,6 +5,7 @@
 \usepackage{amsmath}			% Math
 \usepackage{amssymb}			% More math
 \usepackage{booktabs}			% Neat tables
+\usepackage{caption}			% Needed for caption in subfigures
 \usepackage{fancyhdr}			% Customize header and footers
 \usepackage{float}				% Floating figures / tables
 \usepackage[symbols,acronyms,abbreviations,automake]{glossaries-extra}	% Allows for definition of acronyms and stuff
@@ -14,8 +15,9 @@
 \usepackage{pdfpages}			% Allows for inclusion of pdf files
 \usepackage{pgfplots}			% Draw plots
 \usepackage{physics}			% Vector stuff
-\usepackage{standalone}			% Used for TikZ code outsourcing
 \usepackage{siunitx}			% SI Units
+\usepackage{standalone}			% Used for TikZ code outsourcing
+\usepackage{subcaption}         $ Subfigure captions
 \usepackage{tikz}				% Powerful drawing tool for latex
 \usepackage{tikz-dimline}		% Dimension (measure) lines for TikZ
 \usepackage{todonotes}			% Todo commands
@@ -61,6 +63,34 @@
 \newcommand{\qtf}[2]{\ensuremath{{}_{\mathcal{\MakeUppercase{#2}}}^{\mathcal{\MakeUppercase{#1}}}\mathbf{{q}}}}
 % Rotation matrix to transform from cs #1 to cs #2
 \newcommand{\mtf}[2]{\ensuremath{{}_{\mathcal{\MakeUppercase{#2}}}^{\mathcal{\MakeUppercase{#1}}}\mathbf{{M}}}}
+\newcommand{\rotateRPY}[3]% roll, pitch, yaw
+{   \pgfmathsetmacro{\rollangle}{#1}
+    \pgfmathsetmacro{\pitchangle}{#2}
+    \pgfmathsetmacro{\yawangle}{#3}
+
+    % to what vector is the x unit vector transformed, and which 2D vector is this?
+    \pgfmathsetmacro{\newxx}{cos(\yawangle)*cos(\pitchangle)}
+    \pgfmathsetmacro{\newxy}{sin(\yawangle)*cos(\pitchangle)}
+    \pgfmathsetmacro{\newxz}{-sin(\pitchangle)}
+    \path (\newxx,\newxy,\newxz);
+    \pgfgetlastxy{\nxx}{\nxy};
+
+    % to what vector is the y unit vector transformed, and which 2D vector is this?
+    \pgfmathsetmacro{\newyx}{cos(\yawangle)*sin(\pitchangle)*sin(\rollangle)-sin(\yawangle)*cos(\rollangle)}
+    \pgfmathsetmacro{\newyy}{sin(\yawangle)*sin(\pitchangle)*sin(\rollangle)+ cos(\yawangle)*cos(\rollangle)}
+    \pgfmathsetmacro{\newyz}{cos(\pitchangle)*sin(\rollangle)}
+    \path (\newyx,\newyy,\newyz);
+    \pgfgetlastxy{\nyx}{\nyy};
+
+    % to what vector is the z unit vector transformed, and which 2D vector is this?
+    \pgfmathsetmacro{\newzx}{cos(\yawangle)*sin(\pitchangle)*cos(\rollangle)+ sin(\yawangle)*sin(\rollangle)}
+    \pgfmathsetmacro{\newzy}{sin(\yawangle)*sin(\pitchangle)*cos(\rollangle)-cos(\yawangle)*sin(\rollangle)}
+    \pgfmathsetmacro{\newzz}{cos(\pitchangle)*cos(\rollangle)}
+    \path (\newzx,\newzy,\newzz);
+    \pgfgetlastxy{\nzx}{\nzy};
+}
+\tikzset{RPY/.style={x={(\nxx,\nxy)},y={(\nyx,\nyy)},z={(\nzx,\nzy)}}}
+
 
 % Start document and load all parts
 \input{Frontmatter/Glossary.tex}
