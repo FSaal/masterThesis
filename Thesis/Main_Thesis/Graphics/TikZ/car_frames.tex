@@ -1,9 +1,9 @@
-\documentclass[12pt]{standalone}
+\documentclass[11pt]{standalone}
 \usepackage{tikz}
 \usetikzlibrary{angles, calc, decorations.pathmorphing, quotes, spy}
 
 \begin{document}
-\begin{tikzpicture}[scale=1]
+\begin{tikzpicture}[scale=1.5]
     % Define car parameters
     % Car height
     \def\ch{2}
@@ -42,7 +42,7 @@
 
     % Car middle point
     \coordinate (m) at (\cl*0.5, \bh*0.5);
-    \filldraw (m) circle (2pt) node[below] {car ($\mathcal{C}$)};
+    \filldraw (m) circle (2pt) node[below] {Car ($\mathcal{C}$)};
     % Coordinate frames
     \draw[thick,->, red] (m) -- ++(1,0,0) node[anchor=north east]{$x$};
     \draw[thick,->, black!35!green] (m) -- ++(0,0,-1) node[anchor=west]{$y$};
@@ -51,11 +51,21 @@
     % IMU middle point (random)
     \begin{scope}[rotate=15]
         \coordinate (mi) at (\cl*0.2, \bh*0.5);
-        \filldraw (mi) circle (2pt) node[below left] {IMU ($\mathcal{I}$)};
+        \filldraw (mi) circle (2pt) node[below] {\gls{imu} ($\mathcal{I}$)};
         % Coordinate frames
         \draw[thick,->, red] (mi) -- ++(1,0,0) node[anchor=north east]{$x$};
         \draw[thick,->, black!35!green] (mi) -- ++(0,0,-1) node[anchor=west]{$y$};
         \draw[thick,->, blue] (mi) -- ++(0,1,0) node[anchor=south]{$z$};
+    \end{scope}
+
+    % LIDAR middle point (random)
+    \begin{scope}[rotate=-10]
+        \coordinate (ml) at (2.5, 2.47);
+        \filldraw (ml) circle (2pt) node[above left] {\gls{lidar} ($\mathcal{L}$)};
+        % Coordinate frames
+        \draw[thick,->, red] (ml) -- ++(1,0,0) node[anchor=north east]{$x$};
+        \draw[thick,->, black!35!green] (ml) -- ++(0,0,-1) node[anchor=west]{$y$};
+        \draw[thick,->, blue] (ml) -- ++(0,1,0) node[anchor=south]{$z$};
     \end{scope}
 \end{tikzpicture}
 \end{document}
