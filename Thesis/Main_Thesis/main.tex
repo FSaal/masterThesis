@@ -7,7 +7,7 @@
 \usepackage{booktabs}			% Neat tables
 \usepackage{fancyhdr}			% Customize header and footers
 \usepackage{float}				% Floating figures / tables
-\usepackage{glossaries}			% Allows for definition of acronyms and stuff
+\usepackage[symbols,acronyms,abbreviations,automake]{glossaries-extra}	% Allows for definition of acronyms and stuff
 \usepackage{graphicx}			% Pictures / Graphics
 \usepackage[hidelinks]{hyperref}% Clickable links in PDF
 \usepackage{listings}			% Typeset programming languages
@@ -78,7 +78,8 @@
 \tableofcontents
 \listoffigures
 \listoftables
-\printglossaries
+\printglossary[type=acronym, nonumberlist]
+\printglossary[type=symbols, title=List of Symbols, nonumberlist]%
 \listoftodos
 \newpage
 % Start page counter

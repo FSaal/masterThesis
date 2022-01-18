@@ -1,6 +1,8 @@
 \makeglossaries
 
 % Acronyms
+% First mention long, others short
+\setabbreviationstyle[acronym]{long-short}
 \newacronym{imu}{IMU}{Intertial Measurement Unit}
 \newacronym{lidar}{LiDAR}{Light Detection And Ranging}
 \newacronym{mems}{MEMS}{Microelectromechanical Systems}
@@ -13,12 +15,23 @@
 \newacronym{iir}{IIR}{Infinite Impulse Response}
 \newacronym{ransac}{RANSAC}{Random Sample Consensus}
 \newacronym{slam}{SLAM}{Simultaneous Localization and Mapping}
+\newacronym{avp}{AVP}{Automated Valet Parking}
 
+% Symbols
+\glsxtrnewsymbol[description={Vector}]{v}{$\vb{v}$}
+\glsxtrnewsymbol[description={Unit vector}]{v_uv}{$\vu{v}$}
+\glsxtrnewsymbol[description={Norm of vector}]{v_norm}{$\norm{v}$}
+\glsxtrnewsymbol[description={Vector in coordinate frame $\mathcal{A}$}]{v2}{\vincs{v}{a}}
+\glsxtrnewsymbol[description={Rotation matrix to transform from a to b}]{R}{\mtf{a}{b}}
+\glsxtrnewsymbol[description={Quaternion to transform from a to b}]{q}{\qtf{a}{b}}
 
-% Glossary
-\newglossaryentry{latex}
-{
-    name=latex,
-    description={Is a markup language specially suited
-    for scientific documents}
-}
+% % Glossary
+% \newglossaryentry{latex}
+% {
+%     name=latex,
+%     description={Is a markup language specially suited
+%     for scientific documents}
+% }
+
+% Display all glossary entries (even if they are not mentioned)
+\glsaddall

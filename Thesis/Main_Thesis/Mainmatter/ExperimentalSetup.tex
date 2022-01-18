@@ -11,26 +11,26 @@
     \draw[thick,->, green] (0,0,0) -- (0,1,0) node[anchor=north west]{$y$};
     \draw[thick,->, blue] (0,0,0) -- (0,0,1) node[anchor=south]{$z$};
 \end{tikzpicture}
-For the experiments the myAHRS+, a low cost high performance \acrfull{ahrs} will be used.
-An \acrshort{ahrs} contains an \acrshort{imu} and outputs the raw data but also has an integrated Kalman filter which calculates the pose in form of quaternion or euler angles.
+For the experiments the myAHRS+, a low cost high performance \gls{ahrs} will be used.
+An \gls{ahrs} contains an \gls{imu} and outputs the raw data but also has an integrated Kalman filter which calculates the pose in form of quaternion or euler angles.
 It offers an micro-USB interface and runs with up to \SI{100}{\Hz}.
 It can capture a change of $\pm$2000 dps (degrees per second), $\pm$16 $g$ and $\pm$\SI{1200}{\micro\tesla}.
 During the experiment only a fraction of this range is expected to be reached, hence the sensor seems suitable.
 Besides the hardware the unit already has an Extended Kalman Filter (EKF) on board.
 The EKF fuses the measurements of the three sensors and estimates a quaternion (and sth else?) from it.
 But this will not be used.
-\itodo{Also add ZED 2i \acrshort{imu} and compare (probably table similar to \acrshort{lidar})}
+\itodo{Also add ZED 2i \gls{imu} and compare (probably table similar to \gls{lidar})}
 
 
 \subsection{\glsentrytext{lidar}}
-Two different \acrshort{lidar}s will be used during the experiment.
+Two different \gls{lidar}s will be used during the experiment.
 The RS-Bpearl and the Velodyne UltraPuck.
-The most relevant specifications of the two \acrshort{lidar}s can be seen in table \ref{tab:lidar_datasheets}.
-Both are mechanical \acrshort{lidar}s and have the same number of laser channels, but the Velodyne has a significant better vertical resolution, due to the smaller vertical \acrshort{fov}.
+The most relevant specifications of the two \gls{lidar}s can be seen in table \ref{tab:lidar_datasheets}.
+Both are mechanical \gls{lidar}s and have the same number of laser channels, but the Velodyne has a significant better vertical resolution, due to the smaller vertical \gls{fov}.
 \begin{table}[ht]
 	\centering
 	% todo: Manual citation prop wrong
-	\caption{Comparison of the two used \acrshort{lidar}s \cite{RoboSense2020}\cite{Rev}}
+	\caption{Comparison of the two used \gls{lidar}s \cite{RoboSense2020}\cite{Rev}}
 	\label{tab:lidar_datasheets}
 	\begin{tabular}[t]{lcc}
 	\toprule
@@ -39,8 +39,8 @@ Both are mechanical \acrshort{lidar}s and have the same number of laser channels
 	Channels 					& 32 							& 32\\
 	Range 						& \SI{100}{\metre}				& \SI{200}{\metre}\\
 	Range accuracy				& $\pm\SI{3}{\centi\metre}$		& $\pm\SI{3}{\centi\metre}$\\
-	Horizontal \acrshort{fov}	& \SI{360}{\degree}				& \SI{360}{\degree}\\
-	Vertical \acrshort{fov} 	& \SI{90}{\degree} 				& \SI{40}{\degree} (\SIrange{-25}{15}{\degree})\\
+	Horizontal \gls{fov}	& \SI{360}{\degree}				& \SI{360}{\degree}\\
+	Vertical \gls{fov} 	& \SI{90}{\degree} 				& \SI{40}{\degree} (\SIrange{-25}{15}{\degree})\\
 	Horizontal resolution		& \SIrange{0.2}{0.4}{\degree} 	& \SIrange{0.1}{0.4}{\degree}\\
 	Vertical resolution			& \SI{2.81}{\degree} 			& \SI{0.33}{\degree}\\
 	Frame rate 					& \SIrange{10}{20}{\hertz}		& \SIrange{5}{20}{\hertz}\\
@@ -58,14 +58,14 @@ Both are mechanical \acrshort{lidar}s and have the same number of laser channels
 \begin{figure}[htpb]
 	\centering
 	\input{Graphics/TikZ/lidar_mount.tex}
-	\caption{Mounting of the \acrshort{lidar}}
+	\caption{Mounting of the \gls{lidar}}
 	\label{fig:tikz_lidar_mount}
 \end{figure}
-\itodo{\acrshort{imu} placement not really important, should just be static}
-The \acrshort{lidar} will be placed on top of the car, to get a greater \acrshort{fov}.
-The pitch angle at which the \acrshort{lidar} will be mounted should be chosen so that the number of points in the area at the beginning of the ramp are maximized.
+\itodo{\gls{imu} placement not really important, should just be static}
+The \gls{lidar} will be placed on top of the car, to get a greater \gls{fov}.
+The pitch angle at which the \gls{lidar} will be mounted should be chosen so that the number of points in the area at the beginning of the ramp are maximized.
 This allows for an easier detection of planes with different inclination angles.
-The coordinates at which the lasers hit the ground and ramp depend on the height of the \acrshort{lidar} $ h_\mathrm{L} $, the distance to the ramp $d$, the angle of the ramp $\alpha$, the pitch angle $\gamma$ at which the \acrshort{lidar} is mounted and finally on the vertical resolution and \acrshort{fov} of the \acrshort{lidar}. The coordinates can be calculated in the following way.\\
+The coordinates at which the lasers hit the ground and ramp depend on the height of the \gls{lidar} $ h_\mathrm{L} $, the distance to the ramp $d$, the angle of the ramp $\alpha$, the pitch angle $\gamma$ at which the \gls{lidar} is mounted and finally on the vertical resolution and \gls{fov} of the \gls{lidar}. The coordinates can be calculated in the following way.\\
 Assuming there is no ramp, the x-coordinate where the laser waves hit the ground can be calculated with
 \begin{equation}
 	x = \frac{h}{\tan(n\beta - \gamma)}
@@ -76,7 +76,7 @@ When the ground is not a flat anymore, the assumption from \ref{eq:ground_points
 \dots whatever who cares
 \itodo{Make a good sketch again with labels etc and check if its easy understandable, only then continue in tikz and latex}
 \[ c = h - \frac{z}{\tan \alpha} \]
-\itodo{\acrshort{lidar} pitch angle at which most point hit area before ramp can be calculated, explaination here using sketch \ref{fig:tikz_lidar_mount}}
+\itodo{\gls{lidar} pitch angle at which most point hit area before ramp can be calculated, explaination here using sketch \ref{fig:tikz_lidar_mount}}
 
 
 
