@@ -2,6 +2,12 @@
 \chapter{Methods}
 \label{ch:Methods}
 
+\begin{figure}[htpb]
+    \centering
+	\input{Graphics/TikZ/car_tilt.tex}
+	\caption{Car driving on a ramp. Due to forward acceleration the car tilts back.}
+	\label{fig:tikz_car_tilt}
+\end{figure}
 \todoin{\begin{itemize}
     \item Coordinate system problem
     \item Problem with car tilt
@@ -9,46 +15,83 @@
 \end{itemize}}
 \begin{figure}[htpb]
     \centering
-	\input{Graphics/TikZ/car_tilt.tex}
-	\caption{Car driving on a ramp. Due to forward acceleration the car tilts back.}
-	\label{fig:tikz_car_tilt}
+    \input{Graphics/TikZ/car_frames.tex}
+	\caption{Coordinate frames problem}
+    \label{fig:tikz_car_frames}
 \end{figure}
+
 
 
 \section{\glsentrytext{imu} only}
 \subsection{Calibration}
-Because the measurements of the \acrshort{imu} are measured in the device frame $\mathcal{I}$, which is not aligned with the car frame $\mathcal{C}$, they have to be transformed.
+\begin{figure}[htb]
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \input{Graphics/TikZ/frame_transformation_init.tex}
+        \caption{No axes are aligned}
+        \label{fig:tikz_frame_transformation_init}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \input{Graphics/TikZ/frame_transformation_intermediate.tex}
+        \caption{Z axes are aligned}
+        \label{fig:tikz_frame_transformation_intermediate}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \input{Graphics/TikZ/frame_transformation_final.tex}
+        \caption{All good}
+        \label{fig:tikz_frame_transformation_final}
+    \end{subfigure}
+    \caption{Frame transformation from the \gls{imu} frame \textcolor{red}{$\mathcal{I}$}, over the intermediate frame \textcolor{blue}{$\mathcal{B}$} to the car frame $\mathcal{C}$}
+    \label{fig:tikz_frame_transformation}
+\end{figure}
+Because the measurements of the \gls{imu} are measured in the device frame $\mathcal{I}$, which is not aligned with the car frame $\mathcal{C}$, they have to be transformed.
 This can be achieved using a rotation matrix \mtf{i}{c} $\in \mathbb{R}^{3\times3}$ which transforms the measurements of the linear acceleration $\vincs{a}{I}_n \in \mathbb{R}^{1\times3}$ and angular velocity ${\vincs{v}{I}_n \in \mathbb{R}^{1\times3}}$ into the car frame.
 Note that the upper index? to the left of the matrix symbol denotes the source frame, whereas the destination frame is written below it.
  $n \in \mathbb{N}$ is the time step.\\
 During standstill, the only measurable acceleration besides noise and bias is the acceleration due to gravity.
 Assuming the car stands on flat ground, the gravity acceleration in the car frame is measured in upwards z-direction.
-In a first step, the measured linear acceleration (gravity) in the \acrshort{imu} frame will be aligned with the z-axis of the car.
+In a first step, the measured linear acceleration (gravity) in the \gls{imu} frame will be aligned with the z-axis of the car.
 According to Euler's rotation theorem, which says that any arbitrary rotation of a rigid body while holding one point (origin) fixed can be achieved by a rotation around a single fixed axis passing through the origin, there exists one rotation axis $\mathbf{j}$ and rotation angle $\alpha$ to achieve this.\\
 In the first step, the quaternion \qtf{i}{b} which describes the rotation from the device frame $\mathcal{I}$ to an intermediate coordinate system $\mathcal{B}$, which has the z-axis up, will be found.
 Resulting in $\vincs{z}{b} = \vincs{z}{c} = \mathbf{e}_\mathrm{z} = \left(\begin{array}{lll} 0 & 0 & 1 \end{array}\right)^{\top}$.
-Note that this is not necessarily true for the other axes, $\vincs{x}{b}\neq\vincs{x}{c}$ and $\vincs{z}{b}\neq\vincs{z}{c}$.\\
-Using linear algebra \todo{better explaination} the rotation axis $\vb{j} \in \mathbb{R}^{1\times3}$, which is perpendicular to both \vincs{a}{i} and \vincs{z}{c}, can be found with
+Note that this is not necessarily true for the other axes, $\vincs{x}{b}\neq\vincs{x}{c}$ and $\vincs{y}{b}\neq\vincs{y}{c}$.\\
+In general, the rotation to align a vector $\vb{v}_1$ with a vector $\vb{v}_2$ can be expressed using a quaternion.
+At first both vectors must be normalized, resulting in the two unit vectors $\vu{v}_1$ and $\vu{v}_2$.
+The rotation axis is perpendicular to both vectors and can thus be calculated using the cross product
 \begin{equation}
-    \vb{j} = \frac{\vincs{\vu{a}}{i} \vdot \vincs{a}{c}}{\norm{\vincs{\vu{a}}{i} \cp \vincs{a}{c}}}
-    = \frac{\vincs{\vu{a}}{i} \vdot \vb{e}_\mathrm{z} }{\norm{\vincs{\vu{a}}{i} \cp \vb{e}_\mathrm{z}}}
-    = \frac{\vincs{\vu{a}_\mathrm{z}}{i}}{\norm{\vincs{\vu{a}_\mathrm{y}}{i}\vb{e}_\mathrm{x} - \vincs{\vu{a}_\mathrm{x}}{i}\vb{e}_\mathrm{y}}}
+    \vb{j} = \frac{\vu{v}_1 \cp \vu{v}_2}{\norm{\vu{v}_1 \cp \vu{v}_2}}.
 \end{equation}
-with $\mathbf{a} \in \mathbb{R}^{1\times3}$ being the measured linear acceleration (average) in the \acrshort{imu} or car frame respectively and $\vu{a}$ being the unit vector of it.\\
-The rotation angle can be calculated using
+The angle between two vectors can be calculated with
 \begin{equation}
-    \tan(\alpha) = \frac{\norm{\vincs{\vu{a}}{i} \cp \vb{e}_\mathrm{z}}}{\vincs{\vu{a}}{i} \vdot \vb{e}_\mathrm{z}} \implies
-    \alpha = \arctan(\frac{\norm{\vincs{\vu{a}}{i} \cp \vb{e}_\mathrm{z}}}{\vincs{\vu{a}}{i} \vdot \vb{e}_\mathrm{z}})
+    \cos(\alpha) = \frac{\vu{v}_1 \vdot \vu{v}_2}{\norm{\vu{v}_1} \cdot \norm{\vu{v}_2}}
+    = \vu{v}_1 \vdot \vu{v}_2 \implies
+    \alpha = \arccos(\vu{v}_1 \vdot \vu{v}_2).
 \end{equation}
-which results in combination with the rotation axis to the quaternion
+The denominator is equal to 1 (because the norm of an unit vector is 1) and thus omitted.
+The quaternion can then be calculated with
 \begin{equation}
-    \qtf{i}{b} =
+    \vb{q} =
     \begin{bmatrix}
-        \vb{j}\vdot\sin(\frac{\alpha}{2}) \\
-        \cos(\frac{\alpha}{2})
+        \cos(\frac{\alpha}{2})\\
+        \vb{j}\vdot\sin(\frac{\alpha}{2})
     \end{bmatrix}
 \end{equation}
-\itodo{Decide for a notation (w,x,y,z is more common I think)}
+Using this the quaternion \qtf{i}{b} to transform \vincs{a}{i} onto \vincs{z}{b} has the rotation axis
+\begin{equation}
+    \vb{j} = \frac{\vincs{\vu{a}}{i} \cp \vincs{\vu{z}}{b}}{\norm{\vincs{\vu{a}}{i} \cp \vincs{\vu{z}}{b}}}
+    = \frac{\vincs{\vu{a}}{i} \cp \vb{e}_\mathrm{z}}{\norm{\vincs{\vu{a}}{i} \cp \vb{e}_\mathrm{z}}}
+    = \frac{{}_{\mathcal{I}}a_y\vb{e}_\mathrm{x} - {}_{\mathcal{I}}a_x\vb{e}_\mathrm{y}}{\norm{{}_{\mathcal{I}}a_y\vb{e}_\mathrm{x} - {}_{\mathcal{I}}a_x\vb{e}_\mathrm{y}}}
+\end{equation}
+and rotation angle
+\begin{equation}
+    \alpha = \arccos(\vincs{\vu{a}}{i}\vdot \vb{e}_\mathrm{z}).
+\end{equation}
+with $\vincs{\vu{a}}{i} \in \mathbb{R}^{1\times3}$ being the measured linear acceleration in the \gls{imu} or car frame respectively.\\
 Now that the z-axes of both frames are aligned, the x- and y-axis can be aligned by a rotation around the z-axis.
 To find this rotation angle $\beta$, the car has to be accelerated forward.
 This acceleration is being measured along the x- and y-axis.
@@ -56,19 +99,19 @@ The z-axis is set to zero, because it only measures the gravity which is not of 
 The resulting vector is being aligned with the forward axis of the car $\vincs{x}{c} = \mathbf{e}_\mathrm{x} = \left(\begin{array}{lll} 1 & 0 & 0 \end{array}\right)^{\top}$, in the same way as before.
 Resulting in the rotation angle
 \begin{equation}
-    \beta = \arctan(\frac{\norm{\vincs{\vu{a}}{b} \cp \vb{e}_\mathrm{x}}}{\vincs{\vu{a}}{b} \vdot \vb{e}_\mathrm{x}})
+    \beta = \arccos(\vincs{\vu{a}}{b} \vdot \vb{e}_\mathrm{x})
 \end{equation}
 The resulting quaternion
 \begin{equation}
     \qtf{b}{c} =
     \begin{bmatrix}
-        \vb{e}_\mathrm{z}\vdot\sin(\frac{\beta}{2}) \\
-        \cos(\frac{\beta}{2})
+        \cos(\frac{\beta}{2})\\
+        \vb{e}_\mathrm{z}\vdot\sin(\frac{\beta}{2})
     \end{bmatrix}
 \end{equation}
 can then be concatenated with the previous quaternion to get the final quaternion
 \begin{equation}
-    \qtf{i}{c} = \qtf{b}{c} \otimes  \qtf{i}{b}
+    \qtf{i}{c} = \qtf{b}{c} \otimes  \qtf{i}{b}.
 \end{equation}
 A quaternion of the form
 $\mathbf{q} = \left[\begin{array}{llll} w & x & y & z \end{array}\right]^{\top}$
@@ -89,15 +132,11 @@ And finally the measurements $\mathbf{A}$ can be transformed using
     \vincs{A}{c} = \mtf{i}{c} \vdot \vincs{A}{i}
 \end{equation}
 
-\begin{figure}[htpb]
-    \centering
-    \input{Graphics/TikZ/car_frames.tex}
-	\caption{Coordinate frames (graphic might not be necessary)}
-    \label{fig:tikz_car_frames}
-\end{figure}
 
 \subsection{Linear acceleration only}
-
+\begin{equation}
+    \theta = \arcsin(\frac{\vb{a}_x}{g})
+\end{equation}
 
 \subsection{Angular velocity only}
 
@@ -108,15 +147,15 @@ And finally the measurements $\mathbf{A}$ can be transformed using
 
 \section{\glsentrytext{lidar} only}
 \subsection{Calibration}
-Same as for the \acrshort{imu}, a transformation from the \acrshort{lidar} frame to the car frame is necessary.
-The calibration is very similar to that of the \acrshort{imu}.
+Same as for the \gls{imu}, a transformation from the \gls{lidar} frame to the car frame is necessary.
+The calibration is very similar to that of the \gls{imu}.
 At first both z-axes will be aligned.
 This is achieved by detecting the ground plane in the point cloud and finding the transform, such that the normal vector of the plane aligns with the z-axis of the car (the plane gets projected onto the xy-plane of the car frame).
 This results in the correct pitch and roll angle and the missing yaw angle is assumed to be zero.
 Should it not be zero it can also be measured by hand and given as parameter.\\
-For the ground plane detection \acrfull{ransac} \cite{Fischler1981} is used.\\
-\acrshort{ransac} is a non-deterministic algorithm to remove outliers and is often used in computer vision.
-\acrshort{ransac} can also be used for plane segmentation in 3D point clouds.
+For the ground plane detection \gls{ransac} \cite{Fischler1981} is used.\\
+\gls{ransac} is a non-deterministic algorithm to remove outliers and is often used in computer vision.
+\gls{ransac} can also be used for plane segmentation in 3D point clouds.
 Consider a point cloud with $n$ points, where each point $i$ has the coordinates $x_i, y_i, z_i$.
 In a first step, three random points from the point cloud are selected.
 Three, because this is the minimum number of points needed for a plane.
@@ -141,37 +180,37 @@ Then the normal vector of the plane, which can be conducted from the plane equat
 is projected onto the z-axis of the car.
 The necessary rotation is then applied to the detected plane.
 Now that a plane has been found it must be ensured, that it really is the ground plane.
-Typically either the ceiling, ground or a side wall gets detected with \acrshort{ransac}.
+Typically either the ceiling, ground or a side wall gets detected with \gls{ransac}.
 The greater the plane is (or the more points lie inside a plane), the more likely is the detection of the plane.
 Due to the mounting of the lidar, the ceiling usually does have the most points and is thus detected in the first iteration.\\
-An accidental ceiling detected can be prevented by looking at the average z-values of the detected plane.
+An accidental ceiling detection can be prevented by looking at the average z-values of the detected plane.
 Because the lidar is mounted on the roof of the car, the z-values of the detected plane must be negative.
 If they are positive, the ceiling has been detected.
 Furthermore it is known, that the WHICH angle to rotate the lidar to level ground should not exceed the mount angle.
 If that is the case, most likely a side wall has been detected.
-If either condition has not been fulfilled, the detected plane does get removed from the point cloud and using \acrshort{ransac} a new ground plane estimation is made and validated.
+If either condition has not been fulfilled, the detected plane does get removed from the point cloud and using \gls{ransac} a new ground plane estimation is made and validated.
 This process is repeated until both conditions are fulfilled.
-The yaw angle and the x- and y-translation from the \acrshort{lidar} to car
+The yaw angle and the x- and y-translation from the \gls{lidar} to car
 \itodo{point at the front of the car, centered laterally (same y-coordinates as base\_link, but z at ground level and x further in front)}
-must be entered manually, but the pitch and roll angle and the distance from the \acrshort{lidar} to the ground are used from the calibration.
+must be entered manually, but the pitch and roll angle and the distance from the \gls{lidar} to the ground are used from the calibration.
 A flow chart of the described algorithm is shown in figure \ref{fig:flowchart_lidar_calibration}.
 \itodo{FLow chart for calibration can probably removed, flowchart for algo should be enough (very similar)}
 
 \begin{figure}[htb]
     \centering
     \input{Graphics/TikZ/flowchart_lidar_calibration.tex}
-    \caption{Algo for \acrshort{lidar} alignment}
+    \caption{Algo for \gls{lidar} alignment}
     \label{fig:flowchart_lidar_calibration}
 \end{figure}
 
 \subsection{Algorithm}
-Because the raw \acrshort{lidar} data is too big to allow for real time processing, preprocessing is necessary.
+Because the raw \gls{lidar} data is too big to allow for real time processing, preprocessing is necessary.
 It consists of a passthrough filter to remove unwanted points (e.g. behind the car) and a voxel grid filter to downsample the point cloud.
 Before the passthrough filter can be applied, the point cloud must be transformed to the car frame.
 The in the previous section described calibration algorithm is performed once at the start and its returned rotation is then applied to every new measurement.\\
 The passthrough filter then removes all the points which lie outside the specified x, y and z limits.
 Because the car drives forward, only points in front of the car are of interest.
-Furthermore the points further away than a certain threshold are neglected, because the resolution and accuracy of the measurements of the \acrshort{lidar} decrease with increasing distance.
+Furthermore the points further away than a certain threshold are neglected, because the resolution and accuracy of the measurements of the \gls{lidar} decrease with increasing distance.
 The ceiling points are removed by limiting in z-direction.
 The exact values used for the passthrough filter can be seen along the other parameters in table \ref{tab:lidar_params}.\\
 The next step in reducing the point cloud size is the voxel grid filter \cite{Vosselman2004}.
@@ -180,8 +219,8 @@ Each cube can contain multiple points or none, the size of the voxels (also know
 All the points inside a cube are then reduced to their most centroid point.
 If the cube does not contain any points, it is neglected.\\
 Now that the point cloud size is reduced greatly the actual ramp detection can be performed with sufficient performance.
-The \acrshort{ransac} algorithm usually detects the following types of planes: ceiling, ground, side wall or the desired ramp.
-\acrshort{ransac} is applied iteratively until a plane of type ramp has been found, each time a different type of plane has been found it gets removed.
+The \gls{ransac} algorithm usually detects the following types of planes: ceiling, ground, side wall or the desired ramp.
+\gls{ransac} is applied iteratively until a plane of type ramp has been found, each time a different type of plane has been found it gets removed.
 To prevent an infinite loop the algorithm will exit after either a certain number of iterations has been performed, or if after the removal of a plane not enough points are left in the point cloud.\\
 The accidental detection of the ceiling was already prevented during the passthrough filter step, where the ceiling points have been removed from the point cloud.
 By limiting the maximal angle between the ground plane and the detected plane the side walls are ignored.
@@ -213,7 +252,7 @@ An visual representation of the algorithm is depicted in fig. \ref{fig:flowchart
     \textbf{Voxel filter}\\
     leaf\_size          & \SI{0.1}{\metre}\\
     \midrule
-    \textbf{\acrshort{ransac}}\\
+    \textbf{\gls{ransac}}\\
     max\_iter           & 100\\
     distance\_threshold & \SI{0.11}{\metre}\\
     normal\_distance\_w & 0.01\\
@@ -268,9 +307,12 @@ with $h$ being the step size, which depends on the rate of the sensor.
 \begin{figure}[htpb]
     \centering
     \input{Graphics/TikZ/car_gravity.tex}
-    \caption{Gravity measured by \acrshort{imu} (in car frame). Show that $g_z$ etc}
+    \caption{Gravity measured by \gls{imu} (in car frame). Show that $g_z$ etc}
     \label{fig:tikz_car_gravity}
 \end{figure}
+\begin{equation}
+    \alpha =\arcsin\left(\frac{a_x-a_{at}}{g}\right)=\arcsin\left(\frac{a_x-\frac{dv}{dt}}{g}\right) = \arctan2(a_x,a_z)
+    \end{equation}
 \todoin{\begin{itemize}
     \item Algo description
     \item Problems
