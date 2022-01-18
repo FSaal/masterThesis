@@ -1,0 +1,47 @@
+\documentclass[11pt]{standalone}
+\usepackage{tikz}
+
+\newcommand{\rotateRPY}[3]% roll, pitch, yaw
+{   \pgfmathsetmacro{\rollangle}{#1}
+    \pgfmathsetmacro{\pitchangle}{#2}
+    \pgfmathsetmacro{\yawangle}{#3}
+
+    % to what vector is the x unit vector transformed, and which 2D vector is this?
+    \pgfmathsetmacro{\newxx}{cos(\yawangle)*cos(\pitchangle)}
+    \pgfmathsetmacro{\newxy}{sin(\yawangle)*cos(\pitchangle)}
+    \pgfmathsetmacro{\newxz}{-sin(\pitchangle)}
+    \path (\newxx,\newxy,\newxz);
+    \pgfgetlastxy{\nxx}{\nxy};
+
+    % to what vector is the y unit vector transformed, and which 2D vector is this?
+    \pgfmathsetmacro{\newyx}{cos(\yawangle)*sin(\pitchangle)*sin(\rollangle)-sin(\yawangle)*cos(\rollangle)}
+    \pgfmathsetmacro{\newyy}{sin(\yawangle)*sin(\pitchangle)*sin(\rollangle)+ cos(\yawangle)*cos(\rollangle)}
+    \pgfmathsetmacro{\newyz}{cos(\pitchangle)*sin(\rollangle)}
+    \path (\newyx,\newyy,\newyz);
+    \pgfgetlastxy{\nyx}{\nyy};
+
+    % to what vector is the z unit vector transformed, and which 2D vector is this?
+    \pgfmathsetmacro{\newzx}{cos(\yawangle)*sin(\pitchangle)*cos(\rollangle)+ sin(\yawangle)*sin(\rollangle)}
+    \pgfmathsetmacro{\newzy}{sin(\yawangle)*sin(\pitchangle)*cos(\rollangle)-cos(\yawangle)*sin(\rollangle)}
+    \pgfmathsetmacro{\newzz}{cos(\pitchangle)*cos(\rollangle)}
+    \path (\newzx,\newzy,\newzz);
+    \pgfgetlastxy{\nzx}{\nzy};
+}
+\tikzset{RPY/.style={x={(\nxx,\nxy)},y={(\nyx,\nyy)},z={(\nzx,\nzy)}}}
+% NOTE: I changed y and z axes, so it is now RYP instead of RPY
+
+\begin{document}
+\begin{tikzpicture}
+    \draw[-latex] node at (3.5,0,0) {x} (0,0,0) -- (3,0,0);
+    \draw[-latex] node at (0,0,-3.5) {y} (0,0,0) -- (0,0,-3);
+    \draw[-latex] node at (0,3.5,0) {z} (0,0,0) -- (0,3,0);
+
+    \rotateRPY{0}{0}{0}
+    \begin{scope}[draw=green, text=green,fill=green,densely dashed,RPY]
+        \draw[-latex] node at (3.5,0,0) {x} (0,0,0) -- (3,0,0);
+        \draw[-latex] node at (0,0,-3.5) {y} (0,0,0) -- (0,0,-3);
+        \draw[-latex] node at (0,3.5,0) {z} (0,0,0) -- (0,3,0);
+    \end{scope}
+    % \node[fill=white,fill opacity=0.7,text opacity=1] {RPY: 0,0,45};
+\end{tikzpicture}
+\end{document}
