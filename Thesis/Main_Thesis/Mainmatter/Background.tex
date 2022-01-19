@@ -3,13 +3,66 @@
 \label{ch:Background}
 
 \section{Mathematical}
-\todoin{E. g.
-	\begin{itemize}
-	\item Vector projection
-    \item Quaternions
-    \item Rotation matrix
-\end{itemize}
-}
+\subsection{Mathematical Representations of 3D Orientations}
+Rotations can be expressed in several ways, I will briefly describe the ones used in this thesis.
+
+\subsubsection{Rotation matrix}
+A rotation matrix \mtf{b}{a} $\in \mathbb{R}^{3\times3}$ transforms an arbitrary vector from the coordinate system $\mathcal{B}$ to the coordinate system $\mathcal{A}$.\\
+BLABLABLA\\
+Rotation matrices can be concatenated, but this must be done in reverse order, e.g.
+\begin{equation}
+	{}_\mathcal{C}\vb{p} = \mtf{c}{a}{}_\mathcal{A}\vb{p} = \mtf{b}{c}\mtf{a}{b}{}_\mathcal{A}\vb{p}
+\end{equation}
+to transform the point ${}_\mathcal{A}\vb{p}$ over the intermediate frame $\mathcal{B}$ to the coordinate system $\mathcal{C}$.
+
+\subsubsection{Euler angles}
+Euler angles are the closest to intuition but mathematically the worst way to represent orientations.
+Every orientation can be produced by a concatenation of three rotations around each of the coordinate axes.
+Because the resulting orientation depends on the order of which the rotations were performed, there are different conventions.
+Furthermore the conventions can be divided into intrinsic and extrinsic.
+Intrinsic rotation means that the coordinate system moves with the moving object, whereas with extrinsic rotations the original coordinate system remains static.
+The most common convention is the zyx (intrinsic I think?) (first rotation around z-axis and last around x-axis), where the angles are called yaw, pitch and roll.\\
+The disadvantages are the many conventions and the possibility of singularity.
+
+\subsubsection{Quaternions}
+wow
+\begin{equation}
+	\vb{q} = a + b\vb{i} + c\vb{j} + d\vb{k}
+\end{equation}
+with
+\begin{equation}
+	\vb{i}^2 = \vb{j}^2 = \vb{k}^2 = \vb{i}\vb{j}\vb{k} = -1
+\end{equation}
+...
+\begin{equation}
+	\alpha \in[0, \pi] @ \mathbf{j} \underbrace{\left[j_{x}, j_{y}, j_{z}\right]^{\top}}_{\|j\|_{2}=1}
+	\quad\cong\quad {}^{\mathcal{B}}_{\mathcal{A}} q
+	=\cos \left(\frac{\alpha}{2}\right)+\left(j_{x} \mathbf{i}+j_{y} \mathbf{j}+j_{z} \mathbf{k}\right) \sin \left(\frac{\alpha}{2}\right)
+	\end{equation}
+The quaternion can then be calculated with
+\begin{equation}
+	\vb{q} =
+	\begin{bmatrix}
+		\cos(\frac{\alpha}{2})\\
+		\vb{j}\vdot\sin(\frac{\alpha}{2})
+	\end{bmatrix}
+\end{equation}
+
+\subsection{Vector projection}
+\label{subsec:vector_projection}
+In general, the rotation to align a vector $\vb{v}_1$ with a vector $\vb{v}_2$ can be expressed using a quaternion.
+At first both vectors must be normalized, resulting in the two unit vectors $\vu{v}_1$ and $\vu{v}_2$.
+The rotation axis is perpendicular to both vectors and can thus be calculated using the cross product
+\begin{equation}
+    \vb{j} = \frac{\vu{v}_1 \cp \vu{v}_2}{\norm{\vu{v}_1 \cp \vu{v}_2}}.
+\end{equation}
+The angle between two vectors can be calculated with
+\begin{equation}
+    \cos(\alpha) = \frac{\vu{v}_1 \vdot \vu{v}_2}{\norm{\vu{v}_1} \cdot \norm{\vu{v}_2}}
+    = \vu{v}_1 \vdot \vu{v}_2 \implies
+    \alpha = \arccos(\vu{v}_1 \vdot \vu{v}_2).
+\end{equation}
+The denominator is equal to 1 (because the norm of an unit vector is 1) and thus omitted.
 
 
 
