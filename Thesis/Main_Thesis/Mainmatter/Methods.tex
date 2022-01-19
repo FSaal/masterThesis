@@ -24,92 +24,55 @@
 
 \section{\glsentrytext{imu} only}
 \subsection{Calibration}
-\begin{figure}[htb]
-    \centering
-    \begin{subfigure}[b]{0.3\textwidth}
-        \centering
-        \input{Graphics/TikZ/frame_transformation_init.tex}
-        \caption{No axes are aligned}
-        \label{fig:tikz_frame_transformation_init}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.3\textwidth}
-        \centering
-        \input{Graphics/TikZ/frame_transformation_intermediate.tex}
-        \caption{Z axes are aligned}
-        \label{fig:tikz_frame_transformation_intermediate}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.3\textwidth}
-        \centering
-        \input{Graphics/TikZ/frame_transformation_final.tex}
-        \caption{All good}
-        \label{fig:tikz_frame_transformation_final}
-    \end{subfigure}
-    \caption{Frame transformation from the \gls{imu} frame \textcolor{red}{$\mathcal{I}$}, over the intermediate frame \textcolor{blue}{$\mathcal{B}$} to the car frame $\mathcal{C}$}
-    \label{fig:tikz_frame_transformation}
-\end{figure}
-Because the measurements of the \gls{imu} are measured in the device frame $\mathcal{I}$, which is not aligned with the car frame $\mathcal{C}$, they have to be transformed.
+The \gls{imu} is usually not placed in such a way, that the coordinate frame of the device $\mathcal{I}$ aligns with that of the car $\mathcal{C}$, see fig. \ref{fig:tikz_frame_transformation_init}.
+Because of that, a transformation between the two frames must be found.
 This can be achieved using a rotation matrix \mtf{i}{c} $\in \mathbb{R}^{3\times3}$ which transforms the measurements of the linear acceleration $\vincs{a}{I}_n \in \mathbb{R}^{1\times3}$ and angular velocity ${\vincs{v}{I}_n \in \mathbb{R}^{1\times3}}$ into the car frame.
-Note that the upper index? to the left of the matrix symbol denotes the source frame, whereas the destination frame is written below it.
+Note that the upper index to the left of the matrix symbol denotes the source frame, whereas the destination frame is written below it.
  $n \in \mathbb{N}$ is the time step.\\
 During standstill, the only measurable acceleration besides noise and bias is the acceleration due to gravity.
-Assuming the car stands on flat ground, the gravity acceleration in the car frame is measured in upwards z-direction.
-In a first step, the measured linear acceleration (gravity) in the \gls{imu} frame will be aligned with the z-axis of the car.
+Assuming the car stands on flat ground, the gravity acceleration in the car frame is measured only in upwards z-direction.
+Using this, a transformation from \gls{imu} frame $\mathcal{I}$ to the intermediate frame $\mathcal{B}$ can be transformed.
+In the new $\mathcal{B}$ frame both z-axes are aligned $\vincs{z}{b} = \vincs{z}{c} = \mathbf{e}_\mathrm{z} = \left(\begin{array}{lll} 0 & 0 & 1 \end{array}\right)^{\top}$ and thus the pitch and roll angle \todo{explain euler angles in math background} between the two frames become zero.
+Note that this is not necessarily true for the other axes, $\vincs{x}{b}\neq\vincs{x}{c}$ and $\vincs{y}{b}\neq\vincs{y}{c}$, see fig. \ref{fig:tikz_frame_transformation_intermediate}.\\
 According to Euler's rotation theorem, which says that any arbitrary rotation of a rigid body while holding one point (origin) fixed can be achieved by a rotation around a single fixed axis passing through the origin, there exists one rotation axis $\mathbf{j}$ and rotation angle $\alpha$ to achieve this.\\
-In the first step, the quaternion \qtf{i}{b} which describes the rotation from the device frame $\mathcal{I}$ to an intermediate coordinate system $\mathcal{B}$, which has the z-axis up, will be found.
-Resulting in $\vincs{z}{b} = \vincs{z}{c} = \mathbf{e}_\mathrm{z} = \left(\begin{array}{lll} 0 & 0 & 1 \end{array}\right)^{\top}$.
-Note that this is not necessarily true for the other axes, $\vincs{x}{b}\neq\vincs{x}{c}$ and $\vincs{y}{b}\neq\vincs{y}{c}$.\\
-In general, the rotation to align a vector $\vb{v}_1$ with a vector $\vb{v}_2$ can be expressed using a quaternion.
-At first both vectors must be normalized, resulting in the two unit vectors $\vu{v}_1$ and $\vu{v}_2$.
-The rotation axis is perpendicular to both vectors and can thus be calculated using the cross product
-\begin{equation}
-    \vb{j} = \frac{\vu{v}_1 \cp \vu{v}_2}{\norm{\vu{v}_1 \cp \vu{v}_2}}.
-\end{equation}
-The angle between two vectors can be calculated with
-\begin{equation}
-    \cos(\alpha) = \frac{\vu{v}_1 \vdot \vu{v}_2}{\norm{\vu{v}_1} \cdot \norm{\vu{v}_2}}
-    = \vu{v}_1 \vdot \vu{v}_2 \implies
-    \alpha = \arccos(\vu{v}_1 \vdot \vu{v}_2).
-\end{equation}
-The denominator is equal to 1 (because the norm of an unit vector is 1) and thus omitted.
-The quaternion can then be calculated with
-\begin{equation}
-    \vb{q} =
-    \begin{bmatrix}
-        \cos(\frac{\alpha}{2})\\
-        \vb{j}\vdot\sin(\frac{\alpha}{2})
-    \end{bmatrix}
-\end{equation}
-Using this the quaternion \qtf{i}{b} to transform \vincs{a}{i} onto \vincs{z}{b} has the rotation axis
+As described in section \ref{subsec:vector_projection}, the rotation axis needed for the transformation can be calculated with
 \begin{equation}
     \vb{j} = \frac{\vincs{\vu{a}}{i} \cp \vincs{\vu{z}}{b}}{\norm{\vincs{\vu{a}}{i} \cp \vincs{\vu{z}}{b}}}
     = \frac{\vincs{\vu{a}}{i} \cp \vb{e}_\mathrm{z}}{\norm{\vincs{\vu{a}}{i} \cp \vb{e}_\mathrm{z}}}
     = \frac{{}_{\mathcal{I}}a_y\vb{e}_\mathrm{x} - {}_{\mathcal{I}}a_x\vb{e}_\mathrm{y}}{\norm{{}_{\mathcal{I}}a_y\vb{e}_\mathrm{x} - {}_{\mathcal{I}}a_x\vb{e}_\mathrm{y}}}
 \end{equation}
-and rotation angle
+and the rotation angle with
 \begin{equation}
     \alpha = \arccos(\vincs{\vu{a}}{i}\vdot \vb{e}_\mathrm{z}).
 \end{equation}
-with $\vincs{\vu{a}}{i} \in \mathbb{R}^{1\times3}$ being the measured linear acceleration in the \gls{imu} or car frame respectively.\\
-Now that the z-axes of both frames are aligned, the x- and y-axis can be aligned by a rotation around the z-axis.
-To find this rotation angle $\beta$, the car has to be accelerated forward.
-This acceleration is being measured along the x- and y-axis.
-The z-axis is set to zero, because it only measures the gravity which is not of interest.
+with $\vincs{\vu{a}}{i} \in \mathbb{R}^{1\times3}$ being the normalized measured linear acceleration in the \gls{imu} frame.\\
+The quaternion
+\begin{equation}
+    \qtf{i}{b} =
+    \begin{bmatrix}
+        \cos(\frac{\alpha}{2})\\
+        \vb{j}\vdot\sin(\frac{\alpha}{2})
+    \end{bmatrix}
+\end{equation}
+then describes the rotation between the two frames.\\
+Now that the z-axes of the $\mathcal{I}$ and $\mathcal{C}$ frame are aligned, the x- and y-axis can be aligned by a rotation $\beta$ around the z-axis.
+This yaw correction could usually be achieved using the magnetometer measurements, but because those are heavily obscured in the parking garage, an other solution must be found.
+A possible solution to this problem is accelerating the car straight forward and then using the accelerometer to measure along which axis the acceleration occurred.
+Assuming the car tilt (pitch) during the acceleration is minimal, the acceleration is only being measured along the x- and y-axis.
 The resulting vector is being aligned with the forward axis of the car $\vincs{x}{c} = \mathbf{e}_\mathrm{x} = \left(\begin{array}{lll} 1 & 0 & 0 \end{array}\right)^{\top}$, in the same way as before.
 Resulting in the rotation angle
 \begin{equation}
     \beta = \arccos(\vincs{\vu{a}}{b} \vdot \vb{e}_\mathrm{x})
 \end{equation}
-The resulting quaternion
+and the quaternion
 \begin{equation}
     \qtf{b}{c} =
     \begin{bmatrix}
         \cos(\frac{\beta}{2})\\
         \vb{e}_\mathrm{z}\vdot\sin(\frac{\beta}{2})
-    \end{bmatrix}
+    \end{bmatrix}.
 \end{equation}
-can then be concatenated with the previous quaternion to get the final quaternion
+The two quaternions can then be concatenated to get the final quaternion
 \begin{equation}
     \qtf{i}{c} = \qtf{b}{c} \otimes  \qtf{i}{b}.
 \end{equation}
@@ -131,7 +94,31 @@ And finally the measurements $\mathbf{A}$ can be transformed using
 \begin{equation}
     \vincs{A}{c} = \mtf{i}{c} \vdot \vincs{A}{i}
 \end{equation}
-
+\begin{figure}[htb]
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \input{Graphics/TikZ/frame_transformation_init.tex}
+        \caption{No axes are aligned}
+        \label{fig:tikz_frame_transformation_init}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \input{Graphics/TikZ/frame_transformation_intermediate.tex}
+        \caption{Z axes are aligned}
+        \label{fig:tikz_frame_transformation_intermediate}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \input{Graphics/TikZ/frame_transformation_final.tex}
+        \caption{All axes are aligned}
+        \label{fig:tikz_frame_transformation_final}
+    \end{subfigure}
+    \caption{Frame transformation from the \gls{imu} frame \textcolor{red}{$\mathcal{I}$}, over the intermediate frame \textcolor{blue}{$\mathcal{B}$} to the car frame \textcolor{green}{$\mathcal{C}$}}
+    \label{fig:tikz_frame_transformation}
+\end{figure}
 
 \subsection{Linear acceleration only}
 \begin{equation}
