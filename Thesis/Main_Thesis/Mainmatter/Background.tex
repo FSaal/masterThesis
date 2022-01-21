@@ -86,11 +86,11 @@ The angles of the gimbals can be measured to get the orientation and to get the 
 No coordinate transformation is necessary.
 The disadvantages are that the mechanical structure of the setup is complex, needs regular maintenance, requires a lot of space and has high costs.
 
-The second type are strapdown systems, which are mostly used today. \todo{reference?}
+The second type are strapdown systems, which are mostly used today.
 As the name suggests all the parts are fixed onto the device and are thus not anymore always aligned with the reference frame.
 Advantages are that due to the lack of gimbals and motors a significantly smaller build is possible and lower production costs can be achieved.
 A disadvantage is that the calculation of the orientation and position is more complex, the rate gyroscopes have to be integrated to get the orientation and can then be used to transform the accelerometer signals into the reference frame.
-But with the decrease of computational cost this disadvantages continues to diminish. And even though they are continually improved, the accuracy does not quite match the of stable platform systems.
+But with the decrease of computational cost this disadvantages continues to diminish.
 
 There are many different types of gyroscopes and accelerometers such as mechanical, optical or solid state, but only the functionality of \gls{mems} will be described, because those will also be used in the experiment.
 Information about the working principle of other systems and also much more information about \gls{imu}s in general can be found in \cite{Woodman07anintroduction}.
@@ -105,7 +105,7 @@ Almost all consumer grade electronics uses \gls{mems}-\gls{imu}s nowadays, but t
 	\centering
 	%todo Better quality or create own fig
 	\includegraphics[width=0.7\linewidth]{MEMS_Accelerometer}
-	\caption{Micro structure of a \gls{mems} accelerometer }
+	\caption{Micro structure of a \gls{mems} accelerometer (TODO: Better image)}
 	\label{fig:MEMS_Accelerometer}
 \end{figure}
 The accelerometer is used to measure the acceleration.
@@ -130,28 +130,37 @@ E.g.\ if the mass oscillates along the x-axis and a rotation around the z-axis i
 By measuring the amplitude and phase of the secondary oscillation the absolute value and direction of the angular velocity can be calculated.
 While \gls{mems} gyroscopes do not achieve the same accuracy as optical gyroscopes they offer many advantages such as smaller physical properties (weight and size), lower power consumption and startup time as well as a significantly lower cost.
 Optical gyroscopes cost in the range of \$10,000 whereas \gls{mems} gyroscopes can cost as little as \$3 \cite{Perlmutter2016}.
-But this comes at the cost of a worse angle drift which increases from 0.01 to 0.1 deg/h for optical gyroscopes to 10 deg/h \todo{check what type of deg/h there are, daytoday vs in-run} for \gls{mems}-\gls{imu}s.
+But this comes at the cost of a worse angle drift which increases from 0.01 to 0.1 deg/h for optical gyroscopes to up to 10 deg/h for \gls{mems}-\gls{imu}s.
 \gls{mems} gyroscopes have replaced other gyroscope types in most areas, but in areas where the highest precision possible is necessary, typically in military industry, optical gyroscopes are still used today.
 
 \subsubsection{(\glsentrytext{mems}) Magnetometer}
-\itodo{Sth sth lorenz (short because not used)}
-The disadvantages are that the magnetometer is easily influenced by other ferromagnetic material and electronic devices.
-Therefore indoor use while getting reliable data is rarely possible.
+A magnetometer measures the local magnetic field.
+Most sensors work using the Hall effect.
+A current is set to flow through a conductive plate.
+Without the presence of a magnetic field the electrons flow in a straight line, but if a magnetic field is introduced the electrons do get deflected to one side.
+The voltage between the two sides can then be measured, from which the strength and direction of the magnetic field can be determined.\\
+Without any magnetic disturbances, the magnetometer measures a constant local magnetic field vector.
+The vector points to magnetic North and can thus be used to determine the heading.
+Because the magnitude of the earth's magnetic field is very low (\SIrange{25}{65}{\micro\tesla}), the magnetometer readings can easily be influenced by other objects \cite{Kok2016}.
+The distortions can be divided into two categories: hard or soft iron.
+Hard iron distortions are created by objects which actively produce a magnetic field, causing a permanent bias.
+Soft iron disturbances are due to deflections or altercations of an existing magnetic field.
+Both types of disturbances can be removed with a proper calibration if there position and orientation, relative to the sensor, stays the same \cite{Guo2008}.
+Every time the sensor is placed in a (magnetically) new environment, a recalibration is necessary.
 
 \subsubsection{Typical \glsentrytext{mems} errors}
-Maybe a sentence about idc about problems, because raw measurements are mostly used.
-The first type of errors are calibration errors, which can be eliminated.
-Common calibration errors are a constant bias (offset), scaling or misalignment (axes are not orthogonal to each other).
-The turn-on bias is different each time the \gls{imu} starts up, but can be removed as well.
-\todoin{
-  \begin{itemize}
-	\item Calibration errors
-	\item Turn-On Bias
-	\item Bias instability
-	\item Bias Correction methods
-	\item VERY BRIEF
-	\item maybe as table
-  \end{itemize}}
+The errors can be divided into two categories: systematic and stochastic errors \cite{Zhang2019}.
+Systematic errors or also known as calibration errors are constant over time and can be eliminated by calibration.
+Typical examples are bias (offset), scaling or axis misalignments.
+Integrating a constant bias once or twice leads to a drift (error grows linearly with respect to time) or a second-order drift (error grows quadratically) respectively.
+Hence the elimination of the bias is necessary to get reliable estimations of the the orientation, velocity or position, which are calculated by integrating the angular velocity or the accelerometer measurements.\\
+Stochastic errors change at every measurement and can be modeled using a statistical approach.
+Turn-on bias changes every time the \gls{imu} is powered up, but can be eliminated after a rest period.
+Thermo-mechanical noise is due to ? and leads to white noise.
+The integration of the white noise leads to a random walk \todo{How to fix white noise, allen variance?}
+Temperature fluctuations also influence the measurements, but because most
+\gls{imu}s are equipped with a temperature sensor, the introduced error can be eliminated \cite{Woodman07anintroduction}.\\
+Random walk angle errors are usually the hardest to correct and are the reason, why the gyroscope can not be trusted over a long period of time.
 
 
 \subsection{\glsentrytext{lidar}}
