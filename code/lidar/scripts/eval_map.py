@@ -152,11 +152,14 @@ class EvalMap():
         # d_e2q (width and length are swapped)
         [[24.5, 28.5], [3.3, 15]],
         [],
-        # u_c2s_half
+        # u_c2s_half_odom
         [[20.3, 33], [-0.9, 2.8]],
-        [],
-        [],
-        [],
+        # u_c2s_half_odom_stereo (quite a bit rotated)
+        [[23.8, 36], [-3.3, 0.5]],
+        # u_c2s
+        [[45, 58], [-1.9, 1.8]],
+        # u_c2s_stop
+        [[38, 51], [-1.5, 2.2]],
         # u_d2e
         [[32.5, 44], [2, 5.5]],
         [],
