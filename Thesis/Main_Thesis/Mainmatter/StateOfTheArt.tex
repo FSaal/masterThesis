@@ -8,26 +8,26 @@ In \cite{Jauch2018} different methods to estimate the road grade angle are discu
 There exist methods without Inertial Sensors relying on a model describing the longitudinal movement of the vehicle and the topology of the road.
 Both models are fused using a Kalman filter to improve the accuracy of the estimation \cite{SAHLHOLM200755}.
 A Kalman filter is also used in \cite{Sahlholm2010}, where vehicle sensor data and \gls{gps} data are fused.
-Besides the road grade, the vehicle mass is often also unknown and estimated as well \cite{Sahlholm2010,Maleej2015}.
+Besides the road grade, the vehicle mass is often also unknown and estimated as well, using common sensors of heavy duty vehicles \cite{Sahlholm2010}  or \todo{what sensors does this paper use?} \cite{Maleej2015}.
+More methods such as recursive least squares, extended Kalman filtering and a dynamic grade observer are discussed in \cite{Kidambi2014}
 Another method using \gls{gps} data and \gls{imu}s to calculate the vertical and horizontal velocity change respectively and thereby the road grade is proposed in \cite{Ryu2004}.
 \cite{YazdaniBoroujeni2014} omits the \gls{imu} and relies on a \gls{gps} sensor and a barometer.\\
 \gls{gps} satellites broadcast information about their position and exact time to a \gls{gps} receiver, which than can calculate its position using triangulation \cite{Koyuncu2010}.
 While an accuracy of up to \SI{1}{\metre} can be achieved when outside, the performance significantly drops when used indoors.
 The radio waves sent from the satellites are scattered, attenuated or blocked completely by walls and other obstacles, resulting in a very weak or even a complete loss of the signal \cite{Ozdenizci2015}.\\
-Most methods mentioned above do not seem fit for the task, due to the use of \gls{gps}.
+Most methods mentioned above do not seem fit for the task, due to the reliance on \gls{gps}.
 Furthermore many internal measurements such as the engine torque, brake system usage, selected gear etc. can not easily be accessed and thus might not be available.\\
-A method which does not use \gls{gps}, but only accelerometers and wheel odometers instead is described in \cite{Nilsson2012}.
+A method which does not use \gls{gps}, but only accelerometers and wheel odometers instead is described in \cite{Nilsson2012} and \cite{Palella2016}.
 The vehicle acceleration, calculated by deriving the wheel speed measurements in respect to time, is subtracted from the accelerometer signal in longitudinal direction.
-The remaining part is then the gravitational acceleration and can be used to calculate the road grade angle.
+The remaining part is then the gravitational acceleration, which is zero if driving on flat ground but not anymore if driving on an elevated road, and can be used to calculate the road grade angle.
 A similar approach is used in \cite{Sentouh2008}.
-\todoin{\begin{itemize}
-    \item Maybe add a bit more to overview
-    \item Then write more specific about methods actually used, such as:
-    \item Acceleration method (\cite{Palella2016})
-    \item Complementary filter (e.g. \cite{He2020})
-    \item Other methods (see \cite{He2020} or \cite{Jauch2018})
-\end{itemize}
-}
+\cite{He2020} adds a gyroscope to the accelerometer and fuses their estimations using a quaternion unscented Kalman filter.
+The gyroscope measurements get integrated over time to get the pitch angle.
+The angle from the angular velocity is accurate in short-term, but is suspect to drifting over time.
+The drift can be corrected by using the accelerometer signal, which is accurate in the long-term, but unlike the gyroscope not accurate in the short term.
+\cite{Wu2016} uses all components of an \gls{imu} (meaning also the magnetometer) and fuses them using a complementary filter.
+The estimated quaternions using the accelerometer and angular velocity measurements respectively are fused and the magnetometer data is used to improve the quaternion estimation from the accelerometer, but only if there are no magnetic disturbances.
+ANOTHER COMPL FILTER PAPER also uses an complementary filter, but fuses the estimated angle. from the accelerometer and gyroscope instead of the quaternions.
 
 
 
@@ -50,4 +50,7 @@ A similar approach is used in \cite{Sentouh2008}.
 
 
 \section{Bla}
+Due to the available sensor stack, not all mentioned methods can be tested.
+The gravity method and complementary filter will be tested for the \gls{imu}.
+
 \todoin{Add ausblick was genommen wird}
