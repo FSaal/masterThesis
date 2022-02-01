@@ -1,4 +1,4 @@
-\documentclass[12pt]{standalone}
+\documentclass[11pt]{standalone}
 \usepackage{tikz}
 \usetikzlibrary{angles, calc, decorations.pathmorphing, quotes, spy}
 
@@ -61,18 +61,19 @@
         \draw[draw=black,fill=gray!80,semithick] (w) ++(\cl*0.55,0) circle (.35);
 
         % Draw car acceleration
-        \draw[blue, thick, ->] (m) -- ++(3,0) node[anchor=north]{$a_\mathrm{x}$};
+        \draw[blue, thick, ->] (m) -- ++(1.3,0) node[anchor=south west]{$a_\mathrm{x}$};
         % Gravity vectors
         % Length of g vector
-        \def\gl{3}
+        \def\gl{2.8}
         % Length of g vector components
         \def\gxl{{\gl*sin(\ra)}}
         \def\gzl{{\gl*cos(\ra)}}
         % Draw vectors
-        \draw[red, ->, very thick, rotate=-\ra] (m) -- ++(0,\gl) node[anchor=south west, black](g_end){$\mathbf{g}$};
-        \draw[red, thin, ->] (m) -- ++(\gxl,0) node[anchor=north]{$g_\mathrm{x}$};
-        \draw[red, thin, ->] (m) -- ++(0,-\gzl) node[anchor=east]{$g_\mathrm{z}$};
-        \draw[red, dotted] ($(m)+(\gxl,0)$) -- ++(0,\gzl) -- ++(-\gxl,0);
+        \draw[red, ->, very thick, rotate=-\ra] (m) -- ++(0,-\gl) node[anchor=east](g_end){$\mathbf{g}$};
+        \draw[red, thin, ->] (m) -- ++(-\gxl,0) node[anchor=east]{$g_\mathrm{x}$};
+        \draw[red, thin, ->] (m) -- ++(0,-\gzl) node[anchor=west]{$g_\mathrm{z}$};
+        \draw[red, dotted] ($(m)+(-\gxl,0)$) -- ++(0,-\gzl) -- ++(\gxl,0);
+        % \draw[red, dotted] ($(m)+(0,0)$) -- ++(0,-\gzl) -- ++(\gxl,0);
     \end{scope}
 \end{tikzpicture}
 \end{document}
