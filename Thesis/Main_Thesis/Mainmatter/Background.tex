@@ -85,6 +85,12 @@ The advantage of stable platform systems is that the calculation of orientation 
 The angles of the gimbals can be measured to get the orientation and to get the position, the accelerometer measurements have to be be corrected for gravity (which is \SI{9.8}{\metre\per\second^2} in upward direction) and be integrated two times.
 No coordinate transformation is necessary.
 The disadvantages are that the mechanical structure of the setup is complex, needs regular maintenance, requires a lot of space and has high costs.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.4\linewidth]{stable_platform_imu}
+\caption{A stable platform \acrshort{imu} \cite{Woodman07anintroduction}}
+\label{fig:stable_platform_imu}
+\end{figure}
 
 The second type are strapdown systems, which are mostly used today.
 As the name suggests all the parts are fixed onto the device and are thus not anymore always aligned with the reference frame.
@@ -103,10 +109,21 @@ Almost all consumer grade electronics uses \gls{mems}-\gls{imu}s nowadays, but t
 \subsubsection{\glsentrytext{mems} Accelerometer}
 \begin{figure}[htb]
 	\centering
-	%todo Better quality or create own fig
-	\includegraphics[width=0.7\linewidth]{MEMS_Accelerometer}
-	\caption{Micro structure of a \gls{mems} accelerometer (TODO: Better image)}
-	\label{fig:MEMS_Accelerometer}
+	\begin{subfigure}{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{MEMS_Accelerometer}
+		\caption{\acrshort{mems} accelerometer}
+		\label{fig:MEMS_Accelerometer}
+	\end{subfigure}
+	% \hfill
+	\begin{subfigure}{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{MEMS_Gyroscope}
+		\caption{\acrshort{mems} gyroscope}
+		\label{fig:MEMS_Gyroscope}
+	\end{subfigure}
+	\caption{Micro structure of \acrshort{mems} TODO: Better images}
+	\label{fig:MEMS_design}
 \end{figure}
 The accelerometer is used to measure the acceleration.
 Besides dynamic acceleration there is the static and constant gravity acceleration on earth in upward direction.
@@ -153,27 +170,27 @@ The errors can be divided into two categories: systematic and stochastic errors 
 Systematic errors or also known as calibration errors are constant over time and can be eliminated by calibration.
 Typical examples are bias (offset), scaling or axis misalignments.
 Integrating a constant bias once or twice leads to a drift (error grows linearly with respect to time) or a second-order drift (error grows quadratically) respectively.
-Hence the elimination of the bias is necessary to get reliable estimations of the the orientation, velocity or position, which are calculated by integrating the angular velocity or the accelerometer measurements.\\
+Hence the elimination of the bias is necessary to get reliable estimations of the orientation, velocity or position, which are calculated by integrating the angular velocity or the accelerometer measurements.\\
 Stochastic errors change at every measurement and can be modeled using a statistical approach.
 Turn-on bias changes every time the \gls{imu} is powered up, but can be eliminated after a rest period.
 Thermo-mechanical noise is due to ? and leads to white noise.
 The integration of the white noise leads to a random walk \todo{How to fix white noise, allen variance?}
 Temperature fluctuations also influence the measurements, but because most
 \gls{imu}s are equipped with a temperature sensor, the introduced error can be eliminated \cite{Woodman07anintroduction}.\\
-Random walk angle errors are usually the hardest to correct and are the reason, why the gyroscope can not be trusted over a long period of time.
+Random walk angle errors are usually the hardest to correct and are the reason, why the measurements of the gyroscope can not be trusted over a long period of time.
 
 
 \subsection{\glsentrytext{lidar}}
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=0.5\textwidth]{Lidar.png}
-	\caption{Setup of a mechanical spinning \gls{lidar} \cite{Li2020}}
+	\caption{Setup of a mechanical spinning \acrshort{lidar} \cite{Li2020}}
 	\label{fig:lidar}
 \end{figure}
 \gls{lidar} is a method to measure distance to objects.
 Similar to other systems such as \gls{sonar} or \gls{radar}, \gls{lidar} uses the time-of-flight principle.
 A short laser pulse with the velocity $v$ is sent into the environment and the reflected light is analyzed.
-The duration $\Delta t$ it took from sending to receiving can then be used to calculate the distance $s$ with
+The duration $\Delta t$ it took from sending to receiving can then be used to calculate the distance $s$ between the \gls{lidar} and the object that the light hit with
 \[ s = v\frac{\Delta t}{2}. \]
 The change of intensity and wavelength of the returning light are measured as well and can provide information about the reflectivity of the object (intensity) or the chemical composition of the air (wavelength).
 Common uses of \gls{lidar} are the analysis of earth's atmosphere, 3D mapping of environments or in the field of autonomous driving for object detection, tracking and \gls{slam}.
@@ -191,7 +208,7 @@ While mechanical spinning systems are very precise, they are bulky, need a lot o
 
 Solid state systems and especially \gls{mems} \gls{lidar}s try to overcome those problems.
 \gls{mems} \gls{lidar} are quasi-static, the only part that moves is the on the chip embedded mirror, but due to the small size (\SIrange{1}{7}{\milli\metre} diameter) very little power has to be used to move it.
-They can be rotated on up to two axes, but because the laser cannot be rotated a horizontal view of 360° is not possible \todo{fact check, might have understood it wrong}.
+They can be rotated on up to two axes, but because the laser cannot be rotated a horizontal view of \SI{360}{\degree} is not possible \todo{fact check, might have understood it wrong}.
 But advantages compared to mechanical systems are the smaller former factor and lower cost.
 
 After transmitting the laser signal the reflected light passes through the receiving optic and is received by photodetectors.
@@ -207,8 +224,9 @@ A processing unit then generates a 3D point cloud from all the received measurem
 	\item Differentielle Hall-Sensoren
 \end{itemize}
 }
-\subsubsection{Inductive}
-asd
+An odometer measures the wheel speeds.
+One option is using induktive drehzahlsensoren, which is based on the induktionsgesetzt.
+
 
 
 \subsection{Camera?}
