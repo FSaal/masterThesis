@@ -1,6 +1,20 @@
 %\pagestyle{fancy}
 \chapter{Methods}
 \label{ch:Methods}
+The road grade $\alpha$ is the angle between the road plane and the ground plane.
+The ground plane is perpendicular to the gravity vector.
+The road grade can be represented in degrees
+\begin{equation}
+    \alpha = \arctan(\frac{h}{d})
+\end{equation}
+or in percentage
+\begin{equation}
+    r = 100\cdot\tan(\alpha).
+\end{equation}
+The pitch angle $\theta$ of the car is defined as the angle between the ground plane and the longitudinal axis of the car.
+An acceleration or deceleration on the ramp compresses the suspension in the back or respectively front, which makes the pitch angle not in alignment with the road grade anymore.
+The difference between the two angles is defined as $\beta = \theta - \alpha$ and may also occur due to rotational movement or vibrations.
+The mentioned variables are visualized in fig. \ref{fig:tikz_car_tilt}.
 
 \begin{figure}[htpb]
     \centering
@@ -32,8 +46,9 @@ Note that the upper index to the left of the matrix symbol denotes the source fr
 During standstill, the only measurable acceleration besides noise and bias is the acceleration due to gravity.
 Assuming the car stands on flat ground, the gravity acceleration in the car frame is measured only in upwards z-direction.
 Using this, a transformation from \gls{imu} frame $\mathcal{I}$ to the intermediate frame $\mathcal{B}$ can be transformed.
-In the new $\mathcal{B}$ frame both z-axes are aligned $\vincs{z}{b} = \vincs{z}{c} = \mathbf{e}_\mathrm{z} = \left(\begin{array}{lll} 0 & 0 & 1 \end{array}\right)^{\top}$ and thus the pitch and roll angle \todo{explain euler angles in math background} between the two frames become zero.
+In the new $\mathcal{B}$ frame both z-axes are aligned $\vincs{z}{b} = \vincs{z}{c}$ and thus the pitch and roll angle \todo{explain euler angles in math background} between the two frames become zero.
 Note that this is not necessarily true for the other axes, $\vincs{x}{b}\neq\vincs{x}{c}$ and $\vincs{y}{b}\neq\vincs{y}{c}$, see fig. \ref{fig:tikz_frame_transformation_intermediate}.\\
+\itodo{Remove ez vector stuff}
 According to Euler's rotation theorem, which says that any arbitrary rotation of a rigid body while holding one point (origin) fixed can be achieved by a rotation around a single fixed axis passing through the origin, there exists one rotation axis $\mathbf{j}$ and rotation angle $\alpha$ to achieve this.\\
 As described in section \ref{subsec:vector_projection}, the rotation axis needed for the transformation can be calculated with
 \begin{equation}
@@ -56,7 +71,7 @@ The quaternion
 \end{equation}
 then describes the rotation between the two frames.\\
 Now that the z-axes of the $\mathcal{I}$ and $\mathcal{C}$ frame are aligned, the x- and y-axis can be aligned by a rotation $\beta$ around the z-axis.
-This yaw correction could usually be achieved using the magnetometer measurements, but because those are heavily obscured in the parking garage, an other solution must be found.
+This yaw correction could usually be achieved using the magnetometer measurements, but because those are heavily obscured indoors and especially in the parking garage \cite{6418880}, an other solution must be found.
 A possible solution to this problem is accelerating the car straight forward and then using the accelerometer to measure along which axis the acceleration occurred.
 Assuming the car tilt (pitch) during the acceleration is minimal, the acceleration is only being measured along the x- and y-axis.
 The resulting vector is being aligned with the forward axis of the car $\vincs{x}{c} = \mathbf{e}_\mathrm{x} = \left(\begin{array}{lll} 1 & 0 & 0 \end{array}\right)^{\top}$, in the same way as before.
@@ -116,20 +131,76 @@ And finally the measurements $\mathbf{A}$ can be transformed using
         \caption{All axes are aligned}
         \label{fig:tikz_frame_transformation_final}
     \end{subfigure}
-    \caption{Frame transformation from the \gls{imu} frame \textcolor{red}{$\mathcal{I}$}, over the intermediate frame \textcolor{blue}{$\mathcal{B}$} to the car frame \textcolor{green}{$\mathcal{C}$}}
+    \caption[Frame transformation]{Frame transformation from the \gls{imu} frame \textcolor{red}{$\mathcal{I}$}, over the intermediate frame \textcolor{blue}{$\mathcal{B}$} to the car frame \textcolor{green}{$\mathcal{C}$}}
     \label{fig:tikz_frame_transformation}
 \end{figure}
 
+
 \subsection{Linear acceleration only}
+The accelerometer measurement can be modeled as
+\begin{equation}
+    a_\mathrm{x} = g_\mathrm{x} + a_\mathrm{at} + b_\mathrm{x}
+\end{equation}
+
 \begin{equation}
     \theta = \arcsin(\frac{\vb{a}_x}{g})
 \end{equation}
+Such that the angle is zero if the car is parallel to the ground and \SI{90}{\degree} if the car would be pointing straight up.
+The angle is positive when driving up a ramp and negative if driving down.
+The gravity vector is projected onto the z-axis of the car frame and can be divided into x and z and components.
+
+\begin{figure}[htpb]
+    \centering
+    \input{Graphics/TikZ/car_gravity.tex}
+    \caption{Gravity measured by \acrshort{imu} (in car frame).}
+    \label{fig:tikz_car_gravity}
+\end{figure}
 
 \subsection{Angular velocity only}
-
+\begin{equation}
+    \omega = \frac{\Delta\theta}{\Delta t}
+\end{equation}
+\begin{equation}
+    \Delta\theta = \omega\Delta t
+\end{equation}
+\begin{equation}
+    \theta_k = \sum_{i = 1}^k \theta_i
+\end{equation}
+\begin{equation}
+    \theta = \theta_0 + \int_0^t \omega_y \dd{t}
+\end{equation}
 
 \subsection{Complementary filter}
+The linear acceleration data is reliable in the long term, but is easily ... by noise.
+Whereas the angular velocity data provides good short term measurements, but is not reliable in the long term due to random walk.
+A complementary filter uses the good properties of the linear acceleration and angular velocity measurements, while reducing their bad effects.
+It uses the data from the angular velocity on the short term and corrects them with the linear acceleration data, to prevent drifting.
+\begin{equation}
+    \theta[k] = (1-\alpha)(\theta[k-1] + \theta_\omega) + \alpha(\theta_a).
+\end{equation}
+the mea
+\begin{equation}
+    \theta_\omega =
+\end{equation}
+Complementary filter uses the good short term accuracy of the gyroscope and combines it with the accelerometer data, which is good in the long run but not in the short term, to reduce the drifting.
+Hence the name complementary filter. The formula is as follows
+\begin{equation}
+    \theta = (1-\alpha)(\theta + gyrData\cdot dt) + \alpha(accData).
+\end{equation}
+\begin{equation}
+    \theta[k] = (1-\alpha)(\theta[k-1] + gyrData\cdot dt) + \alpha(accData).
+\end{equation}
+Where $\theta$ denotes the estimated angle from fusing the measurements
+\begin{itemize}
+    \item $\theta$: Estimated angle from fusing measurements
+    \item $\alpha$: Time constant response time in the range of [0-1]. With a value of 0 only the gyroscope is being used and with $\alpha=1$ only the accelerometer.
+    \item $gyrData$: Angular velocity
+    \item $accData$: Angle from the low-pass filtered accelerometer data using $accData = \arctan2(a_x, a_z)$
+        \item (in our case $\arctan2(a_x-a_\mathrm{car}, a_z)$ to be precise)
+\end{itemize}
 
+A high value of $\alpha$ means that the measurements of the gyroscope are trusted less than the from the accelerometer, and vice versa a small $\alpha$ value means that the are gyroscope measurements are weighted more.
+A decrease of $\alpha$ leads to a smoother signal, but at the cost of adding some addtional time delay.
 
 
 \section{\glsentrytext{lidar} only}
@@ -186,7 +257,7 @@ A flow chart of the described algorithm is shown in figure \ref{fig:flowchart_li
 \begin{figure}[htb]
     \centering
     \input{Graphics/TikZ/flowchart_lidar_calibration.tex}
-    \caption{Algo for \gls{lidar} alignment}
+    \caption{Algo for \acrshort{lidar} alignment}
     \label{fig:flowchart_lidar_calibration}
 \end{figure}
 
@@ -294,7 +365,7 @@ with $h$ being the step size, which depends on the rate of the sensor.
 \begin{figure}[htpb]
     \centering
     \input{Graphics/TikZ/car_gravity.tex}
-    \caption{Gravity measured by \gls{imu} (in car frame). Show that $g_z$ etc}
+    \caption{Gravity measured by \acrshort{imu} (in car frame). Show that $g_z$ etc}
     \label{fig:tikz_car_gravity}
 \end{figure}
 \begin{equation}
