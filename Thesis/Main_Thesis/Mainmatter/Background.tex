@@ -209,7 +209,7 @@ While mechanical spinning systems are very precise, they are bulky, need a lot o
 Solid state systems and especially \gls{mems} \gls{lidar}s try to overcome those problems.
 \gls{mems} \gls{lidar} are quasi-static, the only part that moves is the on the chip embedded mirror, but due to the small size (\SIrange{1}{7}{\milli\metre} diameter) very little power has to be used to move it.
 They can be rotated on up to two axes, but because the laser cannot be rotated a horizontal view of \SI{360}{\degree} is not possible \todo{fact check, might have understood it wrong}.
-But advantages compared to mechanical systems are the smaller former factor and lower cost.
+But advantages compared to mechanical systems are the smaller form factor and lower cost.
 
 After transmitting the laser signal the reflected light passes through the receiving optic and is received by photodetectors.
 A processing unit then generates a 3D point cloud from all the received measurements.
@@ -218,14 +218,21 @@ A processing unit then generates a 3D point cloud from all the received measurem
 \cite{Vaughan2006}
 
 
-\subsection{Odometer?}
-\todoin{\begin{itemize}
-	\item Induktive Drehzahlsensoren
-	\item Differentielle Hall-Sensoren
-\end{itemize}
-}
-An odometer measures the wheel speeds.
-One option is using induktive drehzahlsensoren, which is based on the induktionsgesetzt.
+\subsection{Odometer}
+\itodo{Better title and add more to Hall sensor}
+The wheel speed sensors measure the speed of each wheel and allow for the calculation of the car velocity if using e.g. a Einspurmodell.
+The wheel speed measurements are used by many driver assistance systems such as \gls{abs} or \gls{esp}.
+Different techniques exist to measure the speed with the most common ones being magnetoelectric and Hall type wheel speed sensors.\\
+The magnetoelectric sensor is composed of a sensor head and a ring gear.
+The head is mounted stationary on the car frame while the ring gear is mounted on the wheel hub or axle and rotates with the wheel.
+The sensor head is composed of a permanent magnet core and a coil.
+When the wheel and thus the ring gear turns the teeth and gaps of the wheel pass by the sensor head and change the magnetic field which induces a voltage in the coil.
+The induced voltage increases with increasing wheel speed.
+Advantages of the technique are the low cost, robustness and good performance even in the presence of mud etc.
+A disadvantage is the frequency dependency, low speeds might can not be measured due to the induced voltage being too small, while at very high speeds the signals might can not be picked up by the head MAKE SURE THATS CORRECT.\\
+Hall effect speed sensors also use a magnetic effect.
+Difference ... (short)
+\cite{AutoReif2014}
 
 
 
