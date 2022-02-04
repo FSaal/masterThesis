@@ -20,8 +20,7 @@
     \node (downsample) [process, below of=passthrough] {Downsample};
     \node (is_enough_points) [decision, below of=downsample, yshift=-0.5cm] {Enough points left?};
     \node (ransac) [process, below of=is_enough_points, yshift=-0.5cm] {RANSAC};
-    \node (nv) [process, below of=ransac] {Normal vector};
-    \node (is_ramp) [decision, below of=nv, yshift=-0.3cm] {Angle and width?};
+    \node (is_ramp) [decision, below of=ransac, yshift=-0.3cm] {Angle and width?};
     \node (reduce) [process, right of=is_ramp, xshift=4cm] {Remove plane};
     \node (rotmat) [io, below of=is_ramp, yshift=-0.3cm] {Ramp props};
     \node (skip) [startstop, left of=rotmat, xshift=-3cm] {Skip};
@@ -37,8 +36,7 @@
     \draw [arrow] (downsample) -- (is_enough_points);
     \draw [arrow] (is_enough_points) -- node[anchor=west] {yes} (ransac);
     \draw [arrow] (is_enough_points) -| node[anchor=east] {no} (skip);
-    \draw [arrow] (ransac) -- (nv);
-    \draw [arrow] (nv) -- (is_ramp);
+    \draw [arrow] (ransac) -- (is_ramp);
     \draw [arrow] (is_ramp) -- node[anchor=east] {yes} (rotmat);
     \draw [arrow] (is_ramp) -- node[anchor=north] {no} (reduce);
     \draw [arrow] (reduce) |- (is_enough_points);
