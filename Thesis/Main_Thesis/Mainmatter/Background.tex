@@ -1,4 +1,3 @@
-%\pagestyle{fancy}
 \chapter{Background}
 \label{ch:Background}
 
@@ -8,7 +7,7 @@ Rotations can be expressed in several ways, I will briefly describe the ones use
 
 \subsubsection{Rotation matrix}
 A rotation matrix \mtf{b}{a} $\in \mathbb{R}^{3\times3}$ transforms an arbitrary vector from the coordinate system $\mathcal{B}$ to the coordinate system $\mathcal{A}$.\\
-BLABLABLA\\
+\dots\\
 Rotation matrices can be concatenated, but this must be done in reverse order, e.g.
 \begin{equation}
 	{}_\mathcal{C}\vb{p} = \mtf{c}{a}{}_\mathcal{A}\vb{p} = \mtf{b}{c}\mtf{a}{b}{}_\mathcal{A}\vb{p}
@@ -80,7 +79,7 @@ It allows for the determination of the absolute heading, whereas the gyroscope c
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=0.4\linewidth]{stable_platform_imu}
-	\caption{A stable platform \acrshort{imu} \cite{Woodman07anintroduction}}
+	\caption{A stable platform \acrshort{imu} \cite{Woodman2007}}
 	\label{fig:stable_platform_imu}
 \end{figure}
 In the first type, the stable platform systems, the inertial sensors are mounted in such way, that they are always aligned with the reference frame.
@@ -97,7 +96,7 @@ Advantages are that due to the lack of gimbals and motors a significantly smalle
 A disadvantage is that the calculation of the orientation and position is more complex, the rate gyroscopes have to be integrated to get the orientation and can then be used to transform the accelerometer signals into the reference frame.
 But with the decrease of computational cost this disadvantages continues to diminish.\\
 There are many different types of gyroscopes and accelerometers such as mechanical, optical or solid state, but only the functionality of \gls{mems} will be described, because those will also be used in the experiment.
-Information about the working principle of other systems and also much more information about \gls{imu}s in general can be found in \cite{Woodman07anintroduction}.\\
+Information about the working principle of other systems and also much more information about \gls{imu}s in general can be found in \cite{Woodman2007}.\\
 \gls{mems} consist of electrical and/or mechanical components in the size of \SI{100}{\nano\metre} to \SI{1}{\milli\metre}, allowing for a very small form factor.
 Other characteristics of \gls{mems} are that they can easily be mass produced allowing for low cost and usually also need less power than traditional systems, because everything is integrated on the chip \cite{Shaeffer2013}.
 Almost all consumer grade electronics uses \gls{mems}-\gls{imu}s nowadays, but they also find more and more use in many industry segments, as their accuracy continues to improve \cite{Perlmutter2016}.
@@ -172,7 +171,7 @@ The turn-on bias is different every time the \gls{imu} is powered up, but can be
 Errors due to temperature fluctuations influencing the measurements are also common, but because most \gls{imu}s are equipped with a temperature sensor, the introduced error can be eliminated.
 Harder to correct is the introduced error due to thermo-mechanical noise, which is measured as white noise.
 The integration of white noise leads than to a random walk.\\
-Angle errors introduced by random walk are usually the hardest to correct and are the reason, why the measurements of the gyroscope can not be trusted over a long period of time \cite{Woodman07anintroduction}.
+Angle errors introduced by random walk are usually the hardest to correct and are the reason, why the measurements of the gyroscope can not be trusted over a long period of time \cite{Woodman2007}.
 
 
 \subsection{\glsentrytext{lidar}}
@@ -202,7 +201,7 @@ A mirror which can be rotated around an axis is used, allowing for a greater ver
 Also the whole \gls{lidar} base on which the laser is mounted can be rotated independently from the mirror, allowing for a \SI{360}{\degree} horizontal \gls{fov}.
 To get a sufficient resolution the \gls{lidar} has to spin at a high speed, but some \gls{lidar}s also use additionally a vertical array of lasers instead of only one to further increase the density of the generated point cloud.
 The working principle of a \gls{lidar} using the mechanical spinning method is shown in figure \ref{fig:lidar}.
-While mechanical spinning systems are very precise, they are bulky, need a lot of power and are expensive \cite{Vaughan2006}.\\
+While mechanical spinning systems are very precise, they are bulky, need a lot of power and are expensive \cite{Fujii2005}.\\
 Solid state systems and especially \gls{mems} \gls{lidar}s try to overcome those problems.
 \gls{mems}-\gls{lidar} are quasi-static, the only part that moves is the on the chip embedded mirror, but due to the small size (\SIrange{1}{7}{\milli\metre} diameter) very little power has to be used to move it.
 The mirror can be rotated on up to two axes, but because the base cannot be rotated as with mechanical systems, a horizontal view of \SI{360}{\degree} is not possible.
@@ -239,14 +238,14 @@ A signal amplifier and processing unit is integrated in the sensor head and thus
 \gls{ros} is a framework that allows the communication between sensors and actuators of a robot.
 It is a meta-operating system and provides services such as hardware abstraction, low-level device control......
 Different languages such as C++, Python or Lisp are supported.
-The fundamental concepts are nodes, messages, topics and services \cite{Ros2009}.
+The fundamental concepts are nodes, messages, topics and services \cite{Quigley2009}.
 A node is a process that performs computation and should be responsible for only one task.
 A package can contain multiple nodes.
 The communication between nodes is done using messages.
 There are different type of messages, but they all consist of standard types such as integer, float or bool but can also contain other messages.
 The messages are published on a specific topic.
 The topic can then be subscribed by other nodes, to retrieve the messages.
-A topic can be published and subscribed by multiple different nodes. 
+A topic can be published and subscribed by multiple different nodes.
 Services allow for a synchronized communication, instead of the asynchronous topics.
 
 

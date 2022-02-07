@@ -69,7 +69,7 @@ The quaternion
 \end{equation}
 then describes the rotation between the two frames.\\
 Now that the z-axes of the $\mathcal{I}$ and $\mathcal{C}$ frame are aligned, the x- and y-axis can be aligned by a rotation $\beta$ around the z-axis.
-This yaw correction could usually be achieved using the magnetometer measurements, but because those are heavily obscured indoors and especially in the parking garage \cite{6418880}, an other solution must be found.
+This yaw correction could usually be achieved using the magnetometer measurements, but because those are heavily obscured indoors and especially in the parking garage \cite{Li2012}, an other solution must be found.
 A possible solution to this problem is accelerating the car straight forward and then using the accelerometer to measure along which axis the acceleration occurred.
 Assuming the car tilt (pitch) during the acceleration is minimal, the acceleration is only being measured along the x- and y-axis.
 The resulting vector is being aligned with the forward axis of the car, such that $\vincs{x}{c} = \mathbf{e}_\mathrm{x}$, in the same way as before.
@@ -151,7 +151,7 @@ The gravity vector is projected onto the z-axis of the car frame and can be divi
     \centering
     \input{Graphics/TikZ/car_gravity.tex}
     \caption{Gravity measured by \acrshort{imu} (in car frame).}
-    \label{fig:tikz_car_gravity}
+    \label{fig:tikz_car_gravity1}
 \end{figure}
 
 \subsection{Angular velocity only}
@@ -180,7 +180,7 @@ the mea
 \begin{equation}
     \theta_\omega =
 \end{equation}
-Complementary filter uses the good short term accuracy of the gyroscope and combines it with the accelerometer data, which is good in the long run but not in the short term, to reduce the drifting.
+The complementary filter uses the good short term accuracy of the gyroscope and combines it with the accelerometer data, which is good in the long run but not in the short term, to reduce the drifting.
 Hence the name complementary filter. The formula is as follows
 \begin{equation}
     \theta = (1-\alpha)(\theta + gyrData\cdot dt) + \alpha(accData).
@@ -198,7 +198,7 @@ Where $\theta$ denotes the estimated angle from fusing the measurements
 \end{itemize}
 
 A high value of $\alpha$ means that the measurements of the gyroscope are trusted less than the from the accelerometer, and vice versa a small $\alpha$ value means that the are gyroscope measurements are weighted more.
-A decrease of $\alpha$ leads to a smoother signal, but at the cost of adding some addtional time delay.
+A decrease of $\alpha$ leads to a smoother signal, but at the cost of adding some additional time delay.
 
 
 \section{\glsentrytext{lidar} only}
@@ -284,6 +284,7 @@ The accidental detection of the ceiling was already prevented during the passthr
 By limiting the maximal angle between the ground plane and the detected plane the side walls are ignored.
 Similarly, the detected plane gets classified as ground plane, if the angle between the ground plane and the detected plane is near zero (or below the specified minimum angle).
 Beside the angle, the width of the plane (y-range) is being calculated and compared to the parameters, to make sure that the plane is indeed a drivable ramp for cars and not e.g. a small ramp for wheel chairs \todo{no idea if wheel chair ramps are common in parking garages?}.
+\itodo{Lars: What happens with stairs?}
 If a ramp has been detected, the estimated angle and distance from the car front to the beginning of the ramp are returned.\\
 \itodo{Add down ramp detection}
 An visual representation of the algorithm is depicted in fig. \ref{fig:flowchart_lidar}.
