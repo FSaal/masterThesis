@@ -5,14 +5,26 @@
 \section{Sensors}
 \subsection{\glsentrytext{imu}}
 \missingfigure{Picture of myAHRS+ or/and ZED2i}
-\begin{tikzpicture}
-    \coordinate (O) at (0,0,0);
-    \draw[thick,->, red] (0,0,0) -- (1,0,0) node[anchor=north east]{$x$};
-    \draw[thick,->, green] (0,0,0) -- (0,1,0) node[anchor=north west]{$y$};
-    \draw[thick,->, blue] (0,0,0) -- (0,0,1) node[anchor=south]{$z$};
-\end{tikzpicture}
-For the experiments the myAHRS+, a low cost high performance \gls{ahrs} will be used.
+Two different \gls{imu}s will be used for the experiment.
+The first one being the WITHROBOT myAHRS+, a low cost high performance \gls{ahrs}.
 An \gls{ahrs} contains an \gls{imu} and outputs the raw data but also has an integrated Kalman filter which calculates the pose in form of quaternion or euler angles.
+The second \gls{imu} used during the experiment is integrated in the ZED 2i Stereo camera.
+The specifications of each \gls{imu} can be read in table 
+\begin{table}[ht]
+	\centering
+	\caption{Comparison of the two used \gls{imu}s}
+	\label{tab:imu_datasheets}
+	\begin{tabular}[t]{lcc}
+		\toprule
+		&\textbf{myAHRS+} & \textbf{ZED 2i \gls{imu}}\\
+		\midrule
+		Accelerometer range			& $\pm\SI{16}{\g}$				& $\pm\SI{8}{\g}$\\
+		Gyroscope range				& \SI{2000}{\degree\per\second}	& \SI{1000}{\degree\per\second}\\
+		Magnetometer range			& \SI{1200}{\micro\tesla}		& \SI{2500}{\micro\tesla}\\
+		Rate 						& \SI{100}{\hertz}				& \SI{400}{\hertz}\\
+		\bottomrule
+	\end{tabular}
+\end{table}%
 It offers an micro-USB interface and runs with up to \SI{100}{\Hz}.
 It can capture a change of $\pm$2000 dps (degrees per second), $\pm$16 $g$ and $\pm$\SI{1200}{\micro\tesla}.
 During the experiment only a fraction of this range is expected to be reached, hence the sensor seems suitable.
@@ -33,23 +45,23 @@ Both are mechanical \gls{lidar}s and have the same number of laser channels, but
 	\caption{Comparison of the two used \gls{lidar}s \cite{RoboSense2020}\cite{Rev}}
 	\label{tab:lidar_datasheets}
 	\begin{tabular}[t]{lcc}
-	\toprule
-	&\textbf{RS-Bpearl} & \textbf{Velodyne Ultra Puck}\\
-	\midrule
-	Channels 					& 32 							& 32\\
-	Range 						& \SI{100}{\metre}				& \SI{200}{\metre}\\
-	Range accuracy				& $\pm\SI{3}{\centi\metre}$		& $\pm\SI{3}{\centi\metre}$\\
-	Horizontal \gls{fov}	& \SI{360}{\degree}				& \SI{360}{\degree}\\
-	Vertical \gls{fov} 	& \SI{90}{\degree} 				& \SI{40}{\degree} (\SIrange{-25}{15}{\degree})\\
-	Horizontal resolution		& \SIrange{0.2}{0.4}{\degree} 	& \SIrange{0.1}{0.4}{\degree}\\
-	Vertical resolution			& \SI{2.81}{\degree} 			& \SI{0.33}{\degree}\\
-	Frame rate 					& \SIrange{10}{20}{\hertz}		& \SIrange{5}{20}{\hertz}\\
-	Laser wavelength 			& \SI{905}{\nano\metre} 		& \SI{903}{\nano\metre}\\
-	% \midrule
-	Points per second 			& 576,000						& 600,000		\\
-	\bottomrule
+		\toprule
+		&\textbf{RS-Bpearl} & \textbf{Velodyne Ultra Puck}\\
+		\midrule
+		Channels 					& 32 							& 32\\
+		Range 						& \SI{100}{\metre}				& \SI{200}{\metre}\\
+		Range accuracy				& $\pm\SI{3}{\centi\metre}$		& $\pm\SI{3}{\centi\metre}$\\
+		Horizontal \gls{fov}	& \SI{360}{\degree}				& \SI{360}{\degree}\\
+		Vertical \gls{fov} 	& \SI{90}{\degree} 				& \SI{40}{\degree} (\SIrange{-25}{15}{\degree})\\
+		Horizontal resolution		& \SIrange{0.2}{0.4}{\degree} 	& \SIrange{0.1}{0.4}{\degree}\\
+		Vertical resolution			& \SI{2.81}{\degree} 			& \SI{0.33}{\degree}\\
+		Frame rate 					& \SIrange{10}{20}{\hertz}		& \SIrange{5}{20}{\hertz}\\
+		Laser wavelength 			& \SI{905}{\nano\metre} 		& \SI{903}{\nano\metre}\\
+		% \midrule
+		Points per second 			& 576,000						& 600,000		\\
+		\bottomrule
 	\end{tabular}
-	\end{table}%
+\end{table}%
 \begin{figure}[htb]
 	\centering
 	\begin{subfigure}{0.3\textwidth}
@@ -98,6 +110,12 @@ When the ground is not a flat anymore, the assumption from \ref{eq:ground_points
 
 
 \section{Car}
+The car used in the experiment is an eGolf 2017. 
+The car has been "hacked" which allows for the reading of the wheel ticks.
+Because the ... mode is used, the output power of the motor is limited and the maximum speed is capped at \SI{5}{\kilo\metre\per\hour}.
+The traversing of ramps is not possible and this mode, which is why a the normal mode was used for the recording where the ramp was fully driven up.
+But in the normal driving mode the wheel speed readings were not available. 
+The car has a pc in the booth, at which the sensors were connected to. 
 \missingfigure{Picture of eGolf}
 \todoin{\begin{itemize}
 	\item Some stats as height, track width etc, electric car hence less vibrations
