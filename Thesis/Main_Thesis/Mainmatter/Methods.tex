@@ -46,17 +46,15 @@ Note that the upper index to the left of the matrix symbol denotes the source fr
 During standstill, the only measurable acceleration besides noise and bias is the acceleration due to gravity.
 Assuming the car stands on flat ground, the gravity acceleration in the car frame is measured only in upwards z-direction.
 Using this, a transformation from \gls{imu} frame $\mathcal{I}$ to the intermediate frame $\mathcal{B}$ can be transformed.
-In the new $\mathcal{B}$ frame both z-axes are aligned $\vincs{z}{b} = \vincs{z}{c}$ and thus the pitch and roll angle \todo{explain euler angles in math background} between the two frames become zero.
+In the new $\mathcal{B}$ frame both z-axes are aligned $\vincs{z}{b} = \vincs{z}{c}$ and thus the pitch and roll angle between the two frames become zero.
 Note that this is not necessarily true for the other axes, $\vincs{x}{b}\neq\vincs{x}{c}$ and $\vincs{y}{b}\neq\vincs{y}{c}$, see fig. \ref{fig:tikz_frame_transformation_intermediate}.\\
 \itodo{Remove ez vector stuff}
 According to Euler's rotation theorem, which says that any arbitrary rotation of a rigid body while holding one point (origin) fixed can be achieved by a rotation around a single fixed axis passing through the origin, there exists one rotation axis $\mathbf{j}$ and rotation angle $\alpha$ to achieve this.\\
 As described in section \ref{subsec:vector_projection}, the rotation axis needed for the transformation can be calculated with
 \begin{equation}
     \vb{j} = \frac{\vincs{\vu{a}}{i} \cp \vincs{\vu{z}}{b}}{\norm{\vincs{\vu{a}}{i} \cp \vincs{\vu{z}}{b}}}
-    = \frac{\vincs{\vu{a}}{i} \cp \vb{e}_\mathrm{z}}{\norm{\vincs{\vu{a}}{i} \cp \vb{e}_\mathrm{z}}}
-    = \frac{{}_{\mathcal{I}}a_y\vb{e}_\mathrm{x} - {}_{\mathcal{I}}a_x\vb{e}_\mathrm{y}}{\norm{{}_{\mathcal{I}}a_y\vb{e}_\mathrm{x} - {}_{\mathcal{I}}a_x\vb{e}_\mathrm{y}}}
 \end{equation}
-and the rotation angle with
+and the rotation angle with \todo{check second val in angle}
 \begin{equation}
     \alpha = \arccos(\vincs{\vu{a}}{i}\vdot \vb{e}_\mathrm{z}).
 \end{equation}
@@ -74,7 +72,7 @@ Now that the z-axes of the $\mathcal{I}$ and $\mathcal{C}$ frame are aligned, th
 This yaw correction could usually be achieved using the magnetometer measurements, but because those are heavily obscured indoors and especially in the parking garage \cite{6418880}, an other solution must be found.
 A possible solution to this problem is accelerating the car straight forward and then using the accelerometer to measure along which axis the acceleration occurred.
 Assuming the car tilt (pitch) during the acceleration is minimal, the acceleration is only being measured along the x- and y-axis.
-The resulting vector is being aligned with the forward axis of the car $\vincs{x}{c} = \mathbf{e}_\mathrm{x} = \left(\begin{array}{lll} 1 & 0 & 0 \end{array}\right)^{\top}$, in the same way as before.
+The resulting vector is being aligned with the forward axis of the car, such that $\vincs{x}{c} = \mathbf{e}_\mathrm{x}$, in the same way as before.
 Resulting in the rotation angle
 \begin{equation}
     \beta = \arccos(\vincs{\vu{a}}{b} \vdot \vb{e}_\mathrm{x})
@@ -204,6 +202,8 @@ A decrease of $\alpha$ leads to a smoother signal, but at the cost of adding som
 
 
 \section{\glsentrytext{lidar} only}
+\itodo{Maybe brief overview of section/algorithm}
+\itodo{Add pcl citation somehwere \cite{Rusu2011}}
 \subsection{Calibration}
 Same as for the \gls{imu}, a transformation from the \gls{lidar} frame to the car frame is necessary.
 The calibration is very similar to that of the \gls{imu}.
