@@ -236,6 +236,18 @@ A signal amplifier and processing unit is integrated in the sensor head and thus
 
 \section{ROS}
 \todoin{Brief introduction to ROS}
+\gls{ros} is a framework that allows the communication between sensors and actuators of a robot.
+It is a meta-operating system and provides services such as hardware abstraction, low-level device control......
+Different languages such as C++, Python or Lisp are supported.
+The fundamental concepts are nodes, messages, topics and services \cite{Ros2009}.
+A node is a process that performs computation and should be responsible for only one task.
+A package can contain multiple nodes.
+The communication between nodes is done using messages.
+There are different type of messages, but they all consist of standard types such as integer, float or bool but can also contain other messages.
+The messages are published on a specific topic.
+The topic can then be subscribed by other nodes, to retrieve the messages.
+A topic can be published and subscribed by multiple different nodes. 
+Services allow for a synchronized communication, instead of the asynchronous topics.
 
 
 
