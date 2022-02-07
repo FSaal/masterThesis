@@ -28,6 +28,32 @@
     \item Camera \gls{lidar} projection for nice visualization
     \item Something about camera
 \end{itemize}}
+\itodo{Make new recordings of level -2 ramps, approaching at different (e.g. 0, 15, 30, 45) angles}
+
+\begin{table}[htbp]
+	\centering
+	\caption{Performance evaluation}
+	\label{tab:lidar_datasheets}
+	\begin{tabular}[t]{ccccc}
+		\toprule
+		\textbf{Structure}  & \textbf{Distance}         & \textbf{Frames}   & \textbf{True Positives}   & \textbf{False Positives} \\
+		\midrule
+		Straight up         & \SIrange{0}{1}{\metre}    & 10                & 100\%	                    & 0\% \\
+		Straight down       & \SIrange{10}{15}{\metre}  & 10                & 100\%	                    & 0\% \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+% Option1	Structure	Dist interval	TP	FP		
+% 	Straight up					
+% 	Straight down					
+% 	Straight down at 90					
+% 	Curved up					
+% 	Curved down					
+						
+% Option2	Structure	Offset angle	Distance	Frames	TP	FP
+						
+% Option3	Structure	StdDev/mean/var etc of distance, andgle, width and length				
+
 
 \begin{figure}[htbp]
     \centering
