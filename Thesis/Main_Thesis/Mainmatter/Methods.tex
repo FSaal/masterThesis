@@ -48,7 +48,7 @@ Assuming the car stands on flat ground, the gravity acceleration in the car fram
 Using this, a transformation from \gls{imu} frame $\mathcal{I}$ to the intermediate frame $\mathcal{B}$ can be transformed.
 In the new $\mathcal{B}$ frame both z-axes are aligned $\vincs{z}{b} = \vincs{z}{c}$ and thus the pitch and roll angle between the two frames become zero.
 Note that this is not necessarily true for the other axes, $\vincs{x}{b}\neq\vincs{x}{c}$ and $\vincs{y}{b}\neq\vincs{y}{c}$, see fig. \ref{fig:tikz_frame_transformation_intermediate}.\\
-\itodo{Remove ez vector stuff}
+\iimprov{Remove ez vector stuff}
 According to Euler's rotation theorem, which says that any arbitrary rotation of a rigid body while holding one point (origin) fixed can be achieved by a rotation around a single fixed axis passing through the origin, there exists one rotation axis $\mathbf{j}$ and rotation angle $\alpha$ to achieve this.\\
 As described in section \ref{subsec:vector_projection}, the rotation axis needed for the transformation can be calculated with
 \begin{equation}
@@ -135,18 +135,18 @@ And finally the measurements $\mathbf{A}$ can be transformed using
 
 
 \subsection{Linear acceleration only}
-The accelerometer measurement can be modeled as
+\iquest{Should this be an own section?}
+The raw linear acceleration measurements are .. by a constant bias $\vb{b}_\mathrm{a}$ and random noise $\vb{n}_\mathrm{a}$
 \begin{equation}
-    a_\mathrm{x} = g_\mathrm{x} + a_\mathrm{at} + b_\mathrm{x}
+    \vb{a} = \hat{\vb{a}} + \vb{b}_\mathrm{a} + \vb{n}_\mathrm{a}
 \end{equation}
-
+which must be removed from the measured acceleration $\vb{a}$ to get the ideal noise free measurements $\vb{\hat{a}}$.
 \begin{equation}
     \theta = \arcsin(\frac{\vb{a}_x}{g})
 \end{equation}
 Such that the angle is zero if the car is parallel to the ground and \SI{90}{\degree} if the car would be pointing straight up.
 The angle is positive when driving up a ramp and negative if driving down.
 The gravity vector is projected onto the z-axis of the car frame and can be divided into x and z and components.
-
 \begin{figure}[htpb]
     \centering
     \input{Graphics/TikZ/car_gravity.tex}
@@ -155,6 +155,7 @@ The gravity vector is projected onto the z-axis of the car frame and can be divi
 \end{figure}
 
 \subsection{Angular velocity only}
+\iquest{Should this be an own section?}
 \begin{equation}
     \omega = \frac{\Delta\theta}{\Delta t}
 \end{equation}
@@ -169,10 +170,12 @@ The gravity vector is projected onto the z-axis of the car frame and can be divi
 \end{equation}
 
 \subsection{Complementary filter}
+\iimprov{More text and better explaination, also add cites}
 The linear acceleration data is reliable in the long term, but is easily ... by noise.
 Whereas the angular velocity data provides good short term measurements, but is not reliable in the long term due to random walk.
 A complementary filter uses the good properties of the linear acceleration and angular velocity measurements, while reducing their bad effects.
 It uses the data from the angular velocity on the short term and corrects them with the linear acceleration data, to prevent drifting.
+\iimprov{Get correct equation and distinguish between discrete and continious}
 \begin{equation}
     \theta[k] = (1-\alpha)(\theta[k-1] + \theta_\omega) + \alpha(\theta_a).
 \end{equation}
@@ -253,7 +256,6 @@ The yaw angle and the x- and y-translation from the \gls{lidar} to car
 must be entered manually, but the pitch and roll angle and the distance from the \gls{lidar} to the ground are used from the calibration.
 A flow chart of the described algorithm is shown in figure \ref{fig:flowchart_lidar_calibration}.
 \itodo{FLow chart for calibration can probably removed, flowchart for algo should be enough (very similar)}
-
 \begin{figure}[htb]
     \centering
     \input{Graphics/TikZ/flowchart_lidar_calibration.tex}
@@ -262,6 +264,12 @@ A flow chart of the described algorithm is shown in figure \ref{fig:flowchart_li
 \end{figure}
 
 \subsection{Algorithm}
+\begin{figure}[htb]
+    \centering
+    \input{Graphics/TikZ/flowchart_lidar.tex}
+    \caption{Algo for ramp detection}
+    \label{fig:flowchart_lidar}
+\end{figure}
 Because the raw \gls{lidar} data is too big to allow for real time processing, preprocessing is necessary.
 It consists of a passthrough filter to remove unwanted points (e.g. behind the car) and a voxel grid filter to downsample the point cloud.
 Before the passthrough filter can be applied, the point cloud must be transformed to the car frame.
@@ -284,18 +292,13 @@ The accidental detection of the ceiling was already prevented during the passthr
 By limiting the maximal angle between the ground plane and the detected plane the side walls are ignored.
 Similarly, the detected plane gets classified as ground plane, if the angle between the ground plane and the detected plane is near zero (or below the specified minimum angle).
 Beside the angle, the width of the plane (y-range) is being calculated and compared to the parameters, to make sure that the plane is indeed a drivable ramp for cars and not e.g. a small ramp for wheel chairs \todo{no idea if wheel chair ramps are common in parking garages?}.
-\itodo{Lars: What happens with stairs?}
+\isug{What happens with stairs?}
 If a ramp has been detected, the estimated angle and distance from the car front to the beginning of the ramp are returned.\\
 \itodo{Add down ramp detection}
 An visual representation of the algorithm is depicted in fig. \ref{fig:flowchart_lidar}.
-\begin{figure}[htb]
-    \centering
-    \input{Graphics/TikZ/flowchart_lidar.tex}
-    \caption{Algo for ramp detection}
-    \label{fig:flowchart_lidar}
-\end{figure}
-
-\begin{table}[htb]
+\iimprov{Add all algo parameters to table}
+\iquest{Or is this not important?}
+\begin{table}[H]
 	\centering
 	\caption{Used parameters for lidar algo}
 	\label{tab:lidar_params}
@@ -363,24 +366,26 @@ But because all measurements are discrete, numerical differentiation e.g. forwar
 with $h$ being the step size, which depends on the rate of the sensor.
 
 \subsubsection{Gravity method}
+As described in ..., the linear acceleration measurements can be used to determine the pitch angle.
+But the estimation is only valid under the condition, that there are no accelerations other than the acceleration due to gravity.
+This condition is not necessarily true when the car is driving, during which the car can accelerate or break.
+To get the correct estimation the car's acceleration must be subtracted from the measurement.
+The car's acceleration can be calculated by deriving the wheel speed measurements with respect to time.
+It is important that both the \gls{imu} and odometer measurements are synchronized, otherwise bad.
+The prevailing accelerations can be seen in figure \ref{fig:tikz_car_gravity}.
+When the car breaks, the direction of $\mathrm{a}_\mathrm{x}$ inverts.
 \begin{figure}[htpb]
     \centering
     \input{Graphics/TikZ/car_gravity.tex}
-    \caption{Gravity measured by \acrshort{imu} (in car frame). Show that $g_z$ etc}
+    \caption{Accelerations measured by the \acrshort{imu} (in car frame), when the car is accelerating.}
     \label{fig:tikz_car_gravity}
 \end{figure}
 \begin{equation}
-    \alpha =\arcsin\left(\frac{a_x-a_{at}}{g}\right)=\arcsin\left(\frac{a_x-\frac{dv}{dt}}{g}\right) = \arctan2(a_x,a_z)
-    \end{equation}
-\todoin{\begin{itemize}
-    \item Algo description
-    \item Problems
-\end{itemize}
-}
+    \alpha = \arcsin\left(\frac{a_x-a_{at}}{g}\right)
+    = \arcsin\left(\frac{a_x-\frac{dv}{dt}}{g}\right)
+\end{equation}
+\iimprov{Text is bad}
 
 
 \subsection{\glsentrytext{imu} and odometer and \glsentrytext{lidar}}
-\todoin{\begin{itemize}
-    \item Algo description
-\end{itemize}
-}
+\itodo{Algo description}
