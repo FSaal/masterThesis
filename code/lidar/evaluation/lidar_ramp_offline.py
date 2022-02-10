@@ -9,6 +9,7 @@ from tf.transformations import (
     unit_vector,
     vector_norm,
     quaternion_matrix,
+    euler_from_matrix
 )
 
 # My ROS Node
@@ -19,6 +20,7 @@ class VisualDetection(object):
         self.arr = np.zeros((1,3))
         # x coordinates where ramp starts
         self.ramp_start = ramp_start_x
+        self.is_calibrated = False
 
     def spin(self, cloud, pose):
         self.cloud = cloud
@@ -26,9 +28,16 @@ class VisualDetection(object):
         # Convert PointCloud2 msg to numpy array
         pc_array = pointcloud2_to_xyz_array(self.cloud, remove_nans=True)
 
+        # Get transformation from lidar to car frame
+        if not self.is_calibrated:
+            # Get euler angles (roll and pitch) to align lidar with
+            # car frame as well as distance of lidar to the ground
+            self.roll, self.pitch, self.height = self.align_lidar(pc_array)
+            self.is_calibrated = True
+
         # Apply lidar to car frame transformation
-        pc_array_tf = self.transform_pc(pc_array, rpy=(0, 0.0083, 0),
-                                        translation_xyz=(-2.36, -0.05, 1.8753))
+        pc_array_tf = self.transform_pc(pc_array, rpy=(self.roll, self.pitch, 0),
+                                        translation_xyz=(-2.36, -0.05, -self.height))
 
         # Reduce point cloud size with a passthrough filter
         pc_array_cut = self.reduce_pc(pc_array_tf, (0, 30), (-2, 2), (-1, 2))
@@ -42,6 +51,129 @@ class VisualDetection(object):
         # Perform RANSAC until no new planes are being detected
         plane_coor, data = self.plane_detection(pc_small, 20, 4)
         return plane_coor, data, self.relative_to_absolute(pc_array_cut)
+
+    def align_lidar(self, pc_array):
+        """Calculates roll and pitch angle of lidar relative to car
+        as well as lidar distance to ground.
+
+        Args:
+            pc_array (ndarray): Nx3 array of pointcloud with N points
+
+        Returns:
+            (float, float, float): Roll, pitch angle in radians,
+            lidar distance to ground in m
+        """
+        # Convert numpy array to pcl point cloud
+        pc = self.array_to_pcl(pc_array)
+        # Reduce point cloud size a bit by downsampling
+        pc_small = self.voxel_filter(pc, 0.05)
+
+        # Get rotation to make ground perpendicular to car z axis
+        rot, lidar_height = self.get_ground_plane(pc_small)
+        # Calculate euler angles from rotation matrix
+        roll, pitch, _ = euler_from_matrix(rot)
+
+        # Display calculated transform
+        print('\n__________LIDAR__________')
+        print('Euler angles in deg to tf lidar to car frame:')
+        print('Roll: {:.2f}\nPitch: {:.2f}'.format(
+            np.rad2deg(roll), np.rad2deg(pitch)))
+        print('Lidar height above ground: {:.2f} m\n'.format(lidar_height))
+        return (roll, pitch, lidar_height)
+
+    def get_ground_plane(self, pc, max_iter=10):
+        """Calculates rotation matrix to make z axis of car perpendicular
+        to the ground plane.
+
+        Args:
+            pc (pcl): Full point cloud
+            max_iter (int, optional): Allowed tries to detect ground
+            before exiting. Defaults to 10.
+
+        Raises:
+            RuntimeError: If ground plane has not been found after max_iter tries.
+
+        Returns:
+            (ndarray, float): 3x3 rotation matrix, lidar distance to ground in m
+        """
+        counter = 0
+        # Extract different planes using RANSAC until ground has been identified
+        while True:
+            # Get most dominant plane
+            inliers_idx, coefficients = self.ransac(pc)
+
+            # Split point cloud in inliers and outliers of plane
+            plane = pc.extract(inliers_idx)
+            pc = pc.extract(inliers_idx, negative=True)
+            # Calculate normal vector of plane
+            est_ground_vec = coefficients[:-1]
+
+            # Test if plane could be the ground
+            is_ground = self.test_ground_estimation(plane, est_ground_vec)
+
+            # Exit if ground has been detected
+            if is_ground:
+                # Get rotation to align plane with ground
+                rot = self.level_plane(est_ground_vec)
+                # Apply rotation
+                plane_tf = np.inner(plane, rot)
+
+                # Calculate estimated distance from lidar to ground
+                dist_to_ground = np.mean(plane_tf, axis=0)[2]
+                return rot, dist_to_ground
+
+            # Prevent infinite loop
+            counter += 1
+            if counter == max_iter:
+                raise RuntimeError ('No ground could be detected.')
+
+    def test_ground_estimation(self, plane, est_ground_vec, lidar_height=1):
+        """Tests if detected plane fullfills conditions to be considered the ground.
+
+        Args:
+            plane (pcl): Point cloud of plane
+            est_ground_vec (list): Normal vector of plane
+            lidar_height (float, optional): Height at which lidar is mounted
+            above ground (guess conservatively (low)). Defaults to 1 m.
+
+        Returns:
+            bool: Is plane the ground plane?
+        """
+        # Get rotation to align plane with ground
+        rot = self.level_plane(est_ground_vec)
+        # Apply rotation
+        plane_tf = np.inner(plane, rot)
+
+        # Calculate estimated distance from lidar to ground
+        dist_to_ground = np.mean(plane_tf, axis=0)[2]
+
+        # Is plane not a side wall (assumption only true if
+        # roll angle is below 45 deg)
+        is_not_sidewall = abs(est_ground_vec[2]) > 0.7
+        # Is detected plane well below lidar?
+        is_not_ceiling = dist_to_ground < -lidar_height
+
+        # Check if both conditions are fullfilled
+        if is_not_sidewall and is_not_ceiling:
+            return True
+        return False
+
+    def level_plane(self, plane_normal, roll0=False):
+        """Get rotation (matrix) to make plane perpendicular to z axis of car"""
+        # Normal vector ground plane in car frame
+        # (assuming car stands on a flat surface)
+        ground_vec = (0, 0, 1)
+
+        # Get rotation to align detected plane with real ground plane
+        quat = self.quat_from_vectors(plane_normal, ground_vec)
+        # Calculate euler angles
+        roll, pitch, _ = euler_from_quaternion(quat)
+        # Ignore roll angle if roll=0 has been measured
+        if roll0:
+            roll = 0
+        # Get rotation matrix (ignoring yaw angle)
+        rot = euler_matrix(roll, pitch, 0, 'sxyz')[:3, :3]
+        return rot
 
     @staticmethod
     def array_to_pcl(pc_array):
