@@ -26,7 +26,8 @@ class ImuRampDetect(object):
         rospy.Subscriber(imu_topic, Imu, self.callback_imu, queue_size=10)
         rospy.Subscriber(
             '/eGolf/sensors/odometry', EGolfOdom, self.callback_odom, queue_size=1)
-        self.pub_pitch = rospy.Publisher('/car_angle_new', Float32, queue_size=5)
+        self.pub_pitch_compl = rospy.Publisher('/car_angle_compl', Float32, queue_size=5)
+        self.pub_pitch_grav = rospy.Publisher('/car_angle_grav', Float32, queue_size=5)
         self.pub_debug = rospy.Publisher('/debug', Float32MultiArray, queue_size=5)
 
         # Define subscriber callback messages
@@ -85,10 +86,11 @@ class ImuRampDetect(object):
                 lin_acc, ang_vel = self.transform_imu(rot_mat)
                 # Calculate pitch angle
                 car_angle_grav, car_angle_compl = self.gravity_method(lin_acc[0], ang_vel[1])
-                print(car_angle_grav, car_angle_compl)
+                # print(car_angle_grav, car_angle_compl)
                 # self.is_ramp(car_angle)
                 # print(self.covered_distance())
-                # self.pub_pitch.publish(car_angle)
+                self.pub_pitch_compl.publish(car_angle_compl)
+                self.pub_pitch_grav.publish(car_angle_grav)
             r.sleep()
 
     def align_imu(self):
@@ -173,7 +175,7 @@ class ImuRampDetect(object):
 
     @staticmethod
     def quat_from_vectors(vec1, vec2):
-        """Quaternion that aligns vec1 to vec2"""
+        """Gets quaternion to align vector 1 with vector 2"""
         # Make sure both vectors are unit vectors
         v1_uv, v2_uv = unit_vector(vec1), unit_vector(vec2)
         cross_prod = np.cross(v1_uv, v2_uv)
@@ -182,7 +184,7 @@ class ImuRampDetect(object):
         # Rotation axis
         axis = cross_prod / vector_norm(cross_prod)
         # Rotation angle (rad)
-        ang = np.arctan2(vector_norm(cross_prod), dot_prod)
+        ang = np.arccos(dot_prod)
 
         # Quaternion ([x,y,z,w])
         quat = np.append(axis*np.sin(ang/2), np.cos(ang/2))
@@ -212,12 +214,12 @@ class ImuRampDetect(object):
         acc_x_imu_filt = self.imu_filt_class.moving_average(acc_x_imu, self.win_len)
 
         # Car acceleration from car velocity
-        print(vel_x_car_filt, self.vel_x_car_filt_old)
+        # print(vel_x_car_filt, self.vel_x_car_filt_old)
         acc_x_car = (vel_x_car_filt - self.vel_x_car_filt_old) / (1 / self.rate)
         self.vel_x_car_filt_old = vel_x_car_filt
 
         # Car pitch angle (imu acc + odom only)
-        print(acc_x_imu_filt, acc_x_car, self.g_mag)
+        # print(acc_x_imu_filt, acc_x_car, self.g_mag)
         car_angle_filt = np.rad2deg(np.arcsin((acc_x_imu_filt - acc_x_car) / self.g_mag))
 
         # Car pitch angle (imu acc + odom + imu angular vel --> Complementary filter)
