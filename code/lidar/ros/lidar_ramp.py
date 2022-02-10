@@ -81,28 +81,19 @@ class VisualDetection(object):
 
             # Reduce point cloud size with a passthrough filter
             pc_array_cut = self.reduce_pc(pc_array_tf, (0, 30), (-2, 2), (-1, 2))
-
             # Convert numpy array to pcl object
             pc_cut = self.array_to_pcl(pc_array_cut)
-
-            self.publish_pc(pc_cut, 'pc_small_before')
+            # self.publish_pc(pc_cut, 'pc_small_before')
 
             # Downsample point cloud using voxel filter to further decrease size
             pc_small = self.voxel_filter(pc_cut, 0.1)
-
-            self.publish_pc(pc_small, 'pc_small')
+            # self.publish_pc(pc_small, 'pc_small')
 
             # Perform RANSAC until no new planes are being detected
             ramp_angle, ramp_distance = self.plane_detection(pc_small, 20, 4)
-
-            # Smooth signals
-            avg_angle = self.ang_filter.moving_average(ramp_angle, 5)
-            avg_dist = self.dist_filter.moving_average(ramp_distance, 5)
-
-            print('angle: {:.2f}, dist: {:.2f}'.format(avg_angle, avg_dist))
-
-            self.pub_angle.publish(avg_angle)
-            self.pub_distance.publish(avg_dist)
+            # Only publish data if a ramp has been detected
+            if ramp_angle != 0:
+                print('Ramp angle: {:.2f}, dist: {:.2f}'.format(ramp_angle, ramp_distance))
             r.sleep()
 
     def align_lidar(self, pc_array):
@@ -246,7 +237,7 @@ class VisualDetection(object):
         # Rotation axis
         axis = cross_prod / vector_norm(cross_prod)
         # Rotation angle (rad)
-        ang = np.arctan2(vector_norm(cross_prod), dot_prod)
+        ang = np.arccos(dot_prod)
 
         # Quaternion ([x,y,z,w])
         quat = np.append(axis*np.sin(ang/2), np.cos(ang/2))
@@ -316,6 +307,7 @@ class VisualDetection(object):
         counter = 0
         # Standard values for ramp angle and distance if no detection
         ramp_stats = (0, 0)
+        self.down_ramp_detection(pc, 100)
         # Detect planes until ramp found or conditions not met anymore
         while pc.size > min_points and counter < max_planes:
             # Detect most dominate plane and get inliers and normal vector
@@ -351,6 +343,23 @@ class VisualDetection(object):
             counter += 1
         return ramp_stats
 
+    def down_ramp_detection(self, plane, thresh):
+        """Checks if conditions to be considered a downwards ramp are met."""
+        # Convert pcl plane to numpy array
+        plane_array = plane.to_array()
+
+        # Some area in front of car
+        front_area = plane_array[
+            (plane_array[:, 0] > 2) &
+            (plane_array[:, 0] < 10)]
+        front_area_ground = front_area[
+            (front_area[:, 2] < 0.2) &
+            (front_area[:, 2] > -0.2)
+        ]
+        if front_area_ground.shape[0] < thresh:
+            print('Probably a ramp in 2-10 m')
+        return False
+
     def ramp_detection(self, plane, n_vec, angle_range, width_range, n_nearest=20):
         """Checks if conditions to be considered a ramp are fullfilled.
 
@@ -366,6 +375,7 @@ class VisualDetection(object):
 
         # Calculate angle [deg] between normal vector of plane and ground
         angle = self.angle_calc([0, 0, 1], n_vec)
+        # angle = np.abs(self.angle_calc([0, 0, 1], n_vec))
         # Get ramp width (difference between highest and lowest y-values)
         # Sort y vector from lowest to highest
         y_points_sorted = np.sort(plane_array[:, 1])
