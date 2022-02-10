@@ -18,19 +18,25 @@ The specifications of each \gls{imu} can be read in table
 		&\textbf{myAHRS+} & \textbf{ZED 2i \gls{imu}}\\
 		\midrule
 		Accelerometer range			& $\pm\SI{16}{\g}$				& $\pm\SI{8}{\g}$\\
-		Gyroscope range				& \SI{2000}{\degree\per\second}	& \SI{1000}{\degree\per\second}\\
-		Magnetometer range			& \SI{1200}{\micro\tesla}		& \SI{2500}{\micro\tesla}\\
+		Gyroscope range				& $\pm\SI{2000}{\degree\per\second}$	& $\pm\SI{1000}{\degree\per\second}$\\
+		Magnetometer range			& $\pm\SI{1200}{\micro\tesla}$		& $\pm\SI{2500}{\micro\tesla}$\\
 		Rate 						& \SI{100}{\hertz}				& \SI{400}{\hertz}\\
+		Accelerometer noise density	& \SI{4.502e-3}{\metre\per\second(1\per\sqrt{\second})} & \SI{1.148e-3}{\metre\per\second(1\per\sqrt{\second})}\\
+		Accelerometer random walk	& \SI{7.337e-5}{\metre\per\second\squared\sqrt{\second}} & \SI{6.458e-5}{\metre\per\second\squared\sqrt{\second}}\\
+		Gyroscope noise density		& \SI{1.674e-4}{\radian\per\sqrt{\second}} & \SI{8.254e-5}{\radian\per\sqrt{\second}}\\
+		Gyroscope random walk		& \SI{5.042e-6}{\radian\per\second\sqrt{\second}} & \SI{1.632e-7}{\radian\per\second\sqrt{\second}}\\
 		\bottomrule
 	\end{tabular}
 \end{table}%
+\itodo{Add cite to manuals}
+\iimprov{Values and units of random walk and noise density probably wrong (measured them myself)}
 It offers an micro-USB interface and runs with up to \SI{100}{\Hz}.
 It can capture a change of $\pm$2000 dps (degrees per second), $\pm$16 $g$ and $\pm$\SI{1200}{\micro\tesla}.
 During the experiment only a fraction of this range is expected to be reached, hence the sensor seems suitable.
 Besides the hardware the unit already has an Extended Kalman Filter (EKF) on board.
 The EKF fuses the measurements of the three sensors and estimates a quaternion (and sth else?) from it.
 But this will not be used.
-\itodo{Also add ZED 2i \gls{imu} and compare (probably table similar to \gls{lidar})}
+\iimprov{More about both \gls{imu}}
 
 
 \subsection{\glsentrytext{lidar}}
@@ -104,7 +110,7 @@ When the ground is not a flat anymore, the assumption from \ref{eq:ground_points
 \dots whatever who cares
 \itodo{Make a good sketch again with labels etc and check if its easy understandable, only then continue in tikz and latex}
 \[ c = h - \frac{z}{\tan \alpha} \]
-\itodo{\gls{lidar} pitch angle at which most point hit area before ramp can be calculated, explanation here using sketch \ref{fig:tikz_lidar_mount}}
+\iquest{Is this even necessary, when the angle during the experiment hasn't even been set consciously?}
 
 
 
@@ -115,10 +121,10 @@ Because the ... mode is used, the output power of the motor is limited and the m
 The traversing of ramps is not possible and this mode, which is why a the normal mode was used for the recording where the ramp was fully driven up.
 But in the normal driving mode the wheel speed readings were not available.
 The car has a pc in the booth, at which the sensors were connected to.
+\iimprov{Text is bad}
 \missingfigure{Picture of eGolf}
 \todoin{\begin{itemize}
 	\item Some stats as height, track width etc, electric car hence less vibrations
-	\item Problem with speed limit and odom (no odom when driving ramp up)
 	\item Connection setup (maybe own section or maybe not interesting at all)
 \end{itemize}
 }
