@@ -1,0 +1,20 @@
+<launch>
+    <!-- NOTE: Transform is not to true base_link, but to base_link position but at ground level -->
+    <!-- Velodyne lidar to base_link -->
+    <node pkg="tf" type="static_transform_publisher" name="base_link_to_lidar" args="1.1725 0 1.8375 0 0 0 /base_link /velodyne 100" />
+    <!-- Velodyne lidar to base_link (old setup) -->
+    <!-- <node pkg="tf" type="static_transform_publisher" name="base_link_to_lidar" args="1.14 -0.05 1.8753 0 0.0083 0 /base_link /velodyne 100" /> -->
+    <!-- Optical center of lidar -->
+    <node pkg="tf" type="static_transform_publisher" name="lidar_optical_center" args="0 0 0.04345 0 0 0 /velodyne /velodyne_optical 100" />
+
+    <!-- ZED2i camera to base_link -->
+    <node pkg="tf" type="static_transform_publisher" name="base_link_to_cam" args="1.58 0 1.566 0 -0.2007129 0 /base_link /zed2i_camera_center 100"/>
+    <!-- ZED2i camera to base_link (old setup)-->
+    <!-- <node pkg="tf" type="static_transform_publisher" name="base_link_to_cam" args="1.56 0 1.554 -0.265 -0.174533 0 /base_link /zed2i_camera_center 100"/> -->
+    <!-- ZED2i stuff -->
+    <node pkg="tf" type="static_transform_publisher" name="cam_center_right" args="0 -0.06 0 0 0 0 1 zed2i_camera_center zed2i_right_camera_frame 100" />
+    <node pkg="tf" type="static_transform_publisher" name="cam_right_optical" args="0 0 0 -0.5 0.5 -0.5 0.5 zed2i_right_camera_frame zed2i_right_camera_optical_frame 100" />
+    <node pkg="tf" type="static_transform_publisher" name="cam_center_left" args="0 0.06 0 0 0 0 1 zed2i_camera_center zed2i_left_camera_frame 100" />
+    <node pkg="tf" type="static_transform_publisher" name="cam_left_optical" args="0 0 0 -0.5 0.5 -0.5 0.5 zed2i_left_camera_frame zed2i_left_camera_optical_frame 100" />
+    <node pkg="tf" type="static_transform_publisher" name="cam_left_imu" args="0 0 0 0 0 0 1 zed2i_left_camera_frame zed2i_imu_link 100" />
+</launch>
