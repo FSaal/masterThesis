@@ -50,11 +50,18 @@
 % SI Units
 % \sisetup{range-phrase=--}		% - instead of to, e.g. "1-7 nm" instead of "1 to 7 nm "
 % \sisetup{range-units=single}	% Only one unit after second value (and none after first)
+\sisetup{per-mode=fraction}
 
 % My own commands
 \newcommand{\subInd}[1]{_\mathrm{#1}}
 % Note todo in an own line
 \newcommand{\itodo}[1]{\todo[inline]{#1}}
+% Note improvement
+\newcommand{\iimprov}[1]{\todo[inline, color=yellow!40]{#1}}
+% Note questions
+\newcommand{\iquest}[1]{\todo[inline, color=green!40]{#1}}
+% Note suggestions
+\newcommand{\isug}[1]{\todo[inline, color=blue!40]{#1}}
 % Note todo in an own line but itemize possible
 \newcommand{\todoin}[2][]{\todo[inline, caption={2do}, #1]{
 		\begin{minipage}{\textwidth-4pt}#2\end{minipage}}}
