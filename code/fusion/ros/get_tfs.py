@@ -18,7 +18,7 @@ class FusionRamp():
             sys.exit()
 
     def spin(self):
-        r = rospy.Rate(10)
+        r = rospy.Rate(1)
         while not rospy.is_shutdown():
             source_frame = sys.argv[1]
             target_frame = sys.argv[2]
@@ -29,11 +29,12 @@ class FusionRamp():
                 source_frame, target_frame, canTransform))
 
             try:
+                tab = "            "
                 (trans, rot) = self.tf.lookupTransform(target_frame, source_frame, rospy.Time.now())
-                print('trans = {}\nquat = {}\n(Euler (rpy)):{:.3f} {:.3f} {:.3f}\n'.format(
-                    trans, rot, *np.rad2deg(euler_from_quaternion(rot))))
+                print('{}self.trans = {}\n{}self.quat = {}\n(Euler (rpy)):{:.3f} {:.3f} {:.3f}\n'.format(
+                    tab, trans, tab, rot, *np.rad2deg(euler_from_quaternion(rot))))
             except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
-                continue
+                r.sleep()
             r.sleep()
 
 
