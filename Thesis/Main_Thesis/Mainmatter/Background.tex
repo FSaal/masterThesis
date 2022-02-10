@@ -7,7 +7,7 @@ Rotations can be expressed in several ways, I will briefly describe the ones use
 
 \subsubsection{Rotation matrix}
 A rotation matrix \mtf{b}{a} $\in \mathbb{R}^{3\times3}$ transforms an arbitrary vector from the coordinate system $\mathcal{B}$ to the coordinate system $\mathcal{A}$.\\
-\dots\\
+\iimprov{A bit more text}
 Rotation matrices can be concatenated, but this must be done in reverse order, e.g.
 \begin{equation}
 	{}_\mathcal{C}\vb{p} = \mtf{c}{a}{}_\mathcal{A}\vb{p} = \mtf{b}{c}\mtf{a}{b}{}_\mathcal{A}\vb{p}
@@ -32,7 +32,7 @@ with
 \begin{equation}
 	\vb{i}^2 = \vb{j}^2 = \vb{k}^2 = \vb{i}\vb{j}\vb{k} = -1
 \end{equation}
-\itodo{Improve quaternion text and add new stuff}
+\iimprov{Improve quaternion text and add new stuff}
 \begin{equation}
 	\alpha \in[0, \pi] @ \mathbf{j} \underbrace{\left[j_{x}, j_{y}, j_{z}\right]^{\top}}_{\|j\|_{2}=1}
 	\quad\cong\quad {}^{\mathcal{B}}_{\mathcal{A}} q
@@ -129,6 +129,7 @@ A mass is suspended by springs along one axis and if an acceleration along this 
 The mass has little fingers perpendicular to the axis along which the movement occurs, which affect the capacity between the fixed plates.
 The change of capacity and thus voltage can be measured, from which the acceleration can be calculated.
 To be able to measure the acceleration along all three axis the same setup is used three times, perpendicular to each other.
+\itodo{Add measurement equation with errors}
 
 \subsubsection{\glsentrytext{mems} Gyroscopes}
 A gyroscope measures the angular velocity.
@@ -144,6 +145,7 @@ E.g.\ if the mass oscillates along the x-axis and a rotation around the z-axis i
 By measuring the amplitude and phase of the secondary oscillation the absolute value and direction of the angular velocity can be calculated.
 While \gls{mems} gyroscopes do not achieve the same accuracy as optical gyroscopes they offer many advantages such as smaller physical properties (weight and size), lower power consumption and startup time as well as a significantly lower cost.
 \gls{mems} gyroscopes have replaced other gyroscope types in most areas, but in areas where the highest precision possible is necessary, typically in military industry, optical gyroscopes are still used today \cite{Perlmutter2016}.
+\itodo{Add measurement equation with errors}
 
 \subsubsection{(\glsentrytext{mems}) Magnetometer}
 A magnetometer measures the local magnetic field.
@@ -234,7 +236,6 @@ A signal amplifier and processing unit is integrated in the sensor head and thus
 
 
 \section{ROS}
-\todoin{Brief introduction to ROS}
 \gls{ros} is a framework that allows the communication between sensors and actuators of a robot.
 It is a meta-operating system and provides services such as hardware abstraction, low-level device control......
 Different languages such as C++, Python or Lisp are supported.
@@ -247,15 +248,16 @@ The messages are published on a specific topic.
 The topic can then be subscribed by other nodes, to retrieve the messages.
 A topic can be published and subscribed by multiple different nodes.
 Services allow for a synchronized communication, instead of the asynchronous topics.
+\iimprov{Better explanation}
 
 
 
 \section{Signal processing}
+\itodo{Not even sure if this needs an own section}
 \dots is necessary.
 \dots can be divided into filtering and smoothing.
 Filtering can be used in live applications and produces an estimate of the current value by taking the past values into account, whereas smoothing uses past and future samples and thus introduces a delay if used on live data \todo{filtering also often introduces a delay}.
 Because the detection should be live, only the filtering methods will be examined.
-\itodo{How much about dsp? E.g. also noise, aa etc or only type of filters?}
 Digital filters can be generally divided into two different categories.
 \gls{fir} filter rely on a fixed number of recent input values. An example would be the moving average filter, which takes the past $n$ values into account.
 \gls{iir} filter rely on previous output as well as most recent input by summing all points with a certain weight (e.g. exponential filter).
@@ -264,3 +266,4 @@ Savitzky-Golay filter
 \begin{equation}
 	y = \frac{1}{h}\sum_{i =\frac{1 - m}{2}}^{\frac{m - 1}{2}}C
 \end{equation}
+\iquest{How much about dsp? E.g. also noise, aa etc or only type of filters?}

@@ -4,11 +4,11 @@
 
 \section{\glsentrytext{imu}}
 In \cite{Jauch2018} different methods to estimate the road grade angle are discussed.
-\itodo{Not really \gls{imu}, maybe in prev section instead}
+\iimprov{Not really \gls{imu}, maybe in prev section instead}
 There exist methods without Inertial Sensors relying on a model describing the longitudinal movement of the vehicle and the topology of the road.
 Both models are fused using a Kalman filter to improve the accuracy of the estimation \cite{Sahlholm2007}.
 A Kalman filter is also used in \cite{Sahlholm2010}, where vehicle sensor data and \gls{gps} data are fused.
-Besides the road grade, the vehicle mass is often also unknown and estimated as well, using common sensors of heavy duty vehicles \cite{Sahlholm2010}  or \todo{what sensors does this paper use?} \cite{Maleej2014}.
+Besides the road grade, the vehicle mass is often also unknown and estimated as well, using common sensors of heavy duty vehicles \cite{Sahlholm2010}  or \itodo{what sensors does this paper use?} \cite{Maleej2014}.
 More methods such as recursive least squares, extended Kalman filtering and a dynamic grade observer are discussed in \cite{Kidambi2014}
 Another method using \gls{gps} data and \gls{imu}s to calculate the vertical and horizontal velocity change respectively and thereby the road grade is proposed in \cite{Ryu2004}.
 \cite{YazdaniBoroujeni2014} omits the \gls{imu} and relies on a \gls{gps} sensor and a barometer.\\
@@ -28,6 +28,7 @@ The drift can be corrected by using the accelerometer signal, which is accurate 
 \cite{Wu2016} uses all components of an \gls{imu} (meaning also the magnetometer) and fuses them using a complementary filter.
 The estimated quaternions using the accelerometer and angular velocity measurements respectively are fused and the magnetometer data is used to improve the quaternion estimation from the accelerometer, but only if there are no magnetic disturbances.
 ANOTHER COMPL FILTER PAPER also uses an complementary filter, but fuses the estimated angle. from the accelerometer and gyroscope instead of the quaternions.
+\iquest{I did not use most methods mentioned in the papers (e.g. Kalman filter). How to justify this?}
 
 
 
@@ -37,8 +38,7 @@ ANOTHER COMPL FILTER PAPER also uses an complementary filter, but fuses the esti
     \item If found, methods for elevation estimation
 \end{itemize}
 }
-\cite{Nejati2016} used an RGB-D sensor (camera image + depth sensor) to detect ramps for wheelchairs.
-Ramp properties such as angle, width, length and the orientation of the ramp was determined as well.
+\iquest{How detailed should the explaination of other papers be?}
 
 
 
@@ -48,6 +48,8 @@ Ramp properties such as angle, width, length and the orientation of the ramp was
     \item Stereo vs mono
 \end{itemize}
 }
+\cite{Nejati2016} used an RGB-D sensor (camera image + depth sensor) to detect ramps for wheelchairs.
+Ramp properties such as angle, width, length and the orientation of the ramp was determined as well.
 
 
 
@@ -55,4 +57,4 @@ Ramp properties such as angle, width, length and the orientation of the ramp was
 Due to the available sensor stack, not all mentioned methods can be tested.
 The gravity method and complementary filter will be tested for the \gls{imu}.
 
-\todoin{Add ausblick was genommen wird}
+\isug{Add ausblick was genommen wird}
