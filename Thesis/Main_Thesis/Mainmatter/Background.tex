@@ -24,7 +24,7 @@ The most common convention is the zyx (intrinsic I think?) (first rotation aroun
 The disadvantages are the many conventions and the possibility of singularity.
 
 \subsubsection{Quaternions}
-wow
+A quaternion is a complex number with three imaginary parts
 \begin{equation}
 	\vb{q} = a + b\vb{i} + c\vb{j} + d\vb{k}
 \end{equation}
@@ -32,13 +32,13 @@ with
 \begin{equation}
 	\vb{i}^2 = \vb{j}^2 = \vb{k}^2 = \vb{i}\vb{j}\vb{k} = -1
 \end{equation}
-\iimprov{Improve quaternion text and add new stuff}
+Each rotation is uniquely described by one rotation, but each orientation ca be described by two unit quaternions with opposite signs.
 \begin{equation}
 	\alpha \in[0, \pi] @ \mathbf{j} \underbrace{\left[j_{x}, j_{y}, j_{z}\right]^{\top}}_{\|j\|_{2}=1}
 	\quad\cong\quad {}^{\mathcal{B}}_{\mathcal{A}} q
 	=\cos \left(\frac{\alpha}{2}\right)+\left(j_{x} \mathbf{i}+j_{y} \mathbf{j}+j_{z} \mathbf{k}\right) \sin \left(\frac{\alpha}{2}\right)
-	\end{equation}
-The quaternion can then be calculated with
+\end{equation}
+or in vector form as
 \begin{equation}
 	\vb{q} =
 	\begin{bmatrix}
@@ -46,12 +46,13 @@ The quaternion can then be calculated with
 		\vb{j}\vdot\sin(\frac{\alpha}{2})
 	\end{bmatrix}
 \end{equation}
+\iimprov{Improve quaternion text and add new stuff}
 
 \subsection{Vector projection}
 \label{subsec:vector_projection}
 In general, the rotation to align a vector $\vb{v}_1$ with a vector $\vb{v}_2$ can be expressed using a quaternion.
 At first both vectors must be normalized, resulting in the two unit vectors $\vu{v}_1$ and $\vu{v}_2$.
-The rotation axis is perpendicular to both vectors and can thus be calculated using the cross product
+The rotation axis is perpendicular to both vectors and can thus be calculated using the cross product, which is then divided by the norm, to get an unit vector
 \begin{equation}
     \vb{j} = \frac{\vu{v}_1 \cp \vu{v}_2}{\norm{\vu{v}_1 \cp \vu{v}_2}}.
 \end{equation}
@@ -62,6 +63,7 @@ The angle between two vectors can be calculated with
     \alpha = \arccos(\vu{v}_1 \vdot \vu{v}_2).
 \end{equation}
 The denominator is equal to 1 (because the norm of an unit vector is 1) and thus omitted.
+The found rotation can then be applied using e.g. a quaternion or a rotation matrix.
 
 
 
@@ -123,13 +125,19 @@ Almost all consumer grade electronics uses \gls{mems}-\gls{imu}s nowadays, but t
 The accelerometer is used to measure the acceleration.
 Besides dynamic acceleration there is the static and constant gravity acceleration on earth, which is measured by the \gls{imu} in upward direction.
 This allows for the determination of one axis of the \gls{imu}, even if it is not moving.
-Often times only the dynamic accelerations are of interest and to get them the acceleration data during stand still must be measured and subtracted.
+Often times only the dynamic accelerations are of interest and to get them the acceleration data during stand still must be measured and subtracted.\\
 The micro structure of a \gls{mems} accelerometer is shown in figure \ref{fig:MEMS_Accelerometer}.
 A mass is suspended by springs along one axis and if an acceleration along this axis occurs, the mass moves in the opposite direction due to Newton's second law.
 The mass has little fingers perpendicular to the axis along which the movement occurs, which affect the capacity between the fixed plates.
 The change of capacity and thus voltage can be measured, from which the acceleration can be calculated.
-To be able to measure the acceleration along all three axis the same setup is used three times, perpendicular to each other.
-\itodo{Add measurement equation with errors}
+To be able to measure the acceleration along all three axis the same setup is used three times, perpendicular to each other.\\
+The measurements $\hat{\vb{a}}$ of a \gls{mems} accelerometer are not free of noise and can be modeled in a simplified way as
+\begin{equation}
+    \hat{\vb{a}} = \vb{a} + \vb{b}_\mathrm{a} + \vb{n}_\mathrm{a}.
+\end{equation}
+The measurement differs from the true acceleration $\vb{a}$ due to random noise $\vb{n}_\mathrm{a}$ and a bias $\vb{b}_\mathrm{a}$.
+More about the specific error terms can be read in \ref{sse:mems_errors}.
+\iimprov{Add source for formula}
 
 \subsubsection{\glsentrytext{mems} Gyroscopes}
 A gyroscope measures the angular velocity.
@@ -145,7 +153,12 @@ E.g.\ if the mass oscillates along the x-axis and a rotation around the z-axis i
 By measuring the amplitude and phase of the secondary oscillation the absolute value and direction of the angular velocity can be calculated.
 While \gls{mems} gyroscopes do not achieve the same accuracy as optical gyroscopes they offer many advantages such as smaller physical properties (weight and size), lower power consumption and startup time as well as a significantly lower cost.
 \gls{mems} gyroscopes have replaced other gyroscope types in most areas, but in areas where the highest precision possible is necessary, typically in military industry, optical gyroscopes are still used today \cite{Perlmutter2016}.
-\itodo{Add measurement equation with errors}
+Similar to the accelerometer, the measurements $\vb{\omega}$ of the \gls{mems} gyroscope are influenced by errors, which can be modeled as
+\begin{equation}
+    \hat{\vb{\omega}} = \vb{\omega} + \vb{b}_\mathrm{g} + \vb{n}_\mathrm{g}
+\end{equation}
+where $\vb{b}_\mathrm{g}$ is the bias vector and $\vb{n}_\mathrm{g}$ the random noise vector.
+\iimprov{Add source for formula}
 
 \subsubsection{(\glsentrytext{mems}) Magnetometer}
 A magnetometer measures the local magnetic field.
@@ -163,6 +176,7 @@ Both types of disturbances can be removed with a proper calibration if there pos
 Every time the sensor is placed in a (magnetically) new environment, a recalibration is necessary.
 
 \subsubsection{Typical \glsentrytext{mems} errors}
+\label{sse:mems_errors}
 The errors can be divided into two categories: systematic and stochastic errors \cite{Zhang2019}.
 Systematic errors or also known as calibration errors are constant over time and can be eliminated by calibration.
 Typical examples are bias (offset), scaling or axis misalignments.
@@ -228,6 +242,7 @@ Nowadays, almost exclusively the hall wheel speed sensor is used.
 The functionality is similar to that of the magnetoelectric sensor, but instead of ring gear a ring, on which alternating north and south magnets are placed, is used.
 The hall element in the sensor head measures the alternating magnetic field.
 A signal amplifier and processing unit is integrated in the sensor head and thus allows for a greater detection rate and range \cite{Re2011}.
+\iimprov{Add image}
 
 
 \subsection{Camera?}
