@@ -151,6 +151,7 @@ class EvalMap():
             ],
         # d_e2q (width and length are swapped)
         [[24.5, 28.5], [3.3, 15]],
+        # straight_wo_ramps_odom
         [],
         # u_c2s_half_odom
         [[20.3, 33], [-0.9, 2.8]],
@@ -162,7 +163,12 @@ class EvalMap():
         [[38, 51], [-1.5, 2.2]],
         # u_d2e
         [[32.5, 44], [2, 5.5]],
+        # u_s2c2d (none because split in two parts)
         [],
+        # u_s2c2d_part1
+        [[47.3, 62], [-2.8, 1.5]],
+        # u_s2c2d_part2 - ramp is rotated by 90 deg
+        [[47, 58.8], [36.5, 40.5]],
         # u_s2c_half (hard because ramp is not straight)
         [[42, 56], [-2.2, 2]],
         ]
