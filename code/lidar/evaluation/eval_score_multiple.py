@@ -12,6 +12,7 @@ from IPython.display import display
 
 # Load offline ramp detection algorithm
 from lidar_ramp_offline import VisualDetection
+
 # Load methods to extract data from rosbags
 from getData import unpack_bag, synchronize_topics
 
@@ -133,9 +134,7 @@ class GetScore(object):
         # Convert dictionary to dataframe
         df_stats = pd.DataFrame(dic)
         # Reorder columns
-        df_stats = df_stats[
-            ["sampleIdx", "TrueInliers", "Angle", "Width", "Dist", "TrueDist"]
-        ]
+        df_stats = df_stats[["sampleIdx", "TrueInliers", "Angle", "Width", "Dist", "TrueDist"]]
         # Remove all estimations from when after the ramp has been entered
         if only_before_ramp:
             df_stats = df_stats[df_stats["TrueDist"] > 0]
@@ -148,23 +147,45 @@ class GetScore(object):
             max_d = min_d + step_dist
             # Samples recorded in the given distance range
             true_dists = np.asarray(true_dists)
-            expected_detections = len(
-                true_dists[(min_d < true_dists) & (true_dists < max_d)]
+            # Assuming ramp is visible in every frame --> num of frames == expected detections
+            frames = len(true_dists[(min_d < true_dists) & (true_dists < max_d)])
+            # Actual detections only counts if at least 50% of points lie inside ramp region
+            detections_tp = len(
+                df_stats[
+                    (min_d < df_stats["TrueDist"])
+                    & (df_stats["TrueDist"] < max_d)
+                    & (df_stats["TrueInliers"] > 0.5)
+                ]
             )
-            # Samples identified as ramp in given distance range
-            actual_detections = len(
-                df_stats["TrueDist"][
-                    (min_d < df_stats["TrueDist"]) & (df_stats["TrueDist"] < max_d)
+            # Ramp has been detected, but less than 50% of points lie in ramp region
+            detections_fp = len(
+                df_stats[
+                    (min_d < df_stats["TrueDist"])
+                    & (df_stats["TrueDist"] < max_d)
+                    & (df_stats["TrueInliers"] < 0.5)
                 ]
             )
             # Calculate ratio
             try:
-                sensitivity = float(actual_detections) / expected_detections
+                true_positives = float(detections_tp) / frames * 100
+                false_positives = float(detections_fp) / frames * 100
             except ZeroDivisionError:
-                sensitivity = 1
-            scores.append(
-                (self.ramp_type, min_d, max_d, expected_detections, sensitivity * 100)
+                true_positives = np.NaN
+                false_positives = np.NaN
+            # Print information for every bag
+            print(
+                (
+                    "In the range {}m to {}m {} frames have been recorded with "
+                    "{:.2f}% true positives and {:.2f} false positives"
+                ).format(
+                    min_d,
+                    max_d,
+                    frames,
+                    true_positives,
+                    false_positives,
+                )
             )
+            scores.append((self.ramp_type, min_d, max_d, frames, true_positives, false_positives))
         return scores
 
     def boss_method(self, min_dist=0, max_dist=30):
@@ -195,6 +216,7 @@ def run_evaluation(bag_info):
         # Run algorithm + evaluation
         score = gs.boss_method()
         scores.append(score)
+        print("\n\n")
     # Flatten scores list
     scores_flat = [item for sublist in scores for item in sublist]
     return scores_flat
@@ -205,13 +227,10 @@ def create_latex_table(scores):
     # Convert to dataframe
     df = pd.DataFrame(scores)
     # Rename columns
-    df.columns = ["rampType", "min_d", "max_d", "frames", "truePositives"]
+    df.columns = ["rampType", "min_d", "max_d", "frames", "truePositives", "falsePositives"]
     # Group by ramp type and distance range and calculate sum of frames and avg detection rate
     df = df.groupby(["rampType", "min_d", "max_d"], as_index=False).agg(
-        {
-            "frames": "sum",
-            "truePositives": "mean",
-        }
+        {"frames": "sum", "truePositives": "mean", "falsePositives": "mean"}
     )
     display(df)
     print("\nAnd in latex format:")
@@ -219,12 +238,13 @@ def create_latex_table(scores):
     for row in range(len(df)):
         row = df.iloc[row]
         print(
-            "{} & \\SIrange{{{}}}{{{}}}{{\\metre}} & {} & {:.2f}\\\\".format(
+            "{} & \\SIrange{{{}}}{{{}}}{{\\metre}} & {} & {:.2f}\% & {:.2f}\% \\\\".format(
                 row["rampType"],
                 row["min_d"],
                 row["max_d"],
                 row["frames"],
                 row["truePositives"],
+                row["falsePositives"],
             )
         )
 
@@ -259,13 +279,23 @@ BAG_INFO = [
     },
     {
         "bag_name": "u_d2e_hdl.bag",
-        "ramp_type": "us2",
+        "ramp_type": "us",
         "xy_range": [[32.5, 44], [2, 5.5]],
     },
     {
         "bag_name": "u_s2c_half_odom_hdl.bag",
         "ramp_type": "uc",
         "xy_range": [[42, 56], [-2.2, 2]],
+    },
+    {
+        "bag_name": "u_s2c2d_part1_hdl.bag",
+        "ramp_type": "uc",
+        "xy_range": [[47.3, 62], [-2.8, 1.5]],
+    },
+    {
+        "bag_name": "u_s2c2d_part2_hdl.bag",
+        "ramp_type": "us",
+        "xy_range": [[47, 58.8], [36.5, 40.5]],
     },
 ]
 
