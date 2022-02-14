@@ -14,7 +14,7 @@ from IPython.display import display
 from lidar_ramp_offline import VisualDetection
 
 # Load methods to extract data from rosbags
-from getData import unpack_bag, synchronize_topics
+from unpack_rosbag import unpack_bag, synchronize_topics
 
 
 class GetScore(object):
