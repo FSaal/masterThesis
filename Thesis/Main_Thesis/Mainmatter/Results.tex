@@ -4,21 +4,21 @@
 
 \section{Evaluation concept}
 \todoin{\begin{itemize}
-    \item The straight ramp on floor -2 will be used as main example
-    \item All plots will be only made for that ramp
-    \item Except maybe for special edge cases (e.g. influence of braking on imu estimation)
-    \item All the other ramps will be only evaluated using scores, displayed in tables
-\end{itemize}}
+        \item The straight ramp on floor -2 will be used as main example
+        \item All plots will be only made for that ramp
+        \item Except maybe for special edge cases (e.g. influence of braking on imu estimation)
+        \item All the other ramps will be only evaluated using scores, displayed in tables
+    \end{itemize}}
 
 
 
 \section{Ramp metering? (\glsentrytext{imu})}
 \todoin{\begin{itemize}
-    \item How well do different \gls{imu} methods work...
-    \item ... at ramp detection
-    \item ... at ramp distance measuring
-    \item ... at angle estimation
-\end{itemize}}
+        \item How well do different \gls{imu} methods work...
+        \item ... at ramp detection
+        \item ... at ramp distance measuring
+        \item ... at angle estimation
+    \end{itemize}}
 \todo[inline, caption={2do}, color=green!40]{
     \begin{minipage}{\textwidth-4pt}
         \begin{itemize}
@@ -34,17 +34,53 @@
         \end{itemize}
     \end{minipage}
 }
-
+\isug{Raw accelerometer data or gyroscope peak is ramp start}
+\isug{Also show consistency recordings (avg error and stuff)}
 
 
 \section{Ramp detection (\glsentrytext{lidar} and camera)}
+\begin{table}[htbp]
+    \centering
+    \caption{Performance evaluation}
+    \label{tab:eval_table}
+    \begin{tabular}[t]{ccccc}
+        \toprule
+        \textbf{Structure} & \textbf{Distance}        & \textbf{Frames} & \textbf{TP} & \textbf{FP} \\
+        \midrule
+        \textbf{Straight (ascending)}                                                               \\
+        uc                 & \SIrange{0}{5}{\metre}   & 62              & 100.00\%    & 0.00\%      \\
+        uc                 & \SIrange{5}{10}{\metre}  & 62              & 100.00\%    & 0.00\%      \\
+        uc                 & \SIrange{10}{15}{\metre} & 59              & 100.00\%    & 0.00\%      \\
+        uc                 & \SIrange{15}{20}{\metre} & 61              & 97.92\%     & 2.08\%      \\
+        uc                 & \SIrange{20}{25}{\metre} & 61              & 97.83\%     & 2.17\%      \\
+        uc                 & \SIrange{25}{30}{\metre} & 59              & 42.75\%     & 0.00\%      \\
+        us                 & \SIrange{0}{5}{\metre}   & 162             & 83.33\%     & 6.67\%      \\
+        us                 & \SIrange{5}{10}{\metre}  & 149             & 83.33\%     & 0.00\%      \\
+        us                 & \SIrange{10}{15}{\metre} & 144             & 100.00\%    & 0.00\%      \\
+        us                 & \SIrange{15}{20}{\metre} & 150             & 87.41\%     & 0.74\%      \\
+        us                 & \SIrange{20}{25}{\metre} & 169             & 79.38\%     & 0.69\%      \\
+        us                 & \SIrange{25}{30}{\metre} & 78              & 43.42\%     & 0.00\%      \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+% Option1	Structure	Dist interval	TP	FP
+% 	Straight up
+% 	Straight down
+% 	Straight down at 90
+% 	Curved up
+% 	Curved down
+
+% Option2	Structure	Offset angle	Distance	Frames	TP	FP
+
+% Option3	Structure	StdDev/mean/var etc of distance, angle, width and length
 \todoin{\begin{itemize}
-    \item Confusion matrix or similar (false negatives could be hard (e.g. curve))
-    \item Estimated angle and distance compare to ground truth
-    \item Do downwards ramp work?
-    \item Camera \gls{lidar} projection for nice visualization
-    \item Something about camera
-\end{itemize}}
+        \item Confusion matrix or similar (false negatives could be hard (e.g. curve))
+        \item Estimated angle and distance compare to ground truth
+        \item Do downwards ramp work?
+        \item Camera \gls{lidar} projection for nice visualization
+        \item Something about camera
+    \end{itemize}}
 \itodo{Make new recordings of level -2 ramps, approaching at different (e.g. 0, 15, 30, 45) angles}
 
 \todo[inline, caption={2do}, color=green!40]{
@@ -60,30 +96,8 @@
         \end{itemize}
     \end{minipage}
 }
-\begin{table}[htbp]
-	\centering
-	\caption{Performance evaluation}
-	\label{tab:eval_table}
-	\begin{tabular}[t]{ccccc}
-		\toprule
-		\textbf{Structure}  & \textbf{Distance}         & \textbf{Frames}   & \textbf{True Positives}   & \textbf{False Positives} \\
-		\midrule
-		Straight up         & \SIrange{0}{1}{\metre}    & 10                & 100\%	                    & 0\% \\
-		Straight down       & \SIrange{10}{15}{\metre}  & 10                & 100\%	                    & 0\% \\
-		\bottomrule
-	\end{tabular}
-\end{table}
-% Option1	Structure	Dist interval	TP	FP
-% 	Straight up
-% 	Straight down
-% 	Straight down at 90
-% 	Curved up
-% 	Curved down
-
-% Option2	Structure	Offset angle	Distance	Frames	TP	FP
-
-% Option3	Structure	StdDev/mean/var etc of distance, angle, width and length
-
+\isug{Anzahl Fahrten als Spalte}
+\isug{Subcategories rampentyp}
 
 \begin{figure}[htbp]
     \centering
@@ -93,12 +107,13 @@
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.7\linewidth]{matplotlib.pdf}
-    \caption{Standard matplotlib}
+    \includegraphics[width=0.7\linewidth]{distance_eval.pdf}
+    \caption{caption}
+    \label{fig:dist}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.7\linewidth]{plotly.pdf}
-    \caption{Standard plotly}
+    \includegraphics[width=0.7\linewidth]{matplotlib.pdf}
+    \caption{Standard matplotlib}
 \end{figure}
