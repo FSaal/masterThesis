@@ -15,16 +15,16 @@ The specifications of each \gls{imu} can be read in table
 	\label{tab:imu_datasheets}
 	\begin{tabular}[t]{lcc}
 		\toprule
-		&\textbf{myAHRS+} & \textbf{ZED 2i \gls{imu}}\\
+		                            & \textbf{myAHRS+}                                       & \textbf{ZED 2i \gls{imu}}                              \\
 		\midrule
-		Accelerometer range			& $\pm\SI{16}{\g}$				& $\pm\SI{8}{\g}$\\
-		Gyroscope range				& $\pm\SI{2000}{\degree\per\second}$	& $\pm\SI{1000}{\degree\per\second}$\\
-		Magnetometer range			& $\pm\SI{1200}{\micro\tesla}$		& $\pm\SI{2500}{\micro\tesla}$\\
-		Rate 						& \SI{100}{\hertz}				& \SI{400}{\hertz}\\
-		Accelerometer noise density	& \SI{4.502e-3}{\metre\per\second(1\per\sqrt{\second})} & \SI{1.148e-3}{\metre\per\second(1\per\sqrt{\second})}\\
-		Accelerometer random walk	& \SI{7.337e-5}{\metre\per\second\squared\sqrt{\second}} & \SI{6.458e-5}{\metre\per\second\squared\sqrt{\second}}\\
-		Gyroscope noise density		& \SI{1.674e-4}{\radian\per\sqrt{\second}} & \SI{8.254e-5}{\radian\per\sqrt{\second}}\\
-		Gyroscope random walk		& \SI{5.042e-6}{\radian\per\second\sqrt{\second}} & \SI{1.632e-7}{\radian\per\second\sqrt{\second}}\\
+		Accelerometer range         & $\pm\SI{16}{\g}$                                       & $\pm\SI{8}{\g}$                                        \\
+		Gyroscope range             & $\pm\SI{2000}{\degree\per\second}$                     & $\pm\SI{1000}{\degree\per\second}$                     \\
+		Magnetometer range          & $\pm\SI{1200}{\micro\tesla}$                           & $\pm\SI{2500}{\micro\tesla}$                           \\
+		Rate                        & \SI{100}{\hertz}                                       & \SI{400}{\hertz}                                       \\
+		Accelerometer noise density & \SI{4.502e-3}{\metre\per\second(1\per\sqrt{\second})}  & \SI{1.148e-3}{\metre\per\second(1\per\sqrt{\second})}  \\
+		Accelerometer random walk   & \SI{7.337e-5}{\metre\per\second\squared\sqrt{\second}} & \SI{6.458e-5}{\metre\per\second\squared\sqrt{\second}} \\
+		Gyroscope noise density     & \SI{1.674e-4}{\radian\per\sqrt{\second}}               & \SI{8.254e-5}{\radian\per\sqrt{\second}}               \\
+		Gyroscope random walk       & \SI{5.042e-6}{\radian\per\second\sqrt{\second}}        & \SI{1.632e-7}{\radian\per\second\sqrt{\second}}        \\
 		\bottomrule
 	\end{tabular}
 \end{table}%
@@ -51,19 +51,19 @@ Both are mechanical \gls{lidar}s and have the same number of laser channels, but
 	\label{tab:lidar_datasheets}
 	\begin{tabular}[t]{lcc}
 		\toprule
-		&\textbf{RS-Bpearl} & \textbf{Velodyne Ultra Puck}\\
+		                      & \textbf{RS-Bpearl}          & \textbf{Velodyne Ultra Puck}                  \\
 		\midrule
-		Channels 					& 32 							& 32\\
-		Range 						& \SI{100}{\metre}				& \SI{200}{\metre}\\
-		Range accuracy				& $\pm\SI{3}{\centi\metre}$		& $\pm\SI{3}{\centi\metre}$\\
-		Horizontal \gls{fov}	& \SI{360}{\degree}				& \SI{360}{\degree}\\
-		Vertical \gls{fov} 	& \SI{90}{\degree} 				& \SI{40}{\degree} (\SIrange{-25}{15}{\degree})\\
-		Horizontal resolution		& \SIrange{0.2}{0.4}{\degree} 	& \SIrange{0.1}{0.4}{\degree}\\
-		Vertical resolution			& \SI{2.81}{\degree} 			& \SI{0.33}{\degree}\\
-		Frame rate 					& \SIrange{10}{20}{\hertz}		& \SIrange{5}{20}{\hertz}\\
-		Laser wavelength 			& \SI{905}{\nano\metre} 		& \SI{903}{\nano\metre}\\
+		Channels              & 32                          & 32                                            \\
+		Range                 & \SI{100}{\metre}            & \SI{200}{\metre}                              \\
+		Range accuracy        & $\pm\SI{3}{\centi\metre}$   & $\pm\SI{3}{\centi\metre}$                     \\
+		Horizontal \gls{fov}  & \SI{360}{\degree}           & \SI{360}{\degree}                             \\
+		Vertical \gls{fov}    & \SI{90}{\degree}            & \SI{40}{\degree} (\SIrange{-25}{15}{\degree}) \\
+		Horizontal resolution & \SIrange{0.2}{0.4}{\degree} & \SIrange{0.1}{0.4}{\degree}                   \\
+		Vertical resolution   & \SI{2.81}{\degree}          & \SI{0.33}{\degree}                            \\
+		Frame rate            & \SIrange{10}{20}{\hertz}    & \SIrange{5}{20}{\hertz}                       \\
+		Laser wavelength      & \SI{905}{\nano\metre}       & \SI{903}{\nano\metre}                         \\
 		% \midrule
-		Points per second 			& 576,000						& 600,000		\\
+		Points per second     & 576,000                     & 600,000                                       \\
 		\bottomrule
 	\end{tabular}
 \end{table}%
@@ -89,29 +89,78 @@ Both are mechanical \gls{lidar}s and have the same number of laser channels, but
 
 
 \section{Sensor placement}
+The \gls{imu} must be placed on a rigid point of the car, such that the \gls{imu}'s position stays always the same relative to the car.
+Other then that it should also be placed in the transversal center? to guarantee that the centripetal acceleration is not skewed towards one side.
+The \gls{imu} was placed on the roof center.
 \begin{figure}[htpb]
 	\centering
 	\input{Graphics/TikZ/lidar_mount.tex}
 	\caption{Mounting of the \acrshort{lidar}}
 	\label{fig:tikz_lidar_mount}
 \end{figure}
-\itodo{\gls{imu} placement not really important, should just be static}
+\begin{table}[htbp]
+	\centering
+	\caption{Some params}
+	\label{tab:vals}
+	\begin{tabular}[t]{clc}
+		\toprule
+		\textbf{Variable} & \textbf{Description}                                   & \textbf{Unit} \\
+		\midrule
+		$h_\mathrm{l} $   & \gls{lidar} height above ground                        & \si{\metre}   \\
+		$d$               & Distance to ramp                                       & \si{\metre}   \\
+		$h_\mathrm{r}$    & Height of ramp                                         & \si{\metre}   \\
+		$l_\mathrm{w}$    & Light travel distance from ramp start to contact point & \si{\metre}   \\
+		$d_\mathrm{w}$    & Distance from ramp start to contact point              & \si{\metre}   \\
+		$\alpha$          & Ramp angle                                             & \si{\degree}  \\
+		$\beta$           & \gls{lidar} mount angle                                & \si{\degree}  \\
+		$\gamma$          & Tue angle?!                                            & \si{\degree}  \\
+		$\epsilon$        & \gls{lidar} vertical resolution                        & \si{\degree}  \\
+		$n$               & Number of laser channels                               &               \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
 The \gls{lidar} will be placed on top of the car, to get a greater \gls{fov}.
-The pitch angle at which the \gls{lidar} will be mounted should be chosen so that the number of points in the area at the beginning of the ramp are maximized.
-This allows for an easier detection of planes with different inclination angles.
-The coordinates at which the lasers hit the ground and ramp depend on the height of the \gls{lidar} $ h_\mathrm{L} $, the distance to the ramp $d$, the angle of the ramp $\alpha$, the pitch angle $\gamma$ at which the \gls{lidar} is mounted and finally on the vertical resolution and \gls{fov} of the \gls{lidar}. The coordinates can be calculated in the following way.\\
-Assuming there is no ramp, the x-coordinate where the laser waves hit the ground can be calculated with
+The pitch angle $\beta$ at which the \gls{lidar} will be mounted should be chosen such that the number of points in the area at the beginning of the ramp are maximized.
+This allows for the most accurate distinction between planes of different inclination angles and therefore also a good distance estimation.
+Because the distance to the ramp is not constant due to the movement of the car, the optimization can only be done for a specific distance.
+The coordinates at which the lasers hit the ground and ramp depend on the height of the \gls{lidar} $h_\mathrm{l}$, the distance to the ramp $d$, the angle of the ramp $\alpha$, the angle $\beta$ at which the \gls{lidar} has been mounted on the car and finally on the vertical resolution and \gls{fov} of the \gls{lidar}.
+The coordinates can be calculated in the following way.\\
+The angle $\gamma$ between the NOT ground and each laser wave is defined as
 \begin{equation}
-	x = \frac{h}{\tan(n\beta - \gamma)}
+	\gamma = \beta - i\epsilon
+\end{equation}
+with $i \in \mathbb{N}, 0\dots n$ being the "laserID" starting from the lowest opening angle and going to the highest.
+On flat ground the distance at which the laser waves hit the ground can be calculated with
+\begin{equation}
+	x = \tan(\ang{90} - \gamma) h_\mathrm{l}.
 	\label{eq:ground_points}
 \end{equation}
-with $n$ being the "laserID" starting from the lowest opening angle and going to the highest.
-When the ground is not a flat anymore, the assumption from \ref{eq:ground_points} does not hold anymore. The x distance between two laser points reduces on a ramp.
-\dots whatever who cares
-\itodo{Make a good sketch again with labels etc and check if its easy understandable, only then continue in tikz and latex}
-\[ c = h - \frac{z}{\tan \alpha} \]
-\iquest{Is this even necessary, when the angle during the experiment hasn't even been set consciously?}
-
+With a ramp, the assumption from \ref{eq:ground_points} does not hold anymore.
+The light does not travel as far.
+The height above ground, when the light is at the beginning of the ramp can be calculated with
+\begin{equation}
+	h_\mathrm{w,start} = h_\mathrm{l} - d\tan(\gamma)
+\end{equation}
+The distance $l_\mathrm{w}$ which the light travels from the beginning of the ramp to the contact point with the ramp can be calculated using the law of sines
+\begin{align}
+	l_\mathrm{w} & = \frac{h_\mathrm{w,start} }{\sin(\alpha + \gamma)} \sin(\ang{90} - \alpha) \\
+	             & = \frac{h_\mathrm{w,start} }{\sin(\alpha + \gamma)} \cos(-\alpha)
+\end{align}
+The travelled distance along the x-axis from the start of the ramp to the contact point is then
+\begin{equation}
+	d_\mathrm{w}  = l_\mathrm{w} \sin(\ang{90} - 2\alpha - \gamma)
+\end{equation}
+which results in the total x distance from the \gls{lidar}
+\begin{equation}
+	d_\mathrm{hit} = d + d_\mathrm{w}.
+\end{equation}
+\iquest{Instead of "long" derivation, just use the final equation?}
+\begin{equation}
+	d_\mathrm{hit} = d + \frac{h_\mathrm{l} - d\tan(\gamma)}{\sin(\alpha + \gamma)} \cos(-\alpha) \sin(\ang{90} - 2\alpha - \gamma)
+\end{equation}
+Using the formulas the optimal mounting pitch angle $\beta$ for the two \gls{lidar}s has been found with $\beta_\mathrm{velodyne} = \ang{0}$ and $\beta_\mathrm{robos} = \ang{20}$.
+\iimprov{Improve text and table param description}
 
 
 \section{Car}
@@ -124,9 +173,9 @@ The car has a pc in the booth, at which the sensors were connected to.
 \iimprov{Text is bad}
 \missingfigure{Picture of eGolf}
 \todoin{\begin{itemize}
-	\item Some stats as height, track width etc, electric car hence less vibrations
-	\item Connection setup (maybe own section or maybe not interesting at all)
-\end{itemize}
+		\item Some stats as height, track width etc, electric car hence less vibrations
+		\item Connection setup (maybe own section or maybe not interesting at all)
+	\end{itemize}
 }
 
 
