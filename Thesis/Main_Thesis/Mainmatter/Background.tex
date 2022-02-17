@@ -6,8 +6,9 @@
 Rotations can be expressed in several ways, I will briefly describe the ones used in this thesis.
 
 \subsubsection{Rotation matrix}
-A rotation matrix \mtf{b}{a} $\in \mathbb{R}^{3\times3}$ transforms an arbitrary vector from the coordinate system $\mathcal{B}$ to the coordinate system $\mathcal{A}$.\\
-\iimprov{A bit more text}
+A rotation matrix \mtf{b}{a} $\in \mathbb{R}^{3\times3}$ transforms an arbitrary vector from the coordinate system $\mathcal{B}$ to the coordinate system $\mathcal{A}$.
+The rotation axis is the eigenvector for $\lambda = 1$, but the rotation angle can not easily be seen from the matrix.
+The rows of the rotation matrix are the axes of the new coordinate system.
 Rotation matrices can be concatenated, but this must be done in reverse order, e.g.
 \begin{equation}
 	{}_\mathcal{C}\vb{p} = \mtf{c}{a}{}_\mathcal{A}\vb{p} = \mtf{b}{c}\mtf{a}{b}{}_\mathcal{A}\vb{p}
@@ -24,29 +25,41 @@ The most common convention is the zyx (intrinsic I think?) (first rotation aroun
 The disadvantages are the many conventions and the possibility of singularity.
 
 \subsubsection{Quaternions}
-A quaternion is a complex number with three imaginary parts
+A quaternion is defined as
 \begin{equation}
-	\vb{q} = a + b\vb{i} + c\vb{j} + d\vb{k}
+	q = q_w + q_x\vb{i} + q_y\vb{j} + q_z\vb{k}
 \end{equation}
-with
+with a real part $q_w$ and three imaginary parts $\vb{i}, \vb{j}$ and $\vb{k}$ satisfying
 \begin{equation}
-	\vb{i}^2 = \vb{j}^2 = \vb{k}^2 = \vb{i}\vb{j}\vb{k} = -1
+	\vb{i}^2 = \vb{j}^2 = \vb{k}^2 = \vb{i}\vb{j}\vb{k} = -1.
 \end{equation}
-Each rotation is uniquely described by one rotation, but each orientation ca be described by two unit quaternions with opposite signs.
+The quaternion can also be written in vector form by dividing the quaternion in a real or scalar and a imaginary or vector part
 \begin{equation}
-	\alpha \in[0, \pi] @ \mathbf{j} \underbrace{\left[j_{x}, j_{y}, j_{z}\right]^{\top}}_{\|j\|_{2}=1}
-	\quad\cong\quad {}^{\mathcal{B}}_{\mathcal{A}} q
-	=\cos \left(\frac{\alpha}{2}\right)+\left(j_{x} \mathbf{i}+j_{y} \mathbf{j}+j_{z} \mathbf{k}\right) \sin \left(\frac{\alpha}{2}\right)
+	q = \begin{bmatrix}
+		\vb{q} \\
+		q
+	\end{bmatrix}
+	=\begin{bmatrix}
+		q_x & q_y & q_z & q_w
+	\end{bmatrix}^\intercal.
 \end{equation}
-or in vector form as
+Note that in some literature the order of the real and imaginary part are swapped.
+If the quaternion is a unit vector, which means it satisfies
 \begin{equation}
-	\vb{q} =
+	\abs*{q} = \sqrt{q^\intercal q} = \sqrt{\abs*{\vb{q}^2 + q_w^2}} = 1
+\end{equation}
+then it can be used to represent rotations.
+The rotation is then described with
+\begin{equation}
+	q =
 	\begin{bmatrix}
-		\cos(\frac{\alpha}{2})\\
-		\vb{j}\vdot\sin(\frac{\alpha}{2})
+		\hat{\vb{j}}\vdot\sin(\frac{\alpha}{2}) \\
+		\cos(\frac{\alpha}{2})
 	\end{bmatrix}
 \end{equation}
-\iimprov{Improve quaternion text and add new stuff}
+with $\alpha$ being the rotation angle and $\hat{\vb{j}}$ being the normalized rotation axis.
+Each rotation is uniquely described by one rotation, but each orientation can be described by two unit quaternions with opposite signs.
+More information about quaternions can be found in \cite{Lefferts1982}.
 
 \subsection{Vector projection}
 \label{subsec:vector_projection}
@@ -54,13 +67,13 @@ In general, the rotation to align a vector $\vb{v}_1$ with a vector $\vb{v}_2$ c
 At first both vectors must be normalized, resulting in the two unit vectors $\vu{v}_1$ and $\vu{v}_2$.
 The rotation axis is perpendicular to both vectors and can thus be calculated using the cross product, which is then divided by the norm, to get an unit vector
 \begin{equation}
-    \vb{j} = \frac{\vu{v}_1 \cp \vu{v}_2}{\norm{\vu{v}_1 \cp \vu{v}_2}}.
+	\vb{j} = \frac{\vu{v}_1 \cp \vu{v}_2}{\norm{\vu{v}_1 \cp \vu{v}_2}}.
 \end{equation}
 The angle between two vectors can be calculated with
 \begin{equation}
-    \cos(\alpha) = \frac{\vu{v}_1 \vdot \vu{v}_2}{\norm{\vu{v}_1} \cdot \norm{\vu{v}_2}}
-    = \vu{v}_1 \vdot \vu{v}_2 \implies
-    \alpha = \arccos(\vu{v}_1 \vdot \vu{v}_2).
+	\cos(\alpha) = \frac{\vu{v}_1 \vdot \vu{v}_2}{\norm{\vu{v}_1} \cdot \norm{\vu{v}_2}}
+	= \vu{v}_1 \vdot \vu{v}_2 \implies
+	\alpha = \arccos(\vu{v}_1 \vdot \vu{v}_2).
 \end{equation}
 The denominator is equal to 1 (because the norm of an unit vector is 1) and thus omitted.
 The found rotation can then be applied using e.g. a quaternion or a rotation matrix.
@@ -131,13 +144,12 @@ A mass is suspended by springs along one axis and if an acceleration along this 
 The mass has little fingers perpendicular to the axis along which the movement occurs, which affect the capacity between the fixed plates.
 The change of capacity and thus voltage can be measured, from which the acceleration can be calculated.
 To be able to measure the acceleration along all three axis the same setup is used three times, perpendicular to each other.\\
-The measurements $\hat{\vb{a}}$ of a \gls{mems} accelerometer are not free of noise and can be modeled in a simplified way as
+% The measurements $\hat{\vb{a}}$ of a \gls{mems} accelerometer are not free of noise and can be modeled according to \cite{Lefferts1982} in a simplified way as
 \begin{equation}
-    \hat{\vb{a}} = \vb{a} + \vb{b}_\mathrm{a} + \vb{n}_\mathrm{a}.
+	\hat{\vb{a}} = \vb{a} + \vb{b}_\mathrm{a} + \vb{n}_\mathrm{a}.
 \end{equation}
 The measurement differs from the true acceleration $\vb{a}$ due to random noise $\vb{n}_\mathrm{a}$ and a bias $\vb{b}_\mathrm{a}$.
 More about the specific error terms can be read in \ref{sse:mems_errors}.
-\iimprov{Add source for formula}
 
 \subsubsection{\glsentrytext{mems} Gyroscopes}
 A gyroscope measures the angular velocity.
@@ -155,10 +167,9 @@ While \gls{mems} gyroscopes do not achieve the same accuracy as optical gyroscop
 \gls{mems} gyroscopes have replaced other gyroscope types in most areas, but in areas where the highest precision possible is necessary, typically in military industry, optical gyroscopes are still used today \cite{Perlmutter2016}.
 Similar to the accelerometer, the measurements $\vb{\omega}$ of the \gls{mems} gyroscope are influenced by errors, which can be modeled as
 \begin{equation}
-    \hat{\vb{\omega}} = \vb{\omega} + \vb{b}_\mathrm{g} + \vb{n}_\mathrm{g}
+	\hat{\vb{\omega}} = \vb{\omega} + \vb{b}_\mathrm{g} + \vb{n}_\mathrm{g}
 \end{equation}
 where $\vb{b}_\mathrm{g}$ is the bias vector and $\vb{n}_\mathrm{g}$ the random noise vector.
-\iimprov{Add source for formula}
 
 \subsubsection{(\glsentrytext{mems}) Magnetometer}
 A magnetometer measures the local magnetic field.
@@ -172,7 +183,7 @@ Because the magnitude of the earth's magnetic field is very low (\SIrange{25}{65
 The distortions can be divided into two categories: hard or soft iron.
 Hard iron distortions are created by objects which actively produce a magnetic field, causing a permanent bias.
 Soft iron disturbances are due to deflections or altercations of an existing magnetic field.
-Both types of disturbances can be removed with a proper calibration if there position and orientation, relative to the sensor, stays the same \cite{Guo2008}.
+Both types of disturbances can be removed with a proper calibration if their position and orientation, relative to the sensor, stays the same \cite{Guo2008}.
 Every time the sensor is placed in a (magnetically) new environment, a recalibration is necessary.
 
 \subsubsection{Typical \glsentrytext{mems} errors}
