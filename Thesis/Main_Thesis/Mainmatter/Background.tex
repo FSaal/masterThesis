@@ -59,7 +59,20 @@ The rotation is then described with
 \end{equation}
 with $\alpha$ being the rotation angle and $\hat{\vb{j}}$ being the normalized rotation axis.
 Each rotation is uniquely described by one rotation, but each orientation can be described by two unit quaternions with opposite signs.
-More information about quaternions can be found in \cite{Lefferts1982}.
+More information about quaternions can be found in \cite{Lefferts1982}.\\
+A quaternion of the form
+$\mathbf{q} = \left[\begin{array}{llll} w & x & y & z \end{array}\right]^{\intercal}$
+can be converted to a rotation matrix with
+\begin{equation}
+	\mathbf{M} =
+	\left[
+		\begin{array}{ccc}
+			1-2 y^{2}-2 z^{2} & 2(x y-z w)        & 2(x z+y w)        \\
+			2(x y+z w)        & 1-2 x^{2}-2 z^{2} & 2(y z-x w)        \\
+			2(x z-y w)        & 2(y z+x w)        & 1-2 x^{2}-2 y^{2}
+		\end{array}
+		\right]
+\end{equation}
 
 \subsection{Vector projection}
 \label{subsec:vector_projection}
