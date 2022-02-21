@@ -145,26 +145,18 @@ class GetScore(object):
         scores = []
         for _, min_d in enumerate(range(min_dist, max_dist, step_dist)):
             max_d = min_d + step_dist
+            # Reduce df to range
+            df_range = df_stats[(min_d < df_stats["TrueDist"]) & (df_stats["TrueDist"] < max_d)]
             # Samples recorded in the given distance range
             true_dists = np.asarray(true_dists)
+
             # Assuming ramp is visible in every frame --> num of frames == expected detections
             frames = len(true_dists[(min_d < true_dists) & (true_dists < max_d)])
             # Actual detections only counts if at least 50% of points lie inside ramp region
-            detections_tp = len(
-                df_stats[
-                    (min_d < df_stats["TrueDist"])
-                    & (df_stats["TrueDist"] < max_d)
-                    & (df_stats["TrueInliers"] > 0.5)
-                ]
-            )
+            detections_tp = len(df_range[(df_range["TrueInliers"] > 0.5)])
             # Ramp has been detected, but less than 50% of points lie in ramp region
-            detections_fp = len(
-                df_stats[
-                    (min_d < df_stats["TrueDist"])
-                    & (df_stats["TrueDist"] < max_d)
-                    & (df_stats["TrueInliers"] < 0.5)
-                ]
-            )
+            detections_fp = len(df_range[(df_range["TrueInliers"] < 0.5)])
+
             # Calculate ratio
             try:
                 true_positives = float(detections_tp) / frames * 100
@@ -172,20 +164,34 @@ class GetScore(object):
             except ZeroDivisionError:
                 true_positives = np.NaN
                 false_positives = np.NaN
+
+            # Calculate std_dev and stuff
+            diff_dist = df_range["Dist"] - df_range["TrueDist"]
+            diff_angle = df_range["Angle"] - 7
+            diff_width = df_range["Width"] - 4
+            diff_all = np.vstack((diff_dist, diff_angle, diff_width))
+            rmse = np.sqrt(np.mean(diff_all ** 2, axis=1))
+            print("RMSE: {}".format(rmse))
             # Print information for every bag
             print(
                 (
                     "In the range {}m to {}m {} frames have been recorded with "
                     "{:.2f}% true positives and {:.2f} false positives"
-                ).format(
+                ).format(min_d, max_d, frames, true_positives, false_positives)
+            )
+            scores.append(
+                (
+                    self.ramp_type,
                     min_d,
                     max_d,
                     frames,
                     true_positives,
                     false_positives,
+                    rmse[0],
+                    rmse[1],
+                    rmse[2],
                 )
             )
-            scores.append((self.ramp_type, min_d, max_d, frames, true_positives, false_positives))
         return scores
 
     def boss_method(self, min_dist=0, max_dist=30):
@@ -227,10 +233,27 @@ def create_latex_table(scores):
     # Convert to dataframe
     df = pd.DataFrame(scores)
     # Rename columns
-    df.columns = ["rampType", "min_d", "max_d", "frames", "truePositives", "falsePositives"]
+    df.columns = [
+        "rampType",
+        "min_d",
+        "max_d",
+        "frames",
+        "truePositives",
+        "falsePositives",
+        "rmse_dist",
+        "rmse_ang",
+        "rmse_width",
+    ]
     # Group by ramp type and distance range and calculate sum of frames and avg detection rate
     df = df.groupby(["rampType", "min_d", "max_d"], as_index=False).agg(
-        {"frames": "sum", "truePositives": "mean", "falsePositives": "mean"}
+        {
+            "frames": "sum",
+            "truePositives": "mean",
+            "falsePositives": "mean",
+            "rmse_dist": "mean",
+            "rmse_ang": "mean",
+            "rmse_width": "mean",
+        }
     )
     display(df)
     print("\nAnd in latex format:")
@@ -238,13 +261,16 @@ def create_latex_table(scores):
     for row in range(len(df)):
         row = df.iloc[row]
         print(
-            "{} & \\SIrange{{{}}}{{{}}}{{\\metre}} & {} & {:.2f}\% & {:.2f}\% \\\\".format(
+            "{} & \\SIrange{{{}}}{{{}}}{{\\metre}} & {} & {:.2f}\% & {:.2f}\% & \SI{{{:.2f}}}{{\\metre}} & \SI{{{:.2f}}}{{\\degree}} & \SI{{{:.2f}}}{{\\metre}}\\\\".format(
                 row["rampType"],
                 row["min_d"],
                 row["max_d"],
                 row["frames"],
                 row["truePositives"],
                 row["falsePositives"],
+                row["rmse_dist"],
+                row["rmse_ang"],
+                row["rmse_dist"],
             )
         )
 

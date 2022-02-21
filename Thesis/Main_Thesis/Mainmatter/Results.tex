@@ -10,6 +10,10 @@
         \item All the other ramps will be only evaluated using scores, displayed in tables
     \end{itemize}}
 
+The \gls{rmse} given by
+\begin{equation}
+    RMSE = \sqrt{\frac{1}{n}\sum_{i = 1}^n(\hat{y}_i - y_i)^2}
+\end{equation}
 
 
 \section{Ramp metering? (\glsentrytext{imu})}
@@ -39,27 +43,28 @@
 
 
 \section{Ramp detection (\glsentrytext{lidar} and camera)}
+rmse[] = distance, angle and width
+
 \begin{table}[htbp]
     \centering
     \caption{Performance evaluation}
     \label{tab:eval_table}
-    \begin{tabular}[t]{ccccc}
+    \begin{tabular}[t]{cccccccc}
         \toprule
-        \textbf{Structure} & \textbf{Distance}        & \textbf{Frames} & \textbf{TP} & \textbf{FP} \\
+        \textbf{Structure} & \textbf{Distance}        & \textbf{Frames} & \textbf{TP} & \textbf{FP} & \textbf{rmse1}    & \textbf{rmse2}     & \textbf{rmse3}    \\
         \midrule
-        \textbf{Straight (ascending)}                                                               \\
-        uc                 & \SIrange{0}{5}{\metre}   & 62              & 100.00\%    & 0.00\%      \\
-        uc                 & \SIrange{5}{10}{\metre}  & 62              & 100.00\%    & 0.00\%      \\
-        uc                 & \SIrange{10}{15}{\metre} & 59              & 100.00\%    & 0.00\%      \\
-        uc                 & \SIrange{15}{20}{\metre} & 61              & 97.92\%     & 2.08\%      \\
-        uc                 & \SIrange{20}{25}{\metre} & 61              & 97.83\%     & 2.17\%      \\
-        uc                 & \SIrange{25}{30}{\metre} & 59              & 42.75\%     & 0.00\%      \\
-        us                 & \SIrange{0}{5}{\metre}   & 162             & 83.33\%     & 6.67\%      \\
-        us                 & \SIrange{5}{10}{\metre}  & 149             & 83.33\%     & 0.00\%      \\
-        us                 & \SIrange{10}{15}{\metre} & 144             & 100.00\%    & 0.00\%      \\
-        us                 & \SIrange{15}{20}{\metre} & 150             & 87.41\%     & 0.74\%      \\
-        us                 & \SIrange{20}{25}{\metre} & 169             & 79.38\%     & 0.69\%      \\
-        us                 & \SIrange{25}{30}{\metre} & 78              & 43.42\%     & 0.00\%      \\
+        uc                 & \SIrange{0}{5}{\metre}   & 62              & 100.00\%    & 0.00\%      & \SI{0.75}{\metre} & \SI{0.61}{\degree} & \SI{0.75}{\metre} \\
+        uc                 & \SIrange{5}{10}{\metre}  & 62              & 100.00\%    & 0.00\%      & \SI{0.84}{\metre} & \SI{0.68}{\degree} & \SI{0.84}{\metre} \\
+        uc                 & \SIrange{10}{15}{\metre} & 59              & 100.00\%    & 0.00\%      & \SI{0.89}{\metre} & \SI{0.60}{\degree} & \SI{0.89}{\metre} \\
+        uc                 & \SIrange{15}{20}{\metre} & 61              & 97.92\%     & 2.08\%      & \SI{2.75}{\metre} & \SI{0.95}{\degree} & \SI{2.75}{\metre} \\
+        uc                 & \SIrange{20}{25}{\metre} & 61              & 97.83\%     & 2.17\%      & \SI{3.69}{\metre} & \SI{0.94}{\degree} & \SI{3.69}{\metre} \\
+        uc                 & \SIrange{25}{30}{\metre} & 59              & 42.75\%     & 0.00\%      & \SI{2.36}{\metre} & \SI{2.22}{\degree} & \SI{2.36}{\metre} \\
+        us                 & \SIrange{0}{5}{\metre}   & 162             & 83.33\%     & 6.67\%      & \SI{3.83}{\metre} & \SI{0.85}{\degree} & \SI{3.83}{\metre} \\
+        us                 & \SIrange{5}{10}{\metre}  & 149             & 83.33\%     & 0.00\%      & \SI{0.75}{\metre} & \SI{0.41}{\degree} & \SI{0.75}{\metre} \\
+        us                 & \SIrange{10}{15}{\metre} & 144             & 100.00\%    & 0.00\%      & \SI{0.76}{\metre} & \SI{0.37}{\degree} & \SI{0.76}{\metre} \\
+        us                 & \SIrange{15}{20}{\metre} & 150             & 87.41\%     & 0.74\%      & \SI{1.38}{\metre} & \SI{0.52}{\degree} & \SI{1.38}{\metre} \\
+        us                 & \SIrange{20}{25}{\metre} & 169             & 79.38\%     & 0.69\%      & \SI{5.62}{\metre} & \SI{1.22}{\degree} & \SI{5.62}{\metre} \\
+        us                 & \SIrange{25}{30}{\metre} & 78              & 43.42\%     & 0.00\%      & \SI{1.73}{\metre} & \SI{1.65}{\degree} & \SI{1.73}{\metre} \\
         \bottomrule
     \end{tabular}
 \end{table}
@@ -104,16 +109,49 @@
     \includegraphics[width=1\linewidth]{points_projection.pdf}
     \caption{Lidar points projected into the camera image. The green points were identified as part of a ramp.}
 \end{figure}
-
+\newpage
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.7\linewidth]{distance_eval.pdf}
-    \caption{caption}
-    \label{fig:dist}
+    \includegraphics[width=0.7\linewidth]{lidar_distance_eval.pdf}
+    \caption{Difference between estimated and measured distance to ramp}
+    \label{fig:lidar_distance_eval}
+\end{figure}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.7\linewidth]{lidar_angle_eval.pdf}
+    \caption{Error between estimated and measured ramp angle (\SI{6.75}{\degree})}
+    \label{fig:lidar_angle_eval}
+\end{figure}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.7\linewidth]{lidar_width_eval.pdf}
+    \caption{Error between estimated and measured ramp width (\SI{4}{\metre})}
+    \label{fig:lidar_width_eval}
 \end{figure}
 
-\begin{figure}[htbp]
+\begin{figure}[htb]
     \centering
-    \includegraphics[width=0.7\linewidth]{matplotlib.pdf}
-    \caption{Standard matplotlib}
+    \begin{subfigure}{1\textwidth}
+        \centering
+        \includegraphics[width=0.7\linewidth]{lidar_distance_eval.pdf}
+        \caption{caption}
+        \label{fig:lidar_distance_evalTest}
+    \end{subfigure}
+    
+    % \bigskip
+    \begin{subfigure}{1\textwidth}
+        \centering
+        \includegraphics[width=0.7\linewidth]{lidar_angle_eval.pdf}
+        \caption{caption}
+        \label{fig:lidar_angle_evalTest}
+    \end{subfigure}
+    
+    \begin{subfigure}{1\textwidth}
+        \centering
+        \includegraphics[width=0.7\linewidth]{lidar_width_eval.pdf}
+        \caption{caption}
+        \label{fig:lidar_width_evalTest}
+    \end{subfigure}
+    \caption{Is subfigure better than separate?}
+    \label{fig:subFigTest}
 \end{figure}
