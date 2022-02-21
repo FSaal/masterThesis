@@ -115,7 +115,7 @@ This is achieved using gimbals, which allow movement along all three axes.
 The gyroscopes on the platform measure the rotation and send them to torque motors, which rotate the gimbals to keep the platform in alignment with the reference frame.
 A typical setup of a stable platform system can be seen in fig. \ref{fig:stable_platform_imu}.
 The advantage of stable platform systems is that the calculation of orientation and position is straight forward.
-The angles of the gimbals can be measured to get the orientation and to get the position, the accelerometer measurements have to be be corrected for gravity and be integrated two times.
+The angles of the gimbals can be measured to receive the orientation and position, the accelerometer measurements have to be be corrected for gravity and be integrated two times.
 No coordinate transformation is necessary.
 The disadvantages are that the mechanical structure of the setup is complex, needs regular maintenance, requires a lot of space and has high costs.\\
 The second type are strapdown systems, which are mostly used today.
@@ -149,7 +149,7 @@ Almost all consumer grade electronics uses \gls{mems}-\gls{imu}s nowadays, but t
 	\label{fig:MEMS_design}
 \end{figure}
 The accelerometer is used to measure the acceleration.
-Besides dynamic acceleration there is the static and constant gravity acceleration on earth, which is measured by the \gls{imu} in upward direction.
+Additional to the dynamic acceleration there is the static and constant gravity acceleration on earth, which is measured by the \gls{imu} in upward direction.
 This allows for the determination of one axis of the \gls{imu}, even if it is not moving.
 Often times only the dynamic accelerations are of interest and to get them the acceleration data during stand still must be measured and subtracted.\\
 The micro structure of a \gls{mems} accelerometer is shown in figure \ref{fig:MEMS_Accelerometer}.
@@ -238,12 +238,12 @@ As transmitter a laser with a wavelength of \SIrange{850}{950}{\nano\metre} (nea
 The scanning system allows the laser to explore a large area instead of only a single point by steering the light at different azimuths and vertical angles and can be divided in mechanical spinning or solid state systems.
 Mechanical spinning systems is the oldest technology and is still mainly used today.
 A mirror which can be rotated around an axis is used, allowing for a greater vertical \gls{fov}.
-Also the whole \gls{lidar} base on which the laser is mounted can be rotated independently from the mirror, allowing for a \SI{360}{\degree} horizontal \gls{fov}.
+Moreover the whole \gls{lidar} base on which the laser is mounted can be rotated independently from the mirror, allowing for a \SI{360}{\degree} horizontal \gls{fov}.
 To get a sufficient resolution the \gls{lidar} has to spin at a high speed, but some \gls{lidar}s also use additionally a vertical array of lasers instead of only one to further increase the density of the generated point cloud.
 The working principle of a \gls{lidar} using the mechanical spinning method is shown in figure \ref{fig:lidar}.
 While mechanical spinning systems are very precise, they are bulky, need a lot of power and are expensive \cite{Fujii2005}.\\
 Solid state systems and especially \gls{mems} \gls{lidar}s try to overcome those problems.
-\gls{mems}-\gls{lidar} are quasi-static, the only part that moves is the on the chip embedded mirror, but due to the small size (\SIrange{1}{7}{\milli\metre} diameter) very little power has to be used to move it.
+\gls{mems}-\gls{lidar} are quasi-static, the only part that moves is the on the chip embedded mirror, but because of the small size (\SIrange{1}{7}{\milli\metre} diameter), very little power has to be used to move it.
 The mirror can be rotated on up to two axes, but because the base cannot be rotated as with mechanical systems, a horizontal view of \SI{360}{\degree} is not possible.
 Though by using multiple lasers with different incident angles the \gls{fov} can be increased.
 Advantages of \gls{mems}-\gls{lidar}s compared to mechanical systems are the smaller form factor and lower cost \cite{Wang2020}.\\
@@ -299,7 +299,7 @@ Filtering can be used in live applications and produces an estimate of the curre
 Because the detection should be live, only the filtering methods will be examined.
 Digital filters can be generally divided into two different categories.
 \gls{fir} filter rely on a fixed number of recent input values. An example would be the moving average filter, which takes the past $n$ values into account.
-\gls{iir} filter rely on previous output as well as most recent input by summing all points with a certain weight (e.g. exponential filter).
+\gls{iir} filter rely on previous output and most recent input by summing all points with a certain weight (e.g. exponential filter).
 This also explains the naming of the two types, the \gls{fir} filter "forgets" past values, whereas the \gls{iir} filter uses the previous estimate and thus theoretically takes all past values into account.\\
 Savitzky-Golay filter
 \begin{equation}
