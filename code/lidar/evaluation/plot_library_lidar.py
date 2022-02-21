@@ -4,8 +4,8 @@ import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
 
-class PlotLib(object):
 
+class PlotLib(object):
     def __init__(self, df, df_stats, df_eval, x_range, y_range, all_points, ramp_indices):
         """Visualize different stuff from lidar algo
 
@@ -25,25 +25,58 @@ class PlotLib(object):
         self.true_inliers = df_stats["TrueInliers"]
         self.ramp_indices = ramp_indices
 
+    def plot_for_latex(self, x=None, y=None, mode="lines+markers"):
+        """Layout template for exporting plots to latex"""
+        fig = go.Figure()
+        if x is not None:
+            fig.add_trace(go.Scatter(x=x, y=y, mode=mode))
+        fig.update_layout(title="Difference between estimated and actual angle of ramp")
+        fig.update_xaxes(
+            title_text="Distance to ramp [m]",
+            autorange="reversed",
+            showline=True,
+            linewidth=1,
+            linecolor="black",
+            mirror=True,
+        )
+        fig.update_yaxes(
+            title_text="?",
+            showline=True,
+            linewidth=1,
+            linecolor="black",
+            mirror=True,
+        )
+        fig.update_layout(
+            width=600,
+            height=300,
+            font_family="Serif",
+            font_size=14,
+            font_color="black",
+            margin_l=5,
+            margin_t=5,
+            margin_b=5,
+            margin_r=5,
+            title="",
+            legend=dict(x=0.01, y=0.01, traceorder="normal", bordercolor="Gray", borderwidth=1),
+        )
+        # fig.show()
+        return fig
+
     def distance_estimation(self, show_statistics=True):
         """Plot estimated distance to ramp from algo, compared to ground truth (hdl_slam)"""
         fig = go.Figure()
         # Distance from HDL slam against distance from HDL slam
         fig.add_trace(
             go.Scatter(
-                x=self.df_stats["TrueDist"],
-                y=self.df_stats["TrueDist"],
-                name="Measured (hdl)"
-                )
+                x=self.df_stats["TrueDist"], y=self.df_stats["TrueDist"], name="Measured (hdl)"
             )
+        )
         # Distance from lidar ramp detection algorithm against distance from HDL slam
-        fig.add_trace(go.Scatter(
-            x=self.df_stats["TrueDist"],
-            y=self.df_stats["Dist"],
-            name="Estimated"))
+        fig.add_trace(
+            go.Scatter(x=self.df_stats["TrueDist"], y=self.df_stats["Dist"], name="Estimated")
+        )
         fig.update_traces(mode="lines+markers")
-        fig.update_layout(
-            title="Difference between estimated and actual distance to ramp")
+        fig.update_layout(title="Difference between estimated and actual distance to ramp")
         fig.update_xaxes(title_text="(actual) Distance [m]", autorange="reversed")
         fig.update_yaxes(title_text="Distance [m]")
         if show_statistics:
@@ -51,13 +84,14 @@ class PlotLib(object):
             diff = self.df_stats["Dist"] - self.df_stats["TrueDist"]
             fig.add_annotation(
                 text="Standard deviation: {:.2f}m<br>Average error: {:.2f}m<br>Median error: {:.2f}m".format(
-                    np.std(diff), np.mean(diff), np.median(diff)),
+                    np.std(diff), np.mean(diff), np.median(diff)
+                ),
                 xref="paper",
                 yref="paper",
                 x=1,
                 y=1,
-                showarrow=False
-                )
+                showarrow=False,
+            )
         return fig
 
     def angle_estimation(self, true_angle=6, show_statistics=True):
@@ -81,8 +115,7 @@ class PlotLib(object):
                 mode="lines+markers",
             )
         )
-        fig.update_layout(
-            title="Difference between estimated and actual angle of ramp")
+        fig.update_layout(title="Difference between estimated and actual angle of ramp")
         fig.update_xaxes(title_text="Distance to ramp [m]", autorange="reversed")
         fig.update_yaxes(title_text="Ramp angle [deg]")
         if show_statistics:
@@ -90,8 +123,8 @@ class PlotLib(object):
             diff = self.df_stats["Angle"] - true_angle
             fig.add_annotation(
                 text="Average: {:.2f}<br>Standard deviation: {:.2f}deg<br>Average error: {:.2f}deg<br>Median error: {:.2f}deg".format(
-                    np.mean(self.df_stats["Angle"]),
-                    np.std(diff), np.mean(diff), np.median(diff)),
+                    np.mean(self.df_stats["Angle"]), np.std(diff), np.mean(diff), np.median(diff)
+                ),
                 xref="paper",
                 yref="paper",
                 x=1,
@@ -129,8 +162,7 @@ class PlotLib(object):
                 mode="lines+markers",
             )
         )
-        fig.update_layout(
-            title="Difference between estimated and actual width of ramp")
+        fig.update_layout(title="Difference between estimated and actual width of ramp")
         fig.update_xaxes(title_text="Distance to ramp [m]", autorange="reversed")
         fig.update_yaxes(title_text="Ramp width [m]")
         if show_stats:
@@ -140,8 +172,8 @@ class PlotLib(object):
             diff_drive = self.df_stats["Width"] - drivable_width
             fig.add_annotation(
                 text="Average: {:.2f}<br>Standard deviation: {:.2f}m<br>Average error: {:.2f}m<br>Median error: {:.2f}m".format(
-                    np.mean(self.df_stats["Width"]),
-                    np.std(diff), np.mean(diff), np.median(diff)),
+                    np.mean(self.df_stats["Width"]), np.std(diff), np.mean(diff), np.median(diff)
+                ),
                 xref="paper",
                 yref="paper",
                 x=1,
@@ -170,7 +202,7 @@ class PlotLib(object):
         return [low, high]
 
     def animation_only_detections(self):
-        """Every """
+        """Every"""
         # Add some buffer to the true ramp region (for tidy plots)
         x_fixed = self.add_buffer(self.x_range)
         y_fixed = self.add_buffer(self.y_range)
@@ -233,9 +265,7 @@ class PlotLib(object):
                 i + len(fig.data) / 2
             ] = True  # Toggle i'th trace to "visible"
             steps.append(step)
-        sliders = [dict(active=0,
-                        currentvalue={"prefix": "Deteced plane: "},
-                        steps=steps)]
+        sliders = [dict(active=0, currentvalue={"prefix": "Deteced plane: "}, steps=steps)]
         fig.update_layout(
             sliders=sliders,
             xaxis_title="Global x coor [m]",
@@ -266,11 +296,8 @@ class PlotLib(object):
                 opacity=0.9,
             )
             return fig
-        fig = px.scatter(
-            x=self.df["x"],
-            y=self.df["y"],
-            title="Coordinates of all points")
-            # Add ramp region as rectangle
+        fig = px.scatter(x=self.df["x"], y=self.df["y"], title="Coordinates of all points")
+        # Add ramp region as rectangle
         fig.add_shape(
             type="rect",
             x0=self.x_range[0],
@@ -304,5 +331,6 @@ class PlotLib(object):
         fig.update_xaxes(title_text="Distance to ramp [m]", autorange="reversed")
         fig.update_yaxes(title_text="Number of ramps detected")
         fig.update_layout(
-            title_text="How many samples were collected in 1m intervals and how many of them have been identified as ramp")
+            title_text="How many samples were collected in 1m intervals and how many of them have been identified as ramp"
+        )
         return fig
