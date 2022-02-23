@@ -10,7 +10,8 @@
 % Allows for definition of acronyms and stuff
 \usepackage[symbols,acronyms,abbreviations,automake]{glossaries-extra}
 \usepackage{graphicx}			% Pictures / Graphics
-\usepackage[hidelinks]{hyperref}% Clickable links in PDF
+\usepackage[hidelinks]{hyperref}% Clickable links in PDF (must be loaded before cleveref)
+\usepackage{cleveref}           % Automatically add prefix to reference (e.g. fig. if figure)
 \usepackage{listings}			% Typeset programming languages
 \usepackage{pdfpages}			% Allows for inclusion of pdf files
 \usepackage{pgfplots}			% Draw plots

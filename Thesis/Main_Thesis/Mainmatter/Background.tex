@@ -113,7 +113,7 @@ It allows for the determination of the absolute heading, whereas the gyroscope c
 In the first type, the stable platform systems, the inertial sensors are mounted in such way, that they are always aligned with the reference frame.
 This is achieved using gimbals, which allow movement along all three axes.
 The gyroscopes on the platform measure the rotation and send them to torque motors, which rotate the gimbals to keep the platform in alignment with the reference frame.
-A typical setup of a stable platform system can be seen in fig. \ref{fig:stable_platform_imu}.
+A typical setup of a stable platform system can be seen in \cref{fig:stable_platform_imu}.
 The advantage of stable platform systems is that the calculation of orientation and position is straight forward.
 The angles of the gimbals can be measured to receive the orientation and position, the accelerometer measurements have to be be corrected for gravity and be integrated two times.
 No coordinate transformation is necessary.
@@ -152,7 +152,7 @@ The accelerometer is used to measure the acceleration.
 Additional to the dynamic acceleration there is the static and constant gravity acceleration on earth, which is measured by the \gls{imu} in upward direction.
 This allows for the determination of one axis of the \gls{imu}, even if it is not moving.
 Often times only the dynamic accelerations are of interest and to get them the acceleration data during stand still must be measured and subtracted.\\
-The micro structure of a \gls{mems} accelerometer is shown in figure \ref{fig:MEMS_Accelerometer}.
+The micro structure of a \gls{mems} accelerometer is shown in \cref{fig:MEMS_Accelerometer}.
 A mass is suspended by springs along one axis and if an acceleration along this axis occurs, the mass moves in the opposite direction due to Newton's second law.
 The mass has little fingers perpendicular to the axis along which the movement occurs, which affect the capacity between the fixed plates.
 The change of capacity and thus voltage can be measured, from which the acceleration can be calculated.
@@ -162,7 +162,7 @@ To be able to measure the acceleration along all three axis the same setup is us
 	\hat{\vb{a}} = \vb{a} + \vb{b}_\mathrm{a} + \vb{n}_\mathrm{a}.
 \end{equation}
 The measurement differs from the true acceleration $\vb{a}$ due to random noise $\vb{n}_\mathrm{a}$ and a bias $\vb{b}_\mathrm{a}$.
-More about the specific error terms can be read in \ref{sse:mems_errors}.
+More about the specific error terms can be read in \cref{sse:mems_errors}.
 
 \subsubsection{\glsentrytext{mems} Gyroscopes}
 A gyroscope measures the angular velocity.
@@ -240,7 +240,7 @@ Mechanical spinning systems is the oldest technology and is still mainly used to
 A mirror which can be rotated around an axis is used, allowing for a greater vertical \gls{fov}.
 Moreover the whole \gls{lidar} base on which the laser is mounted can be rotated independently from the mirror, allowing for a \SI{360}{\degree} horizontal \gls{fov}.
 To get a sufficient resolution the \gls{lidar} has to spin at a high speed, but some \gls{lidar}s also use additionally a vertical array of lasers instead of only one to further increase the density of the generated point cloud.
-The working principle of a \gls{lidar} using the mechanical spinning method is shown in figure \ref{fig:lidar}.
+The working principle of a \gls{lidar} using the mechanical spinning method is shown in \cref{fig:lidar}.
 While mechanical spinning systems are very precise, they are bulky, need a lot of power and are expensive \cite{Fujii2005}.\\
 Solid state systems and especially \gls{mems} \gls{lidar}s try to overcome those problems.
 \gls{mems}-\gls{lidar} are quasi-static, the only part that moves is the on the chip embedded mirror, but because of the small size (\SIrange{1}{7}{\milli\metre} diameter), very little power has to be used to move it.

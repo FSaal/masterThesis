@@ -30,8 +30,8 @@ The ZED 2i camera has two horizontally displaced lenses, allowing for stereo vis
 An barometer, temperature sensor and an \gls{imu} are integrated as well.
 The ZED 2i is also an \gls{ahrs} and estimates the orientation using \todo{what kind of filter?}.
 Both sensors are connected to the computer via USB.
-The specifications of each \gls{imu} can be read in table \ref{tab:imu_datasheets}.
-Because no information about the noise density or random walk of the myAHRS+ \gls{imu} could be found, a manual estimation of the error was done using the package \texttt{allan\_variance\_ros} \footnote{\url{https://github.com/gaowenliang/imu_utils}}.
+The specifications of each \gls{imu} can be read in \cref{tab:imu_datasheets}.
+Because no information about the noise density or random walk of the myAHRS+ \gls{imu} could be found, a manual estimation of the error was done using the package \texttt{allan\_variance\_ros}~\footnote{\url{https://github.com/gaowenliang/imu_utils}}.
 It analyzes the allan variance from \gls{imu} measurement data recorded over a two hour period, during which the \gls{imu} has not been moved.
 \iquest{How to cite/link to a github package?}
 
@@ -59,7 +59,7 @@ It analyzes the allan variance from \gls{imu} measurement data recorded over a t
 \subsection{\glsentrytext{lidar}}
 Two different \gls{lidar}s will be used during the experiment.
 The RS-Bpearl and the Velodyne UltraPuck.
-The most relevant specifications of the two \gls{lidar}s can be seen in table \ref{tab:lidar_datasheets}.
+The most relevant specifications of the two \gls{lidar}s can be seen in \cref{tab:lidar_datasheets}.
 Both are mechanical \gls{lidar}s and have the same number of laser channels, but the Velodyne has a significant better vertical resolution, due to the smaller vertical \gls{fov}.
 Both \gls{lidar}s need an external power supply and transfer the data over Ethernet.
 \begin{table}[ht]
@@ -155,7 +155,7 @@ On flat ground the distance at which the laser waves hit the ground can be calcu
 	x = \tan(\ang{90} - \gamma) h_\mathrm{l}.
 	\label{eq:ground_points}
 \end{equation}
-With a ramp, the assumption from \ref{eq:ground_points} does not hold anymore.
+With a ramp, the assumption from \cref{eq:ground_points} does not hold anymore.
 The light does not travel as far.
 The height above ground, when the light is at the beginning of the ramp can be calculated with
 \begin{equation}
