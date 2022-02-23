@@ -26,8 +26,8 @@ The gyroscope measurements get integrated over time to receive the pitch angle.
 The angle from the angular velocity is accurate in short-term, but is suspect to drifting over time.
 The drift can be corrected by using the accelerometer signal, which is accurate in the long-term, but unlike the gyroscope not accurate in the short term.
 \cite{Wu2016} uses all components of an \gls{imu} (meaning also the magnetometer) and fuses them using a complementary filter.
-The estimated quaternions using the accelerometer and angular velocity measurements respectively are fused and the magnetometer data is used to improve the quaternion estimation from the accelerometer, but only if there are no magnetic disturbances.
-ANOTHER COMPL FILTER PAPER also uses a complementary filter, but fuses the estimated angle. from the accelerometer and gyroscope instead of the quaternions.
+The estimated quaternions using the accelerometer and angular velocity measurements respectively are fused, and the magnetometer data is used to improve the quaternion estimation from the accelerometer, but only if there are no magnetic disturbances.
+ANOTHER complementary FILTER PAPER also uses a complementary filter, but fuses the estimated angle from the accelerometer and gyroscope instead of the quaternions.
 \iquest{I did not use most methods mentioned in the papers (e.g. Kalman filter). How to justify this?}
 \isug{Performance\\ And maybe implement something simple (from a package)}
 
@@ -35,10 +35,10 @@ ANOTHER COMPL FILTER PAPER also uses a complementary filter, but fuses the estim
 
 \section{\glsentrytext{lidar}}
 \todoin{
-    \begin{itemize}
-        \item \gls{lidar} methods for plane detection
-        \item If found, methods for elevation estimation
-    \end{itemize}
+	\begin{itemize}
+		\item \gls{lidar} methods for plane detection
+		\item If found, methods for elevation estimation
+	\end{itemize}
 }
 \iquest{How detailed should the explanation of other papers be?}
 \isug{Short, about one sentence per paper}
@@ -47,10 +47,10 @@ ANOTHER COMPL FILTER PAPER also uses a complementary filter, but fuses the estim
 
 \section{Camera}
 \todoin{
-    \begin{itemize}
-        \item Something simple
-        \item Stereo vs mono
-    \end{itemize}
+	\begin{itemize}
+		\item Something simple
+		\item Stereo vs mono
+	\end{itemize}
 }
 \cite{Nejati2016} used an RGB-D sensor (camera image + depth sensor) to detect ramps for wheelchairs.
 Ramp properties such as angle, width, length and the orientation of the ramp were determined as well.

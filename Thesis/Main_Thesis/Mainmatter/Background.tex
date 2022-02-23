@@ -19,7 +19,7 @@ to transform the point ${}_\mathcal{A}\vb{p}$ over the intermediate frame $\math
 Euler angles are the closest to intuition but mathematically the worst way to represent orientations.
 Every orientation can be produced by a concatenation of three rotations around each of the coordinate axes.
 Because the resulting orientation depends on the order of which the rotations were performed, there are different conventions.
-Furthermore the conventions can be divided into intrinsic and extrinsic.
+Furthermore, the conventions can be divided into intrinsic and extrinsic.
 Intrinsic rotation means that the coordinate system moves with the moving object, whereas with extrinsic rotations the original coordinate system remains static.
 The most common convention is the zyx (intrinsic I think?) (first rotation around z-axis and last around x-axis), where the angles are called yaw, pitch and roll.\\
 The disadvantages are the many conventions and the possibility of singularity.
@@ -33,7 +33,7 @@ with a real part $q_w$ and three imaginary parts $\vb{i}, \vb{j}$ and $\vb{k}$ s
 \begin{equation}
 	\vb{i}^2 = \vb{j}^2 = \vb{k}^2 = \vb{i}\vb{j}\vb{k} = -1.
 \end{equation}
-The quaternion can also be written in vector form by dividing the quaternion in a real or scalar and a imaginary or vector part
+The quaternion can also be written in vector form by dividing the quaternion in a real or scalar and an imaginary or vector part
 \begin{equation}
 	q = \begin{bmatrix}
 		\vb{q} \\
@@ -78,7 +78,7 @@ can be converted to a rotation matrix with
 \label{subsec:vector_projection}
 In general, the rotation to align a vector $\vb{v}_1$ with a vector $\vb{v}_2$ can be expressed using a quaternion.
 At first both vectors must be normalized, resulting in the two unit vectors $\vu{v}_1$ and $\vu{v}_2$.
-The rotation axis is perpendicular to both vectors and can thus be calculated using the cross product, which is then divided by the norm, to get an unit vector
+The rotation axis is perpendicular to both vectors and can thus be calculated using the cross product, which is then divided by the norm, to get a unit vector
 \begin{equation}
 	\vb{j} = \frac{\vu{v}_1 \cp \vu{v}_2}{\norm{\vu{v}_1 \cp \vu{v}_2}}.
 \end{equation}
@@ -88,7 +88,7 @@ The angle between two vectors can be calculated with
 	= \vu{v}_1 \vdot \vu{v}_2 \implies
 	\alpha = \arccos(\vu{v}_1 \vdot \vu{v}_2).
 \end{equation}
-The denominator is equal to 1 (because the norm of an unit vector is 1) and thus omitted.
+The denominator is equal to 1 (because the norm of a unit vector is 1) and thus omitted.
 The found rotation can then be applied using e.g. a quaternion or a rotation matrix.
 
 
@@ -115,18 +115,18 @@ This is achieved using gimbals, which allow movement along all three axes.
 The gyroscopes on the platform measure the rotation and send them to torque motors, which rotate the gimbals to keep the platform in alignment with the reference frame.
 A typical setup of a stable platform system can be seen in \cref{fig:stable_platform_imu}.
 The advantage of stable platform systems is that the calculation of orientation and position is straight forward.
-The angles of the gimbals can be measured to receive the orientation and position, the accelerometer measurements have to be be corrected for gravity and be integrated two times.
+The angles of the gimbals can be measured to receive the orientation and position, the accelerometer measurements have to be corrected for gravity and be integrated two times.
 No coordinate transformation is necessary.
 The disadvantages are that the mechanical structure of the setup is complex, needs regular maintenance, requires a lot of space and has high costs.\\
-The second type are strapdown systems, which are mostly used today.
+The second type are strap down systems, which are mostly used today.
 As the name suggests all the parts are fixed onto the device and are thus not anymore always aligned with the reference frame.
 Advantages are that due to the lack of gimbals and motors a significantly smaller build is possible while also being cheaper to mass produce.
 A disadvantage is that the calculation of the orientation and position is more complex, the rate gyroscopes have to be integrated to get the orientation and can then be used to transform the accelerometer signals into the reference frame.
 But with the decrease of computational cost this disadvantages continues to diminish.\\
-There are many different types of gyroscopes and accelerometers such as mechanical, optical or solid state, but only the functionality of \gls{mems} will be described, because those will also be used in the experiment.
+There are many types of gyroscopes and accelerometers such as mechanical, optical or solid state, but only the functionality of \gls{mems} will be described, because those will also be used in the experiment.
 Information about the working principle of other systems and also much more information about \gls{imu}s in general can be found in \cite{Woodman2007}.\\
 \gls{mems} consist of electrical and/or mechanical components in the size of \SI{100}{\nano\metre} to \SI{1}{\milli\metre}, allowing for a very small form factor.
-Other characteristics of \gls{mems} are that they can easily be mass produced allowing for low cost and usually also need less power than traditional systems, because everything is integrated on the chip \cite{Shaeffer2013}.
+Other characteristics of \gls{mems} are that they can easily be mass-produced allowing for low cost and usually also need less power than traditional systems, because everything is integrated on the chip \cite{Shaeffer2013}.
 Almost all consumer grade electronics uses \gls{mems}-\gls{imu}s nowadays, but they also find more and more use in many industry segments, as their accuracy continues to improve \cite{Perlmutter2016}.
 
 \subsubsection{\glsentrytext{mems} Accelerometer}
@@ -152,7 +152,7 @@ The accelerometer is used to measure the acceleration.
 Additional to the dynamic acceleration there is the static and constant gravity acceleration on earth, which is measured by the \gls{imu} in upward direction.
 This allows for the determination of one axis of the \gls{imu}, even if it is not moving.
 Often times only the dynamic accelerations are of interest and to get them the acceleration data during stand still must be measured and subtracted.\\
-The micro structure of a \gls{mems} accelerometer is shown in \cref{fig:MEMS_Accelerometer}.
+The microstructure of a \gls{mems} accelerometer is shown in \cref{fig:MEMS_Accelerometer}.
 A mass is suspended by springs along one axis and if an acceleration along this axis occurs, the mass moves in the opposite direction due to Newton's second law.
 The mass has little fingers perpendicular to the axis along which the movement occurs, which affect the capacity between the fixed plates.
 The change of capacity and thus voltage can be measured, from which the acceleration can be calculated.
@@ -168,7 +168,7 @@ More about the specific error terms can be read in \cref{sse:mems_errors}.
 A gyroscope measures the angular velocity.
 The setup of a \gls{mems} gyroscope is similar to that of a \gls{mems} accelerometer.
 A proof mass is suspended on a frame and responds to an input force.
-\gls{mems} gyroscopes make use of the Coriolis effect, which states that an rotating object with the angular velocity $w$ of mass $m$ and velocity $v$ experiences a force
+\gls{mems} gyroscopes make use of the Coriolis effect, which states that a rotating object with the angular velocity $w$ of mass $m$ and velocity $v$ experiences a force
 \begin{equation}
 	F_C = -2m(w\times v).
 \end{equation}
@@ -203,9 +203,9 @@ Every time the sensor is placed in a (magnetically) new environment, a recalibra
 \label{sse:mems_errors}
 The errors can be divided into two categories: systematic and stochastic errors \cite{Zhang2019}.
 Systematic errors or also known as calibration errors are constant over time and can be eliminated by calibration.
-Typical examples are bias (offset), scaling or axis misalignments.
+Typical examples are bias (offset), scaling or axis misalignment.
 Integrating a constant bias once or twice leads to a drift (error grows linearly with respect to time) or a second-order drift (error grows quadratically) respectively.
-Hence the elimination of the bias is necessary to get reliable estimations of the orientation, velocity or position, which are calculated by integrating the angular velocity or the accelerometer measurements.\\
+Hence, the elimination of the bias is necessary to get reliable estimations of the orientation, velocity or position, which are calculated by integrating the angular velocity or the accelerometer measurements.\\
 Stochastic errors change at every measurement and can be modeled using a statistical approach.
 The turn-on bias is different every time the \gls{imu} is powered up, but can be eliminated after a rest period.
 Errors due to temperature fluctuations influencing the measurements are also common, but because most \gls{imu}s are equipped with a temperature sensor, the introduced error can be eliminated.
@@ -232,13 +232,13 @@ with $c$ being the speed of light.
 The change of intensity and wavelength of the returning light are measured as well and can provide information about the reflectivity of the object (intensity) or the chemical composition of the air (wavelength).
 Common uses of \gls{lidar} are the analysis of earth's atmosphere, 3D mapping of environments or in the field of autonomous driving for object detection, tracking and \gls{slam}.
 Basically all applications which use \gls{radar} can also be used with a \gls{lidar} instead, allowing for a greater accuracy.\\
-There are different \gls{lidar} types but their working principles are similar.
+There are different \gls{lidar} types, but their working principles are similar.
 A transmitter generates a signal and sends it into the environment using a scanning system and a transmission optic.
 As transmitter a laser with a wavelength of \SIrange{850}{950}{\nano\metre} (near-infrared) is typically used.
 The scanning system allows the laser to explore a large area instead of only a single point by steering the light at different azimuths and vertical angles and can be divided in mechanical spinning or solid state systems.
 Mechanical spinning systems is the oldest technology and is still mainly used today.
 A mirror which can be rotated around an axis is used, allowing for a greater vertical \gls{fov}.
-Moreover the whole \gls{lidar} base on which the laser is mounted can be rotated independently from the mirror, allowing for a \SI{360}{\degree} horizontal \gls{fov}.
+Moreover, the whole \gls{lidar} base on which the laser is mounted can be rotated independently from the mirror, allowing for a \SI{360}{\degree} horizontal \gls{fov}.
 To get a sufficient resolution the \gls{lidar} has to spin at a high speed, but some \gls{lidar}s also use additionally a vertical array of lasers instead of only one to further increase the density of the generated point cloud.
 The working principle of a \gls{lidar} using the mechanical spinning method is shown in \cref{fig:lidar}.
 While mechanical spinning systems are very precise, they are bulky, need a lot of power and are expensive \cite{Fujii2005}.\\
@@ -305,4 +305,4 @@ Savitzky-Golay filter
 \begin{equation}
 	y = \frac{1}{h}\sum_{i =\frac{1 - m}{2}}^{\frac{m - 1}{2}}C
 \end{equation}
-\iquest{How much about dsp? E.g. also noise, aa etc or only type of filters?}
+\iquest{How much about dsp? E.g. also noise, aa etc. or only type of filters?}
