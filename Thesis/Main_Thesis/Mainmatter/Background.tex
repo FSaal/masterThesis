@@ -2,16 +2,18 @@
 \label{ch:Background}
 
 \section{Mathematical}
+\itodo{Add references}
 \subsection{Mathematical Representations of 3D Orientations}
 Rotations can be expressed in several ways, I will briefly describe the ones used in this thesis.
 
 \subsubsection{Rotation matrix}
 A rotation matrix \mtf{b}{a} $\in \mathbb{R}^{3\times3}$ transforms an arbitrary vector from the coordinate system $\mathcal{B}$ to the coordinate system $\mathcal{A}$.
 The rotation axis is the eigenvector for $\lambda = 1$, but the rotation angle can not easily be seen from the matrix.
+\iimprov{Remove eigenvector stuff, not important, but write something else}
 The rows of the rotation matrix are the axes of the new coordinate system.
 Rotation matrices can be concatenated, but this must be done in reverse order, e.g.
 \begin{equation}
-	{}_\mathcal{C}\vb{p} = \mtf{c}{a}{}_\mathcal{A}\vb{p} = \mtf{b}{c}\mtf{a}{b}{}_\mathcal{A}\vb{p}
+	{}_\mathcal{C}\vb{p} = \mtf{a}{c}{}_\mathcal{A}\vb{p} = \mtf{b}{c}\mtf{a}{b}{}_\mathcal{A}\vb{p}
 \end{equation}
 to transform the point ${}_\mathcal{A}\vb{p}$ over the intermediate frame $\mathcal{B}$ to the coordinate system $\mathcal{C}$.
 
@@ -23,8 +25,10 @@ Furthermore, the conventions can be divided into intrinsic and extrinsic.
 Intrinsic rotation means that the coordinate system moves with the moving object, whereas with extrinsic rotations the original coordinate system remains static.
 The most common convention is the zyx (intrinsic I think?) (first rotation around z-axis and last around x-axis), where the angles are called yaw, pitch and roll.\\
 The disadvantages are the many conventions and the possibility of singularity.
+\iimprov{Explain when/how singularity occurs}
 
 \subsubsection{Quaternions}
+\iimprov{Check if notation is correct (bold and stuff)}
 A quaternion is defined as
 \begin{equation}
 	q = q_w + q_x\vb{i} + q_y\vb{j} + q_z\vb{k}
@@ -59,7 +63,7 @@ The rotation is then described with
 \end{equation}
 with $\alpha$ being the rotation angle and $\hat{\vb{j}}$ being the normalized rotation axis.
 Each rotation is uniquely described by one rotation, but each orientation can be described by two unit quaternions with opposite signs.
-More information about quaternions can be found in \cite{Lefferts1982}.\\
+More information about quaternions can be found in \cite{Trawny2005}.\\
 A quaternion of the form
 $\mathbf{q} = \left[\begin{array}{llll} w & x & y & z \end{array}\right]^{\intercal}$
 can be converted to a rotation matrix with
@@ -73,6 +77,7 @@ can be converted to a rotation matrix with
 		\end{array}
 		\right]
 \end{equation}
+\iimprov{How to calculate matrix?}
 
 \subsection{Vector projection}
 \label{subsec:vector_projection}
@@ -82,7 +87,7 @@ The rotation axis is perpendicular to both vectors and can thus be calculated us
 \begin{equation}
 	\vb{j} = \frac{\vu{v}_1 \cp \vu{v}_2}{\norm{\vu{v}_1 \cp \vu{v}_2}}.
 \end{equation}
-The angle between two vectors can be calculated with
+The angle between two vectors can be calculated by
 \begin{equation}
 	\cos(\alpha) = \frac{\vu{v}_1 \vdot \vu{v}_2}{\norm{\vu{v}_1} \cdot \norm{\vu{v}_2}}
 	= \vu{v}_1 \vdot \vu{v}_2 \implies
@@ -94,6 +99,7 @@ The found rotation can then be applied using e.g. a quaternion or a rotation mat
 
 
 \section{Sensors}
+\itodo{Add short overview}
 \subsection{\glsentrytext{imu}}
 An \gls{imu} is used to track the orientation and position of an object.
 Common uses are in the aerospace or automotive industry, often in combination with other sensors, to give information about the pose and position of a vehicle.
@@ -114,7 +120,7 @@ In the first type, the stable platform systems, the inertial sensors are mounted
 This is achieved using gimbals, which allow movement along all three axes.
 The gyroscopes on the platform measure the rotation and send them to torque motors, which rotate the gimbals to keep the platform in alignment with the reference frame.
 A typical setup of a stable platform system can be seen in \cref{fig:stable_platform_imu}.
-The advantage of stable platform systems is that the calculation of orientation and position is straight forward.
+The advantage of stable platform systems is that the calculation of orientation and position is straightforward.
 The angles of the gimbals can be measured to receive the orientation and position, the accelerometer measurements have to be corrected for gravity and be integrated two times.
 No coordinate transformation is necessary.
 The disadvantages are that the mechanical structure of the setup is complex, needs regular maintenance, requires a lot of space and has high costs.\\
@@ -157,7 +163,7 @@ A mass is suspended by springs along one axis and if an acceleration along this 
 The mass has little fingers perpendicular to the axis along which the movement occurs, which affect the capacity between the fixed plates.
 The change of capacity and thus voltage can be measured, from which the acceleration can be calculated.
 To be able to measure the acceleration along all three axis the same setup is used three times, perpendicular to each other.\\
-% The measurements $\hat{\vb{a}}$ of a \gls{mems} accelerometer are not free of noise and can be modeled according to \cite{Lefferts1982} in a simplified way as
+The measurements $\hat{\vb{a}}$ of a \gls{mems} accelerometer are not free of noise and can be modeled according to \cite{Lefferts1982} in a simplified way as
 \begin{equation}
 	\hat{\vb{a}} = \vb{a} + \vb{b}_\mathrm{a} + \vb{n}_\mathrm{a}.
 \end{equation}
@@ -178,11 +184,11 @@ E.g.\ if the mass oscillates along the x-axis and a rotation around the z-axis i
 By measuring the amplitude and phase of the secondary oscillation the absolute value and direction of the angular velocity can be calculated.
 While \gls{mems} gyroscopes do not achieve the same accuracy as optical gyroscopes they offer many advantages such as smaller physical properties (weight and size), lower power consumption and startup time as well as a significantly lower cost.
 \gls{mems} gyroscopes have replaced other gyroscope types in most areas, but in areas where the highest precision possible is necessary, typically in military industry, optical gyroscopes are still used today \cite{Perlmutter2016}.
-Similar to the accelerometer, the measurements $\vb{\omega}$ of the \gls{mems} gyroscope are influenced by errors, which can be modeled as
+Similar to the accelerometer, the measurements $\hat{\boldsymbol{\omega}}$ of the \gls{mems} gyroscope are influenced by errors, which can be modeled as
 \begin{equation}
-	\hat{\vb{\omega}} = \vb{\omega} + \vb{b}_\mathrm{g} + \vb{n}_\mathrm{g}
+	\hat{\boldsymbol{\omega}} = \boldsymbol{\omega} + \vb{b}_\mathrm{g} + \vb{n}_\mathrm{g}.
 \end{equation}
-where $\vb{b}_\mathrm{g}$ is the bias vector and $\vb{n}_\mathrm{g}$ the random noise vector.
+The measurement differs from the true angular velocity $\boldsymbol{\omega}$ due to the bias vector $\vb{b}_\mathrm{g}$ and the random noise vector $\vb{n}_\mathrm{g}$, which has a mean of zero \cite{Lefferts1982}.
 
 \subsubsection{(\glsentrytext{mems}) Magnetometer}
 A magnetometer measures the local magnetic field.
@@ -223,12 +229,11 @@ Angle errors introduced by random walk are usually the hardest to correct and ar
 \end{figure}
 \gls{lidar} is a method to measure distance to objects.
 Similar to other systems such as \gls{sonar} or \gls{radar}, \gls{lidar} uses the time-of-flight principle.
-A short laser pulse with the velocity $v$ is sent into the environment and the reflected light is analyzed.
+A short laser pulse with the velocity of light $c$ is sent into the environment and the reflected light is analyzed.
 The duration $\Delta t$ it took from sending to receiving can then be used to calculate the distance $s$ between the \gls{lidar} and the object that the light hit with
 \begin{equation}
-	s = c\frac{\Delta t}{2}
+	s = c\frac{\Delta t}{2}.
 \end{equation}
-with $c$ being the speed of light.
 The change of intensity and wavelength of the returning light are measured as well and can provide information about the reflectivity of the object (intensity) or the chemical composition of the air (wavelength).
 Common uses of \gls{lidar} are the analysis of earth's atmosphere, 3D mapping of environments or in the field of autonomous driving for object detection, tracking and \gls{slam}.
 Basically all applications which use \gls{radar} can also be used with a \gls{lidar} instead, allowing for a greater accuracy.\\

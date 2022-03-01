@@ -1,20 +1,20 @@
 \chapter{Methods}
 \label{ch:Methods}
 \begin{figure}[htpb]
-    \centering
-    \input{Graphics/TikZ/car_tilt.tex}
-    \caption{Car driving on a ramp. Due to forward acceleration the car tilts back.}
-    \label{fig:tikz_car_tilt}
+	\centering
+	\input{Graphics/TikZ/car_tilt.tex}
+	\caption{Car driving on a ramp. Due to forward acceleration the car tilts back.}
+	\label{fig:tikz_car_tilt}
 \end{figure}
 The road grade $\alpha$ is the angle between the road plane and the ground plane.
 The ground plane is perpendicular to the gravity vector.
-The road grade can be represented in degrees
+The road grade can be represented as an angle
 \begin{equation}
-    \alpha = \arctan(\frac{h}{d})
+	\alpha = \arctan(\frac{h}{d})
 \end{equation}
 or in percentage
 \begin{equation}
-    r = 100\cdot\tan(\alpha).
+	r = 100\cdot\tan(\alpha).
 \end{equation}
 The pitch angle $\theta$ of the car is defined as the angle between the ground plane and the longitudinal axis of the car.
 An acceleration or deceleration on the ramp compresses the suspension in the back or respectively front, which makes the pitch angle not in alignment with the road grade anymore.
@@ -25,15 +25,15 @@ A common problem is that the coordinate frame of the sensor is usually not align
 To determine the true car pitch angle the sensor frame must be transformed onto the car frame.
 Semi-automatic calibration methods for the \gls{imu} and \gls{lidar} sensor will be represented, which determine the necessary rotation to align both frames.
 But the translation difference can not be easily estimated and must be measured by hand.\\
-At first the accelerometer and gyroscope of the \gls{imu} will be used separately determine the pitch angle.
+At first the accelerometer and gyroscope of the \gls{imu} will be used separately to determine the pitch angle.
 Then it will be tested how the estimate improves when both sensors will be used together in a complementary filter.
 The gravity method, which involves the accelerometer and wheel sensor measurements will be tested as well.
 A method using a \gls{lidar} sensor will be represented in the end, followed by a final method which incorporates all available sensors.
 \begin{figure}[htpb]
-    \centering
-    \input{Graphics/TikZ/car_frames.tex}
-    \caption{Example of a typical sensor setup. All sensor must be aligned to the car frame.}
-    \label{fig:tikz_car_frames}
+	\centering
+	\input{Graphics/TikZ/car_frames.tex}
+	\caption{Example of a typical sensor setup. All sensors must be aligned to the car frame.}
+	\label{fig:tikz_car_frames}
 \end{figure}
 
 
@@ -51,76 +51,77 @@ Using this, a transformation from \gls{imu} frame $\mathcal{I}$ to the intermedi
 In the new $\mathcal{B}$ frame both z-axes are aligned $\vincs{z}{b} = \vincs{z}{c}$ and thus the pitch and roll angle between the two frames become zero.
 Note that this is not necessarily true for the other axes, $\vincs{x}{b}\neq\vincs{x}{c}$ and $\vincs{y}{b}\neq\vincs{y}{c}$, see \cref{fig:tikz_frame_transformation_intermediate}.\\
 According to Euler's rotation theorem, which says that any arbitrary rotation of a rigid body while holding one point (origin) fixed can be achieved by a rotation around a single fixed axis passing through the origin, there exists one rotation axis $\mathbf{j}$ and rotation angle $\alpha$ to achieve this.\\
-As described in \cref{subsec:vector_projection}, the rotation axis needed for the transformation can be calculated with
+As described in \cref{subsec:vector_projection}, the rotation axis needed for the transformation can be calculated by
 \begin{equation}
-    \vb{j} = \frac{\vincs{\vu{a}}{i} \cp \vincs{\vu{z}}{c}}{\norm{\vincs{\vu{a}}{i} \cp \vincs{\vu{z}}{c}}}
+	\vb{j} = \frac{\vincs{\vu{a}}{i} \cp \vincs{\vu{z}}{c}}{\norm{\vincs{\vu{a}}{i} \cp \vincs{\vu{z}}{c}}}
 \end{equation}
 and the rotation angle with
 \begin{equation}
-    \alpha = \arccos(\vincs{\vu{a}}{i}\vdot \vincs{\vu{z}}{c})
+	\alpha = \arccos(\vincs{\vu{a}}{i}\vdot \vincs{\vu{z}}{c})
 \end{equation}
 with $\vincs{\vu{a}}{i} \in \mathbb{R}^{1\times3}$ being the normalized measured linear acceleration in the \gls{imu} frame and \vincs{\vu{z}}{c} the (normalized) z-axis of the car.\\
 The quaternion
 \begin{equation}
-    \qtf{i}{b} =
-    \begin{bmatrix}
-        \vb{j}\vdot\sin(\frac{\alpha}{2}) \\
-        \cos(\frac{\alpha}{2})
-    \end{bmatrix}
+	\qtf{i}{b} =
+	\begin{bmatrix}
+		\vb{j}\vdot\sin(\frac{\alpha}{2}) \\
+		\cos(\frac{\alpha}{2})
+	\end{bmatrix}
 \end{equation}
 then describes the rotation between the two frames.\\
 Now that the z-axes of the $\mathcal{I}$ and $\mathcal{C}$ frame are aligned, the x- and y-axis can be aligned by a rotation $\beta$ around the z-axis.
-This yaw correction could usually be achieved using the magnetometer measurements, but because those are heavily obscured indoors and especially in the parking garage \cite{Li2012}, an other solution must be found.
-A possible solution to this problem is accelerating the car straight forward and then using the accelerometer to measure along which axis the acceleration occurred.
+This yaw correction could usually be achieved using the magnetometer measurements, but because those are heavily obscured indoors and especially in the parking garage \cite{Li2012}, another solution must be found.
+A possible solution to this problem is accelerating the car straightforward and then using the accelerometer to measure along which axis the acceleration occurred.
 Assuming the car tilt (pitch) during the acceleration is minimal, the acceleration is only being measured along the x- and y-axis.
 The resulting vector is being aligned with the forward axis of the car, such that $\vincs{\hat{a}}{b} = \vincs{x}{c}$, in the same way as before.
 Resulting in the rotation angle
 \begin{equation}
-    \beta = \arccos(\vincs{\vu{a}}{b} \vdot \vincs{\hat{x}}{c})
+	\beta = \arccos(\vincs{\vu{a}}{b} \vdot \vincs{\hat{x}}{c})
 \end{equation}
 and the quaternion
 \begin{equation}
-    \qtf{b}{c} =
-    \begin{bmatrix}
-        \vincs{\hat{z}}{c}\vdot\sin(\frac{\beta}{2}) \\
-        \cos(\frac{\beta}{2})
-    \end{bmatrix}.
+	\qtf{b}{c} =
+	\begin{bmatrix}
+		\vincs{\hat{z}}{c}\vdot\sin(\frac{\beta}{2}) \\
+		\cos(\frac{\beta}{2})
+	\end{bmatrix}.
 \end{equation}
 The two quaternions can then be concatenated (in reverse order) to get the final quaternion
 \begin{equation}
-    \qtf{i}{c} = \qtf{b}{c} \otimes  \qtf{i}{b}
+	\qtf{i}{c} = \qtf{b}{c} \otimes  \qtf{i}{b}
 \end{equation}
 which transforms the measurements of the \gls{imu} to the car frame.\\
 The quaternion is then converted into a rotation matrix, because it is faster.
+\iimprov{What exactly is faster?}
 \iquest{Is this true? Was true when I tested it myself, but would've thought quat is faster}
 Finally the measurements $\mathbf{A}$ can be transformed using
 \begin{equation}
-    \vincs{A}{c} = \mtf{i}{c} \vdot \vincs{A}{i}
+	\vincs{A}{c} = \mtf{i}{c} \vdot \vincs{A}{i}
 \end{equation}
 \begin{figure}[htb]
-    \centering
-    \begin{subfigure}[b]{0.3\textwidth}
-        \centering
-        \input{Graphics/TikZ/frame_transformation_init.tex}
-        \caption{No axes are aligned}
-        \label{fig:tikz_frame_transformation_init}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.3\textwidth}
-        \centering
-        \input{Graphics/TikZ/frame_transformation_intermediate.tex}
-        \caption{Z axes are aligned}
-        \label{fig:tikz_frame_transformation_intermediate}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.3\textwidth}
-        \centering
-        \input{Graphics/TikZ/frame_transformation_final.tex}
-        \caption{All axes are aligned}
-        \label{fig:tikz_frame_transformation_final}
-    \end{subfigure}
-    \caption[Frame transformation]{Frame transformation from the \gls{imu} frame \textcolor{red}{$\mathcal{I}$}, over the intermediate frame \textcolor{blue}{$\mathcal{B}$} to the car frame \textcolor{green}{$\mathcal{C}$}}
-    \label{fig:tikz_frame_transformation}
+	\centering
+	\begin{subfigure}[b]{0.3\textwidth}
+		\centering
+		\input{Graphics/TikZ/frame_transformation_init.tex}
+		\caption{No axes are aligned}
+		\label{fig:tikz_frame_transformation_init}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.3\textwidth}
+		\centering
+		\input{Graphics/TikZ/frame_transformation_intermediate.tex}
+		\caption{Z axes are aligned}
+		\label{fig:tikz_frame_transformation_intermediate}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.3\textwidth}
+		\centering
+		\input{Graphics/TikZ/frame_transformation_final.tex}
+		\caption{All axes are aligned}
+		\label{fig:tikz_frame_transformation_final}
+	\end{subfigure}
+	\caption[Frame transformation]{Frame transformation from the \gls{imu} frame \textcolor{red}{$\mathcal{I}$}, over the intermediate frame \textcolor{blue}{$\mathcal{B}$} to the car frame \textcolor{green}{$\mathcal{C}$}}
+	\label{fig:tikz_frame_transformation}
 \end{figure}
 
 
@@ -128,10 +129,10 @@ Finally the measurements $\mathbf{A}$ can be transformed using
 \label{ssec:linear_acceleration_only}
 If the car stands still, the only measurable acceleration besides measurement errors is the acceleration due to gravity.
 When standing only flat ground, only the z-axis measures an acceleration.
-But when the car is tilted, e.g. on a ramp, the gravity is measured also by the x-axis, see \cref{fig:tikz_car_gravity1}.
+But when the car is tilted, e.g. on a ramp, the gravity is measured also by the x-axis, see \cref{fig:tikz_car_gravity}.
 The proportion of acceleration measured along the x-axis of the overall gravity can then be used to determine the pitch angle in the following way
 \begin{equation}
-    \theta = \arcsin(\frac{\vb{a}_x}{\norm{\vb{g}}})
+	\theta = \arcsin(\frac{\vb{a}_x}{\norm{\vb{g}}})
 \end{equation}
 where $\vb{a}_x$ is the linear acceleration measured along the x-axis and $\norm{\vb{g}}$ the magnitude of the overall measured acceleration.\\
 According to the definition, the angle is then zero if the car is parallel to the ground and \SI{90}{\degree} if the car would be pointing straight up.
@@ -139,50 +140,54 @@ The angle is positive when driving up a ramp and negative if driving down.
 Disadvantages of this method are that the acceleration measurements are quite noisy and that no other accelerations are taken into account, e.g. the acceleration caused by the motor.
 A better approach, which incorporates the accelerations caused by the car, is described in \cref{subsubsec:gravity_method}.
 \begin{figure}[htpb]
-    \centering
-    \input{Graphics/TikZ/car_gravity.tex}
-    \caption{Gravity measured by \acrshort{imu} (in car frame).}
-    \label{fig:tikz_car_gravity1}
+	\centering
+	\input{Graphics/TikZ/car_gravity.tex}
+	\caption{Gravity measured by \acrshort{imu} (in car frame).}
+	\label{fig:tikz_car_gravity}
 \end{figure}
 
 \subsection{Angular velocity only}
-To receive the rotation the angular velocity must be integrated with respect to time.
-To get the pitch angle the measurements along the y-axis are of interest.
-
+\iimprov{Find good source and use it as a guide}
+The gyroscope measures the angular velocity, which must be integrated with respect to time, to get the rotation angle.
 The angular velocity is defined as
 \begin{equation}
-    \omega = \frac{\Delta\theta}{\Delta t}
+	\omega = \frac{\Delta\theta}{\Delta t}
 \end{equation}
-which means that the angular change between two times can be calculated with
+with $\Delta t$ being the sample time.
+The current angle $\theta(t)$ can be computed with the integral
 \begin{equation}
-    \Delta\theta = \omega\Delta t.
+	\theta(t) = \theta_0 + \int_0^t \omega(\tau)\dd{\tau}
 \end{equation}
-The current angle can then be estimated with
+with $\theta_0$ being the initial angle.
+However, due to the finite amount of samples, numerical integration must be used.
+Different techniques exist, using the backward Euler method the
 \begin{equation}
-    \theta = \theta_0 + \int_0^t \omega_y \dd{t}
+	\theta(k) = \frac{\theta(k) - \theta(k - 1)}{T}
 \end{equation}
-or with
+The current angle can then be estimated by calculating the cumulative sum of all measurements
 \begin{equation}
-    \theta_k = \theta_0 + \sum_{i = 1}^k \theta_i
+	\theta_k = \theta_0 + \sum_{i = 1}^k \theta_i
 \end{equation}
-in discrete time.
+with $\theta_0$ being the initial angle which must be known beforehand.
+To get the pitch angle, only the measurements along the y-axis are of interest.\\
 Disadvantages of using only the angular velocity are that the estimations are not reliable over a long period of time.
 The random walk introduced by integrating white noise or a constant bias causes the estimation to drift away from the true value.
+\iimprov{One time common derivation and then for specific case (y)}
 
 
 \subsection{Complementary filter}
 The complementary uses both the linear acceleration and angular velocity measurements and combines them using sensor fusion, such that the good properties of each sensor are used to reduce the poor properties of the other.
 As described in the previous subsections the pitch angle can be estimated using the accelerometer data with
 \begin{equation}
-    \theta_\mathrm{acc}  = \arcsin(\frac{\vb{a}_x}{\norm{\vb{g}}})
+	\theta_\mathrm{acc}  = \arcsin(\frac{\vb{a}_x}{\norm{\vb{g}}})
 \end{equation}
 The gyroscope data must be integrated to get the angle
 \begin{equation}
-    \theta_\mathrm{gyr}(t) = \theta_\mathrm{gyr,0} + \int_0^t \omega_\mathrm{gyr}  \dd{t}
+	\theta_\mathrm{gyr}(t) = \theta_\mathrm{gyr,0} + \int_0^t \omega_\mathrm{gyr}  \dd{t}
 \end{equation}
 \iquest{Should I just reference the formulas, or should I write them here again?}
-The linear acceleration is reliable in the long term, but is quite noisy.
-The angular velocity measurements on the other hand provide good short term accuracy, but should not be used for longer estimations due to drift.
+The linear acceleration is reliable in the long-term, but is quite noisy.
+The angular velocity measurements on the other hand provide good short-term accuracy, but should not be used for longer estimations due to drift.
 So the error from the gyroscope is mostly low frequency, whereas the accelerometer data is subject to high frequency noise.
 If the \gls{imu} moves slowly the accelerometer data should be mainly used, and during fast movements the measurements of the gyroscope should be used.
 This can be achieved by applying a \gls{lpf} to the accelerometer estimate and a \gls{hpf} to the gyroscope data.
@@ -190,18 +195,18 @@ A \gls{lpf} passes all signals with frequency lower than a certain cut-off frequ
 It is important for the complementary filter that the cut-off frequency of both filters is the same.
 First order filters are used with the transfer function
 \begin{equation}
-    H_\mathrm{low} (s) = \frac{1}{1 + \alpha s}
+	H_\mathrm{low} (s) = \frac{1}{1 + \alpha s}
 \end{equation}
 for the \gls{lpf} and
 \begin{equation}
-    H_\mathrm{high} (s) = \frac{\alpha s}{1 + \alpha s}
+	H_\mathrm{high} (s) = \frac{\alpha s}{1 + \alpha s}
 \end{equation}
 for the \gls{hpf}.
 $\alpha$ is the filter coefficient and depends on the time constant $\tau$ and cut-off frequency $f_0$ in the following way
 \begin{align}
-    \alpha & = \frac{\tau}{\tau + \Delta t}       \\
-           & = \frac{1}{w_0} = \frac{1}{2\pi f_0}
-    \label{eq:filter_f0}
+	\alpha & = \frac{\tau}{\tau + \Delta t}       \\
+	       & = \frac{1}{w_0} = \frac{1}{2\pi f_0}
+	\label{eq:filter_f0}
 \end{align}
 The time constant $\tau$ determines at which relative duration of signal the filter will act on.
 E.g. for a \gls{hpf} only all signals shorter than $\tau$ will be used and all longer than the time constant will be filtered out.
@@ -214,28 +219,28 @@ The filter coefficient then be calculated according to \cref{eq:filter_f0}.
 Fine-tuning is done to further improve the performance of the filter.\\
 The complementary filter equation in the frequency-domain is
 \begin{equation}
-    \label{eq:compl_filt_f}
-    \hat{\theta} = \left(\frac{1}{1 + \alpha s}\right)\theta_\mathrm{acc}(s) + \frac{1}{s}\left(\frac{\alpha s}{1 + \alpha s}\right) \omega_\mathrm{gyr}(s)
+	\label{eq:compl_filt_f}
+	\hat{\theta} = \left(\frac{1}{1 + \alpha s}\right)\theta_\mathrm{acc}(s) + \frac{1}{s}\left(\frac{\alpha s}{1 + \alpha s}\right) \omega_\mathrm{gyr}(s)
 \end{equation}
 expanding both sides with $(1 + \alpha s)$ results in
 \begin{equation}
-    \hat{\theta}(1 + \alpha s) = \theta_\mathrm{acc}(s) + \alpha\omega_\mathrm{gyr}(s)
+	\hat{\theta}(1 + \alpha s) = \theta_\mathrm{acc}(s) + \alpha\omega_\mathrm{gyr}(s)
 \end{equation}
 on which the inverse Laplace transform can be performed.
 Something about Laplace maybe.
 Resulting in the equation in time domain
 \begin{equation}
-    \hat{\theta}(t) = \theta_\mathrm{acc}(t) + \alpha\omega_\mathrm{gyr}(t) - \alpha \dv{\hat{\theta}}{t}
+	\hat{\theta}(t) = \theta_\mathrm{acc}(t) + \alpha\omega_\mathrm{gyr}(t) - \alpha \dv{\hat{\theta}}{t}
 \end{equation}
 And time discrete
 \begin{equation}
-    \hat{\theta}[n] = \alpha\left(\hat{\theta}[n - 1] + T \omega_\mathrm{gyr}[n]\right) + (1 - \alpha) \theta_\mathrm{acc}[n]
+	\hat{\theta}[n] = \alpha\left(\hat{\theta}[n - 1] + T \omega_\mathrm{gyr}[n]\right) + (1 - \alpha) \theta_\mathrm{acc}[n]
 \end{equation}
 \begin{figure}[htb]
-    \centering
-    \input{Graphics/TikZ/complementary_filter.tex}
-    \caption{Block diagram complementary filter}
-    \label{fig:tikz_complementary_filter}
+	\centering
+	\input{Graphics/TikZ/complementary_filter.tex}
+	\caption{Block diagram complementary filter}
+	\label{fig:tikz_complementary_filter}
 \end{figure}
 A high value of $\alpha$ means that the measurements of the gyroscope are trusted less than the from the accelerometer, and vice versa a small $\alpha$ value means that the are gyroscope measurements are weighted more.
 \cite{1997Baerveldt} \cite{2007Colton}
@@ -247,7 +252,7 @@ A decrease of $\alpha$ leads to a smoother signal, but at the cost of adding som
 \itodo{Maybe brief overview of section/algorithm}
 \itodo{Add pcl citation somewhere \cite{Rusu2011}}
 \subsection{Calibration}
-Same as for the \gls{imu}, a transformation from the \gls{lidar} frame to the car frame is necessary.
+As for the \gls{imu}, a transformation from the \gls{lidar} frame to the car frame is necessary.
 The calibration is very similar to that of the \gls{imu}.
 At first both z-axes will be aligned.
 This is achieved by detecting the ground plane in the point cloud and finding the transform, such that the normal vector of the plane aligns with the z-axis of the car (the plane gets projected onto the xy-plane of the car frame).
@@ -256,17 +261,17 @@ The yaw angle can not be determined and is assumed to be zero, but can also be m
 For the ground plane detection \gls{ransac} \cite{Fischler1981} is used.\\
 \gls{ransac} is a non-deterministic algorithm to remove outliers and is often used in computer vision.
 \gls{ransac} can also be used for plane segmentation in 3D point clouds.
-Consider a point cloud with $n$ points, where each point $i$ has the coordinates $x_i, y_i, z_i$.
+Consider a point cloud with $n$ points, where point $i$ has the coordinates $x_i, y_i, z_i$.
 In a first step, three random points from the point cloud are selected.
 Three, because this is the minimum number of points needed for a plane.
 Now the parameters $a, b, c, d$ of the plane equation
 \begin{equation}
-    ax + by + cz + d = 0
+	ax + by + cz + d = 0
 \end{equation}
 can be calculated.
-Then for every other point the deviation from the proposed plane can be calculated with
+Then for every other point the deviation from the proposed plane can be calculated by
 \begin{equation}
-    r = \frac{ax_i + by_i + cz_i + d}{\sqrt{a^2 + b^2 + c^2}}
+	r = \frac{ax_i + by_i + cz_i + d}{\sqrt{a^2 + b^2 + c^2}}
 \end{equation}
 and is then summed up.
 If the distance is within a certain threshold, the point counts as an inlier.
@@ -275,7 +280,7 @@ This process is then repeated until the maximal number of iterations are reached
 The plane with the greatest number of inliers is then selected.\\
 Then the normal vector of the plane, which can be conducted from the plane equation as follows
 \begin{equation}
-    \vb{n} = \left(\begin{array}{lll} a & b & c \end{array}\right)^{\intercal}
+	\vb{n} = \left(\begin{array}{lll} a & b & c \end{array}\right)^{\intercal}
 \end{equation}
 is projected onto the z-axis of the car.
 The necessary rotation is then applied to the detected plane.
@@ -284,9 +289,9 @@ Typically, either the ceiling, ground or a side wall gets detected with \gls{ran
 The greater the plane is (or the more points lie inside a plane), the more likely is the detection of the plane.
 Due to the mounting and \gls{fov} of the \gls{lidar}, the ceiling usually does have the most points and is thus detected in the first iteration.\\
 An accidental ceiling detection can be prevented by looking at the average z-values of the detected plane.
-Because the lidar is mounted on the roof of the car, the z-values of the detected plane must be negative.
+Because the \gls{lidar} is mounted on the roof of the car, the z-values of the detected plane must be negative.
 If they are positive, the ceiling has been detected.
-Furthermore it is known, that the WHICH angle to rotate the lidar to level ground should not exceed the mount angle.
+Furthermore it is known, that the WHICH angle to rotate the \gls{lidar} to level ground should not exceed the mount angle.
 If that is the case, most likely a side wall has been detected.
 If either condition has not been fulfilled, the detected plane does get removed from the point cloud and using \gls{ransac} a new ground plane estimation is made and validated.
 This process gets repeated until both conditions are fulfilled.
@@ -296,10 +301,10 @@ must be entered manually, but the pitch and roll angle and the distance from the
 
 \subsection{Algorithm}
 \begin{figure}[htb]
-    \centering
-    \input{Graphics/TikZ/flowchart_lidar.tex}
-    \caption{Algo for ramp detection}
-    \label{fig:flowchart_lidar}
+	\centering
+	\input{Graphics/TikZ/flowchart_lidar.tex}
+	\caption{Algo for ramp detection}
+	\label{fig:flowchart_lidar}
 \end{figure}
 Because the raw \gls{lidar} data is too big to allow for real time processing, preprocessing is necessary.
 It consists of a passthrough filter to remove unwanted points (e.g. behind the car) and a voxel grid filter to downsample the point cloud.
@@ -325,41 +330,39 @@ By limiting the maximal angle between the ground plane and the detected plane th
 Similarly, the detected plane gets classified as ground plane, if the angle between the ground plane and the detected plane is near zero (or below the specified minimum angle).
 Beside the angle, the width of the plane (y-range) is being calculated and compared to the parameters, to make sure that the plane is a drivable ramp for cars and not e.g. a small ramp for wheelchairs \todo{no idea if wheel chair ramps are common in parking garages?}.
 The distance to the ramp is estimated by taking the $n$ nearest points of the ramp plane and calculating their mean.
-\isug{What happens with stairs?}
 If a ramp has been detected, the estimated angle and distance from the car front to the beginning of the ramp are returned.\\
-\itodo{Add down ramp detection}
 An visual representation of the algorithm is depicted in \cref{fig:flowchart_lidar}.
-\iimprov{Add all algo parameters to table}
-\iquest{Or is this not important?}
-\isug{In Anhang}
-\isug{Nicht alle parameter einzeln erklaeren sonder nur die wichtigsten}
+\iimprov{Explain flow chart better}
+\isug{What happens with stairs?}
+\itodo{Add down ramp detection}
+\iimprov{Add some more algo parameters to table (full one in appendix)}
 \begin{table}[H]
-    \centering
-    \caption{Used parameters for lidar algo}
-    \label{tab:lidar_params}
-    \begin{tabular}[t]{lc}
-        \toprule
-        \textbf{parameter}  & \textbf{value}          \\
-        \midrule
-        \textbf{Passthrough filter}                   \\
-        x                   & \SIrange{0}{30}{\metre} \\
-        y                   & \SIrange{-2}{2}{\metre} \\
-        z                   & \SIrange{-1}{2}{\metre} \\
-        \midrule
-        \textbf{Voxel filter}                         \\
-        leaf\_size          & \SI{0.1}{\metre}        \\
-        \midrule
-        \textbf{\gls{ransac}}                         \\
-        max\_iter           & 100                     \\
-        distance\_threshold & \SI{0.11}{\metre}       \\
-        normal\_distance\_w & 0.01                    \\
-        \midrule
-        \textbf{rd}                                   \\
-        angle               & \SIrange{3}{9}{\degree} \\
-        width               & \SIrange{2}{6}{\metre}  \\
-        $o$                 & 4                       \\
-        \bottomrule
-    \end{tabular}
+	\centering
+	\caption{Used parameters for lidar algo}
+	\label{tab:lidar_params}
+	\begin{tabular}[t]{lc}
+		\toprule
+		\textbf{parameter} & \textbf{value}          \\
+		\midrule
+		\textbf{Passthrough filter}                  \\
+		x                  & \SIrange{0}{30}{\metre} \\
+		y                  & \SIrange{-2}{2}{\metre} \\
+		z                  & \SIrange{-1}{2}{\metre} \\
+		\midrule
+		\textbf{Voxel filter}                        \\
+		leaf size          & \SI{0.1}{\metre}        \\
+		\midrule
+		\textbf{\gls{ransac}}                        \\
+		max iter           & 100                     \\
+		distance threshold & \SI{0.11}{\metre}       \\
+		normal distance w  & 0.01                    \\
+		\midrule
+		\textbf{rd}                                  \\
+		angle              & \SIrange{3}{9}{\degree} \\
+		width              & \SIrange{2}{6}{\metre}  \\
+		$o$                & 4                       \\
+		\bottomrule
+	\end{tabular}
 \end{table}%
 
 
@@ -382,21 +385,21 @@ A simple yet sufficiently accurate model to calculate the car velocity from the 
 In this model both wheels on one axis are replaced with one wheel in the middle.
 \itodo{Explain model}
 The linear assumption holds true for low lateral accelerations (up to \SI{4}{\metre\per\second}), which will not be surpassed in the parking garage scenario.
-Using the assumptions from above, the car velocity $v_\mathrm{car}(t)$ can be calculated with
+Using the assumptions from above, the car velocity $v_\mathrm{car}(t)$ can be calculated by
 \begin{align}
-    \alpha(t)         & = \frac{v_\mathrm{rl}(t) - v_\mathrm{rr}(t)}{d}                  \\
-    \gamma(t)         & = \frac{\alpha(t)}{f_\mathrm{odom}}                              \\
-    v_\mathrm{car}(t) & = \frac{v_\mathrm{rl}(t) + v_\mathrm{rr}(t)}{2}\cdot\cos(\gamma)
+	\alpha(t)         & = \frac{v_\mathrm{rl}(t) - v_\mathrm{rr}(t)}{d}                  \\
+	\gamma(t)         & = \frac{\alpha(t)}{f_\mathrm{odom}}                              \\
+	v_\mathrm{car}(t) & = \frac{v_\mathrm{rl}(t) + v_\mathrm{rr}(t)}{2}\cdot\cos(\gamma)
 \end{align}
 with $v_\mathrm{rl} \text{ and } v_\mathrm{rr}$ being the wheel speeds of the rear right and rear left wheel respectively.
 $\alpha$ is a helper variable \todo{I can't explain it well}, $d$ the track width! and $\gamma$ is the yaw angle of the car.\\
 The car's acceleration can be derived from the velocity using
 \begin{equation}
-    a_\mathrm{car}(t) = \dv{t}v_\mathrm{car}.
+	a_\mathrm{car}(t) = \dv{t}v_\mathrm{car}.
 \end{equation}
 But because all measurements are discrete, numerical differentiation e.g. forward difference must be used
 \begin{equation}
-    a_\mathrm{car}(h) = \frac{v_\mathrm{car}(x + h) - v_\mathrm{car}(x)}{h}
+	a_\mathrm{car}(h) = \frac{v_\mathrm{car}(x + h) - v_\mathrm{car}(x)}{h}
 \end{equation}
 with $h$ being the step size, which depends on the rate of the sensor.
 
@@ -404,21 +407,15 @@ with $h$ being the step size, which depends on the rate of the sensor.
 \label{subsubsec:gravity_method}
 As described in ..., the linear acceleration measurements can be used to determine the pitch angle.
 But the estimation is only valid under the condition, that there are no accelerations other than the acceleration due to gravity.
-This condition is not necessarily true when the car is driving, during which the car can accelerate or break.
+This condition is not necessarily true when the car is driving, during which the car can accelerate or brake.
 To get the correct estimation the car's acceleration must be subtracted from the measurement.
 The car's acceleration can be calculated by deriving the wheel speed measurements with respect to time.
 It is important that both the \gls{imu} and odometer measurements are synchronized, otherwise bad.
 The prevailing accelerations can be seen in \cref{fig:tikz_car_gravity}.
-When the car breaks, the direction of $\mathrm{a}_\mathrm{x}$ inverts.
-\begin{figure}[htpb]
-    \centering
-    \input{Graphics/TikZ/car_gravity.tex}
-    \caption{Existing accelerations, when the car is accelerating}
-    \label{fig:tikz_car_gravity}
-\end{figure}
+When the car brakes, the direction of $\mathrm{a}_\mathrm{x}$ inverts.
 \begin{equation}
-    \alpha = \arcsin\left(\frac{a_x-a_{at}}{g}\right)
-    = \arcsin\left(\frac{a_x-\frac{dv}{dt}}{g}\right)
+	\alpha = \arcsin\left(\frac{a_x-a_{at}}{g}\right)
+	= \arcsin\left(\frac{a_x-\frac{dv}{dt}}{g}\right)
 \end{equation}
 \iimprov{Text is bad}
 

@@ -4,69 +4,78 @@
 
 \section{Evaluation concept}
 \todoin{\begin{itemize}
-        \item The straight ramp on floor -2 will be used as main example
-        \item All plots will be only made for that ramp
-        \item Except maybe for special edge cases (e.g. influence of braking on imu estimation)
-        \item All the other ramps will be only evaluated using scores, displayed in tables
-    \end{itemize}}
+		\item The straight ramp on floor -2 will be used as main example
+		\item All plots will be only made for that ramp
+		\item Except maybe for special edge cases (e.g. influence of braking on imu estimation)
+		\item All the other ramps will be only evaluated using scores, displayed in tables
+	\end{itemize}}
 
 The \gls{rmse} given by
 \begin{equation}
-    RMSE = \sqrt{\frac{1}{n}\sum_{i = 1}^n(\hat{y}_i - y_i)^2}
+	RMSE = \sqrt{\frac{1}{n}\sum_{i = 1}^n(\hat{y}_i - y_i)^2}
 \end{equation}
 
 
 \section{Ramp metering? (\glsentrytext{imu})}
 \todoin{\begin{itemize}
-        \item How well do different \gls{imu} methods work...
-        \item ... at ramp detection
-        \item ... at ramp distance measuring
-        \item ... at angle estimation
-    \end{itemize}}
+		\item How well do different \gls{imu} methods work...
+		\item ... at ramp detection
+		\item ... at ramp distance measuring
+		\item ... at angle estimation
+	\end{itemize}}
 \todo[inline, caption={2do}, color=green!40]{
-    \begin{minipage}{\textwidth-4pt}
-        \begin{itemize}
-            \item Which methods should be compared?
-            \item Because gravity method only works with odometer, which is only available when driving down or half way up
-            \item Should new recording at different offset angles be made?
-            \item How to handle false positives, e.g. when braking on level ground?
-            \item What to display in the table, only normal drives or also ones with braking etc?
-            \item Or evaluate those edge cases separately? (Probably with plot of est angle)
-            \item How to handle offline vs live detection (for the offline detection the measurements can be butterworth filtered)?
-            \item How to determine the delay of the detection (using the camera image)?
-            \item What about the consistency test recordings, how or where to display the results?
-        \end{itemize}
-    \end{minipage}
+	\begin{minipage}{\textwidth-4pt}
+		\begin{itemize}
+			\item Which methods should be compared?
+			\item Because gravity method only works with odometer, which is only available when driving down or halfway up
+			\item Should new recording at different offset angles be made?
+			\item How to handle false positives, e.g. when braking on level ground?
+			\item What to display in the table, only normal drives or also ones with braking etc.?
+			\item Or evaluate those edge cases separately? (Probably with plot of est angle)
+			\item How to handle offline vs live detection (for the offline detection the measurements can be butterworth filtered)?
+			\item How to determine the delay of the detection (using the camera image)?
+			\item What about the consistency test recordings, how or where to display the results?
+		\end{itemize}
+	\end{minipage}
 }
 \isug{Raw accelerometer data or gyroscope peak is ramp start}
 \isug{Also show consistency recordings (avg error and stuff)}
+\todoin{\begin{itemize}
+		\item Plots of (all only for one ramp)...
+		\item Acceleration from \gls{imu} and odometer (already filtered)
+		\item Angle estimation using only lin acc, ang vel
+		\item Angle estimation comparing different sophisticated methods (complementary, gravity etc.)
+		\item Plot comparing angle estimation using the different \gls{imu}s
+	\end{itemize}}
+
+
 
 
 \section{Ramp detection (\glsentrytext{lidar} and camera)}
 rmse[] = distance, angle and width
 
 \begin{table}[htbp]
-    \centering
-    \caption{Performance evaluation}
-    \label{tab:eval_table}
-    \begin{tabular}[t]{cccccccc}
-        \toprule
-        \textbf{Structure} & \textbf{Distance}        & \textbf{Frames} & \textbf{TP} & \textbf{FP} & \textbf{rmse1}    & \textbf{rmse2}     & \textbf{rmse3}    \\
-        \midrule
-        uc                 & \SIrange{0}{5}{\metre}   & 62              & 100.00\%    & 0.00\%      & \SI{0.75}{\metre} & \SI{0.61}{\degree} & \SI{0.75}{\metre} \\
-        uc                 & \SIrange{5}{10}{\metre}  & 62              & 100.00\%    & 0.00\%      & \SI{0.84}{\metre} & \SI{0.68}{\degree} & \SI{0.84}{\metre} \\
-        uc                 & \SIrange{10}{15}{\metre} & 59              & 100.00\%    & 0.00\%      & \SI{0.89}{\metre} & \SI{0.60}{\degree} & \SI{0.89}{\metre} \\
-        uc                 & \SIrange{15}{20}{\metre} & 61              & 97.92\%     & 2.08\%      & \SI{2.75}{\metre} & \SI{0.95}{\degree} & \SI{2.75}{\metre} \\
-        uc                 & \SIrange{20}{25}{\metre} & 61              & 97.83\%     & 2.17\%      & \SI{3.69}{\metre} & \SI{0.94}{\degree} & \SI{3.69}{\metre} \\
-        uc                 & \SIrange{25}{30}{\metre} & 59              & 42.75\%     & 0.00\%      & \SI{2.36}{\metre} & \SI{2.22}{\degree} & \SI{2.36}{\metre} \\
-        us                 & \SIrange{0}{5}{\metre}   & 162             & 83.33\%     & 6.67\%      & \SI{3.83}{\metre} & \SI{0.85}{\degree} & \SI{3.83}{\metre} \\
-        us                 & \SIrange{5}{10}{\metre}  & 149             & 83.33\%     & 0.00\%      & \SI{0.75}{\metre} & \SI{0.41}{\degree} & \SI{0.75}{\metre} \\
-        us                 & \SIrange{10}{15}{\metre} & 144             & 100.00\%    & 0.00\%      & \SI{0.76}{\metre} & \SI{0.37}{\degree} & \SI{0.76}{\metre} \\
-        us                 & \SIrange{15}{20}{\metre} & 150             & 87.41\%     & 0.74\%      & \SI{1.38}{\metre} & \SI{0.52}{\degree} & \SI{1.38}{\metre} \\
-        us                 & \SIrange{20}{25}{\metre} & 169             & 79.38\%     & 0.69\%      & \SI{5.62}{\metre} & \SI{1.22}{\degree} & \SI{5.62}{\metre} \\
-        us                 & \SIrange{25}{30}{\metre} & 78              & 43.42\%     & 0.00\%      & \SI{1.73}{\metre} & \SI{1.65}{\degree} & \SI{1.73}{\metre} \\
-        \bottomrule
-    \end{tabular}
+	\centering
+	\caption{Performance evaluation}
+	\label{tab:eval_table}
+	\begin{tabular}[t]{cccccccc}
+		\toprule
+		\textbf{Structure} & \textbf{Distance}        & \textbf{Frames} & \textbf{TP} & \textbf{FP} & \textbf{rmse1}    & \textbf{rmse2}     & \textbf{rmse3}    \\
+		\midrule
+		uc                 & \SIrange{0}{5}{\metre}   & 62              & 100.00\%    & 0.00\%      & \SI{0.75}{\metre} & \SI{0.61}{\degree} & \SI{0.75}{\metre} \\
+		uc                 & \SIrange{5}{10}{\metre}  & 62              & 100.00\%    & 0.00\%      & \SI{0.84}{\metre} & \SI{0.68}{\degree} & \SI{0.84}{\metre} \\
+		uc                 & \SIrange{10}{15}{\metre} & 59              & 100.00\%    & 0.00\%      & \SI{0.89}{\metre} & \SI{0.60}{\degree} & \SI{0.89}{\metre} \\
+		uc                 & \SIrange{15}{20}{\metre} & 61              & 97.92\%     & 2.08\%      & \SI{2.75}{\metre} & \SI{0.95}{\degree} & \SI{2.75}{\metre} \\
+		uc                 & \SIrange{20}{25}{\metre} & 61              & 97.83\%     & 2.17\%      & \SI{3.69}{\metre} & \SI{0.94}{\degree} & \SI{3.69}{\metre} \\
+		uc                 & \SIrange{25}{30}{\metre} & 59              & 42.75\%     & 0.00\%      & \SI{2.36}{\metre} & \SI{2.22}{\degree} & \SI{2.36}{\metre} \\
+		us                 & \SIrange{0}{5}{\metre}   & 162             & 83.33\%     & 6.67\%      & \SI{3.83}{\metre} & \SI{0.85}{\degree} & \SI{3.83}{\metre} \\
+		us                 & \SIrange{5}{10}{\metre}  & 149             & 83.33\%     & 0.00\%      & \SI{0.75}{\metre} & \SI{0.41}{\degree} & \SI{0.75}{\metre} \\
+		us                 & \SIrange{10}{15}{\metre} & 144             & 100.00\%    & 0.00\%      & \SI{0.76}{\metre} & \SI{0.37}{\degree} & \SI{0.76}{\metre} \\
+		us                 & \SIrange{15}{20}{\metre} & 150             & 87.41\%     & 0.74\%      & \SI{1.38}{\metre} & \SI{0.52}{\degree} & \SI{1.38}{\metre} \\
+		us                 & \SIrange{20}{25}{\metre} & 169             & 79.38\%     & 0.69\%      & \SI{5.62}{\metre} & \SI{1.22}{\degree} & \SI{5.62}{\metre} \\
+		us                 & \SIrange{25}{30}{\metre} & 78              & 43.42\%     & 0.00\%      & \SI{1.73}{\metre} & \SI{1.65}{\degree} & \SI{1.73}{\metre} \\
+		\bottomrule
+	\end{tabular}
 \end{table}
 
 % Option1	Structure	Dist interval	TP	FP
@@ -80,78 +89,78 @@ rmse[] = distance, angle and width
 
 % Option3	Structure	StdDev/mean/var etc of distance, angle, width and length
 \todoin{\begin{itemize}
-        \item Confusion matrix or similar (false negatives could be hard (e.g. curve))
-        \item Estimated angle and distance compare to ground truth
-        \item Do downwards ramp work?
-        \item Camera \gls{lidar} projection for nice visualization
-        \item Something about camera
-    \end{itemize}}
+		\item Confusion matrix or similar (false negatives could be hard (e.g. curve))
+		\item Estimated angle and distance compare to ground truth
+		\item Do downwards ramp work?
+		\item Camera \gls{lidar} projection for nice visualization
+		\item Something about camera
+	\end{itemize}}
 \itodo{Make new recordings of level -2 ramps, approaching at different (e.g. 0, 15, 30, 45) angles}
 
 \todo[inline, caption={2do}, color=green!40]{
-    \begin{minipage}{\textwidth-4pt}
-        \begin{itemize}
-            \item Should structure be only one ramp (and direction) or should it include multiple?
-            \item How to choose distance interval?
-            \item What about offset angle?
-            \item What about estimated distance, angle, width and length?
-            \item What is a true positive? (E.g. some detected points lie in region, or at least $x$\% lie in region, or less than $y$\% points lie outside\dots)
-            \item Are number of frames important?
-            \item I've done multiple recordings of e.g. straight ramp on -2 floor, but only one of the ones on floor -1, how to handle?
-        \end{itemize}
-    \end{minipage}
+	\begin{minipage}{\textwidth-4pt}
+		\begin{itemize}
+			\item Should structure be only one ramp (and direction) or should it include multiple?
+			\item How to choose distance interval?
+			\item What about offset angle?
+			\item What about estimated distance, angle, width and length?
+			\item What is a true positive? (E.g. some detected points lie in region, or at least $x$\% lie in region, or less than $y$\% points lie outside\dots)
+			\item Are number of frames important?
+			\item I've done multiple recordings of e.g. straight ramp on -2 floor, but only one of the ones on floor -1, how to handle?
+		\end{itemize}
+	\end{minipage}
 }
 \isug{Anzahl Fahrten als Spalte}
 \isug{Subcategories rampentyp}
 
 \begin{figure}[htbp]
-    \centering
-    \includegraphics[width=1\linewidth]{points_projection.pdf}
-    \caption{Lidar points projected into the camera image. The green points were identified as part of a ramp.}
+	\centering
+	\includegraphics[width=1\linewidth]{points_projection.pdf}
+	\caption{Lidar points projected into the camera image. The green points were identified as part of a ramp.}
 \end{figure}
 \newpage
 \begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.7\linewidth]{lidar_distance_eval.pdf}
-    \caption{Difference between estimated and measured distance to ramp}
-    \label{fig:lidar_distance_eval}
+	\centering
+	\includegraphics[width=0.7\linewidth]{lidar_distance_eval.pdf}
+	\caption{Difference between estimated and measured distance to ramp}
+	\label{fig:lidar_distance_eval}
 \end{figure}
 \begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.7\linewidth]{lidar_angle_eval.pdf}
-    \caption{Error between estimated and measured ramp angle (\SI{6.75}{\degree})}
-    \label{fig:lidar_angle_eval}
+	\centering
+	\includegraphics[width=0.7\linewidth]{lidar_angle_eval.pdf}
+	\caption{Error between estimated and measured ramp angle (\SI{6.75}{\degree})}
+	\label{fig:lidar_angle_eval}
 \end{figure}
 \begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.7\linewidth]{lidar_width_eval.pdf}
-    \caption{Error between estimated and measured ramp width (\SI{4}{\metre})}
-    \label{fig:lidar_width_eval}
+	\centering
+	\includegraphics[width=0.7\linewidth]{lidar_width_eval.pdf}
+	\caption{Error between estimated and measured ramp width (\SI{4}{\metre})}
+	\label{fig:lidar_width_eval}
 \end{figure}
 
 \begin{figure}[htb]
-    \centering
-    \begin{subfigure}{1\textwidth}
-        \centering
-        \includegraphics[width=0.7\linewidth]{lidar_distance_eval.pdf}
-        \caption{caption}
-        \label{fig:lidar_distance_evalTest}
-    \end{subfigure}
-    
-    % \bigskip
-    \begin{subfigure}{1\textwidth}
-        \centering
-        \includegraphics[width=0.7\linewidth]{lidar_angle_eval.pdf}
-        \caption{caption}
-        \label{fig:lidar_angle_evalTest}
-    \end{subfigure}
-    
-    \begin{subfigure}{1\textwidth}
-        \centering
-        \includegraphics[width=0.7\linewidth]{lidar_width_eval.pdf}
-        \caption{caption}
-        \label{fig:lidar_width_evalTest}
-    \end{subfigure}
-    \caption{Is subfigure better than separate?}
-    \label{fig:subFigTest}
+	\centering
+	\begin{subfigure}{1\textwidth}
+		\centering
+		\includegraphics[width=0.7\linewidth]{lidar_distance_eval.pdf}
+		\caption{caption}
+		\label{fig:lidar_distance_evalTest}
+	\end{subfigure}
+	
+	% \bigskip
+	\begin{subfigure}{1\textwidth}
+		\centering
+		\includegraphics[width=0.7\linewidth]{lidar_angle_eval.pdf}
+		\caption{caption}
+		\label{fig:lidar_angle_evalTest}
+	\end{subfigure}
+	
+	\begin{subfigure}{1\textwidth}
+		\centering
+		\includegraphics[width=0.7\linewidth]{lidar_width_eval.pdf}
+		\caption{caption}
+		\label{fig:lidar_width_evalTest}
+	\end{subfigure}
+	\caption{Is subfigure better than separate?}
+	\label{fig:subFigTest}
 \end{figure}

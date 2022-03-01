@@ -58,7 +58,7 @@ It analyzes the Allan variance from \gls{imu} measurement data recorded over a t
 
 \subsection{\glsentrytext{lidar}}
 Two different \gls{lidar}s will be used during the experiment.
-The RS-Bpearl and the Velodyne UltraPuck.
+The RS-Bpearl and the Velodyne UltraPuck, see \cref{fig:lidars_used}.
 The most relevant specifications of the two \gls{lidar}s can be seen in \cref{tab:lidar_datasheets}.
 Both are mechanical \gls{lidar}s and have the same number of laser channels, but the Velodyne has a significant better vertical resolution, due to the smaller vertical \gls{fov}.
 Both \gls{lidar}s need an external power supply and transfer the data over Ethernet.
@@ -114,13 +114,13 @@ The myAHRS+ \gls{imu} was mounted on the floor of the car trunk.\\
 \begin{figure}[htpb]
 	\centering
 	\input{Graphics/TikZ/lidar_mount.tex}
-	\caption{Mounting of the \acrshort{lidar}}
+	\caption{Mounting of the \acrshort{lidar}. Variable description in \cref{tab:lidar_mount}}
 	\label{fig:tikz_lidar_mount}
 \end{figure}
 \begin{table}[htbp]
 	\centering
 	\caption{Some params}
-	\label{tab:vals}
+	\label{tab:lidar_mount}
 	\begin{tabular}[t]{clc}
 		\toprule
 		\textbf{Variable} & \textbf{Description}                                   & \textbf{Unit} \\
@@ -144,20 +144,19 @@ This allows for the most accurate distinction between planes of different inclin
 Because the distance to the ramp is not constant due to the movement of the car, the optimization can only be done for a specific distance.
 The coordinates at which the lasers hit the ground and ramp depend on the height of the \gls{lidar} $h_\mathrm{l}$, the distance to the ramp $d$, the angle of the ramp $\alpha$, the angle $\beta$ at which the \gls{lidar} has been mounted on the car and finally on the vertical resolution $\epsilon$ and \gls{fov} of the \gls{lidar}.
 The coordinates can be calculated in the following way.\\
-The angle $\gamma$ between the NOT ground and each laser wave is defined as
+The angle $\gamma$ between the plane parallel to the ground at \gls{lidar} height and each laser wave is defined as
 \begin{equation}
 	\gamma = \beta - i\epsilon
 \end{equation}
-with $i \in \mathbb{N}, 0\dots n$ being the "laserID" starting from the lowest opening angle and going to the highest.
-\iquest{i is natural number in range 0 to n, how to write?}
-On flat ground the distance at which the laser waves hit the ground can be calculated with
+with $i \in [0,1,2,\dots,n]$ being the "laserID" starting from the lowest opening angle and going to the highest and $n$ being the number of laser channels.
+On flat ground the distance at which the laser waves hit the ground can be calculated by
 \begin{equation}
 	x = \tan(\ang{90} - \gamma) h_\mathrm{l}.
 	\label{eq:ground_points}
 \end{equation}
 With a ramp, the assumption from \cref{eq:ground_points} does not hold anymore.
 The light does not travel as far.
-The height above ground, when the light is at the beginning of the ramp can be calculated with
+The height above ground, when the light is at the beginning of the ramp can be calculated by
 \begin{equation}
 	h_\mathrm{w,start} = h_\mathrm{l} - d\tan(\gamma)
 \end{equation}
@@ -172,13 +171,15 @@ The travelled distance along the x-axis from the start of the ramp to the contac
 \end{equation}
 which results in the total x distance from the \gls{lidar}
 \begin{equation}
-	d_\mathrm{hit} = d + d_\mathrm{w}.
+	d_\mathrm{hit} = d + d_\mathrm{w}
 \end{equation}
-\iquest{Instead of "long" derivation, just use the final equation?}
+or in full length
 \begin{equation}
+	\label{eq:final_equation}
 	d_\mathrm{hit} = d + \frac{h_\mathrm{l} - d\tan(\gamma)}{\sin(\alpha + \gamma)} \cos(-\alpha) \sin(\ang{90} - 2\alpha - \gamma)
 \end{equation}
-Using the formulas the optimal mounting pitch angle $\beta$ for the two \gls{lidar}s has been found with $\beta_\mathrm{velodyne} = \ang{0}$ and $\beta_\mathrm{robos} = \ang{20}$, optimized for a distance of \SI{10}{\metre} to the ramp.
+Using \cref{eq:final_equation} and optimizing $\beta$ such that the number of points in the area at the start of the ramp are maximized, the optimal mounting pitch angle $\beta$ for the two \gls{lidar}s has been found with $\beta_\mathrm{velodyne} = \ang{0}$ and $\beta_\mathrm{robos} = \ang{20}$.
+The optimization was done for a distance of \SI{10}{\metre} to the ramp.
 The angle between the two \gls{lidar}s differs due to the different starting opening angle of \SI{-25}{\degree} and \SI{0}{\degree} for the Velodyne and Robosense respectively.
 \iimprov{Improve text and table param description}
 
@@ -186,29 +187,14 @@ The angle between the two \gls{lidar}s differs due to the different starting ope
 \section{Car}
 The car used in the experiment is an eGolf 2017.
 Being an electric car it provides better vibration properties than a car with an internal combustion engine, which means that the \gls{imu} measurements are less influenced by external noise.
-The car has been "hacked" which allows for the reading of the wheel ticks by tapping the signals from the CAN bus.
+The car has been "hacked" which allows among other things for the reading of the wheel ticks by tapping the signals from the CAN bus.
 Unfortunately the wheel speed readings are only available in this "hacked" state, in which the output power of the motor is limited.
 In this mode, the maximum speed is capped at \SI{5}{\kilo\metre\per\hour} and the power is not enough to allow for the traversing of ramps.
 The car can only make it about halfway up.
 Because of that, the normal mode was used to drive between different levels.
 Before driving down, the mode was switched again to also provide the wheel speed measurements.
-The car has a pc in the booth, at which all the sensors were connected to.
-\iimprov{Text is bad e.g. "hacked" and table needs more rows or should be omitted}
-\begin{table}[htbp]
-	\centering
-	\caption{Some params}
-	\label{tab:car_parameters}
-	\begin{tabular}[t]{lcc}
-		\toprule
-		\textbf{Variable}         & \textbf{Value} & \textbf{Unit}                  \\
-		\midrule
-		Wheelbase                 & 2.63           & \si{\metre}                    \\
-		Track width               & 1.512          & \si{\metre}                    \\
-		Max linear velocity x     & 1.389          & \si{\metre\per\second}         \\
-		Max linear acceleration x & 0.5            & \si{\metre\per\second\squared} \\
-		\bottomrule
-	\end{tabular}
-\end{table}
+The car has a PC in the booth, at which all the sensors were connected to.
+\iimprov{Text is bad e.g. "hacked" }
 \missingfigure{Picture of eGolf}
 
 
@@ -216,3 +202,19 @@ The car has a pc in the booth, at which all the sensors were connected to.
 \section{Garage}
 \missingfigure{Picture of ramps and/or figure of ramps showing angles}
 \itodo{Think of a good way to measure the true angle of the ramps}
+\begin{figure}
+	\begin{subfigure}{.3\linewidth}
+		\centering
+		\includegraphics[width=1\linewidth]{d_d2r.jpg}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{.3\linewidth}
+		\centering
+		\includegraphics[width=1\linewidth]{u_c2s.jpg}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{.3\linewidth}
+		\centering
+		\includegraphics[width=1\linewidth]{u_d2e.jpg}
+	\end{subfigure}
+\end{figure}
