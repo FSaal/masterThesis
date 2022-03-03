@@ -128,17 +128,22 @@ Finally the measurements $\mathbf{A}$ can be transformed using
 \subsection{Linear acceleration only}
 \label{ssec:linear_acceleration_only}
 If the car stands still, the only measurable acceleration besides measurement errors is the acceleration due to gravity.
-When standing only flat ground, only the z-axis measures an acceleration.
-But when the car is tilted, e.g. on a ramp, the gravity is measured also by the x-axis, see \cref{fig:tikz_car_gravity}.
-The proportion of acceleration measured along the x-axis of the overall gravity can then be used to determine the pitch angle in the following way
+When standing on flat ground, only the z-axis measures an acceleration.
+But when the car is tilted, e.g. on a ramp, the gravity is measured also by the x-axis (which points forward), see \cref{fig:tikz_car_gravity}.
+The proportion of the acceleration measured along the x-axis $\vb{a}_\mathrm{x} $ of the overall gravity $\vb{g}$ can then be used to determine the pitch angle in the following way
 \begin{equation}
 	\label{eq:ang_from_acc}
-	\theta = \arcsin(\frac{\vb{a}_x}{\norm{\vb{g}}})
+	\theta_\mathrm{acc}  = \arcsin(\frac{\vb{a}_x}{\norm{\vb{g}}})
 \end{equation}
-where $\vb{a}_x$ is the linear acceleration measured along the x-axis and $\norm{\vb{g}}$ the magnitude of the overall measured acceleration.\\
-According to the definition, the angle is then zero if the car is parallel to the ground and \SI{90}{\degree} if the car would be pointing straight up.
-The angle is positive when driving up a ramp and negative if driving down.
-Disadvantages of this method are that the acceleration measurements are quite noisy and that no other accelerations are taken into account, e.g. the acceleration caused by the motor.
+with $\norm{\vb{g}}$ being the magnitude of the overall measured acceleration.
+According to the definition, the angle is zero if the car is parallel to the ground and \SI{90}{\degree} if the front of the car would be pointing straight up.
+The angle is positive when driving up a ramp and negative if driving down.\\
+Disadvantages of this method are that the acceleration measurements are quite noisy and that no other accelerations are taken into account, e.g. the on track acceleration $\vb{a}_\mathrm{at}$ caused by the motor.
+This is a problem when the car has a non-zero acceleration, because the acceleration along the x-axis is given by
+\begin{equation}
+	\vb{a}_\mathrm{x} = \vb{a}_\mathrm{at} + \vb{g}_\mathrm{x}
+\end{equation}
+and $\vb{a}_\mathrm{x} = \vb{g}_\mathrm{x} $ only holds true, when the car is driving with constant velocity or standing still.
 A better approach, which incorporates the accelerations caused by the car, is described in \cref{subsubsec:gravity_method}.
 \begin{figure}[htpb]
 	\centering
@@ -146,7 +151,6 @@ A better approach, which incorporates the accelerations caused by the car, is de
 	\caption{Gravity measured by \acrshort{imu} (in car frame).}
 	\label{fig:tikz_car_gravity}
 \end{figure}
-
 \subsection{Angular velocity only}
 \iimprov{Find good source and use it as a guide}
 \cite{Kok2017}
@@ -163,6 +167,9 @@ The current angle $\theta(t)$ can be computed with the integral
 with $\theta_0$ being the initial angle.
 However, due to the finite amount of samples, numerical integration must be used.
 Different techniques exist, using the backward Euler method the
+\begin{equation}
+	\theta_t = \frac{\theta_t - \theta_{t - 1}}{T}
+\end{equation}
 \begin{equation}
 	\theta(k) = \frac{\theta(k) - \theta(k - 1)}{T}
 \end{equation}
@@ -415,17 +422,17 @@ with $h$ being the step size, which depends on the rate of the sensor.
 
 \subsubsection{Gravity method}
 \label{subsubsec:gravity_method}
-As described in ..., the linear acceleration measurements can be used to determine the pitch angle.
+As described in \cref{ssec:linear_acceleration_only}, the linear acceleration measurements can be used to determine the pitch angle.
 But the estimation is only valid under the condition, that there are no accelerations other than the acceleration due to gravity.
 This condition is not necessarily true when the car is driving, during which the car can accelerate or brake.
-To get the correct estimation the car's acceleration must be subtracted from the measurement.
-The car's acceleration can be calculated by deriving the wheel speed measurements with respect to time.
-It is important that both the \gls{imu} and odometer measurements are synchronized, otherwise bad.
+To get the correct estimation, the car's acceleration must be subtracted from the measurement.
+The car's acceleration can be calculated by deriving the car's velocity, calculated from the wheel speed measurements, with respect to time.
+It is important that both the \gls{imu} and odometer measurements are synchronized in time, otherwise the correct estimation can not be guaranteed.
 The prevailing accelerations can be seen in \cref{fig:tikz_car_gravity}.
-When the car brakes, the direction of $\mathrm{a}_\mathrm{x}$ inverts.
+When the car brakes, the direction of $\vb{a}_\mathrm{x}$ inverts.
 \begin{equation}
-	\alpha = \arcsin\left(\frac{a_x-a_{at}}{g}\right)
-	= \arcsin\left(\frac{a_x-\frac{dv}{dt}}{g}\right)
+	\alpha = \arcsin\left(\frac{\vb{a}_\mathrm{x} - \vb{a}_\mathrm{at}}{\norm{\vb{g}}}\right)
+	= \arcsin\left(\frac{\vb{a}_\mathrm{x} - \dv{t}}{g}\right)
 \end{equation}
 \iimprov{Text is bad}
 
