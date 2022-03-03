@@ -20,6 +20,7 @@
 \usepackage{subcaption}         % Subfigure captions
 \usepackage{standalone}			% Used for TikZ code outsourcing
 \usepackage{tikz}				% Powerful drawing tool for latex
+\usepackage{tikz-3dplot}
 \usepackage{tikz-dimline}		% Dimension (measure) lines for TikZ
 \usepackage{titlesec}           % Allows for different title styles, but also allows for full gls every chapter
 \usepackage{todonotes}			% Todo commands
@@ -48,7 +49,9 @@
 \pdfminorversion=7				% PDF version 1.7
 % Write full acronym again for every new chapter
 \titleformat{\chapter}[display]
-    {\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\Huge}[\glsresetall]
+    {\normalfont\huge\bfseries}
+    {\chaptertitlename\ \thechapter}
+    {20pt}{\Huge}[\glsresetall]
 % SI Units
 % \sisetup{range-phrase=--}		% - instead of to, e.g. "1-7 nm" instead of "1 to 7 nm "
 % \sisetup{range-units=single}	% Only one unit after second value (and none after first)
@@ -71,7 +74,7 @@
 % Vector #1 in coordinate frame #2
 \newcommand{\vincs}[2]{\ensuremath{{}_{\mathcal{\MakeUppercase{#2}}}\mathbf{{#1}}}}
 % Quaternion to transform from cs #1 to cs #2
-\newcommand{\qtf}[2]{\ensuremath{{}_{\mathcal{\MakeUppercase{#2}}}^{\mathcal{\MakeUppercase{#1}}}\mathbf{{q}}}}
+\newcommand{\qtf}[2]{\ensuremath{{}_{\mathcal{\MakeUppercase{#2}}}^{\mathcal{\MakeUppercase{#1}}}{q}}}
 % Rotation matrix to transform from cs #1 to cs #2
 \newcommand{\mtf}[2]{\ensuremath{{}_{\mathcal{\MakeUppercase{#2}}}^{\mathcal{\MakeUppercase{#1}}}\mathbf{{M}}}}
 
