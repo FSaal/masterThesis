@@ -1,0 +1,40 @@
+\documentclass{standalone}
+\usepackage{tikz}
+\usepackage{tikz-3dplot}
+
+\begin{document}
+% Set the plot display orientation
+% Syntax: \tdplotsetdisplay{\theta_d}{\phi_d}
+\tdplotsetmaincoords{60}{110}
+
+% Start tikz-picture, and use the tdplot_main_coords style to implement the display
+% coordinate transformation provided by 3dplot.
+\begin{tikzpicture}[scale=3,tdplot_main_coords]
+
+    % Set origin of main (body) coordinate system
+    \coordinate (O) at (0,0,0);
+
+    % Draw main coordinate system
+    \draw[black, thick,->] (0,0,0) -- (1,0,0) node[anchor=north east]{$x$};
+    \draw[black, thick,->] (0,0,0) -- (0,1,0) node[anchor=north west]{$y$};
+    \draw[black, thick,->] (0,0,0) -- (0,0,1) node[anchor=south]{$z$};
+
+    %Draw the arcs on each theta plane
+    %The first position is obvious since we are in the x-y plane and rotating around the z-axis.
+    %The anchor already went crazy, north is pointing downwards...
+    \tdplotdrawarc[->,color=red]{(0,0,0.7)}{0.1}{0}{350}{anchor=south west,color=red}{$\psi$ (I)}
+    %We move to the z-x axis
+    \tdplotsetthetaplanecoords{0}
+    %Notice you have to tell tiks-3dplot you are now in rotated coords
+    %Since tikz-3dplot swaps the planes in tdplotsetthetaplanecoords, the former y axis is now the z axis.
+    \tdplotdrawarc[tdplot_rotated_coords,->,color=blue]{(0,0,0.7)}{0.1}{110}{460}{anchor=south west,color=blue}{$\theta$ (II)}
+    \tdplotsetthetaplanecoords{-90}
+    %Once again we swaps the planes. I don't know why it's working like this but we turn backwards
+    %so the arrow turns in the positive direction.
+    \tdplotdrawarc[tdplot_rotated_coords,->,color=green]{(0,0,0.7)}{0.1}{120}{470}{anchor=south west,color=green}{$\phi$ (III)}
+    % If you turn the theta plane  of 90 degrees position and rotation are inverted.
+    %\tdplotsetthetaplanecoords{90}
+    %\tdplotdrawarc[tdplot_rotated_coords,->,color=black]{(0,0,-0.7)}{0.1}{470}{120}{anchor=south east,color=black}{roll}
+\end{tikzpicture}
+
+\end{document}
