@@ -85,30 +85,30 @@
 
                 % Laser lines
                 \draw[->,color=red,very thin,decorate,decoration={snake,amplitude=.2mm,segment length=1mm,post length=1mm}] (lm) -- (A)
-                pic[draw, black, ->, thin, angle radius=100pt, angle eccentricity=0.95,
+                pic[draw, black, ->, thin, angle radius=90pt, angle eccentricity=0.95,
                                 "$\epsilon$"]{angle=A--lm--idk};
                 \draw[->,color=red,very thin,decorate,decoration={snake,amplitude=.2mm,segment length=1mm,post length=1mm}] (lm) -- ($(A)!0.4!(C)$);
                 \draw[->,color=red,very thin,decorate,decoration={snake,amplitude=.2mm,segment length=1mm,post length=1mm}] (lm) -- ($(A)!1!(C)$)
-                pic[draw, black, ->, thin, angle radius=120pt, angle eccentricity=0.95,
-                                "$2\epsilon$"]{angle=A--lm--C};
+                pic[draw, black, ->, thin, angle radius=110pt, angle eccentricity=0.95, "$2\epsilon$", pic text options={shift={(0pt,5pt)}}
+                        ]{angle=A--lm--C};
 
 
                 % lidar mount angle
                 % Length of angle helper line
                 \def\hl{4};
                 \def\hll{1.8};
-                \coordinate (bleb) at ($(lm) + (\hl+1, 0)$);
+                \coordinate (bleb) at ($(lm) + (\hl+0.15, 0)$);
                 \coordinate (blab) at ($(lm) + (\hl, -{tan{\lpa}*\hl})$);
                 \coordinate (blub) at ($(lm) + (-\hll, 0)$);
                 \coordinate (blob) at ($(lm) + (-\hll, +{tan{\lpa}*\hll})$);
                 \draw[draw=gray, very thin] (blub) -- (lm) -- (blob)
                 pic[draw, black, thin, <-, angle radius=30pt,
                                 angle eccentricity=0.82, "\tiny $\beta$"]{angle=blob--lm--blub};
-                \draw[draw=gray, very thin] (bleb) -- (lm) -- (blab)
-                pic[draw, black, thin, <-, angle radius=68pt,
-                                angle eccentricity=0.9, "$\beta$"]{angle=blab--lm--bleb};
+                \draw[draw=gray, very thin] (bleb) -- (lm);
+                % pic[draw, black, thin, <-, angle radius=68pt,
+                %                 angle eccentricity=0.9, "$\beta$"]{angle=blab--lm--bleb};
                 \path (bleb) -- (lm) -- (A)
-                pic[draw, <-, thin, angle radius=84pt,
+                pic[draw, <-, thin, angle radius=70pt,
                                 angle eccentricity=0.9, "$\gamma$"]{angle=A--lm--bleb};
 
         \end{scope}
