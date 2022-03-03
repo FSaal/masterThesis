@@ -8,12 +8,15 @@ Rotations can be expressed in several ways, I will briefly describe the ones use
 
 \subsubsection{Rotation matrix}
 A rotation matrix \mtf{b}{a} $\in \mathbb{R}^{3\times3}$ transforms an arbitrary vector from the coordinate system $\mathcal{B}$ to the coordinate system $\mathcal{A}$.
-The rotation axis is the eigenvector for $\lambda = 1$, but the rotation angle can not easily be seen from the matrix.
-\iimprov{Remove eigenvector stuff, not important, but write something else}
+Rotation matrices have the following properties
+\begin{equation}
+    \mathbf{M}\mathbf{M}^\intercal = \mathbf{M}^\intercal \mathbf{M} = I_3, \quad \det \mathbf{M} = 1.
+\end{equation}
 The rows of the rotation matrix are the axes of the new coordinate system.
+A rotation matrix corresponds to two different rotations, but uniquely describes an orientation.
 Rotation matrices can be concatenated, but this must be done in reverse order, e.g.
 \begin{equation}
-	{}_\mathcal{C}\vb{p} = \mtf{a}{c}{}_\mathcal{A}\vb{p} = \mtf{b}{c}\mtf{a}{b}{}_\mathcal{A}\vb{p}
+    {}_\mathcal{C}\vb{p} = \mtf{a}{c}{}_\mathcal{A}\vb{p} = \mtf{b}{c}\mtf{a}{b}{}_\mathcal{A}\vb{p}
 \end{equation}
 to transform the point ${}_\mathcal{A}\vb{p}$ over the intermediate frame $\mathcal{B}$ to the coordinate system $\mathcal{C}$.
 
@@ -22,62 +25,92 @@ Euler angles are the closest to intuition but mathematically the worst way to re
 Every orientation can be produced by a concatenation of three rotations around each of the coordinate axes.
 Because the resulting orientation depends on the order of which the rotations were performed, there are different conventions.
 Furthermore, the conventions can be divided into intrinsic and extrinsic.
-Intrinsic rotation means that the coordinate system moves with the moving object, whereas with extrinsic rotations the original coordinate system remains static.
-The most common convention is the zyx (intrinsic I think?) (first rotation around z-axis and last around x-axis), where the angles are called yaw, pitch and roll.\\
-The disadvantages are the many conventions and the possibility of singularity.
-\iimprov{Explain when/how singularity occurs}
+Intrinsic rotation means that the coordinate system moves with the moving object, whereas with extrinsic rotations the original coordinate system remains static.\\
+The most common convention is the zyx (intrinsic), which first rotates an angle $\psi$ around the z-axis, followed by a rotation of $\theta$ around the y-axis and finally an angle $\phi$ around the x-axis, see \cref{fig:tikz_euler_angles}.
+\begin{figure}[htpb]
+    \centering
+    \input{Graphics/TikZ/euler_angles.tex}
+    \caption{Definition of the zyx Euler convention. The rotation starts with a rotation $\psi$ around the z-axis and ends with a rotation around the x-axis $\phi$.}
+    \label{fig:tikz_euler_angles}
+\end{figure}
+
+The angles are called yaw (or heading), pitch and roll respectively. Roll and pitch angle together are also often referred to as inclination.\\
+The disadvantages of Euler angles are the many conventions and the possibility of singularity.
+Unlike rotation matrices, Euler angles do not uniquely describe a rotation.
+Singularity, which is also referred to as gimbal lock when occurring in mechanical gyroscopes, occurs when the pitch angle is set to $\theta = \frac{\pi}{2}$.
+The other two angles are then undefined, because both their rotations axes are parallel to each other \cite{Kok2017}.
 
 \subsubsection{Quaternions}
-\iimprov{Check if notation is correct (bold and stuff)}
 A quaternion is defined as
 \begin{equation}
-	q = q_w + q_x\vb{i} + q_y\vb{j} + q_z\vb{k}
+    q = q_w + q_x\vb{i} + q_y\vb{j} + q_z\vb{k}
 \end{equation}
 with a real part $q_w$ and three imaginary parts $\vb{i}, \vb{j}$ and $\vb{k}$ satisfying
 \begin{equation}
-	\vb{i}^2 = \vb{j}^2 = \vb{k}^2 = \vb{i}\vb{j}\vb{k} = -1.
+    \vb{i}^2 = \vb{j}^2 = \vb{k}^2 = \vb{i}\vb{j}\vb{k} = -1.
 \end{equation}
 The quaternion can also be written in vector form by dividing the quaternion in a real or scalar and an imaginary or vector part
 \begin{equation}
-	q = \begin{bmatrix}
-		\vb{q} \\
-		q
-	\end{bmatrix}
-	=\begin{bmatrix}
-		q_x & q_y & q_z & q_w
-	\end{bmatrix}^\intercal.
+    q = \begin{bmatrix}
+        q_v \\
+        q_w
+    \end{bmatrix}
+    =\begin{bmatrix}
+        q_x & q_y & q_z & q_w
+    \end{bmatrix}^\intercal.
 \end{equation}
 Note that in some literature the order of the real and imaginary part are swapped.
 If the quaternion is a unit vector, which means it satisfies
 \begin{equation}
-	\abs*{q} = \sqrt{q^\intercal q} = \sqrt{\abs*{\vb{q}^2 + q_w^2}} = 1
+    \abs*{q} = \sqrt{q^\intercal q} = \sqrt{\abs*{q_v^2 + q_w^2}} = 1
 \end{equation}
 then it can be used to represent rotations.
 The rotation is then described with
 \begin{equation}
-	q =
-	\begin{bmatrix}
-		\hat{\vb{j}}\vdot\sin(\frac{\alpha}{2}) \\
-		\cos(\frac{\alpha}{2})
-	\end{bmatrix}
+    q =
+    \begin{bmatrix}
+        \hat{\vb{j}}\vdot\sin(\frac{\alpha}{2}) \\
+        \cos(\frac{\alpha}{2})
+    \end{bmatrix}
 \end{equation}
 with $\alpha$ being the rotation angle and $\hat{\vb{j}}$ being the normalized rotation axis.
-Each rotation is uniquely described by one rotation, but each orientation can be described by two unit quaternions with opposite signs.
-More information about quaternions can be found in \cite{Trawny2005}.\\
-A quaternion of the form
-$\mathbf{q} = \left[\begin{array}{llll} w & x & y & z \end{array}\right]^{\intercal}$
-can be converted to a rotation matrix with
+Each rotation is uniquely described by one unit quaternion, but each orientation can be described by two unit quaternions with opposite signs.
+A rotation to transform a point ${}_\mathcal{A}\vb{p}$ from frame $\mathcal{A}$ to $\mathcal{B}$ is defined as
 \begin{equation}
-	\mathbf{M} =
-	\left[
-		\begin{array}{ccc}
-			1-2 y^{2}-2 z^{2} & 2(x y-z w)        & 2(x z+y w)        \\
-			2(x y+z w)        & 1-2 x^{2}-2 z^{2} & 2(y z-x w)        \\
-			2(x z-y w)        & 2(y z+x w)        & 1-2 x^{2}-2 y^{2}
-		\end{array}
-		\right]
+    {}_\mathcal{B}\vb{p} = \qtf{a}{b} \otimes {}_\mathcal{A}\overline{\vb{p}} \otimes \qtf{a}{b}^* \otimes,
 \end{equation}
-\iimprov{How to calculate matrix?}
+where
+\begin{equation}
+    {}_\mathcal{A}\overline{\vb{p}} = \begin{bmatrix}
+        0 & {}_\mathcal{A}\vb{p}^\intercal
+    \end{bmatrix}^\intercal,
+\end{equation}
+and $\qtf{a}{b}^* = \qtf{b}{a}$ is the conjugate defined as
+\begin{equation}
+    \qtf{}{}^* = \begin{bmatrix}
+        -q_v \\
+        q_w
+    \end{bmatrix}.
+\end{equation}
+The symbol $\otimes$ denotes the quaternion multiplication, which is given by
+\begin{equation}
+    p \otimes q=\left(\begin{array}{c}
+            p_{w} q_{w}-p_v \cdot q_v \\
+            p_{w} q_v+q_{w} p_v+p_v \times q_v
+        \end{array}\right)
+\end{equation}
+A quaternion can be converted to a rotation matrix with
+\begin{equation}
+    \mathbf{M} =
+    \left[
+        \begin{array}{ccc}
+            1 - 2q_y^2-2 q_z^2   & 2(q_x q_y- q_z q_w) & 2(q_x q_z + q_y q_w) \\
+            2(q_x q_y + q_z q_w) & 1-2 q_x^2-2 q_z^2   & 2(q_y q_z -q_x q_w)  \\
+            2(q_x q_z-q_y q_w)   & 2(q_y q_z+ q_x q_w) & 1 - 2 q_x^2- 2 q_y^2
+        \end{array}
+        \right]
+\end{equation}
+More information about quaternions can be found in \cite{Kok2017,Trawny2005}.\\
 
 \subsection{Vector projection}
 \label{subsec:vector_projection}
@@ -85,13 +118,13 @@ In general, the rotation to align a vector $\vb{v}_1$ with a vector $\vb{v}_2$ c
 At first both vectors must be normalized, resulting in the two unit vectors $\vu{v}_1$ and $\vu{v}_2$.
 The rotation axis is perpendicular to both vectors and can thus be calculated using the cross product, which is then divided by the norm, to get a unit vector
 \begin{equation}
-	\vb{j} = \frac{\vu{v}_1 \cp \vu{v}_2}{\norm{\vu{v}_1 \cp \vu{v}_2}}.
+    \vb{j} = \frac{\vu{v}_1 \cp \vu{v}_2}{\norm{\vu{v}_1 \cp \vu{v}_2}}.
 \end{equation}
 The angle between two vectors can be calculated by
 \begin{equation}
-	\cos(\alpha) = \frac{\vu{v}_1 \vdot \vu{v}_2}{\norm{\vu{v}_1} \cdot \norm{\vu{v}_2}}
-	= \vu{v}_1 \vdot \vu{v}_2 \implies
-	\alpha = \arccos(\vu{v}_1 \vdot \vu{v}_2).
+    \cos(\alpha) = \frac{\vu{v}_1 \vdot \vu{v}_2}{\norm{\vu{v}_1} \cdot \norm{\vu{v}_2}}
+    = \vu{v}_1 \vdot \vu{v}_2 \implies
+    \alpha = \arccos(\vu{v}_1 \vdot \vu{v}_2).
 \end{equation}
 The denominator is equal to 1 (because the norm of a unit vector is 1) and thus omitted.
 The found rotation can then be applied using e.g. a quaternion or a rotation matrix.
@@ -111,10 +144,10 @@ The third part is the magnetometer, which is able to measure the earth's magneti
 It allows for the determination of the absolute heading, whereas the gyroscope can only measure relative change. But because it is very sensitive to other magnetic objects, it is often omitted.
 \gls{imu}s can be typically divided into the two following categories.\\
 \begin{figure}[htbp]
-	\centering
-	\includegraphics[width=0.4\linewidth]{stable_platform_imu}
-	\caption{A stable platform \acrshort{imu} \cite{Woodman2007}}
-	\label{fig:stable_platform_imu}
+    \centering
+    \includegraphics[width=0.4\linewidth]{stable_platform_imu}
+    \caption{A stable platform \acrshort{imu} \cite{Woodman2007}}
+    \label{fig:stable_platform_imu}
 \end{figure}
 In the first type, the stable platform systems, the inertial sensors are mounted in such way, that they are always aligned with the reference frame.
 This is achieved using gimbals, which allow movement along all three axes.
@@ -137,22 +170,22 @@ Almost all consumer grade electronics uses \gls{mems}-\gls{imu}s nowadays, but t
 
 \subsubsection{\glsentrytext{mems} Accelerometer}
 \begin{figure}[htb]
-	\centering
-	\begin{subfigure}{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth]{MEMS_Accelerometer}
-		\caption{\acrshort{mems} accelerometer}
-		\label{fig:MEMS_Accelerometer}
-	\end{subfigure}
-	% \hfill
-	\begin{subfigure}{0.48\textwidth}
-		\centering
-		\includegraphics[width=\textwidth]{MEMS_Gyroscope}
-		\caption{\acrshort{mems} gyroscope}
-		\label{fig:MEMS_Gyroscope}
-	\end{subfigure}
-	\caption{Micro structure of \acrshort{mems} TODO: Better images}
-	\label{fig:MEMS_design}
+    \centering
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{MEMS_Accelerometer}
+        \caption{\acrshort{mems} accelerometer}
+        \label{fig:MEMS_Accelerometer}
+    \end{subfigure}
+    % \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{MEMS_Gyroscope}
+        \caption{\acrshort{mems} gyroscope}
+        \label{fig:MEMS_Gyroscope}
+    \end{subfigure}
+    \caption{Micro structure of \acrshort{mems} TODO: Better images}
+    \label{fig:MEMS_design}
 \end{figure}
 The accelerometer is used to measure the acceleration.
 Additional to the dynamic acceleration there is the static and constant gravity acceleration on earth, which is measured by the \gls{imu} in upward direction.
@@ -165,7 +198,7 @@ The change of capacity and thus voltage can be measured, from which the accelera
 To be able to measure the acceleration along all three axis the same setup is used three times, perpendicular to each other.\\
 The measurements $\hat{\vb{a}}$ of a \gls{mems} accelerometer are not free of noise and can be modeled according to \cite{Lefferts1982} in a simplified way as
 \begin{equation}
-	\hat{\vb{a}} = \vb{a} + \vb{b}_\mathrm{a} + \vb{n}_\mathrm{a}.
+    \hat{\vb{a}} = \vb{a} + \vb{b}_\mathrm{a} + \vb{n}_\mathrm{a}.
 \end{equation}
 The measurement differs from the true acceleration $\vb{a}$ due to random noise $\vb{n}_\mathrm{a}$ and a bias $\vb{b}_\mathrm{a}$.
 More about the specific error terms can be read in \cref{sse:mems_errors}.
@@ -176,7 +209,7 @@ The setup of a \gls{mems} gyroscope is similar to that of a \gls{mems} accelerom
 A proof mass is suspended on a frame and responds to an input force.
 \gls{mems} gyroscopes make use of the Coriolis effect, which states that a rotating object with the angular velocity $w$ of mass $m$ and velocity $v$ experiences a force
 \begin{equation}
-	F_C = -2m(w\times v).
+    F_C = -2m(w\times v).
 \end{equation}
 To measure the effect, a mass is vibrating along one axis, which in turn is also suspended.
 If the mass is oscillating along one axis and a rotation is applied, a second oscillation on the axis perpendicular to the rotation axis can be observed.
@@ -186,9 +219,9 @@ While \gls{mems} gyroscopes do not achieve the same accuracy as optical gyroscop
 \gls{mems} gyroscopes have replaced other gyroscope types in most areas, but in areas where the highest precision possible is necessary, typically in military industry, optical gyroscopes are still used today \cite{Perlmutter2016}.
 Similar to the accelerometer, the measurements $\hat{\boldsymbol{\omega}}$ of the \gls{mems} gyroscope are influenced by errors, which can be modeled as
 \begin{equation}
-	\hat{\boldsymbol{\omega}} = \boldsymbol{\omega} + \vb{b}_\mathrm{g} + \vb{n}_\mathrm{g}.
+    \hat{\boldsymbol{\omega}} = \boldsymbol{\omega} + \vb{b}_\mathrm{g} + \vb{n}_\mathrm{g}.
 \end{equation}
-The measurement differs from the true angular velocity $\boldsymbol{\omega}$ due to the bias vector $\vb{b}_\mathrm{g}$ and the random noise vector $\vb{n}_\mathrm{g}$, which has a mean of zero \cite{Lefferts1982}.
+The measurement differs from the true angular velocity $\boldsymbol{\omega}$ due to the bias vector $\vb{b}_\mathrm{g}$ and the random noise vector $\vb{n}_\mathrm{g}$, which has a mean of zeroFind a good source and use it as a guide \cite{Lefferts1982}.
 
 \subsubsection{(\glsentrytext{mems}) Magnetometer}
 A magnetometer measures the local magnetic field.
@@ -222,17 +255,17 @@ Angle errors introduced by random walk are usually the hardest to correct and ar
 
 \subsection{\glsentrytext{lidar}}
 \begin{figure}[htb]
-	\centering
-	\includegraphics[width=0.5\textwidth]{Lidar.png}
-	\caption{Setup of a mechanical spinning \acrshort{lidar} \cite{Li2020}}
-	\label{fig:lidar}
+    \centering
+    \includegraphics[width=0.5\textwidth]{Lidar.png}
+    \caption{Setup of a mechanical spinning \acrshort{lidar} \cite{Li2020}}
+    \label{fig:lidar}
 \end{figure}
 \gls{lidar} is a method to measure distance to objects.
 Similar to other systems such as \gls{sonar} or \gls{radar}, \gls{lidar} uses the time-of-flight principle.
 A short laser pulse with the velocity of light $c$ is sent into the environment and the reflected light is analyzed.
 The duration $\Delta t$ it took from sending to receiving can then be used to calculate the distance $s$ between the \gls{lidar} and the object that the light hit with
 \begin{equation}
-	s = c\frac{\Delta t}{2}.
+    s = c\frac{\Delta t}{2}.
 \end{equation}
 The change of intensity and wavelength of the returning light are measured as well and can provide information about the reflectivity of the object (intensity) or the chemical composition of the air (wavelength).
 Common uses of \gls{lidar} are the analysis of earth's atmosphere, 3D mapping of environments or in the field of autonomous driving for object detection, tracking and \gls{slam}.
@@ -274,10 +307,10 @@ A signal amplifier and processing unit is integrated in the sensor head and thus
 The setup is shown in \cref{fig:wheel_speed_sensor_active}.
 Due to the embedded processing unit the hall wheel speed sensor is also often called an active sensor, while the magnetoelectric sensor is referred to as passive sensor.
 \begin{figure}[htbp]
-	\centering
-	\includegraphics[width=0.5\linewidth]{wheel_speed_sensor_active.pdf}
-	\caption{Setup of an active wheel speed sensor \cite{Re2011}}
-	\label{fig:wheel_speed_sensor_active}
+    \centering
+    \includegraphics[width=0.5\linewidth]{wheel_speed_sensor_active.pdf}
+    \caption{Setup of an active wheel speed sensor \cite{Re2011}}
+    \label{fig:wheel_speed_sensor_active}
 \end{figure}
 
 
@@ -315,6 +348,6 @@ Digital filters can be generally divided into two different categories.
 This also explains the naming of the two types, the \gls{fir} filter "forgets" past values, whereas the \gls{iir} filter uses the previous estimate and thus theoretically takes all past values into account.\\
 Savitzky-Golay filter
 \begin{equation}
-	y = \frac{1}{h}\sum_{i =\frac{1 - m}{2}}^{\frac{m - 1}{2}}C
+    y = \frac{1}{h}\sum_{i =\frac{1 - m}{2}}^{\frac{m - 1}{2}}C
 \end{equation}
 \iquest{How much about dsp? E.g. also noise, aa etc. or only type of filters?}
