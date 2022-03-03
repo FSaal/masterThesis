@@ -1,0 +1,33 @@
+\documentclass[12pt]{standalone}
+\usepackage{tikz}
+
+\usetikzlibrary{calc, positioning}
+
+\begin{document}
+% Define styles
+\tikzstyle{block} = [draw, minimum width=2cm, minimum height=1.2cm]
+
+\begin{tikzpicture}
+    % Sum shape
+    \node[draw, circle, minimum size=0.6cm] (sum) at (0,0){+};
+
+    % LP-Filter block
+    \node [block, above left=0.1cm and 1cm of sum] (lpf) {Low-Pass Filter};
+    % HP-Filter block
+    \node [block, below left=0.1cm and 1cm of sum] (hpf) {High-Pass Filter};
+    % Integrator block
+    \node [draw, minimum height=1.2cm, left=1.5cm of hpf] (int) {$\int$};
+
+    % Connect blocks with sum
+    \draw[-stealth] (lpf.east) -| (sum.north);
+    \draw[-stealth] (hpf.east) -| (sum.south);
+
+    % Input signals
+    \node [left=3cm of lpf] (start_acc){};
+    \node [below=1.7cm of start_acc] (start_gyr){};
+    \draw[stealth-] (lpf.west) -- (start_acc) node[left]{$\theta_\mathrm{acc}$};
+    \draw[stealth-] (int.west) -- (start_gyr) node[left]{$\dot{\theta}_\mathrm{gyr}$};
+    \draw[-stealth] (int.east) -- (hpf.west) node[midway, above]{$\theta_\mathrm{gyr}$};
+    \draw[-stealth] (sum.east) -- ++(1,0) node[right]{$\hat{\theta}$};
+\end{tikzpicture}
+\end{document}
