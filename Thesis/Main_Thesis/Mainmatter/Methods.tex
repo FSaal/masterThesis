@@ -132,6 +132,7 @@ When standing only flat ground, only the z-axis measures an acceleration.
 But when the car is tilted, e.g. on a ramp, the gravity is measured also by the x-axis, see \cref{fig:tikz_car_gravity}.
 The proportion of acceleration measured along the x-axis of the overall gravity can then be used to determine the pitch angle in the following way
 \begin{equation}
+	\label{eq:ang_from_acc}
 	\theta = \arcsin(\frac{\vb{a}_x}{\norm{\vb{g}}})
 \end{equation}
 where $\vb{a}_x$ is the linear acceleration measured along the x-axis and $\norm{\vb{g}}$ the magnitude of the overall measured acceleration.\\
@@ -148,6 +149,7 @@ A better approach, which incorporates the accelerations caused by the car, is de
 
 \subsection{Angular velocity only}
 \iimprov{Find good source and use it as a guide}
+\cite{Kok2017}
 The gyroscope measures the angular velocity, which must be integrated with respect to time, to get the rotation angle.
 The angular velocity is defined as
 \begin{equation}
@@ -177,76 +179,84 @@ The random walk introduced by integrating white noise or a constant bias causes 
 
 \subsection{Complementary filter}
 The complementary uses both the linear acceleration and angular velocity measurements and combines them using sensor fusion, such that the good properties of each sensor are used to reduce the poor properties of the other.
-As described in the previous subsections the pitch angle can be estimated using the accelerometer data with
+% As described in the previous subsections the pitch angle can be estimated using the accelerometer data with
+% \begin{equation}
+% 	\theta_\mathrm{acc}  = \arcsin(\frac{\vb{a}_x}{\norm{\vb{g}}})
+% \end{equation}
+% The gyroscope data must be integrated to get the angle
+% \begin{equation}
+% 	\theta_\mathrm{gyr}(t) = \theta_\mathrm{gyr,0} + \int_0^t \omega_\mathrm{gyr}  \dd{t}
+% \end{equation}
+% \iquest{Should I just reference the formulas, or should I write them here again?}
+The angle estimation obtained from the linear acceleration is reliable in the long-term, but is quite noisy.
+The estimation from the angular velocity measurements on the other hand provide good short-term accuracy, but should not be used for longer estimations due to drift.
+These properties can be interpreted in the frequency domain.
+The error from the accelerometer data is subject to high frequency noise, whereas the estimation error from the gyroscope is mostly due to low frequency noise \cite{2007Colton}.
+To minimize the error of the linear acceleration estimate, a \gls{lpf} should be used.
+A \gls{lpf} passes all signals with frequency lower than a certain cut-off frequency $f_0$ and attenuates signals with a frequency above $f_0$.
+In contrast, a \gls{hpf} should be used on the estimate of the gyroscope.
+A \gls{hpf} works exactly opposite to a \gls{lpf}.
+It blocks signals with a frequency below $f_0$ while allowing signals over this frequency to pass through \cite{Lyons1996}. A block diagram of the complementary filter is shown in \cref{fig:tikz_complementary_filter}.\\
+The angle estimation obtained from the linear acceleration (\cref{eq:ang_from_acc}) will be referred to as $\theta_\mathrm{acc}$, the angle estimation from the gyroscope estimation as $\theta_\mathrm{gyr}$ and the fused estimation of the complementary filter will be denoted as $\hat{\theta}$.
+As seen in REF, $\theta_\mathrm{gyr}$ is calculated by integrating the angular velocity $\omega_\mathrm{gyr} $ measured by the gyroscope.
+The Laplace transformation can be used to transform the angles from the time domain to the frequency domain.
+The angles $\theta_\mathrm{acc}$, $\theta_\mathrm{gyr}$ and $\hat{\theta}$ will be denoted as $\Theta_\mathrm{acc}(s)$, $\Theta_\mathrm{gyr}(s)$ and $\hat{\Theta}(s)$ in the frequency domain, the gyroscope measurements $\omega_\mathrm{gyr} $ as $\Omega_\mathrm{gyr} (s)$.
+The complimentary filter estimate is computed by
+\begin{align}
+	\label{eq:compl_filter_laplace}
+	\hat{\Theta}(s) & = G_\mathrm{low}(s)\Theta_\mathrm{acc}(s) + (1 - G_\mathrm{low}(s))\Theta_\mathrm{gyr}(s) \nonumber   \\
+	                & = G_\mathrm{low}(s)\Theta_\mathrm{acc}(s) + (1 - G_\mathrm{low}(s))\frac{1}{s}\Omega_\mathrm{gyr} (s)
+\end{align}
+where $G_\mathrm{low}(s)$ is the transfer function of a \gls{lpf} and $1-G_\mathrm{low}(s) = G_\mathrm{high}(s)$ the of a \gls{hpf} \cite{Kok2017}.
+The sum of $G_\mathrm{low}(s)$ and $1-G_\mathrm{low}(s)$ is equal to one, which means that the cut-off frequency of both filters must be the same.
+The transfer functions are defined as
 \begin{equation}
-	\theta_\mathrm{acc}  = \arcsin(\frac{\vb{a}_x}{\norm{\vb{g}}})
-\end{equation}
-The gyroscope data must be integrated to get the angle
-\begin{equation}
-	\theta_\mathrm{gyr}(t) = \theta_\mathrm{gyr,0} + \int_0^t \omega_\mathrm{gyr}  \dd{t}
-\end{equation}
-\iquest{Should I just reference the formulas, or should I write them here again?}
-The linear acceleration is reliable in the long-term, but is quite noisy.
-The angular velocity measurements on the other hand provide good short-term accuracy, but should not be used for longer estimations due to drift.
-So the error from the gyroscope is mostly low frequency, whereas the accelerometer data is subject to high frequency noise.
-If the \gls{imu} moves slowly the accelerometer data should be mainly used, and during fast movements the measurements of the gyroscope should be used.
-This can be achieved by applying a \gls{lpf} to the accelerometer estimate and a \gls{hpf} to the gyroscope data.
-A \gls{lpf} passes all signals with frequency lower than a certain cut-off frequency $f_0$ and attenuates signals with a frequency above $f_0$, whereas a \gls{hpf} works the other way around by letting signals with a frequency above $f_0$ through, while damping signals below this frequency.
-It is important for the complementary filter that the cut-off frequency of both filters is the same.
-First order filters are used with the transfer function
-\begin{equation}
-	H_\mathrm{low} (s) = \frac{1}{1 + \alpha s}
+	\label{eq:lpf}
+	G_\mathrm{low} (s) = \frac{1}{1 + \alpha s}
 \end{equation}
 for the \gls{lpf} and
 \begin{equation}
-	H_\mathrm{high} (s) = \frac{\alpha s}{1 + \alpha s}
+	\label{eq:hpf}
+	G_\mathrm{high} (s) = \frac{\alpha s}{1 + \alpha s}
 \end{equation}
-for the \gls{hpf}.
-$\alpha$ is the filter coefficient and depends on the time constant $\tau$ and cut-off frequency $f_0$ in the following way
-\begin{align}
-	\alpha & = \frac{\tau}{\tau + \Delta t}       \\
-	       & = \frac{1}{w_0} = \frac{1}{2\pi f_0}
+for the \gls{hpf}, when using a first-order filter.
+$\alpha$ is the filter coefficient and has the following influence on the cut-off frequency
+\begin{equation}
+	\alpha
+	= \frac{\tau}{\tau + T}
+	% = \frac{1}{w_0}
+	= \frac{1}{2\pi f_0}.
 	\label{eq:filter_f0}
-\end{align}
-The time constant $\tau$ determines at which relative duration of signal the filter will act on.
-E.g. for a \gls{hpf} only all signals shorter than $\tau$ will be used and all longer than the time constant will be filtered out.
-The \gls{lpf} works the opposite way.
-The filter can be designed in different ways.\\
-Choosing the right filter coefficient is a ... problem and ...
-A good initial guess is measuring the drift of the gyroscope and selecting the filter coefficient accordingly.
+\end{equation}
+with $\tau$ being the time constant of the filter and $T$ being the sample period.
+Inserting \cref{eq:lpf} and \cref{eq:hpf} in \cref{eq:compl_filter_laplace} and using inverse Laplace transformation as well as Euler backward discretization, the complementary filter can be written in discrete time as
+\begin{equation}
+	\hat{\theta}_t = \gamma\left(\hat{\theta}_{t - 1} + T \omega_{\mathrm{gyr},t}\right) + (1 - \gamma) \theta_{\mathrm{acc},t},
+\end{equation}
+with
+\begin{equation}
+	\label{eq:filter_gain}
+	\gamma = \frac{\alpha}{\alpha + T} \in [0,1]
+\end{equation}
+being the filter gain.
+The choice of the parameter $\alpha$ (and hence $\gamma$) determines, how much each of the two measurements should be trusted.
+Selecting a small $\alpha$ ($\gamma$ close to zero) results in a high cut-off frequency.
+The estimation then mostly uses the accelerometer data.
+Contrary, a high value of $\alpha$ leads to a $\gamma$ close to one and low cut-off frequency, where the gyroscope estimation is trusted more \cite{1997Baerveldt}.\\
+% A decrease of $\alpha$ leads to a smoother signal, but at the cost of adding some additional time delay.
+Selecting the right filter coefficient is a known problem and is usually solved by calculating an initial guess followed by fine-tuning by hand to get the desired result.
+One option to get an initial guess is by measuring the drift of the gyroscope and selecting the filter coefficient accordingly.
+The time $T_\mathrm{free}$ where the drift of the angle estimation from the gyroscope is negligible, is inversely proportional to the cut-off frequency $f_0 = \frac{1}{T_\mathrm{free}}$.
 E.g. if the drift from the gyroscope is only negligible for \SI{10}{\second} then the cut-off frequency should be chosen at $f_0 = \frac{1}{\SI{10}{\second}} = \SI{0.1}{\hertz}$ or higher.
-The filter coefficient then be calculated according to \cref{eq:filter_f0}.
-Fine-tuning is done to further improve the performance of the filter.\\
-The complementary filter equation in the frequency-domain is
-\begin{equation}
-	\label{eq:compl_filt_f}
-	\hat{\theta} = \left(\frac{1}{1 + \alpha s}\right)\theta_\mathrm{acc}(s) + \frac{1}{s}\left(\frac{\alpha s}{1 + \alpha s}\right) \omega_\mathrm{gyr}(s)
-\end{equation}
-expanding both sides with $(1 + \alpha s)$ results in
-\begin{equation}
-	\hat{\theta}(1 + \alpha s) = \theta_\mathrm{acc}(s) + \alpha\omega_\mathrm{gyr}(s)
-\end{equation}
-on which the inverse Laplace transform can be performed.
-Something about Laplace maybe.
-Resulting in the equation in time domain
-\begin{equation}
-	\hat{\theta}(t) = \theta_\mathrm{acc}(t) + \alpha\omega_\mathrm{gyr}(t) - \alpha \dv{\hat{\theta}}{t}
-\end{equation}
-And time discrete
-\begin{equation}
-	\hat{\theta}[n] = \alpha\left(\hat{\theta}[n - 1] + T \omega_\mathrm{gyr}[n]\right) + (1 - \alpha) \theta_\mathrm{acc}[n]
-\end{equation}
+The filter gain can then be calculated using \cref{eq:filter_f0} and \cref{eq:filter_gain}.
+Using the previous example and assuming a sample frequency of \SI{100}{\hertz}, the filter gain would then be $\gamma = 0.9938$.
+For the experiment a cut-off frequency of $f_0=?$ was chosen, resulting in filter coefficient of $\alpha = ?$ and filter gain of $\gamma = ?$.
 \begin{figure}[htb]
 	\centering
 	\input{Graphics/TikZ/complementary_filter.tex}
-	\caption{Block diagram complementary filter}
+	\caption{Block diagram of the complementary filter}
 	\label{fig:tikz_complementary_filter}
 \end{figure}
-A high value of $\alpha$ means that the measurements of the gyroscope are trusted less than the from the accelerometer, and vice versa a small $\alpha$ value means that the are gyroscope measurements are weighted more.
-\cite{1997Baerveldt} \cite{2007Colton}
-A decrease of $\alpha$ leads to a smoother signal, but at the cost of adding some additional time delay.
-\iimprov{Check equations and improve structure, sort and add citations}
-
 
 \section{\glsentrytext{lidar} only}
 \itodo{Maybe brief overview of section/algorithm}
