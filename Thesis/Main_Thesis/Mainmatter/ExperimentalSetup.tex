@@ -107,10 +107,6 @@ Both \gls{lidar}s need an external power supply and transfer the data over Ether
 
 
 \section{Sensor placement}
-The \gls{imu} must be placed on a rigid point of the car, such that the \gls{imu}'s position always stays the same relative to the car.
-Other than that it should also be placed in the transversal center? to guarantee that the centripetal acceleration is not skewed towards one side.
-The ZED 2i camera with the integrated \gls{imu} was placed on the roof of the car, because the camera images were used as well.
-The myAHRS+ \gls{imu} was mounted on the floor of the car trunk.\\
 \begin{figure}[htpb]
 	\centering
 	\input{Graphics/TikZ/lidar_mount.tex}
@@ -132,56 +128,57 @@ The myAHRS+ \gls{imu} was mounted on the floor of the car trunk.\\
 		$d_\mathrm{w}$    & Distance from ramp start to contact point              & \si{\metre}   \\
 		$\alpha$          & Ramp angle                                             & \si{\degree}  \\
 		$\beta$           & \gls{lidar} mount angle                                & \si{\degree}  \\
-		$\gamma$          & True angle?!                                           & \si{\degree}  \\
+		$\gamma$          & Laser line angle                                       & \si{\degree}  \\
 		$\epsilon$        & \gls{lidar} vertical resolution                        & \si{\degree}  \\
 		$n$               & Number of laser channels                               &               \\
 		\bottomrule
 	\end{tabular}
 \end{table}
+The \gls{imu} must be placed on a rigid point of the car, such that the \gls{imu}'s position always stays the same relative to the car.
+Other than that it should also be placed in the transversal center of the car to guarantee that the centripetal acceleration is not skewed towards one side when driving around a corner.
+The ZED 2i camera with the integrated \gls{imu} was placed on the roof of the car, because the camera images were used as well.
+The myAHRS+ \gls{imu} was mounted on the floor of the car trunk.\\
 The \gls{lidar} will be placed on top of the car, to get a greater \gls{fov}.
 The pitch angle $\beta$ at which the \gls{lidar} will be mounted should be chosen such that the number of points in the area at the beginning of the ramp are maximized.
-This allows for the most accurate distinction between planes of different inclination angles and therefore also a good distance estimation.
+This allows for the most accurate distinction between planes of different inclination angles.
 Because the distance to the ramp is not constant due to the movement of the car, the optimization can only be done for a specific distance.
 The coordinates at which the lasers hit the ground and ramp depend on the height of the \gls{lidar} $h_\mathrm{l}$, the distance to the ramp $d$, the angle of the ramp $\alpha$, the angle $\beta$ at which the \gls{lidar} has been mounted on the car and finally on the vertical resolution $\epsilon$ and \gls{fov} of the \gls{lidar}.
-The coordinates can be calculated in the following way.\\
+The coordinates at which the laser lines of the \gls{lidar} hit the ground can be calculated in the following way.\\
 The angle $\gamma$ between the plane parallel to the ground at \gls{lidar} height and each laser wave is defined as
 \begin{equation}
 	\gamma = \beta - i\epsilon
 \end{equation}
-with $i \in [0,1,2,\dots,n]$ being the "laserID" starting from the lowest opening angle and going to the highest and $n$ being the number of laser channels.
+with $i \in [0,1,2,\dots,n]$ being the laser channel ID starting from the lowest opening angle and going to the highest and $n$ being the number of laser channels.
 On flat ground the distance at which the laser waves hit the ground can be calculated by
 \begin{equation}
-	x = \tan(\ang{90} - \gamma) h_\mathrm{l}.
+	d_\mathrm{hit,ground}  = \tan(\ang{90} - \gamma) h_\mathrm{l}.
 	\label{eq:ground_points}
 \end{equation}
 With a ramp, the assumption from \cref{eq:ground_points} does not hold anymore.
 The light does not travel as far.
 The height above ground, when the light is at the beginning of the ramp can be calculated by
 \begin{equation}
-	h_\mathrm{w,start} = h_\mathrm{l} - d\tan(\gamma)
+	h_\mathrm{w,start} = h_\mathrm{l} - d\tan(\gamma).
 \end{equation}
 The distance $l_\mathrm{w}$ which the light travels from the beginning of the ramp to the contact point with the ramp can be calculated using the law of sines
 \begin{align}
 	l_\mathrm{w} & = \frac{h_\mathrm{w,start} }{\sin(\alpha + \gamma)} \sin(\ang{90} - \alpha) \\
-	             & = -\frac{h_\mathrm{w,start} }{\sin(\alpha + \gamma)} \cos(\alpha)
+	             & = -\frac{h_\mathrm{w,start} }{\sin(\alpha + \gamma)} \cos(\alpha).
 \end{align}
 The travelled distance along the x-axis from the start of the ramp to the contact point is then
-\begin{equation}
-	d_\mathrm{w}  = l_\mathrm{w} \sin(\ang{90} - 2\alpha - \gamma)
-\end{equation}
-which results in the total x distance from the \gls{lidar}
-\begin{equation}
-	d_\mathrm{hit} = d + d_\mathrm{w}
-\end{equation}
-or in full length
-\begin{equation}
+\begin{align}
+	d_\mathrm{w} & = l_\mathrm{w} \sin(\ang{90} - 2\alpha - \gamma) \\
+	             & = -l_\mathrm{w} \cos(2\alpha + \gamma)           \\
+\end{align}
+Putting everything together, the total x distance from the \gls{lidar} to the contact point on the ramp can be calculated by
+\begin{align}
+	d_\mathrm{hit,ramp} & = d + d_\mathrm{w}                                                                                    \\
+	d_\mathrm{hit,ramp} & = d + \frac{h_\mathrm{l} - d\tan(\gamma)}{\sin(\alpha + \gamma)} \cos(\alpha) \cos(2\alpha + \gamma).
 	\label{eq:final_equation}
-	d_\mathrm{hit} = d + \frac{h_\mathrm{l} - d\tan(\gamma)}{\sin(\alpha + \gamma)} \cos(-\alpha) \sin(\ang{90} - 2\alpha - \gamma)
-\end{equation}
-Using \cref{eq:final_equation} and optimizing $\beta$ such that the number of points in the area at the start of the ramp are maximized, the optimal mounting pitch angle $\beta$ for the two \gls{lidar}s has been found with $\beta_\mathrm{velodyne} = \ang{0}$ and $\beta_\mathrm{robos} = \ang{20}$.
+\end{align}
+Using \cref{eq:ground_points} and \cref{eq:final_equation} and optimizing $\beta$ such that the number of points in the area at the start of the ramp are maximized, the optimal mounting pitch angle $\beta$ for the two \gls{lidar}s has been found with $\beta_\mathrm{velodyne} = \ang{0}$ and $\beta_\mathrm{robos} = \ang{20}$.
 The optimization was done for a distance of \SI{10}{\metre} to the ramp.
-The angle between the two \gls{lidar}s differs due to the different starting opening angle of \SI{-25}{\degree} and \SI{0}{\degree} for the Velodyne and Robosense respectively.
-\iimprov{Improve text and table param description}
+The angle between the two \gls{lidar}s differs due to the different starting opening angle of \SI{-25}{\degree} and \SI{0}{\degree} for the Velodyne and Robosense respectively, as well as due to the different vertical resolution.
 
 
 \section{Car}
@@ -193,7 +190,7 @@ In this mode, the maximum speed is capped at \SI{5}{\kilo\metre\per\hour} and th
 The car can only make it about halfway up.
 Because of that, the normal mode was used to drive between different levels.
 Before driving down, the mode was switched again to also provide the wheel speed measurements.
-The car has a PC in the booth, at which all the sensors were connected to.
+The car has a PC in the booth, at which all the sensors were connected to and which ran all the algorithms.
 \iimprov{Text is bad e.g. "hacked" }
 \missingfigure{Picture of eGolf}
 
