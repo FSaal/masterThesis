@@ -3,9 +3,6 @@
 from __future__ import division, print_function
 import numpy as np
 import rospy
-from ackermann_tools.msg import EGolfOdom
-from sensor_msgs.msg import Imu
-from std_msgs.msg import Float32, Float32MultiArray
 from tf.transformations import (
     euler_from_quaternion,
     quaternion_matrix,
@@ -24,19 +21,11 @@ class ImuRampDetect(object):
         self.rate = rate
         self.car_angle_gyr = 0
 
-        # # Variables for transformation from imu to car frame
-        # self.buffer = []  # Buffer used to collect imu msgs to calculate average
-        # self.g_mag = None  # Define gravity magnitude
-        # self.quat1 = None  # Define quaternion used for first rotation
-        # self.z_calibrated = False  # True after first imu car frame alignment (pitch, roll)
-        # self.is_calibrated = False  # True after second alignment (heading)
-
         # Variables for calculation of car pitch angle
-        self.wheelbase = 2.631  # eGolf wheelbase [m]
+        self.track_width = 1.52  # eGolf track width [m]
         self.vel_x_car_filt_old = 0  # Initialize previous car velocity
         # (for calc of acceleration)
         self.angle_est = 0  # Initialize previous car pitch angle
-        self.angle_est2 = 0
         # (for complementary filter)
         self.dist = 0  # Travelled distance
 
@@ -46,27 +35,42 @@ class ImuRampDetect(object):
         # Window length, results in a delay of win_len/200 [s]
         self.win_len = 50
 
-    def spin(self, lin_acc, ang_vel, odom, rot_mat):
+    def spin(self, lin_acc, ang_vel, odom, rot_mat, gyr_bias):
+        # Make sensor msgs public
         self.lin_acc_msg = lin_acc
         self.ang_vel_msg = ang_vel
         self.odom_msg = odom
 
         # Transform
-        lin_acc, ang_vel = self.transform_imu(rot_mat)
+        lin_acc, ang_vel = self.transform_imu(rot_mat, gyr_bias)
         # Calculate pitch angle
         car_angles = self.gravity_method(lin_acc[0], ang_vel[1])
-        return car_angles
+        return lin_acc, ang_vel, car_angles
 
-    def align_imu(self, lin_acc):
+    def align_imu(self, lin_acc, ang_vel, odom):
         """Get rotation matrix to align imu frame with car frame"""
-        # First rotation
-        # Quaternion to align z-axes of imu and car (use first second)
-        self.quat1 = self.trafo1(lin_acc[: self.rate])
+        # First estimate: Car accelerates after 1s
+        start_idx = 1 * self.rate
+        for i in range(2):
+            # First rotation
+            # Quaternion to align z-axes of imu and car
+            self.quat1 = self.trafo1(lin_acc[:start_idx])
+
+            # Index where car starts accelerating
+            start_idx = self.car_starts_driving(lin_acc, odom)
+            # Add a small buffer to make sure that car is really still before
+            start_idx -= int(0.25 * self.rate)
+        print("Car starts driving after {:.2f} s".format(start_idx / self.rate))
+
+        # Get gyroscope bias
+        gyr_bias = np.mean(ang_vel[:start_idx], axis=0)
+        print("Gyroscope bias: {}".format(gyr_bias))
 
         # Second (final) rotation
-        # Assumes acceleration occurs between 1-3 s
-        tf_imu_car = self.trafo2(lin_acc[self.rate : 3 * self.rate])
-        return tf_imu_car
+        # Assumes acceleration occurs for 1 s
+        tf_imu_car = self.trafo2(lin_acc[start_idx : start_idx + (1 * self.rate)])
+
+        return tf_imu_car, gyr_bias
 
     def trafo1(self, lin_acc):
         """First rotation to align imu measured g-vector with car z-axis (up)"""
@@ -107,6 +111,31 @@ class ImuRampDetect(object):
         rot_mat_imu_car = quaternion_matrix(quat)[:3, :3]
         return rot_mat_imu_car
 
+    def car_starts_driving(self, lin_acc, odom, acc_thresh=0.2):
+        """Check if car starts accelerating
+
+        Args:
+            acc_thresh (float, optional): Magnitude in xy-plane to surpass. Defaults to 0.2.
+
+        Returns:
+            bool: Has car started driving?
+        """
+        # Use accelerometer if odom is not available
+        if not np.any(odom):
+            # Rotation matrix to align imu z-axis with car z-axis
+            align_z = quaternion_matrix(self.quat1)[:3, :3]
+            # Apply rotation
+            lin_acc_z_aligned = np.inner(align_z, lin_acc).T
+            # Check if an acceleration occurs on x or y-axis
+            acc_xy_plane = np.linalg.norm(lin_acc_z_aligned[:, :2], axis=1)
+            # Get first index where acceleration surpasses threshold
+            start_idx = np.argmax(acc_xy_plane > acc_thresh)
+        # Use odometer data if available
+        else:
+            # Index where wheel speed is not zero anymore
+            start_idx = np.flatnonzero(odom[:, 2])[0]
+        return start_idx
+
     @staticmethod
     def quat_from_vectors(vec1, vec2):
         """Gets quaternion to align vector 1 with vector 2"""
@@ -124,8 +153,10 @@ class ImuRampDetect(object):
         quat = np.append(axis * np.sin(ang / 2), np.cos(ang / 2))
         return quat
 
-    def transform_imu(self, rot_mat):
+    def transform_imu(self, rot_mat, gyr_bias):
         """Transforms imu msgs from imu to car frame"""
+        # Remove gyroscope bias
+        self.ang_vel_msg -= gyr_bias
         lin_acc_tf = np.inner(rot_mat, self.lin_acc_msg)
         ang_vel_tf = np.inner(rot_mat, self.ang_vel_msg)
 
@@ -133,8 +164,8 @@ class ImuRampDetect(object):
 
     def vel_from_odom(self, odom_msg):
         """Car velocity from wheel speeds"""
-        alpha = (odom_msg[2] - odom_msg[3]) / self.wheelbase
-        yaw = alpha * 1.0 / self.rate
+        alpha = (odom_msg[2] - odom_msg[3]) / self.track_width
+        yaw = alpha * 1 / self.rate
         # 3.6 to convert from km/h to m/s
         vel_x_car = ((odom_msg[2] + odom_msg[3]) / 2) * np.cos(yaw) / 3.6
         return vel_x_car
@@ -153,15 +184,14 @@ class ImuRampDetect(object):
         # Car pitch angle using only accelerometer
         car_angle_acc = np.arcsin(acc_x_imu_filt / self.g_mag)
         # Car pitch angle using only gyroscope
-        self.car_angle_gyr = self.car_angle_gyr - vel_y_imu * (1.0 / self.rate)
+        self.car_angle_gyr = self.car_angle_gyr - vel_y_imu * (1 / self.rate)
 
         # Car pitch angle using accelerometer method
         car_angle_odom = np.arcsin((acc_x_imu_filt - acc_x_car) / self.g_mag)
 
         # Car pitch angle (imu acc + odom + imu angular vel --> Complementary filter)
-        self.angle_est = self.complementary_filter(self.angle_est, vel_y_imu, car_angle_acc, 0.01)
-        self.angle_est2 = self.complementary_filter(
-            self.angle_est2, vel_y_imu, car_angle_acc, 0.005
+        self.angle_est = self.complementary_filter(
+            self.angle_est, vel_y_imu, car_angle_acc, 1 - 0.9989
         )
 
         return [
@@ -169,7 +199,6 @@ class ImuRampDetect(object):
             self.car_angle_gyr,
             car_angle_odom,
             self.angle_est,
-            self.angle_est2,
         ]
 
     def complementary_filter(self, angle, gyr, acc_angle, alpha):
@@ -188,7 +217,7 @@ class ImuRampDetect(object):
         """
         if np.isnan(angle):
             angle = 0
-        angle_est = (1 - alpha) * (angle + gyr * (1.0 / self.rate)) + alpha * acc_angle
+        angle_est = (1 - alpha) * (angle - gyr * (1 / self.rate)) + alpha * acc_angle
         return angle_est
 
     def covered_distance(self):
@@ -197,7 +226,7 @@ class ImuRampDetect(object):
         v = self.vel_from_odom(self.odom_msg)
 
         # Get covered distance by integrating with respect to time
-        self.dist += v * 1.0 / self.rate
+        self.dist += v * (1 / self.rate)
         return self.dist
 
     def is_ramp(self, car_angle):
