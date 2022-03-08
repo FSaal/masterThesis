@@ -68,7 +68,7 @@ def run_algo(lin_acc, ang_vel, odom, f):
     tf, gyr_bias = ird.align_imu(lin_acc, ang_vel, odom)
     angles = []
     for i, _ in enumerate(lin_acc):
-        _, _, angs = ird.spin(lin_acc[i], ang_vel[i], odom[i], tf, gyr_bias)
+        _, _, angs, _ = ird.spin(lin_acc[i], ang_vel[i], odom[i], tf, gyr_bias)
         angles.append(angs)
     return angles
 
@@ -77,7 +77,9 @@ def visualize_results(angles, t, bag_name):
     # Convert from radians to degree
     angles = np.asarray(np.rad2deg(angles))
     # Convert to pandas dataframe (for plotting)
-    df_angles = pd.DataFrame(angles, index=t, columns=["acc", "gyr", "acc_odom", "compl_0.01"])
+    df_angles = pd.DataFrame(
+        angles, index=t, columns=["acc", "gyr", "acc_odom", "compl", "compl_grav"]
+    )
     fig = px.line(df_angles)
     fig.update_layout(title=bag_name, xaxis_title="Time [s]", yaxis_title="Pitch angle [deg]")
     fig.show()
@@ -89,6 +91,5 @@ for _, bag_name in enumerate(BAG_NAMES):
     lin_acc, ang_vel, odom, t, f = get_data(bag_name)
     print("Running algorithm")
     angles = run_algo(lin_acc, ang_vel, odom, f)
-    # break
     all_angles.append(angles)
     visualize_results(angles, t, bag_name)
