@@ -26,14 +26,16 @@ class ImuRampDetect(object):
         self.vel_x_car_filt_old = 0  # Initialize previous car velocity
         # (for calc of acceleration)
         self.angle_est = 0  # Initialize previous car pitch angle
+        self.angle_est2 = 0  # Initialize previous car pitch angle
         # (for complementary filter)
-        self.dist = 0  # Travelled distance
+        self.dist_car = 0  # Travelled distance
+        self.v_imu = 0  #
+        self.dist_imu = 0
+        self.is_odom_available = False
 
         # Moving Average Filter
         self.imu_filt_class = FilterClass()
         self.odom_filt_class = FilterClass()
-        # Window length, results in a delay of win_len/200 [s]
-        self.win_len = 50
 
     def spin(self, lin_acc, ang_vel, odom, rot_mat, gyr_bias):
         # Make sensor msgs public
@@ -43,9 +45,34 @@ class ImuRampDetect(object):
 
         # Transform
         lin_acc, ang_vel = self.transform_imu(rot_mat, gyr_bias)
+
         # Calculate pitch angle
-        car_angles = self.gravity_method(lin_acc[0], ang_vel[1])
-        return lin_acc, ang_vel, car_angles
+        # Calculate pitch angle using different methods
+        car_angle_acc = self.pitch_from_acc(lin_acc[0])
+        car_angle_gyr = self.pitch_from_gyr(ang_vel[1])
+        car_angle_grav = self.pitch_from_grav(lin_acc[0], 0.5)
+        car_angle_compl = self.complementary_filter(ang_vel[1], lin_acc[0], 0.99)
+        car_angle_compl_grav = self.complementary_filter_grav(ang_vel[1], car_angle_grav, 0.99)
+
+        if self.is_ramp(car_angle_compl_grav, 2):
+            if self.is_odom_available:
+                dist = self.travel_distance_odom(odom)
+            else:
+                dist = self.travel_distance_imu(lin_acc[0], car_angle_compl_grav)
+        else:
+            dist = 0
+        return (
+            lin_acc,
+            ang_vel,
+            [
+                car_angle_acc,
+                car_angle_gyr,
+                car_angle_grav,
+                car_angle_compl,
+                car_angle_compl_grav,
+            ],
+            dist,
+        )
 
     def align_imu(self, lin_acc, ang_vel, odom):
         """Get rotation matrix to align imu frame with car frame"""
@@ -132,6 +159,7 @@ class ImuRampDetect(object):
             start_idx = np.argmax(acc_xy_plane > acc_thresh)
         # Use odometer data if available
         else:
+            self.is_odom_available = True
             # Index where wheel speed is not zero anymore
             start_idx = np.flatnonzero(odom[:, 2])[0]
         return start_idx
@@ -170,70 +198,72 @@ class ImuRampDetect(object):
         vel_x_car = ((odom_msg[2] + odom_msg[3]) / 2) * np.cos(yaw) / 3.6
         return vel_x_car
 
-    def gravity_method(self, acc_x_imu, vel_y_imu):
-        """Calculate pitch angle of car using the gravity method"""
-        # Low pass filter both subscribed topics (imu acc and odometry vel)
-        vel_x_car = self.vel_from_odom(self.odom_msg)
-        vel_x_car_filt = self.odom_filt_class.moving_average(vel_x_car, self.win_len)
-        acc_x_imu_filt = self.imu_filt_class.moving_average(acc_x_imu, self.win_len)
+    def pitch_from_acc(self, acc_x_imu):
+        """Calculate pitch angle of car using only the accelerometer"""
+        return np.arcsin(acc_x_imu / self.g_mag)
 
+    def pitch_from_gyr(self, ang_vel_y):
+        """Calculate pitch angle of car using only the gyroscope"""
+        self.car_angle_gyr -= ang_vel_y * (1 / self.rate)
+        return self.car_angle_gyr
+
+    def pitch_from_grav(self, acc_x_imu, win):
+        """Calculate pitch angle of car using the gravity method"""
+        # Calculate car acceleration from odom (if available)
+        # Low pass filter and odometry vel
+        vel_x_car = self.vel_from_odom(self.odom_msg)
+        vel_x_car_filt = self.odom_filt_class.moving_average(vel_x_car, win, self.rate)
         # Car acceleration from car velocity
         acc_x_car = (vel_x_car_filt - self.vel_x_car_filt_old) / (1 / self.rate)
         self.vel_x_car_filt_old = vel_x_car_filt
+        # Low-pass filter linear acceleration measured by imu
+        acc_x_imu_filt = self.imu_filt_class.moving_average(acc_x_imu, win, self.rate)
 
-        # Car pitch angle using only accelerometer
-        car_angle_acc = np.arcsin(acc_x_imu_filt / self.g_mag)
-        # Car pitch angle using only gyroscope
-        self.car_angle_gyr = self.car_angle_gyr - vel_y_imu * (1 / self.rate)
+        # Car pitch angle (imu acc + odom only)
+        car_angle_filt = np.arcsin((acc_x_imu_filt - acc_x_car) / self.g_mag)
+        return car_angle_filt
 
-        # Car pitch angle using accelerometer method
-        car_angle_odom = np.arcsin((acc_x_imu_filt - acc_x_car) / self.g_mag)
-
-        # Car pitch angle (imu acc + odom + imu angular vel --> Complementary filter)
-        self.angle_est = self.complementary_filter(
-            self.angle_est, vel_y_imu, car_angle_acc, 1 - 0.9989
-        )
-
-        return [
-            car_angle_acc,
-            self.car_angle_gyr,
-            car_angle_odom,
-            self.angle_est,
-        ]
-
-    def complementary_filter(self, angle, gyr, acc_angle, alpha):
+    def complementary_filter(self, gyr, acc_x_imu, K):
         """Sensor fusion imu gyroscope with accelerometer to estimate car pitch angle
 
-        Uses gyroscope data on the short term and the from accelerometer+odometry
+        Uses gyroscope data on the short term and the from accelerometer
         calculated pitch angle in the long term (because gyroscope is not drift free,
         but accelerometer is) to estimate the car pitch angle
 
         :param angle:       Previous angle estimation
         :param gyr:         y-axis gyroscope data (angular velocity)
         :param acc_angle:   Car angle from accelerometer+odometry calculation (low pass filtered)
-        :param alpha:       Time constant response time [0-1], 0: use only gyroscope,
-                            1: use only accelerometer
+        :param K:           Time constant response time [0-1], 1: use only gyroscope,
+                            0: use only accelerometer
         :return angle_est:  Estimation of current angle
         """
-        if np.isnan(angle):
-            angle = 0
-        angle_est = (1 - alpha) * (angle - gyr * (1 / self.rate)) + alpha * acc_angle
-        return angle_est
+        acc_angle = np.arcsin(acc_x_imu / self.g_mag)
+        self.angle_est = K * (self.angle_est - gyr / self.rate) + (1 - K) * acc_angle
+        return self.angle_est
 
-    def covered_distance(self):
-        """How far has car driven"""
-        # Car velocity
-        v = self.vel_from_odom(self.odom_msg)
+    def complementary_filter_grav(self, gyr, acc_angle, K):
+        """Sensor fusion imu gyroscope with accelerometer+odom to estimate car pitch angle"""
+        self.angle_est = K * (self.angle_est - gyr / self.rate) + (1 - K) * acc_angle
+        return self.angle_est
 
-        # Get covered distance by integrating with respect to time
-        self.dist += v * (1 / self.rate)
-        return self.dist
+    def travel_distance_odom(self, odom):
+        """Distance along x-axis which the car has travelled so far"""
+        v_car = self.vel_from_odom(odom)
+        self.dist_car += v_car * (1.0 / self.rate)
+        return self.dist_car
 
-    def is_ramp(self, car_angle):
+    def travel_distance_imu(self, acc_x_imu, car_angle_est):
+        """Distance along x-axis which the car has travelled so far"""
+        acc_free_off_g = acc_x_imu - np.sin(car_angle_est) * self.g_mag
+        self.v_imu += acc_free_off_g * (1 / self.rate)
+        self.dist_imu += self.v_imu * (1 / self.rate)
+        return self.dist_imu
+
+    def is_ramp(self, car_angle, ramp_thresh=2):
         """Checks if car is on ramp"""
-        if car_angle > 3:
-            print("ON A RAMP")
-            print(self.covered_distance())
+        # Convert angle from radian to degree
+        car_angle = np.rad2deg(car_angle)
+        if np.abs(car_angle) > ramp_thresh:
             return True
         return False
 
@@ -245,16 +275,18 @@ class FilterClass(object):
         self.values = []
         self.sum = 0
 
-    def moving_average(self, val, window_size):
+    def moving_average(self, val, win, f):
         """Moving average filter, acts as lowpass filter
 
         :param val:         Measured value (scalar)
         :param window_size: Window size, how many past values should be considered
         :return filtered:   Filtered signal
         """
+        # Convert window size from s to samples
+        win = int(win * f)
         self.values.append(val)
         self.sum += val
-        if len(self.values) > window_size:
+        if len(self.values) > win:
             self.sum -= self.values.pop(0)
         return self.sum / len(self.values)
 
