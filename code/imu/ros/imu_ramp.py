@@ -5,7 +5,7 @@ import numpy as np
 import rospy
 from ackermann_tools.msg import EGolfOdom
 from sensor_msgs.msg import Imu
-from std_msgs.msg import Float32, Float32MultiArray
+from std_msgs.msg import Float32
 from tf.transformations import (
     euler_from_quaternion,
     quaternion_matrix,
@@ -35,8 +35,6 @@ class ImuRampDetect(object):
         rospy.Subscriber("/eGolf/sensors/odometry", EGolfOdom, self.callback_odom, queue_size=1)
         self.pub_pitch_compl = rospy.Publisher("/car_angle_compl", Float32, queue_size=5)
         self.pub_pitch_grav = rospy.Publisher("/car_angle_grav", Float32, queue_size=5)
-        self.pub_debug = rospy.Publisher("/debug", Float32MultiArray, queue_size=5)
-        # self.pub_angvel = rospy.Publisher("ang_vel_tf", Imu)
 
         # Define subscriber callback messages
         self.lin_acc_msg = None
@@ -47,12 +45,13 @@ class ImuRampDetect(object):
         self.buffer = []  # Buffer used to collect imu msgs to calculate average
         self.buffer2 = []
         self.g_mag = None  # Define gravity magnitude
+        self.gyr_bias = None  # Gyroscope bias at start
         self.quat1 = None  # Define quaternion used for first rotation
         self.z_calibrated = False  # True after first imu car frame alignment (pitch, roll)
         self.is_calibrated = False  # True after second alignment (heading)
 
         # Variables for calculation of car pitch angle
-        self.wheelbase = 1.52  # eGolf wheelbase [m]
+        self.track_width = 1.52  # eGolf track width [m]
         self.imu_acc_x_old = 0  # Initialize previous imu acceleration
         self.vel_x_car_filt_old = 0  # Initialize previous car velocity
         # (for calc of acceleration)
@@ -61,9 +60,8 @@ class ImuRampDetect(object):
         self.dist = 0  # Travelled distance
         self.v = 0
 
-        # Derivate
-        # self.diff_imu = Derivate()
         # Moving Average Filter
+        self.imu_filt_class = FilterClass()
         self.imu_filt_class = FilterClass()
         self.odom_filt_class = FilterClass()
         # Window length, results in a delay of win_len/200 [s]
@@ -87,7 +85,7 @@ class ImuRampDetect(object):
         # Frequency at which node runs
         r = rospy.Rate(self.rate)
         # Wait until imu msgs
-        while self.lin_acc_msg == None:
+        while self.lin_acc_msg is None:
             if rospy.is_shutdown():
                 break
             r.sleep()
@@ -99,18 +97,15 @@ class ImuRampDetect(object):
             else:
                 # Transform
                 lin_acc, ang_vel = self.transform_imu(rot_mat)
-                # self.pub_angvel
-                # self.v += self.diff_imu.diff(self.lin_acc_msg[0])
-                # print(self.v)
 
-                # Calculate pitch angle
-                car_angle_grav, car_angle_compl = self.gravity_method(lin_acc[0], ang_vel[1])
-                # print(car_angle_grav, car_angle_compl)
-                if self.is_ramp(car_angle_compl, 2):
-                    # print(self.covered_distance())
-                    pass
-                self.pub_pitch_compl.publish(car_angle_compl)
-                self.pub_pitch_grav.publish(car_angle_grav)
+                # Calculate pitch angle using different methods
+                car_angle_grav = self.pitch_from_grav(lin_acc[0])
+                car_angle_compl = self.complementary_filter(ang_vel[1], lin_acc[0], 0.99)
+                car_angle_compl_grav = self.complementary_filter_grav(
+                    ang_vel[1], car_angle_grav, 0.99
+                )
+                angs = np.asarray([car_angle_grav, car_angle_compl, car_angle_compl_grav])
+                print(np.rad2deg(angs))
             r.sleep()
 
     def align_imu(self):
@@ -264,7 +259,9 @@ class ImuRampDetect(object):
 
     def vel_from_odom(self, odom_msg):
         """Car velocity from wheel speeds"""
-        alpha = (odom_msg.rear_left_wheel_speed - odom_msg.rear_right_wheel_speed) / self.wheelbase
+        alpha = (
+            odom_msg.rear_left_wheel_speed - odom_msg.rear_right_wheel_speed
+        ) / self.track_width
         yaw = alpha * 1.0 / self.rate
         # 3.6 to convert from km/h to m/s
         vel_x_car = (
@@ -274,8 +271,10 @@ class ImuRampDetect(object):
         )
         return vel_x_car
 
-    def gravity_method(self, acc_x_imu, vel_y_imu):
+    def pitch_from_grav(self, acc_x_imu):
         """Calculate pitch angle of car using the gravity method"""
+        # Calculate car acceleration from odom (if available)
+        acc_x_car = 0
         if self.is_odom_available:
             # Low pass filter and odometry vel
             vel_x_car = self.vel_from_odom(self.odom_msg)
@@ -283,20 +282,32 @@ class ImuRampDetect(object):
             # Car acceleration from car velocity
             acc_x_car = (vel_x_car_filt - self.vel_x_car_filt_old) / (1 / self.rate)
             self.vel_x_car_filt_old = vel_x_car_filt
-        else:
-            acc_x_car = 0
-
-        # Low-pass filter linear acceleration
+        # Low-pass filter linear acceleration measured by imu
         acc_x_imu_filt = self.imu_filt_class.moving_average(acc_x_imu, self.win_len)
+
         # Car pitch angle (imu acc + odom only)
-        car_angle_filt = np.rad2deg(np.arcsin((acc_x_imu_filt - acc_x_car) / self.g_mag))
+        car_angle_filt = np.arcsin((acc_x_imu_filt - acc_x_car) / self.g_mag)
+        return car_angle_filt
 
-        # Car pitch angle (imu acc + odom + imu angular vel --> Complementary filter)
-        self.angle_est = self.complementary_filter(self.angle_est, vel_y_imu, car_angle_filt, 0.01)
+    def complementary_filter(self, gyr, acc_x_imu, K):
+        """Sensor fusion imu gyroscope with accelerometer to estimate car pitch angle
 
-        return car_angle_filt, self.angle_est
+        Uses gyroscope data on the short term and the from accelerometer
+        calculated pitch angle in the long term (because gyroscope is not drift free,
+        but accelerometer is) to estimate the car pitch angle
 
-    def complementary_filter(self, angle, gyr, acc_angle, alpha):
+        :param angle:       Previous angle estimation
+        :param gyr:         y-axis gyroscope data (angular velocity)
+        :param acc_angle:   Car angle from accelerometer+odometry calculation (low pass filtered)
+        :param K:           Time constant response time [0-1], 1: use only gyroscope,
+                            0: use only accelerometer
+        :return angle_est:  Estimation of current angle
+        """
+        acc_angle = np.arcsin(acc_x_imu / self.g_mag)
+        self.angle_est = K * (self.angle_est - gyr / self.rate) + (1 - K) * acc_angle
+        return self.angle_est
+
+    def complementary_filter_grav(self, gyr, acc_angle, K):
         """Sensor fusion imu gyroscope with accelerometer to estimate car pitch angle
 
         Uses gyroscope data on the short term and the from accelerometer+odometry
@@ -306,14 +317,12 @@ class ImuRampDetect(object):
         :param angle:       Previous angle estimation
         :param gyr:         y-axis gyroscope data (angular velocity)
         :param acc_angle:   Car angle from accelerometer+odometry calculation (low pass filtered)
-        :param alpha:       Time constant response time [0-1], 0: use only gyroscope,
-                            1: use only accelerometer
+        :param K:           Time constant response time [0-1], 1: use only gyroscope,
+                            0: use only accelerometer
         :return angle_est:  Estimation of current angle
         """
-        if np.isnan(angle):
-            angle = 0
-        angle_est = (1 - alpha) * (angle + gyr * (1.0 / self.rate)) + alpha * acc_angle
-        return angle_est
+        self.angle_est = K * (self.angle_est - gyr / self.rate) + (1 - K) * acc_angle
+        return self.angle_est
 
     def covered_distance(self):
         """How far has car driven"""
@@ -356,24 +365,6 @@ class FilterClass(object):
         if len(self.values) > window_size:
             self.sum -= self.values.pop(0)
         return self.sum / len(self.values)
-
-
-class Derivate(object):
-    """Derivation of a signal"""
-
-    def __init__(self):
-        self.old_value = 0
-        self.d = 0
-
-    def diff(self, signal):
-        diff = signal - self.old_value
-        diff2 = (signal + self.old_value) / 2.0
-        print("{} vs {}".format(diff, diff2))
-        self.old_value = signal
-        return diff
-
-    def distance(self, signal):
-        v = self.diff(signal)
 
 
 if __name__ == "__main__":
