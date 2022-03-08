@@ -56,9 +56,10 @@ class ImuRampDetect(object):
         self.vel_x_car_filt_old = 0  # Initialize previous car velocity
         # (for calc of acceleration)
         self.angle_est = 0  # Initialize previous car pitch angle
+        self.angle_est2 = 0  # Initialize previous car pitch angle
         # (for complementary filter)
         self.dist = 0  # Travelled distance
-        self.v = 0
+        self.v_imu = 0
 
         # Moving Average Filter
         self.imu_filt_class = FilterClass()
@@ -104,6 +105,8 @@ class ImuRampDetect(object):
                 car_angle_compl_grav = self.complementary_filter_grav(
                     ang_vel[1], car_angle_grav, 0.99
                 )
+                if self.is_ramp(car_angle_compl_grav):
+                    self.travel_distance_odom(lin_acc[0], car_angle_compl_grav)
                 angs = np.asarray([car_angle_grav, car_angle_compl, car_angle_compl_grav])
                 print(np.rad2deg(angs))
             r.sleep()
@@ -308,40 +311,26 @@ class ImuRampDetect(object):
         return self.angle_est
 
     def complementary_filter_grav(self, gyr, acc_angle, K):
-        """Sensor fusion imu gyroscope with accelerometer to estimate car pitch angle
+        """Sensor fusion imu gyroscope with accelerometer+odom to estimate car pitch angle"""
+        self.angle_est2 = K * (self.angle_est2 - gyr / self.rate) + (1 - K) * acc_angle
+        return self.angle_est2
 
-        Uses gyroscope data on the short term and the from accelerometer+odometry
-        calculated pitch angle in the long term (because gyroscope is not drift free,
-        but accelerometer is) to estimate the car pitch angle
-
-        :param angle:       Previous angle estimation
-        :param gyr:         y-axis gyroscope data (angular velocity)
-        :param acc_angle:   Car angle from accelerometer+odometry calculation (low pass filtered)
-        :param K:           Time constant response time [0-1], 1: use only gyroscope,
-                            0: use only accelerometer
-        :return angle_est:  Estimation of current angle
-        """
-        self.angle_est = K * (self.angle_est - gyr / self.rate) + (1 - K) * acc_angle
-        return self.angle_est
-
-    def covered_distance(self):
-        """How far has car driven"""
+    def travel_distance_odom(self, acc_x_imu, car_angle_est):
+        """Distance along x-axis which the car has travelled so far"""
         if self.is_odom_available:
-            # Car velocity
-            v = self.vel_from_odom(self.odom_msg)
+            v_car = self.vel_from_odom(self.odom_msg)
+            self.dist += v_car * (1 / self.rate)
         else:
-            # v = self.diff_imu(self.lin_acc_msg[0])
-            pass
-
-        # Get covered distance by integrating with respect to time
-        self.dist += v * 1.0 / self.rate
+            acc_free_off_g = acc_x_imu - np.sin(car_angle_est) * self.g_mag
+            self.v_imu += acc_free_off_g * (1 / self.rate)
+            self.dist += self.v_imu * (1 / self.rate)
         return self.dist
 
-    def is_ramp(self, car_angle, ramp_thresh):
+    def is_ramp(self, car_angle, ramp_thresh=2):
         """Checks if car is on ramp"""
-        if car_angle > ramp_thresh:
-            print("ON A RAMP")
-            # print(self.covered_distance())
+        # Convert angle from radian to degree
+        car_angle = np.rad2deg(car_angle)
+        if np.abs(car_angle) > ramp_thresh:
             return True
         return False
 
