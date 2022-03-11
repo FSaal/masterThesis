@@ -5,6 +5,7 @@ import rosbag
 from ros_numpy.point_cloud2 import pointcloud2_to_xyz_array
 from cv_bridge import CvBridge
 
+
 def unpack_bag(bag_path, topic, msg_type=None):
     """Extracts all msgs (with time) of a topic from a rosbag"""
     # Load rosbag
@@ -13,29 +14,37 @@ def unpack_bag(bag_path, topic, msg_type=None):
     t_msg = []
     msgs = []
     for topic, msg, t in bag.read_messages(topics=topic):
-        if msg_type == 'imu':
-            msgs.append((
-                [msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z],
-                [msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z]
-            ))
-        elif msg_type == 'quat':
-            msgs.append((
-                [msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w]
-            ))
-        elif msg_type == 'car_odom':
-            msgs.append((
-                msg.handwheel_angle,
-                msg.front_right_wheel_speed,
-                msg.front_left_wheel_speed,
-                msg.rear_right_wheel_speed,
-                msg.rear_left_wheel_speed
-            ))
-        elif msg_type == 'hdl_odom':
+        if msg_type == "imu":
+            msgs.append(
+                (
+                    [msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z],
+                    [
+                        msg.linear_acceleration.x,
+                        msg.linear_acceleration.y,
+                        msg.linear_acceleration.z,
+                    ],
+                )
+            )
+        elif msg_type == "quat":
+            msgs.append(
+                ([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w])
+            )
+        elif msg_type == "car_odom":
+            msgs.append(
+                (
+                    msg.handwheel_angle,
+                    msg.front_right_wheel_speed,
+                    msg.front_left_wheel_speed,
+                    msg.rear_right_wheel_speed,
+                    msg.rear_left_wheel_speed,
+                )
+            )
+        elif msg_type == "hdl_odom":
             msgs.append(msg.pose.pose)
-        elif msg_type == 'lidar':
+        elif msg_type == "lidar":
             msgs.append(pointcloud2_to_xyz_array(msg, remove_nans=True))
 
-        elif msg_type == 'camera':
+        elif msg_type == "camera":
             CvBridge().imgmsg_to_cv2(msg, desired_encoding="passthrough")
         else:
             msgs.append(msg)
@@ -53,8 +62,7 @@ def synchronize_topics(topic1, t_topic1, topic2, t_topic2, t_thresh=0.1):
 
     # Make sure both topics start around the same time and remove first values of
     # signal which is ahead if this is not the case
-    topic1, t_topic1, topic2, t_topic2 = correct_for_time_diff(
-        topic1, t_topic1, topic2, t_topic2)
+    topic1, t_topic1, topic2, t_topic2 = correct_for_time_diff(topic1, t_topic1, topic2, t_topic2)
 
     # Assume first array is bigger
     array_big = t_topic1
@@ -122,3 +130,26 @@ def correct_for_time_diff(topic1, t_topic1, topic2, t_topic2, t_thresh=0.1):
     else:
         print("topic2 was behind by {}".format(idx))
         return topic_ahead, t_topic_ahead, topic_behind, t_topic_behind
+
+
+def correct_time_diff(*array):
+    """Checks for a time offset of multiple topics at the beginning and shorts ahead signal"""
+    # Split into time and data
+    array_data = np.array([np.asarray(ar[0]) for ar in array])
+    array_t = np.array([np.asarray(ar[1]) for ar in array])
+
+    # Find latest starting time
+    t_start = max([lst[0] for lst in array_t])
+    # Find earliest end time
+    t_end = min([lst[-1] for lst in array_t])
+
+    # Find index closest to starting / end time
+    diff_start = np.abs(array_t - t_start)
+    diff_end = np.abs(array_t - t_end)
+    start_idx = [np.argmin(i) for i in diff_start]
+    end_idx = [np.argmin(i) + 1 for i in diff_end]
+
+    # Cut start / end of array to match time of array with latest / earliest start / end
+    array_data_synch = [array_data[i][start_idx[i] : end_idx[i]] for i in range(len(array_data))]
+    array_t_synch = [array_t[i][start_idx[i] : end_idx[i]] for i in range(len(array_t))]
+    return array_data_synch, array_t_synch
