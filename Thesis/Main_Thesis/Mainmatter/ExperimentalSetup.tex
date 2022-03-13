@@ -162,17 +162,17 @@ The height above ground, when the light is at the beginning of the ramp can be c
 \end{equation}
 The distance $l_\mathrm{w}$ which the light travels from the beginning of the ramp to the contact point with the ramp can be calculated using the law of sines
 \begin{align}
-	l_\mathrm{w} & = \frac{h_\mathrm{w,start} }{\sin(\alpha + \gamma)} \sin(\ang{90} - \alpha) \\
+	l_\mathrm{w} & = \frac{h_\mathrm{w,start} }{\sin(\alpha + \gamma)} \sin(\ang{90} - \alpha) \nonumber \\
 	             & = -\frac{h_\mathrm{w,start} }{\sin(\alpha + \gamma)} \cos(\alpha).
 \end{align}
 The travelled distance along the x-axis from the start of the ramp to the contact point is then
 \begin{align}
-	d_\mathrm{w} & = l_\mathrm{w} \sin(\ang{90} - 2\alpha - \gamma) \\
-	             & = -l_\mathrm{w} \cos(2\alpha + \gamma)           \\
+	d_\mathrm{w} & = l_\mathrm{w} \sin(\ang{90} - 2\alpha - \gamma) \nonumber \\
+	             & = -l_\mathrm{w} \cos(2\alpha + \gamma)
 \end{align}
 Putting everything together, the total x distance from the \gls{lidar} to the contact point on the ramp can be calculated by
 \begin{align}
-	d_\mathrm{hit,ramp} & = d + d_\mathrm{w}                                                                                    \\
+	d_\mathrm{hit,ramp} & = d + d_\mathrm{w}                                                                                    \nonumber \\
 	d_\mathrm{hit,ramp} & = d + \frac{h_\mathrm{l} - d\tan(\gamma)}{\sin(\alpha + \gamma)} \cos(\alpha) \cos(2\alpha + \gamma).
 	\label{eq:final_equation}
 \end{align}
