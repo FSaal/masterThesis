@@ -17,7 +17,7 @@ or in percentage
 	r = 100\cdot\tan(\alpha).
 \end{equation}
 The pitch angle $\theta$ of the car is defined as the angle between the ground plane and the longitudinal axis of the car.
-An acceleration or deceleration on the ramp compresses the suspension in the back or respectively front, which makes the pitch angle not in alignment with the road grade anymore.
+If the car accelerates or decelerates the suspension does get compressed in the back or respectively front, which makes the pitch angle not in alignment with the road grade anymore.
 The difference between the two angles is defined as $\beta = \theta - \alpha$ and may also occur due to rotational movement or vibrations.
 The mentioned variables are visualized in \cref{fig:tikz_car_tilt}.\\
 In this chapter different sensors and methods will be tested to estimate the car's pitch angle.
@@ -165,6 +165,9 @@ The current angle $\theta(t)$ can be computed with the integral
 	\theta(t) = \theta_0 + \int_0^t \omega(\tau)\dd{\tau}
 \end{equation}
 with $\theta_0$ being the initial angle.
+\\\\
+The period between two samples $kT$
+\\\\
 However, due to the finite amount of samples, numerical integration must be used.
 Different techniques exist, using the backward Euler method the
 \begin{equation}
@@ -348,7 +351,7 @@ Similarly, the detected plane gets classified as ground plane, if the angle betw
 Beside the angle, the width of the plane (y-range) is being calculated and compared to the parameters, to make sure that the plane is a drivable ramp for cars and not e.g. a small ramp for wheelchairs \todo{no idea if wheel chair ramps are common in parking garages?}.
 The distance to the ramp is estimated by taking the $n$ nearest points of the ramp plane and calculating their mean.
 If a ramp has been detected, the estimated angle and distance from the car front to the beginning of the ramp are returned.\\
-An visual representation of the algorithm is depicted in \cref{fig:flowchart_lidar}.
+A visual representation of the algorithm is depicted in \cref{fig:flowchart_lidar}.
 \iimprov{Explain flow chart better}
 \isug{What happens with stairs?}
 \itodo{Add down ramp detection}
@@ -395,12 +398,11 @@ An visual representation of the algorithm is depicted in \cref{fig:flowchart_lid
 \subsection{\glsentrytext{imu} and Odometer}
 
 \subsubsection{Car acceleration from odometer data}
-Because the odometer only delivers the speed of each wheel, the car velocity has to be calculated first.
+Because the odometer only delivers the speed of each wheel, the car velocity has to be calculated.
 During turns the left and right wheels travel at different speeds, the wheel on the inner side of the turn travels slower, than the outer wheel.
 E.g. during a left turn, the left wheel moves slower than the right wheel.
-A simple yet sufficiently accurate model to calculate the car velocity from the wheel speeds is the linear single track model ("Einspurmodell") \cite{Mitschke2014}.
+A simple yet sufficiently accurate model to calculate the car velocity from the wheel speeds is the linear single track model \cite{Mitschke2014}.
 In this model both wheels on one axis are replaced with one wheel in the middle.
-\itodo{Explain model}
 The linear assumption holds true for low lateral accelerations (up to \SI{4}{\metre\per\second}), which will not be surpassed in the parking garage scenario.
 Using the assumptions from above, the car velocity $v_\mathrm{car}(t)$ can be calculated by
 \begin{align}
@@ -408,8 +410,7 @@ Using the assumptions from above, the car velocity $v_\mathrm{car}(t)$ can be ca
 	\gamma(t)         & = \frac{\alpha(t)}{f_\mathrm{odom}}                              \\
 	v_\mathrm{car}(t) & = \frac{v_\mathrm{rl}(t) + v_\mathrm{rr}(t)}{2}\cdot\cos(\gamma)
 \end{align}
-with $v_\mathrm{rl} \text{ and } v_\mathrm{rr}$ being the wheel speeds of the rear right and rear left wheel respectively.
-$\alpha$ is a helper variable \todo{I can't explain it well}, $d$ the track width! and $\gamma$ is the yaw angle of the car.\\
+with $v_\mathrm{rl} \text{ and } v_\mathrm{rr}$ being the wheel speeds of the rear right and rear left wheel respectively, $d$ the track width and $\gamma$ is the yaw angle of the car, which can be calculated from the steering wheel angle.\\
 The car's acceleration can be derived from the velocity using
 \begin{equation}
 	a_\mathrm{car}(t) = \dv{t}v_\mathrm{car}.
@@ -418,7 +419,11 @@ But because all measurements are discrete, numerical differentiation e.g. forwar
 \begin{equation}
 	a_\mathrm{car}(h) = \frac{v_\mathrm{car}(x + h) - v_\mathrm{car}(x)}{h}
 \end{equation}
+\begin{equation}
+	a_\mathrm{car, t} = \frac{v_\mathrm{car, t + 1} - v_\mathrm{car, t}}{T}
+\end{equation}
 with $h$ being the step size, which depends on the rate of the sensor.
+\itodo{Find good discrete time notation and use it}
 
 \subsubsection{Gravity method}
 \label{subsubsec:gravity_method}
@@ -427,15 +432,15 @@ But the estimation is only valid under the condition, that there are no accelera
 This condition is not necessarily true when the car is driving, during which the car can accelerate or brake.
 To get the correct estimation, the car's acceleration must be subtracted from the measurement.
 The car's acceleration can be calculated by deriving the car's velocity, calculated from the wheel speed measurements, with respect to time.
-It is important that both the \gls{imu} and odometer measurements are synchronized in time, otherwise the correct estimation can not be guaranteed.
-The prevailing accelerations can be seen in \cref{fig:tikz_car_gravity}.
+It is important that both the \gls{imu} and odometer measurements are synchronized in time.
+The prevailing accelerations during a positive acceleration can be seen in \cref{fig:tikz_car_gravity}.
 When the car brakes, the direction of $\vb{a}_\mathrm{x}$ inverts.
+The car pitch angle calculation is the same as in \cref{eq:ang_from_acc}, just that now the car acceleration $\vb{a}_\mathrm{at}$ is taken into account.
 \begin{equation}
 	\alpha = \arcsin\left(\frac{\vb{a}_\mathrm{x} - \vb{a}_\mathrm{at}}{\norm{\vb{g}}}\right)
-	= \arcsin\left(\frac{\vb{a}_\mathrm{x} - \dv{t}}{g}\right)
+	= \arcsin\left(\frac{\vb{a}_\mathrm{x} - \dv{t}v_\mathrm{at} }{\norm{\vb{g}}}\right)
 \end{equation}
-\iimprov{Text is bad}
-
+with $\vb{a}_\mathrm{x}$ being the acceleration measured by the x-axis of the \gls{imu} and $\norm{\vb{g}}$ being the magnitude of the overall measured acceleration.
 
 \subsection{\glsentrytext{imu} and odometer and \glsentrytext{lidar}}
 \itodo{Algo description}
