@@ -30,7 +30,7 @@ The most common convention is the zyx (intrinsic), which first rotates an angle 
 \begin{figure}[htpb]
     \centering
     \input{Graphics/TikZ/euler_angles.tex}
-    \caption{Definition of the zyx Euler convention. The rotation starts with a rotation $\psi$ around the z-axis and ends with a rotation around the x-axis $\phi$.}
+    \caption{Definition of the zyx Euler convention. The rotation starts with a rotation $\psi$ around the z-axis and ends with a rotation $\phi$ around the x-axis.}
     \label{fig:tikz_euler_angles}
 \end{figure}
 
@@ -200,7 +200,7 @@ The measurements $\hat{\vb{a}}$ of a \gls{mems} accelerometer are not free of no
 \begin{equation}
     \hat{\vb{a}} = \vb{a} + \vb{b}_\mathrm{a} + \vb{n}_\mathrm{a}.
 \end{equation}
-The measurement differs from the true acceleration $\vb{a}$ due to random noise $\vb{n}_\mathrm{a}$ and a bias $\vb{b}_\mathrm{a}$.
+The measurement differs from the true acceleration $\vb{a}$ due to random noise $\vb{n}_\mathrm{a}$ and a slowly time-varying bias $\vb{b}_\mathrm{a}$.
 More about the specific error terms can be read in \cref{sse:mems_errors}.
 
 \subsubsection{\glsentrytext{mems} Gyroscopes}
@@ -221,7 +221,7 @@ Similar to the accelerometer, the measurements $\hat{\boldsymbol{\omega}}$ of th
 \begin{equation}
     \hat{\boldsymbol{\omega}} = \boldsymbol{\omega} + \vb{b}_\mathrm{g} + \vb{n}_\mathrm{g}.
 \end{equation}
-The measurement differs from the true angular velocity $\boldsymbol{\omega}$ due to the bias vector $\vb{b}_\mathrm{g}$ and the random noise vector $\vb{n}_\mathrm{g}$, which has a mean of zeroFind a good source and use it as a guide \cite{Lefferts1982}.
+The measurement differs from the true angular velocity $\boldsymbol{\omega}$ due to the slowly time-varying bias vector $\vb{b}_\mathrm{g}$ and the random noise vector $\vb{n}_\mathrm{g}$, which has a mean of zeroFind a good source and use it as a guide \cite{Lefferts1982}.
 
 \subsubsection{(\glsentrytext{mems}) Magnetometer}
 A magnetometer measures the local magnetic field.
