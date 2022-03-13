@@ -10,13 +10,85 @@
 		\item All the other ramps will be only evaluated using scores, displayed in tables
 	\end{itemize}}
 
-The \gls{rmse} given by
+To evaluate the performance of the different algorithms, a reference must be used.
+The most accurate one available is the one produced by the hdl slam.
+The goodness of the fit between the estimated road grade $\hat{y} = (\hat{y}_i, \dots, \hat{y}_n)^\intercal$ and the reference $y = (y_i, \dots, y_n)^\intercal$ can be described by the \gls{rmse}
 \begin{equation}
-	RMSE = \sqrt{\frac{1}{n}\sum_{i = 1}^n(\hat{y}_i - y_i)^2}
+	RMSE = \sqrt{\frac{1}{n}\sum_{i = 1}^n(\hat{y}_i - y_i)^2},
 \end{equation}
+which how much the predicted values differ from the reference value on average.
+It is defined in the range from 0, indicating a perfect fit to $\infty$.
+Furthermore, the coefficient of determination $R^2$ is used
+\begin{equation}
+	R^2 = 1 - \frac{\sum\limits_{i = 1}^N(\hat{y}_i - y_i)^2}{\sum\limits_{i = 1}^N(\hat{y}_i - \overline{y})^2},
+\end{equation}
+where $\overline{y}$ indicates the mean of the reference.
+It is defined in the range ?
 
 
 \section{Ramp metering? (\glsentrytext{imu})}
+\missingfigure{Plot of acc + gyr + compl (subfig1)}
+\missingfigure{Plot of grav method + compl + compl grav (subfig2)}
+\missingfigure{Plot of imu acc + odom acc + resulting acc}
+\missingfigure{Plot of different compl gains}
+\todoin{\begin{itemize}
+		\item Think of better way to split test drives (e.g. up, down and long and short)
+		\item Tune parameters
+		\item Ignore acc odom if no odom has been recorded
+		\item Add distance measurement (for full drives)
+		\item Add angle estimate (final estimate)
+		\item Possible add delay for acc odom and compl methods (due to lowpass filtering)
+	\end{itemize}}
+
+\begin{table}[htbp]
+	\centering
+	\caption{Performance evaluation zed}
+	\label{tab:eval_table}
+	\begin{tabular}[t]{cccccccc}
+		\toprule
+		\textbf{Structure} & \textbf{Method} & \textbf{RMSE} & $\mathbf{R^2}$ & \textbf{Delay?} \\
+		\midrule
+		uc                 & acc             & 0.93          & 0.75           & ?               \\
+		uc                 & acc odom        & 0.72          & 0.87           & ?               \\
+		uc                 & compl           & 0.68          & 0.88           & ?               \\
+		uc                 & compl grav      & 0.68          & 0.88           & ?               \\
+		uc                 & gyr             & 1.42          & 0.51           & ?               \\
+		us                 & acc             & 1.11          & 0.67           & ?               \\
+		us                 & acc odom        & 0.84          & 0.81           & ?               \\
+		us                 & compl           & 0.80          & 0.83           & ?               \\
+		us                 & compl grav      & 0.80          & 0.83           & ?               \\
+		us                 & gyr             & 0.47          & 0.93           & ?               \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+	\centering
+	\caption{Performance evaluation myahrs}
+	\label{tab:eval_table}
+	\begin{tabular}[t]{cccccccc}
+		\toprule
+		\textbf{Structure} & \textbf{Method} & \textbf{RMSE} & $\mathbf{R^2}$ & \textbf{Delay?} \\
+		\midrule
+		uc                 & acc             & 0.85          & 0.79           & ?               \\
+		uc                 & acc odom        & 0.70          & 0.88           & ?               \\
+		uc                 & compl           & 0.69          & 0.89           & ?               \\
+		uc                 & compl grav      & 0.69          & 0.89           & ?               \\
+		uc                 & gyr             & 1.42          & 0.14           & ?               \\
+		us                 & acc             & 0.99          & 0.73           & ?               \\
+		us                 & acc odom        & 0.79          & 0.84           & ?               \\
+		us                 & compl           & 0.76          & 0.86           & ?               \\
+		us                 & compl grav      & 0.76          & 0.86           & ?               \\
+		us                 & gyr             & 0.44          & 0.95           & ?               \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.75\linewidth]{imu_all_methods.pdf}
+	\caption{$\theta_\mathrm{acc} $Some meths}
+\end{figure}
 \todoin{\begin{itemize}
 		\item How well do different \gls{imu} methods work...
 		\item ... at ramp detection
