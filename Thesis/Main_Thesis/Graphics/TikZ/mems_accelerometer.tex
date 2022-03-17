@@ -1,0 +1,72 @@
+ \documentclass[12pt]{standalone}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+
+\begin{document}
+\begin{tikzpicture}
+    % Define ...
+    % Mass plates size
+    \def\mp_size{0.5};
+    % Horizontal displacement
+    \def\x_offset{-0.1};
+
+    % Mass
+    \node[rectangle,
+        draw = black,
+        fill = lightgray,
+        minimum width = 4cm,
+        minimum height = 1cm] (r) at (0,0) {Mass};
+    % Mass fingers
+    \foreach \i in {0.2, 0.5, 0.8}
+        {
+            \node[rectangle,
+                minimum height = 1cm,
+                anchor = north,
+                draw=black] (f1) at ($(r.south east)!\i!(r.south west)$) {};
+            \node[rectangle,
+                minimum height = 1cm,
+                anchor = south,
+                draw=black] (f1) at ($(r.north east)!\i!(r.north west)$) {};
+        }
+    % Capacitor
+    \foreach \i in {0.30, 0.60, 0.9}
+        {
+            \node[rectangle,
+                draw = lightgray,
+                minimum height = 1.5cm,
+            ] (cap) at ($(r.south east)!\i!(r.south west) + (0, -1)$) {$C$};
+        }
+
+    % Mass plates
+    \node[rectangle,
+        draw = lightgray,
+        minimum width = \mp_size,
+        minimum height = \mp_size] (mp_nw) at ($(r.north west) + (\x_offset, 1)$) {};
+    \node[rectangle,
+        draw = lightgray,
+        minimum width = \mp_size,
+        minimum height = \mp_size] (mp_ne) at ($(r.north east) + (\x_offset, 1)$) {};
+    \node[rectangle,
+        draw = lightgray,
+        minimum width = \mp_size,
+        minimum height = \mp_size] (mp_sw) at ($(r.south west) + (\x_offset, -1)$) {};
+    \node[rectangle,
+        draw = lightgray,
+        minimum width = \mp_size,
+        minimum height = \mp_size] (mp_se) at ($(r.south east) + (\x_offset, -1)$) {};
+
+    % Connect mass with fix points
+    \draw (mp_nw) -- (r.north west);
+    \draw (mp_ne) to (r.north east);
+    \draw (mp_sw) to (r.south west);
+    \draw (mp_se) to (r.south east);
+    \draw[]
+
+    \draw[->, blue] ($(r.west)!.5!(r.north west)$) --++ (-1, 0) node[left]{$a(t)$};
+    \draw[->, blue] ($(r.east)!.5!(r.north east)$) --++ (1, 0) node[right]{$\Delta x(t)$};
+    % \draw[->, red] ($(r.west)!.5!(r.south west)$) --++ (-1, 0) node[left]{$a(t)$};
+    % \draw[->, red] ($(r.east)!.5!(r.south east)$) --++ (1, 0) node[right]{$\Delta x(t)$};
+
+
+\end{tikzpicture}
+\end{document}
