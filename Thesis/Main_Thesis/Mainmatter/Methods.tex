@@ -124,8 +124,8 @@ Finally the measurements $\mathbf{A}$ can be transformed using
 	\label{fig:tikz_frame_transformation}
 \end{figure}
 
-
-\subsection{Linear acceleration only}
+\subsection{Road grade estimation}
+\subsubsection{Linear acceleration only}
 \label{ssec:linear_acceleration_only}
 If the car stands still, the only measurable acceleration besides measurement errors is the acceleration due to gravity.
 When standing on flat ground, only the z-axis measures an acceleration.
@@ -151,7 +151,7 @@ A better approach, which incorporates the accelerations caused by the car, is de
 	\caption{Gravity measured by \acrshort{imu} (in car frame).}
 	\label{fig:tikz_car_gravity}
 \end{figure}
-\subsection{Angular velocity only}
+\subsubsection{Angular velocity only}
 \iimprov{Find good source and use it as a guide}
 \cite{Kok2017}
 The gyroscope measures the angular velocity, which must be integrated with respect to time, to get the rotation angle.
@@ -160,34 +160,31 @@ The angular velocity is defined as
 	\omega = \frac{\Delta\theta}{\Delta t}
 \end{equation}
 with $\Delta t$ being the sample time.
-The current angle $\theta(t)$ can be computed with the integral
+\itodo{Remove time continuous all together? Or move in background chapter}
+Assuming that the measurements of the gyroscope are continuous in time, the current angle $\theta(t)$ can be computed with the integral
 \begin{equation}
 	\theta(t) = \theta_0 + \int_0^t \omega(\tau)\dd{\tau}
 \end{equation}
 with $\theta_0$ being the initial angle.
-\\\\
-The period between two samples $kT$
-\\\\
-However, due to the finite amount of samples, numerical integration must be used.
-Different techniques exist, using the backward Euler method the
+In practice, however, the \gls{imu} provides samples at discrete times $t_k$ and $t_{k+1}$.
+Assuming that the signal remains constant between the two samples, the integral can be numerical approximated.
+An error will be introduced by the approximation, but it will be small if the sample rate is sufficiently high.
+Different techniques exist, using the ? method the angular change between two samples can be calculated with
 \begin{equation}
-	\theta_t = \frac{\theta_t - \theta_{t - 1}}{T}
+	\theta_t = \theta_\mathrm{t - 1} + \omega_t\Delta t
 \end{equation}
+The current angle can then be estimated by calculating the sum of all measurements
 \begin{equation}
-	\theta(k) = \frac{\theta(k) - \theta(k - 1)}{T}
+	\theta_k = \theta_0 + \sum_{i = 1}^k \omega_i \Delta t
 \end{equation}
-The current angle can then be estimated by calculating the cumulative sum of all measurements
-\begin{equation}
-	\theta_k = \theta_0 + \sum_{i = 1}^k \theta_i
-\end{equation}
-with $\theta_0$ being the initial angle which must be known beforehand.
-To get the pitch angle, only the measurements along the y-axis are of interest.\\
+with $\theta_0$ being the initial angle which must be known beforehand.\\
+To get the pitch angle, only the measurements along the y-axis are of interest.
 Disadvantages of using only the angular velocity are that the estimations are not reliable over a long period of time.
 The random walk introduced by integrating white noise or a constant bias causes the estimation to drift away from the true value.
 \iimprov{One time common derivation and then for specific case (y)}
 
 
-\subsection{Complementary filter}
+\subsubsection{Complementary filter}
 The complementary uses both the linear acceleration and angular velocity measurements and combines them using sensor fusion, such that the good properties of each sensor are used to reduce the poor properties of the other.
 % As described in the previous subsections the pitch angle can be estimated using the accelerometer data with
 % \begin{equation}
@@ -267,6 +264,10 @@ For the experiment a cut-off frequency of $f_0=?$ was chosen, resulting in filte
 	\caption{Block diagram of the complementary filter}
 	\label{fig:tikz_complementary_filter}
 \end{figure}
+
+
+\subsection{Ramp detection}
+Using the road grade the ramp can be classified.
 
 \section{\glsentrytext{lidar} only}
 \itodo{Maybe brief overview of section/algorithm}
