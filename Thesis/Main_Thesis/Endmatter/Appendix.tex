@@ -3,3 +3,67 @@
 \label{ch:Appendix}
 
 Code extracts and extra plots etc
+\begin{table}[htbp]
+    \centering
+    \caption{Performance evaluation}
+    \label{tab:full_evaluation}
+    \begin{tabular}[t]{ccccc}
+        \toprule
+        \textbf{Structure} & \textbf{Distance}        & \textbf{Frames} & \textbf{TP} & \textbf{FP} \\
+        \midrule
+        uc                 & \SIrange{0}{5}{\metre}   & 62              & 100.00\%    & 0.00\%      \\
+        uc                 & \SIrange{5}{10}{\metre}  & 62              & 100.00\%    & 0.00\%      \\
+        uc                 & \SIrange{10}{15}{\metre} & 59              & 100.00\%    & 0.00\%      \\
+        uc                 & \SIrange{15}{20}{\metre} & 61              & 97.92\%     & 2.08\%      \\
+        uc                 & \SIrange{20}{25}{\metre} & 61              & 97.83\%     & 2.17\%      \\
+        uc                 & \SIrange{25}{30}{\metre} & 59              & 42.75\%     & 0.00\%      \\
+        us                 & \SIrange{0}{5}{\metre}   & 116             & 100.00\%    & 0.00\%      \\
+        us                 & \SIrange{5}{10}{\metre}  & 117             & 100.00\%    & 0.00\%      \\
+        us                 & \SIrange{10}{15}{\metre} & 116             & 100.00\%    & 0.00\%      \\
+        us                 & \SIrange{15}{20}{\metre} & 123             & 100.00\%    & 0.00\%      \\
+        us                 & \SIrange{20}{25}{\metre} & 140             & 99.23\%     & 0.00\%      \\
+        us                 & \SIrange{25}{30}{\metre} & 50              & 59.78\%     & 0.00\%      \\
+        us2                & \SIrange{0}{5}{\metre}   & 21              & 100.00\%    & 0.00\%      \\
+        us2                & \SIrange{5}{10}{\metre}  & 23              & 100.00\%    & 0.00\%      \\
+        us2                & \SIrange{10}{15}{\metre} & 28              & 100.00\%    & 0.00\%      \\
+        us2                & \SIrange{15}{20}{\metre} & 27              & 37.04\%     & 3.70\%      \\
+        us2                & \SIrange{20}{25}{\metre} & 29              & 0.00\%      & 3.45\%      \\
+        us2                & \SIrange{25}{30}{\metre} & 28              & 10.71\%     & 0.00\%      \\
+        us3                & \SIrange{0}{5}{\metre}   & 25              & 0.00\%      & 40.00\%     \\
+        us3                & \SIrange{5}{10}{\metre}  & 9               & 0.00\%      & 0.00\%      \\
+        us3                & \SIrange{10}{15}{\metre} & 0               & nan\%       & nan\%       \\
+        us3                & \SIrange{15}{20}{\metre} & 0               & nan\%       & nan\%       \\
+        us3                & \SIrange{20}{25}{\metre} & 0               & nan\%       & nan\%       \\
+        us3                & \SIrange{25}{30}{\metre} & 0               & nan\%       & nan\%       \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{Used parameters for lidar algo}
+    \label{tab:full_lidar_algo_params}
+    \begin{tabular}[t]{lcc}
+        \toprule
+        \textbf{Parameter}  & \textbf{Value}          & \textbf{Unit} \\
+        \midrule
+        \textbf{Passthrough filter}                                   \\
+        x                   & \SIrange{0}{30}{}       & \si{\metre}   \\
+        y                   & \SIrange{-2}{2}{}       & \si{\metre}   \\
+        z                   & \SIrange{-1}{2}{}       & \si{\metre}   \\
+        \midrule
+        \textbf{Voxel filter}                                         \\
+        leaf\_size          & \SI{0.1}{\metre}        & \si{\metre}   \\
+        \midrule
+        \textbf{\acrshort{ransac}}                                    \\
+        max\_iter           & 100                     & \si{\metre}   \\
+        distance\_threshold & \SI{0.11}{\metre}       & \si{\metre}   \\
+        normal\_distance\_w & 0.01                    & \si{\metre}   \\
+        \midrule
+        \textbf{rd}                                                   \\
+        angle               & \SIrange{3}{9}{\degree} & \si{\metre}   \\
+        width               & \SIrange{2}{6}{\metre}  & \si{\metre}   \\
+        $o$                 & 4                       & \si{\metre}   \\
+        \bottomrule
+    \end{tabular}
+\end{table}
