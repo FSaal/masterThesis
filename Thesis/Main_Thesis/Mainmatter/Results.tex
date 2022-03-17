@@ -9,28 +9,74 @@
 		\item Except maybe for special edge cases (e.g. influence of braking on imu estimation)
 		\item All the other ramps will be only evaluated using scores, displayed in tables
 	\end{itemize}}
+To prevent an overfitting of the model, it is important to have many test scenarios.
+Six different ramps will be tested, some of which will be driven up and some down.
+An additional recording without any ramp was made to test false positives.
+As mentioned in \cref{ch:ExperimentalSetup}, the wheel odometer measurements are only available, when the motor output of the car is limited.
+This means that recordings with the odometer data were only possible for the test cases, where the car is driving down or only halfway up.
 
+
+
+\section{Ramp metering? (\glsentrytext{imu})}
 To evaluate the performance of the different algorithms, a reference must be used.
-The most accurate one available is the one produced by the hdl slam.
+The most accurate one available is the one produced by the \texttt{hdl\_graph\_slam}~\footnote{\url{https://github.com/koide3/hdl_graph_slam}} package.
+This package is based on 3D graph slam and uses the \gls{lidar} data to estimate the position and orientation.
+Because the \gls{lidar} only records at \SI{10}{\hertz} and the other sensors record from \SIrange{100}{400}{\hertz}, the estimate was upsampled using a Fourier method.\\
 The goodness of the fit between the estimated road grade $\hat{y} = (\hat{y}_i, \dots, \hat{y}_n)^\intercal$ and the reference $y = (y_i, \dots, y_n)^\intercal$ can be described by the \gls{rmse}
 \begin{equation}
 	RMSE = \sqrt{\frac{1}{n}\sum_{i = 1}^n(\hat{y}_i - y_i)^2},
 \end{equation}
-which how much the predicted values differ from the reference value on average.
-It is defined in the range from 0, indicating a perfect fit to $\infty$.
+which quantifies how much the predicted values differ from the reference value on average.
+It is defined in the range $[0, \infty)$, with a value of 0 indicating a perfect fit.
 Furthermore, the coefficient of determination $R^2$ is used
 \begin{equation}
-	R^2 = 1 - \frac{\sum\limits_{i = 1}^N(\hat{y}_i - y_i)^2}{\sum\limits_{i = 1}^N(\hat{y}_i - \overline{y})^2},
+	R^2 = 1 - \frac{\sum\limits_{i = 1}^n(\hat{y}_i - y_i)^2}{\sum\limits_{i = 1}^n(\hat{y}_i - \overline{y})^2},
 \end{equation}
 where $\overline{y}$ indicates the mean of the reference.
-It is defined in the range ?
-
-
-\section{Ramp metering? (\glsentrytext{imu})}
-\missingfigure{Plot of acc + gyr + compl (subfig1)}
-\missingfigure{Plot of grav method + compl + compl grav (subfig2)}
-\missingfigure{Plot of imu acc + odom acc + resulting acc}
+The goodness of the fit is described in the range from 0 to 1, where 1 describes a perfect fit.
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=.9\linewidth]{imu_raw_angle.pdf}
+	\caption[Raw]{Pitch angle calculated from the raw accelerometer and gyroscope measurements}
+	\label{fig:imu_raw_angle}
+\end{figure}
+The result of using only the raw measurements of the \gls{imu} for the pitch calculation is shown in \cref{fig:imu_raw_angle}.
+The accelerometer is very noisy and is easily influenced by accelerations other than gravity, which can be seen at \SIrange{2}{4}{\second}, where the car started driving.
+The gyroscope on the other hand provides good short-term accuracy and is not influenced by other accelerations, but is slowly drifting over time.\\
+\iimprov{Show another plot of a longer drive, where drift is even more apparent}
+The gravity method tries to overcome the problem of the accelerometer of also detecting other accelerations than gravity, by subtracting the car's acceleration from the accelerometer measurement.
+The car's acceleration $\vb{a}_\mathrm{odom,x} $ was calculated by calculating the derivate of the low-pass filtered car velocity $v_\mathrm{car} $, which was calculated from the wheel speed measurements according to REF.
+Figure \ref{fig:imu_odometer_acc} shows the (low-pass filtered) acceleration measured by the \gls{imu} along the x-axis and the (low-pass filtered) car's acceleration.
+$\vb{a}_\mathrm{grav,x} $ is the acceleration measured by the \gls{imu} from which the car acceleration $\vb{a}_\mathrm{odom,x} $ was subtracted.
+It can be seen, that especially at the beginning of the ramp (\SIrange{21}{23}{\second}) the gravity method shows it advantages.
+The deceleration before entering the ramp is measured by both sensors and thus cancels out each other.
+The same can be seen in the initial acceleration phase, where the car starts to drive from still stand (\SIrange[]{2}{4}{\second}).
+Although both sensor are synchronized in time, the \gls{imu} senses the acceleration earlier than the wheel speed sensors which leads to a slight pike.
+This could be due to the wheel speed sensors having a certain velocity threshold, below which they do not pick up any changes.
+Other reasons for the difference could be, that other forces than the one from the car are present, e.g. from the suspension of the car or vibrations due to the road quality, which were not taken into account.
+Also the approximations made by calculating the finite difference of the car velocity to get the car acceleration have a negative influence on the result.
+\itodo{Either here or in methods: Describe problem with deriv car velocity $\to$ filtering beforehand was necessary}
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=.9\linewidth]{imu_odometer_acc.pdf}
+	\caption[Acceleration from \gls{imu} and odometer]{Measured acceleration in x-direction by the \gls{imu} and acceleration derived from the wheel speed measurements and the difference between both}
+	\label{fig:imu_odometer_acc}
+\end{figure}
+The resulting angle from the acceleration can be seen in \cref{fig:imu_odometer_angle}.
+The reference is taken from the orientation estimation of the \texttt{hdl\_graph\_slam}, which uses the \gls{lidar} data.
+It can be seen that the gravity method improves the estimation accuracy significantly, compared to when only using the accelerometer data.
+Especially the angle at the start and on the ramp is more accurately described when adding the odometer data to the accelerometer data for the calculation.
+But it can also be seen that the time synchronization between both signals is vital, as seen in during the initial acceleration phase.
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=.9\linewidth]{imu_odometer_angle.pdf}
+	\caption[Gravity method]{The road grade estimation using only the accelerometer compared to the gravity method, which additionally uses the wheel speed measurements}
+	\label{fig:imu_odometer_angle}
+\end{figure}
+\missingfigure{Plot of acc + gyr + compl (of a longer drive) (subfig1)}
+\missingfigure{Plot of grav method + compl + compl grav (of a longer drive)  (subfig2)}
 \missingfigure{Plot of different compl gains}
+\missingfigure{Plot of problem of distance estimation using only accelerometer (initial acc is bad)}
 \todoin{\begin{itemize}
 		\item Think of better way to split test drives (e.g. up, down and long and short)
 		\item Tune parameters
@@ -39,6 +85,26 @@ It is defined in the range ?
 		\item Add angle estimate (final estimate)
 		\item Possible add delay for acc odom and compl methods (due to lowpass filtering)
 	\end{itemize}}
+
+\begin{table}[htbp]
+	\centering
+	\caption{Performance evaluation zed}
+	\label{tab:eval_table}
+	\begin{tabular}[t]{cccccccccc}
+		\toprule
+		\textbf{Properties} & \multicolumn{3}{c}{\textbf{Uphill short}} & \multicolumn{3}{c}{\textbf{Uphill long}} & \multicolumn{3}{c}{\textbf{Downhill long}}                                                                                                     \\
+		\midrule
+		Mean(v)             & \multicolumn{3}{c}{5}                     & \multicolumn{3}{c}{5}                    & \multicolumn{3}{c}{5}                                                                                                                          \\
+		Max(v)              & \multicolumn{3}{c}{7}                     & \multicolumn{3}{c}{3}                    & \multicolumn{3}{c}{9}                                                                                                                          \\
+		Angle               & \multicolumn{3}{c}{7}                     & \multicolumn{3}{c}{3}                    & \multicolumn{3}{c}{9}                                                                                                                          \\
+		\hline
+		\textbf{Method}     & \textbf{RMSE}                             & $\mathbf{R^2}$                           & \textbf{angle}                             & \textbf{RMSE} & $\mathbf{R^2}$ & \textbf{angle} & \textbf{RMSE} & $\mathbf{R^2}$ & \textbf{angle} \\
+		Acc                 & 0.7                                       & 0.5                                      & 7                                          & 0.5           & 0.7            & 8              & 0.5           & 0.7            & -5             \\
+		Gyr                 & 0.7                                       & 0.5                                      & 7                                          & 0.5           & 0.7            & 8              & 0.5           & 0.7            & -5             \\
+		
+		\bottomrule
+	\end{tabular}
+\end{table}
 
 \begin{table}[htbp]
 	\centering
@@ -83,7 +149,6 @@ It is defined in the range ?
 		\bottomrule
 	\end{tabular}
 \end{table}
-
 \todoin{\begin{itemize}
 		\item How well do different \gls{imu} methods work...
 		\item ... at ramp detection
@@ -179,7 +244,6 @@ rmse[] = distance, angle and width
 }
 \isug{Anzahl Fahrten als Spalte}
 \isug{Subcategories rampentyp}
-
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=1\linewidth]{points_projection.pdf}
