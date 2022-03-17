@@ -55,14 +55,14 @@ def get_data(bag_name, imu_topic):
     return lin_acc, ang_vel, odom, odom_hdl, t, f
 
 
-def run_algo(lin_acc, ang_vel, odom, f):
-    ird = ImuRampDetect(f)
+def run_algo(lin_acc, ang_vel, odom, f, is_odom_available):
+    ird = ImuRampDetect(f, is_odom_available)
     tf, gyr_bias = ird.align_imu(lin_acc, ang_vel, odom)
     angles = []
     for i, _ in enumerate(lin_acc):
-        _, _, angs, _ = ird.spin(lin_acc[i], ang_vel[i], odom[i], tf, gyr_bias)
+        _, _, angs, ramp_angle = ird.spin(lin_acc[i], ang_vel[i], odom[i], tf, gyr_bias)
         angles.append(angs)
-    return angles
+    return angles, ramp_angle
 
 
 def visualize_results(angles, lidar_ang, t, bag_name):
@@ -106,7 +106,7 @@ def RMSE(y, y_pred):
     return np.sqrt(((y_pred - y) ** 2)).mean()
 
 
-def create_latex_table(scores):
+def create_latex_table(scores, ramp_angles):
     """Create latex table with correct formatting"""
     # Convert to dataframe
     df = pd.DataFrame(scores)
@@ -127,14 +127,15 @@ def create_latex_table(scores):
     display(df)
     print("\nAnd in latex format:")
     # Print each row
-    for row in range(len(df)):
-        row = df.iloc[row]
+    for i, _ in enumerate(df):
+        row = df.iloc[i]
         print(
-            "{} & {} & {:.2f} & {:.2f} & {}\\\\".format(
+            "{} & {} & {:.2f} & {:.2f} & {} & {}\\\\".format(
                 row["rampType"],
                 row["method"],
                 row["rmse"],
                 row["r2"],
+                ramp_angles[i],
                 "?",
             )
         )
@@ -157,23 +158,31 @@ def calc_score(angles_pred, angle_ref, ramp_type):
 def run_evaluation(bag_info):
     """Get scores from all bags"""
     scores = []
+    ramp_angles = []
     for _, v in enumerate(bag_info):
+        if _ < 2:
+            continue
         # Unpack dictionary
         bag_name = v["bag_name"]
         ramp_type = v["ramp_type"]
         print("\nLoading bag {}".format(bag_name))
+        # Check if odometer data has been recorded
+        is_odom_available = False
+        if "odom" in bag_name:
+            is_odom_available = True
         lin_acc, ang_vel, odom, odom_hdl, t, f = get_data(bag_name, IMU_TOPIC)
         print("Running algorithm")
-        angles = run_algo(lin_acc, ang_vel, odom, f)
+        angles, ramp_angle = run_algo(lin_acc, ang_vel, odom, f, is_odom_available)
+        ramp_angles.append(ramp_angle)
         # Add angle from lidar
         lidar_ang = pitch_from_lidar(odom_hdl, len(angles))
         score = calc_score(angles, lidar_ang, ramp_type)
         scores.append(score)
-        # visualize_results(angles, lidar_ang, t, bag_name)
+        visualize_results(angles, lidar_ang, t, bag_name)
         print("\n\n")
     # Flatten scores list
     scores_flat = [item for sublist in scores for item in sublist]
-    return scores_flat
+    return scores_flat, ramp_angles
 
 
 # Rosbags path
@@ -187,36 +196,52 @@ IMU_TOPIC = "/imu/data"
 # List of dictionaries with info about recording
 BAG_INFO = [
     {
+        "bag_name": "d_d2r2s_lidar_wo_odom_hdl.bag",
+        "ramp_type": "d_full_long",
+    },
+    {
+        "bag_name": "d_d2r2s_odom_hdl.bag",
+        "ramp_type": "d_full_long",
+    },
+    {
+        "bag_name": "d_e2q_hdl.bag",
+        "ramp_type": "d_full_short",
+    },
+    {
+        "bag_name": "straight_wo_ramps_odom_hdl.bag",
+        "ramp_type": "straight",
+    },
+    {
         "bag_name": "u_c2s_half_odom_hdl.bag",
-        "ramp_type": "us",
+        "ramp_type": "u_half_short",
     },
     {
         "bag_name": "u_c2s_half_odom_stereo_hdl.bag",
-        "ramp_type": "us",
+        "ramp_type": "u_half_short",
     },
     {
         "bag_name": "u_c2s_hdl.bag",
-        "ramp_type": "us",
+        "ramp_type": "u_full_short",
     },
     {
         "bag_name": "u_c2s_stop_hdl.bag",
-        "ramp_type": "us",
+        "ramp_type": "u_full_short",
     },
     {
         "bag_name": "u_d2e_hdl.bag",
-        "ramp_type": "us",
+        "ramp_type": "u_full_short",
     },
     {
         "bag_name": "u_s2c_half_odom_hdl.bag",
-        "ramp_type": "uc",
+        "ramp_type": "u_half_short",
     },
     {
         "bag_name": "u_s2c2d_hdl.bag",
-        "ramp_type": "uc",
+        "ramp_type": "u_full_long",
     },
 ]
 
 # Run evaluation
-SCORES = run_evaluation(BAG_INFO)
+SCORES, RAMP_ANGLES = run_evaluation(BAG_INFO)
 # Display results in table format
-create_latex_table(SCORES)
+create_latex_table(SCORES, RAMP_ANGLES)
