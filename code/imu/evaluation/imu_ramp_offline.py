@@ -17,7 +17,7 @@ class ImuRampDetect(object):
     ramp and if so, measure distance and angle of ramp
     """
 
-    def __init__(self, rate):
+    def __init__(self, rate, is_odom_available=False):
         self.rate = rate
         self.car_angle_gyr = 0
 
@@ -31,11 +31,14 @@ class ImuRampDetect(object):
         self.dist_car = 0  # Travelled distance
         self.v_imu = 0  #
         self.dist_imu = 0
-        self.is_odom_available = False
+        self.is_odom_available = is_odom_available
 
         # Moving Average Filter
         self.imu_filt_class = FilterClass()
         self.odom_filt_class = FilterClass()
+
+        # Ramp properties
+        self.ramp_props_class = RampProperties(self.rate)
 
     def spin(self, lin_acc, ang_vel, odom, rot_mat, gyr_bias):
         # Make sensor msgs public
@@ -54,13 +57,16 @@ class ImuRampDetect(object):
         car_angle_compl = self.complementary_filter(ang_vel[1], lin_acc[0], 0.99)
         car_angle_compl_grav = self.complementary_filter_grav(ang_vel[1], car_angle_grav, 0.99)
 
-        if self.is_ramp(car_angle_compl_grav, 2):
-            if self.is_odom_available:
-                dist = self.travel_distance_odom(odom)
-            else:
-                dist = self.travel_distance_imu(lin_acc[0], car_angle_compl_grav)
-        else:
-            dist = 0
+        # if self.ramp_props_class.is_ramp(np.rad2deg(car_angle_compl_grav)):
+        #     self.travel_distance_odom(lin_acc[0], car_angle_compl_grav)
+        # else:
+        #     dist = 0
+
+        # Calculate ramp angle
+        ramp_angle = self.ramp_props_class.ramp_angle_est(
+            np.rad2deg(car_angle_compl_grav), 4, 2, 0.5
+        )
+
         return (
             lin_acc,
             ang_vel,
@@ -71,7 +77,7 @@ class ImuRampDetect(object):
                 car_angle_compl,
                 car_angle_compl_grav,
             ],
-            dist,
+            ramp_angle,
         )
 
     def align_imu(self, lin_acc, ang_vel, odom):
@@ -246,11 +252,16 @@ class ImuRampDetect(object):
         self.angle_est = K * (self.angle_est - gyr / self.rate) + (1 - K) * acc_angle
         return self.angle_est
 
-    def travel_distance_odom(self, odom):
+    def travel_distance_odom(self, acc_x_imu, car_angle_est):
         """Distance along x-axis which the car has travelled so far"""
-        v_car = self.vel_from_odom(odom)
-        self.dist_car += v_car * (1.0 / self.rate)
-        return self.dist_car
+        if self.is_odom_available:
+            v_car = self.vel_from_odom(self.odom_msg)
+            self.dist += v_car * (1 / self.rate)
+        else:
+            acc_free_off_g = acc_x_imu - np.sin(car_angle_est) * self.g_mag
+            self.v_imu += acc_free_off_g * (1 / self.rate)
+            self.dist += self.v_imu * (1 / self.rate)
+        return self.dist
 
     def travel_distance_imu(self, acc_x_imu, car_angle_est):
         """Distance along x-axis which the car has travelled so far"""
@@ -289,6 +300,61 @@ class FilterClass(object):
         if len(self.values) > win:
             self.sum -= self.values.pop(0)
         return self.sum / len(self.values)
+
+
+class RampProperties(object):
+    def __init__(self, f):
+        self.f = f
+        self.ang_buffer = [0]
+        self.counter = 0
+        self.max_ang = 0
+        self.done = False
+        self.ang_buffer2 = []
+
+    def ramp_angle_est(self, angle, min_ang, win, buf):
+        """Estimate max angle of the ramp
+
+        Args:
+            angle (list): Road grade angle estimation over time [deg]
+            min_ang (float): Minimum angle to be considered a peak
+            win (float): Window length, in which peak will count as global [s]
+            buf (float): Window length, before and after peak to use for smoothing [s]
+            f (int): Frequency in Hz
+
+        Returns:
+            float: Estimated maximum angle of the ramp [deg]
+        """
+        # Only run until max angle has been found
+        if self.done:
+            return
+        # Convert window length from sec to samples
+        win *= self.f
+        buf = int(buf * self.f)
+
+        # Iterate through all angles (real time simulation)
+        if len(self.ang_buffer) > 2 * win:
+            self.ang_buffer.pop(0)
+        self.counter += 1
+        # Set new max angle and reset counter
+        if np.abs(angle) > np.max(np.abs(self.ang_buffer)):
+            self.max_ang = np.abs(angle)
+            self.counter = 0
+        self.ang_buffer.append(angle)
+        # Return if no new max angle for a while and angle big enough
+        if self.counter > win and self.max_ang > min_ang:
+            # Get some val before and after peak
+            max_ang_est = np.mean(self.ang_buffer[-self.counter - buf : -self.counter + buf])
+            self.done = True
+            print("The ramp has an estimated peak angle of {}".format(max_ang_est))
+            return max_ang_est
+
+    def is_ramp(self, angle, ramp_thresh=2):
+        """Checks if car is on ramp"""
+        # TODO: Prevent accidental detection during acceleration phase
+        # Convert angle from radian to degree
+        if np.abs(angle) > ramp_thresh:
+            return True
+        return False
 
 
 if __name__ == "__main__":
