@@ -33,7 +33,10 @@ Furthermore, the coefficient of determination $R^2$ is used
 	R^2 = 1 - \frac{\sum\limits_{i = 1}^n(\hat{y}_i - y_i)^2}{\sum\limits_{i = 1}^n(\hat{y}_i - \overline{y})^2},
 \end{equation}
 where $\overline{y}$ indicates the mean of the reference.
-The goodness of the fit is described in the range from 0 to 1, where 1 describes a perfect fit.
+The goodness of the fit is described in the range from 0 to 1, where 1 describes a perfect fit.\\
+Different recordings of different ramps were made, but the results will be discussed on only two test drives.
+In the first drive the car was accelerated from stand still and drove up ramp A \todo{Picture and label of every ramp in setup section} about half-way up.
+As explained in ?, the ramp could not be driven completely, due to the need of the odometer readings, which are only available when the motor output is limited.
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=.9\linewidth]{imu_raw_angle.pdf}
@@ -73,8 +76,28 @@ But it can also be seen that the time synchronization between both signals is vi
 	\caption[Gravity method]{The road grade estimation using only the accelerometer compared to the gravity method, which additionally uses the wheel speed measurements}
 	\label{fig:imu_odometer_angle}
 \end{figure}
-\missingfigure{Plot of acc + gyr + compl (of a longer drive) (subfig1)}
-\missingfigure{Plot of grav method + compl + compl grav (of a longer drive)  (subfig2)}
+Another way to improve the estimation is using a complementary filter, as shown in \cref{fig:imu_raw_compl_angle}.
+The complementary filter uses the estimation of the gyroscope measurements and corrects them using the accelerometer measurements to prevent drift.
+It can be seen that the estimation using the complementary filter closely follows the reference except for the .. between the two ramps.
+SOMETHING MORE
+\begin{figure}[htb]
+	\centering
+	\begin{subfigure}{1\textwidth}
+		\centering
+		\includegraphics[width=0.9\linewidth]{imu_raw_compl_angle.pdf}
+		\caption{Complementary filter}
+		\label{fig:imu_raw_compl_angle}
+	\end{subfigure}
+	
+	% \bigskip
+	\begin{subfigure}{1\textwidth}
+		\centering
+		\includegraphics[width=0.9\linewidth]{imu_grav_compl_angle.pdf}
+		\caption{Something other ($\theta_\mathrm{compl, grav}$ is the same as compl and $\theta_\mathrm{grav}$ is just filtered acc)}
+		\label{fig:imu_grav_compl_angle}
+	\end{subfigure}
+	\caption{This bag clearly shows the drift of the gyro, but lacks odometer measurements}
+\end{figure}
 \missingfigure{Plot of different compl gains}
 \missingfigure{Plot of problem of distance estimation using only accelerometer (initial acc is bad)}
 \todoin{\begin{itemize}
@@ -294,4 +317,11 @@ rmse[] = distance, angle and width
 	\end{subfigure}
 	\caption{Is subfigure better than separate?}
 	\label{fig:subFigTest}
+\end{figure}
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=1\linewidth]{camera_detection_compare}
+	\caption{Machine learning}
+	\label{fig:camera_detection_compare}
 \end{figure}
