@@ -79,6 +79,9 @@ But it can also be seen that the time synchronization between both signals is vi
 Another way to improve the estimation is using a complementary filter, as shown in \cref{fig:imu_raw_compl_angle}.
 The complementary filter uses the estimation of the gyroscope measurements and corrects them using the accelerometer measurements to prevent drift.
 It can be seen that the estimation using the complementary filter closely follows the reference except for the .. between the two ramps.
+Also it has no offset at the end, unlike the estimation from the gyroscope data.\\
+Other methods of the same ride are shown in \cref{fig:imu_grav_compl_angle}.
+The gravity method reduces the spikes of the raw accelerometer estimation, but introduces some new errors due to the odometer readings being slightly shifted in time regarding to the accelerometer readings.
 SOMETHING MORE
 \begin{figure}[htb]
 	\centering
@@ -99,6 +102,11 @@ SOMETHING MORE
 	\caption{This bag clearly shows the drift of the gyro, but lacks odometer measurements}
 \end{figure}
 \missingfigure{Plot of different compl gains}
+The measuring of the length of the ramp works well when the odometer readings are available.
+The car velocity can then be integrated to get the travelled distance along the x-axis.
+Without the odometer data it is more difficult, but still possible by using the accelerometer data.
+By integrating the accelerometer data ... the velocity and another integration leads to the travelled distance.
+
 \missingfigure{Plot of problem of distance estimation using only accelerometer (initial acc is bad)}
 \todoin{\begin{itemize}
 		\item Think of better way to split test drives (e.g. up, down and long and short)
@@ -111,90 +119,48 @@ SOMETHING MORE
 
 \begin{table}[htbp]
 	\centering
-	\caption{Performance evaluation zed}
-	\label{tab:eval_table}
-	\begin{tabular}[t]{cccccccccc}
+	\caption{Performance measures up ZED \gls{imu}}
+	\label{tab:eval_table_imu_up}
+	\begin{tabular}[t]{ccccccc}
 		\toprule
-		\textbf{Properties} & \multicolumn{3}{c}{\textbf{Uphill short}} & \multicolumn{3}{c}{\textbf{Uphill long}} & \multicolumn{3}{c}{\textbf{Downhill long}}                                                                                                     \\
+		\textbf{Properties}       & \multicolumn{3}{c}{\textbf{Ramp A}} & \multicolumn{3}{c}{\textbf{Ramp B}}                                                                    \\
 		\midrule
-		Mean(v)             & \multicolumn{3}{c}{5}                     & \multicolumn{3}{c}{5}                    & \multicolumn{3}{c}{5}                                                                                                                          \\
-		Max(v)              & \multicolumn{3}{c}{7}                     & \multicolumn{3}{c}{3}                    & \multicolumn{3}{c}{9}                                                                                                                          \\
-		Angle               & \multicolumn{3}{c}{7}                     & \multicolumn{3}{c}{3}                    & \multicolumn{3}{c}{9}                                                                                                                          \\
+		Mean(v)                   & \multicolumn{3}{c}{5}               & \multicolumn{3}{c}{5}                                                                                  \\
+		Max(v)                    & \multicolumn{3}{c}{7}               & \multicolumn{3}{c}{3}                                                                                  \\
+		Angle                     & \multicolumn{3}{c}{7}               & \multicolumn{3}{c}{3}                                                                                  \\
 		\hline
-		\textbf{Method}     & \textbf{RMSE}                             & $\mathbf{R^2}$                           & \textbf{angle}                             & \textbf{RMSE} & $\mathbf{R^2}$ & \textbf{angle} & \textbf{RMSE} & $\mathbf{R^2}$ & \textbf{angle} \\
-		Acc                 & 0.7                                       & 0.5                                      & 7                                          & 0.5           & 0.7            & 8              & 0.5           & 0.7            & -5             \\
-		Gyr                 & 0.7                                       & 0.5                                      & 7                                          & 0.5           & 0.7            & 8              & 0.5           & 0.7            & -5             \\
-		
+		\textbf{Method}           & \textbf{RMSE}                       & $\mathbf{R^2}$                      & \textbf{Angle} & \textbf{RMSE} & $\mathbf{R^2}$ & \textbf{Angle} \\
+		\cmidrule(lr){2-4}   \cmidrule(lr){5-7}
+		Accelerometer             & 0.9478                              & 0.6508                              & 7.74           & 0.6497        & 0.7872         & 6.93           \\
+		Gyroscope                 & 0.8544                              & 0.7996                              & 4.78           & 0.7910        & 0.7797         & 4.34           \\
+		Acceleration method       & 0.4422                              & 0.9391                              & 7.95           & 0.3499        & 0.9555         & 7.06           \\
+		Complementary filter      & 0.6693                              & 0.8731                              & 4.96           & 0.4514        & 0.9307         & 4.92           \\
+		Complementary filter grav & 0.4113                              & 0.9619                              & 6.54           & 0.2786        & 0.9744         & 6.55           \\
 		\bottomrule
 	\end{tabular}
 \end{table}
-
 \begin{table}[htbp]
 	\centering
-	\caption{Performance evaluation zed}
-	\label{tab:eval_table}
-	\begin{tabular}[t]{cccccccc}
+	\caption{Performance measures down ZED \gls{imu}}
+	\label{tab:eval_table_imu_down}
+	\begin{tabular}[t]{ccccccc}
 		\toprule
-		\textbf{Structure} & \textbf{Method} & \textbf{RMSE} & $\mathbf{R^2}$ & \textbf{Delay?} \\
+		\textbf{Properties}       & \multicolumn{3}{c}{\textbf{Ramp C}} & \multicolumn{3}{c}{\textbf{Ramp A}}                                                                    \\
 		\midrule
-		uc                 & acc             & 0.93          & 0.75           & ?               \\
-		uc                 & acc odom        & 0.72          & 0.87           & ?               \\
-		uc                 & compl           & 0.68          & 0.88           & ?               \\
-		uc                 & compl grav      & 0.68          & 0.88           & ?               \\
-		uc                 & gyr             & 1.42          & 0.51           & ?               \\
-		us                 & acc             & 1.11          & 0.67           & ?               \\
-		us                 & acc odom        & 0.84          & 0.81           & ?               \\
-		us                 & compl           & 0.80          & 0.83           & ?               \\
-		us                 & compl grav      & 0.80          & 0.83           & ?               \\
-		us                 & gyr             & 0.47          & 0.93           & ?               \\
+		Mean(v)                   & \multicolumn{3}{c}{5}               & \multicolumn{3}{c}{5}                                                                                  \\
+		Max(v)                    & \multicolumn{3}{c}{7}               & \multicolumn{3}{c}{3}                                                                                  \\
+		Angle                     & \multicolumn{3}{c}{7}               & \multicolumn{3}{c}{3}                                                                                  \\
+		\hline
+		\textbf{Method}           & \textbf{RMSE}                       & $\mathbf{R^2}$                      & \textbf{Angle} & \textbf{RMSE} & $\mathbf{R^2}$ & \textbf{Angle} \\
+		\cmidrule(lr){2-4}   \cmidrule(lr){5-7}
+		Accelerometer             & 0.9478                              & 0.6508                              & 7.74           & 0.6497        & 0.7872         & 6.93           \\
+		Gyroscope                 & 0.8544                              & 0.7996                              & 4.78           & 0.7910        & 0.7797         & 4.34           \\
+		Acceleration method       & 0.4422                              & 0.9391                              & 7.95           & 0.3499        & 0.9555         & 7.06           \\
+		Complementary filter      & 0.6693                              & 0.8731                              & 4.96           & 0.4514        & 0.9307         & 4.92           \\
+		Complementary filter grav & 0.4113                              & 0.9619                              & 6.54           & 0.2786        & 0.9744         & 6.55           \\
 		\bottomrule
 	\end{tabular}
 \end{table}
-
-\begin{table}[htbp]
-	\centering
-	\caption{Performance evaluation myahrs}
-	\label{tab:eval_table}
-	\begin{tabular}[t]{cccccccc}
-		\toprule
-		\textbf{Structure} & \textbf{Method} & \textbf{RMSE} & $\mathbf{R^2}$ & \textbf{Delay?} \\
-		\midrule
-		uc                 & acc             & 0.85          & 0.79           & ?               \\
-		uc                 & acc odom        & 0.70          & 0.88           & ?               \\
-		uc                 & compl           & 0.69          & 0.89           & ?               \\
-		uc                 & compl grav      & 0.69          & 0.89           & ?               \\
-		uc                 & gyr             & 1.42          & 0.14           & ?               \\
-		us                 & acc             & 0.99          & 0.73           & ?               \\
-		us                 & acc odom        & 0.79          & 0.84           & ?               \\
-		us                 & compl           & 0.76          & 0.86           & ?               \\
-		us                 & compl grav      & 0.76          & 0.86           & ?               \\
-		us                 & gyr             & 0.44          & 0.95           & ?               \\
-		\bottomrule
-	\end{tabular}
-\end{table}
-\todoin{\begin{itemize}
-		\item How well do different \gls{imu} methods work...
-		\item ... at ramp detection
-		\item ... at ramp distance measuring
-		\item ... at angle estimation
-	\end{itemize}}
-\todo[inline, caption={2do}, color=green!40]{
-	\begin{minipage}{\textwidth-4pt}
-		\begin{itemize}
-			\item Which methods should be compared?
-			\item Because gravity method only works with odometer, which is only available when driving down or halfway up
-			\item Should new recording at different offset angles be made?
-			\item How to handle false positives, e.g. when braking on level ground?
-			\item What to display in the table, only normal drives or also ones with braking etc.?
-			\item Or evaluate those edge cases separately? (Probably with plot of est angle)
-			\item How to handle offline vs live detection (for the offline detection the measurements can be butterworth filtered)?
-			\item How to determine the delay of the detection (using the camera image)?
-			\item What about the consistency test recordings, how or where to display the results?
-		\end{itemize}
-	\end{minipage}
-}
-\isug{Raw accelerometer data or gyroscope peak is ramp start}
-\isug{Also show consistency recordings (avg error and stuff)}
 \todoin{\begin{itemize}
 		\item Plots of (all only for one ramp)...
 		\item Acceleration from \gls{imu} and odometer (already filtered)
@@ -208,11 +174,26 @@ SOMETHING MORE
 
 \section{Ramp detection (\glsentrytext{lidar} and camera)}
 rmse[] = distance, angle and width
-
+For the evaluation of the \gls{lidar} performance the \texttt{hdl\_graph\_slam} package was used again.
+It ... the position of the car and also a static point cloud map of the environment.
+The ramp region was then manually ... and using the position ... the true distance to the ramp could be calculated.
+The estimated width and angle of the ramp are being compared to a measured value.
+Furthermore the detection rate was evaluated.
+A true positive (successfull detection) was ..., when at least 50\% of the detected points lie inside the ramp region.
+Analogously, a false positive is achieved, when less than 50\% of the detected points lie inside the ramp region.
+An example of the pointcloud map generated by the \texttt{hdl\_graph\_slam} package is shown in \cref{fig:pcd_rviz}.
+It can be seen that the \gls{lidar}
+The ramp region was marked by hand and is used as reference.
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=1\linewidth]{pcd_rviz.png}
+	\caption{Screenshot of the generated point cloud map generated by the \texttt{hdl\_graph\_slam} package. The ramp is fat}
+	\label{fig:pcd_rviz}
+\end{figure}
 \begin{table}[htbp]
 	\centering
 	\caption{Performance evaluation}
-	\label{tab:eval_table}
+	\label{tab:eval_table_lidar}
 	\begin{tabular}[t]{cccccccc}
 		\toprule
 		\textbf{Structure} & \textbf{Distance}        & \textbf{Frames} & \textbf{TP} & \textbf{FP} & \textbf{rmse1}    & \textbf{rmse2}     & \textbf{rmse3}    \\
@@ -233,23 +214,6 @@ rmse[] = distance, angle and width
 	\end{tabular}
 \end{table}
 
-% Option1	Structure	Dist interval	TP	FP
-% 	Straight up
-% 	Straight down
-% 	Straight down at 90
-% 	Curved up
-% 	Curved down
-
-% Option2	Structure	Offset angle	Distance	Frames	TP	FP
-
-% Option3	Structure	StdDev/mean/var etc of distance, angle, width and length
-\todoin{\begin{itemize}
-		\item Confusion matrix or similar (false negatives could be hard (e.g. curve))
-		\item Estimated angle and distance compare to ground truth
-		\item Do downwards ramp work?
-		\item Camera \gls{lidar} projection for nice visualization
-		\item Something about camera
-	\end{itemize}}
 \itodo{Make new recordings of level -2 ramps, approaching at different (e.g. 0, 15, 30, 45) angles}
 
 \todo[inline, caption={2do}, color=green!40]{
@@ -267,56 +231,62 @@ rmse[] = distance, angle and width
 }
 \isug{Anzahl Fahrten als Spalte}
 \isug{Subcategories rampentyp}
+An visualization of the detection algorithm can be seen in \cref{fig:points_projection}.
+The point cloud generated by the \gls{lidar} is projected onto to the camera image.
+The quality of the projection depends on the accuracy of the measured translation and orientation difference between both sensors.
+It can be seen that it is not perfect, e.g. the points do not quite match the camera image at the left pillar or the pipe on the ceiling.
+Nonetheless it gives a good indication of what the \gls{lidar} actually sees.
+The green points were identified as part of the ramp by the algorithm.
+It fits the actual ramp very well...
+It can be seen that the resolution at ground level and at the start of the ramp is worse.
+TALK ABOUT IMAGE LEGEND
+....
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=1\linewidth]{points_projection.pdf}
 	\caption{Lidar points projected into the camera image. The green points were identified as part of a ramp.}
+	\label{fig:points_projection}
 \end{figure}
-\newpage
-\begin{figure}[htbp]
-	\centering
-	\includegraphics[width=0.7\linewidth]{lidar_distance_eval.pdf}
-	\caption{Difference between estimated and measured distance to ramp}
-	\label{fig:lidar_distance_eval}
-\end{figure}
-\begin{figure}[htbp]
-	\centering
-	\includegraphics[width=0.7\linewidth]{lidar_angle_eval.pdf}
-	\caption{Error between estimated and measured ramp angle (\SI{6.75}{\degree})}
-	\label{fig:lidar_angle_eval}
-\end{figure}
-\begin{figure}[htbp]
-	\centering
-	\includegraphics[width=0.7\linewidth]{lidar_width_eval.pdf}
-	\caption{Error between estimated and measured ramp width (\SI{4}{\metre})}
-	\label{fig:lidar_width_eval}
-\end{figure}
-
+The estimated ramp properties and distance to the ramp for an exemplary ride are shown in \cref{fig:lidar_eval}.
+In \cref{fig:lidar_distance_eval} the estimated distance is shown in comparison to the ... distance provided .... \texttt{hdl\_graph\_slam} package.
+The error reduces when the car is closer to the ramp.
+Interestingly the value of the estimated distance seems to hold itself for several m.
+This is most probably due to the vertical resolution of the \gls{lidar} and more .... about the ... .
+Because the vertical resolution is not linear, the most lines fall in the middle?
+Hence, only few lines fall into the region at the start of the ramp.
+The distance to the ramp is calculated by measuring the distance from the car to the $n$ closest points which have been identified as part of the ramp.
+Therefore, the distance can only be updated if a line which has previously hit the ground now hits the ramp.
+...
+Fig. \ref{fig:lidar_angle_eval} shows the difference between the estimated angle and the HOW measured angle.
+It can be seen that the estimation varies by about \ang{1} if the distance is less than \SI{20}{\metre}.
+The angle is almost exclusively underestimated (OR OVER?), which could be due to the fact that the measurement was wrong.
+Blabla in \ref{fig:lidar_width_eval}.
+The error is very small compared to the tracking error.
+Because the horizontal resolution is better.
 \begin{figure}[htb]
 	\centering
 	\begin{subfigure}{1\textwidth}
 		\centering
 		\includegraphics[width=0.7\linewidth]{lidar_distance_eval.pdf}
 		\caption{caption}
-		\label{fig:lidar_distance_evalTest}
+		\label{fig:lidar_distance_eval}
 	\end{subfigure}
 	
-	% \bigskip
 	\begin{subfigure}{1\textwidth}
 		\centering
 		\includegraphics[width=0.7\linewidth]{lidar_angle_eval.pdf}
 		\caption{caption}
-		\label{fig:lidar_angle_evalTest}
+		\label{fig:lidar_angle_eval}
 	\end{subfigure}
 	
 	\begin{subfigure}{1\textwidth}
 		\centering
 		\includegraphics[width=0.7\linewidth]{lidar_width_eval.pdf}
 		\caption{caption}
-		\label{fig:lidar_width_evalTest}
+		\label{fig:lidar_width_eval}
 	\end{subfigure}
 	\caption{Is subfigure better than separate?}
-	\label{fig:subFigTest}
+	\label{fig:lidar_eval}
 \end{figure}
 
 \begin{figure}[htbp]
