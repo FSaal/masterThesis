@@ -21,7 +21,8 @@ from tf.transformations import (
     vector_norm,
 )
 
-class AlignGround():
+
+class AlignGround:
     def __init__(self, pc_msg, show_plane=False):
         self.pc_msg = pc_msg
         self.show_plane = show_plane
@@ -29,8 +30,7 @@ class AlignGround():
     def align_lidar(self):
         """Calculate roll and pitch angle to align Lidar with car frame"""
         # Convert lidar msg to numpy array
-        pc_array = ros_numpy.point_cloud2.pointcloud2_to_xyz_array(
-            self.pc_msg, remove_nans=True)
+        pc_array = ros_numpy.point_cloud2.pointcloud2_to_xyz_array(self.pc_msg, remove_nans=True)
         # Convert numpy array to pcl point cloud
         pc = self.array_to_pcl(pc_array)
         # Reduce point cloud size a bit by downsampling
@@ -70,14 +70,14 @@ class AlignGround():
 
                 # Publish ground to check manually if it is ground
                 if self.show_plane:
-                    self.publish_pc(plane, 'hey')
+                    self.publish_pc(plane, "hey")
 
                 return rot, dist_to_ground
 
             # Prevent infinite loop
             counter += 1
             if counter == max_iter:
-                raise RuntimeError ('Ground could not be detected')
+                raise RuntimeError("Ground could not be detected")
 
     def test_ground_estimation(self, plane, est_ground_vec, lidar_height=1):
         """Tests whether or not plane is ground (True) or not (False)
@@ -119,14 +119,14 @@ class AlignGround():
         if roll0:
             roll = 0
         # Get rotation matrix (ignoring yaw angle)
-        rot = euler_matrix(roll, pitch, 0, 'sxyz')[:3, :3]
+        rot = euler_matrix(roll, pitch, 0, "sxyz")[:3, :3]
         return rot
 
     @staticmethod
     def array_to_pcl(pc_array):
         """Get pcl point cloud from numpy array"""
         pc = pcl.PointCloud()
-        pc.from_array(pc_array.astype('float32'))
+        pc.from_array(pc_array.astype("float32"))
         return pc
 
     @staticmethod
@@ -143,7 +143,7 @@ class AlignGround():
         ang = np.arctan2(vector_norm(cross_prod), dot_prod)
 
         # Quaternion ([x,y,z,w])
-        quat = np.append(axis*np.sin(ang/2), np.cos(ang/2))
+        quat = np.append(axis * np.sin(ang / 2), np.cos(ang / 2))
         return quat
 
     @staticmethod
@@ -188,12 +188,11 @@ class AlignGround():
         # Initialize pc2 msg
         header = Header()
         header.stamp = rospy.Time.now()
-        header.frame_id = '/velodyne'
+        header.frame_id = "/velodyne"
         # Convert point cloud list to pc2 msg
         pc = pc2.create_cloud_xyz32(header, pc)
         # Publish message
         rospy.Publisher(pub_name, PointCloud2, queue_size=10).publish(pc)
-
 
 
 def filelist_from_dir(dir, extension):
@@ -201,19 +200,20 @@ def filelist_from_dir(dir, extension):
     # Go to the directory
     os.chdir(dir)
     # Get list of files which have specified extension
-    lst = glob.glob('*.{}'.format(extension))
+    lst = glob.glob("*.{}".format(extension))
     return lst
 
+
 #! Change path to directory which contains the rosbags
-path = "/home/user/rosbags/final2"
-# path = "/home/user/rosbags/final/robos"
+# path = "/home/user/rosbags/final2"
+path = "/home/user/rosbags/final/robos"
 
 # Get file list
-bag_lst = filelist_from_dir(path, 'bag')
+bag_lst = filelist_from_dir(path, "bag")
 
 #! Change lidar topic
-lidar_topic = '/velodyne_points'
-# lidar_topic = '/left/rslidar_points'
+# lidar_topic = "/velodyne_points"
+lidar_topic = "/left/rslidar_points"
 
 #! Publish pointcloud of detected ground?
 show_ground = False
@@ -221,17 +221,19 @@ show_ground = False
 # Initialize empty list to collect values
 props = []
 
-rospy.init_node('check_ground')
+rospy.init_node("check_ground")
 while not rospy.is_shutdown():
     for b in bag_lst:
         bag = rosbag.Bag(os.path.join(path, b))
         # Get first message and calculate stuff
-        for topic,msg,t in bag.read_messages(topics=lidar_topic):
+        for topic, msg, t in bag.read_messages(topics=lidar_topic):
             roll, pitch, height = AlignGround(msg, show_ground).align_lidar()
-            print('Roll: {:.2f}\nPitch: {:.2f}\nHeight: {:.2f}'.format(
-                np.rad2deg(roll), np.rad2deg(pitch), height
-            ))
-            print('Bag: {}\n'.format(b))
+            print(
+                "Roll: {:.2f}\nPitch: {:.2f}\nHeight: {:.2f}".format(
+                    np.rad2deg(roll), np.rad2deg(pitch), height
+                )
+            )
+            print("Bag: {}\n".format(b))
             # Add values to list to get average later
             props.append((roll, pitch, height))
             # Stop after first message
@@ -240,13 +242,13 @@ while not rospy.is_shutdown():
 
 # Calculate average of all bags for a more precise output
 means = np.mean(np.asarray(props), axis=0)
-print('Average angles / height of all rosbags')
-print('Roll: {:.2f}\nPitch: {:.2f}\nHeight: {:.2f}'.format(
-    np.rad2deg(means[0]), np.rad2deg(means[1]), means[2]
-))
+print("Average angles / height of all rosbags")
+print(
+    "Roll: {:.2f}\nPitch: {:.2f}\nHeight: {:.2f}".format(
+        np.rad2deg(means[0]), np.rad2deg(means[1]), means[2]
+    )
+)
 
 # Static transform to insert in hdl slam launch file
-static_tf = [1.14-3.5, -0.05, -means[2], 0, means[1], means[0]]
-print('Static transform xyzypr: {} {} {:.4f} {} {:.4f} {:.4f}'.format(
-    *static_tf
-))
+static_tf = [1.14 - 3.5, -0.05, -means[2], 0, means[1], means[0]]
+print("Static transform xyzypr: {} {} {:.4f} {} {:.4f} {:.4f}".format(*static_tf))
