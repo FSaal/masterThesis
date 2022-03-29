@@ -399,6 +399,7 @@ A visual representation of the algorithm is depicted in \cref{fig:flowchart_lida
 \subsection{\glsentrytext{imu} and Odometer}
 
 \subsubsection{Car acceleration from odometer data}
+\label{subsubsec:acc_from_odom}
 Because the odometer only delivers the speed of each wheel, the car velocity has to be calculated.
 During turns the left and right wheels travel at different speeds, the wheel on the inner side of the turn travels slower, than the outer wheel.
 E.g. during a left turn, the left wheel moves slower than the right wheel.
@@ -423,7 +424,12 @@ But because all measurements are discrete, numerical differentiation e.g. forwar
 \begin{equation}
 	a_\mathrm{car, t} = \frac{v_\mathrm{car, t + 1} - v_\mathrm{car, t}}{T}
 \end{equation}
-with $h$ being the step size, which depends on the rate of the sensor.
+\begin{equation}
+	a_\mathrm{car, k} = \frac{v_\mathrm{car, k + 1} - v_\mathrm{car, k}}{T}
+\end{equation}
+with $h$ being the step size, which depends on the rate of the sensor.\\
+Because the calculated velocity is
+The most simple practice to estimate the acceleration from the velocity data is to low pass filter the data and then implement finite difference.
 \itodo{Find good discrete time notation and use it}
 
 \subsubsection{Gravity method}
@@ -442,6 +448,3 @@ The car pitch angle calculation is the same as in \cref{eq:ang_from_acc}, just t
 	= \arcsin\left(\frac{\vb{a}_\mathrm{x} - \dv{t}v_\mathrm{at} }{\norm{\vb{g}}}\right)
 \end{equation}
 with $\vb{a}_\mathrm{x}$ being the acceleration measured by the x-axis of the \gls{imu} and $\norm{\vb{g}}$ being the magnitude of the overall measured acceleration.
-
-\subsection{\glsentrytext{imu} and odometer and \glsentrytext{lidar}}
-\itodo{Algo description}
