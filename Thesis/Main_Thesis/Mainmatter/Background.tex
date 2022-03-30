@@ -133,6 +133,8 @@ The found rotation can then be applied using e.g. a quaternion or a rotation mat
 
 \section{Sensors}
 \itodo{Add short overview}
+
+
 \subsection{\glsentrytext{imu}}
 An \gls{imu} is used to track the orientation and position of an object.
 Common uses are in the aerospace or automotive industry, often in combination with other sensors, to give information about the pose and position of a vehicle.
@@ -217,11 +219,11 @@ E.g.\ if the mass oscillates along the x-axis and a rotation around the z-axis i
 By measuring the amplitude and phase of the secondary oscillation the absolute value and direction of the angular velocity can be calculated.
 While \gls{mems} gyroscopes do not achieve the same accuracy as optical gyroscopes they offer many advantages such as smaller physical properties (weight and size), lower power consumption and startup time as well as a significantly lower cost.
 \gls{mems} gyroscopes have replaced other gyroscope types in most areas, but in areas where the highest precision possible is necessary, typically in military industry, optical gyroscopes are still used today \cite{Perlmutter2016}.
-Similar to the accelerometer, the measurements $\hat{\boldsymbol{\omega}}$ of the \gls{mems} gyroscope are influenced by errors, which can be modeled as
+Similar to the accelerometer, the measurements $\hat{\boldsymbol{\omega}}$ of the \gls{mems} gyroscope are influenced by errors, which can be modeled according to \cite{Lefferts1982} as
 \begin{equation}
 	\hat{\boldsymbol{\omega}} = \boldsymbol{\omega} + \vb{b}_\mathrm{g} + \vb{n}_\mathrm{g}.
 \end{equation}
-The measurement differs from the true angular velocity $\boldsymbol{\omega}$ due to the slowly time-varying bias vector $\vb{b}_\mathrm{g}$ and the random noise vector $\vb{n}_\mathrm{g}$, which has a mean of zeroFind a good source and use it as a guide \cite{Lefferts1982}.
+The measurement differs from the true angular velocity $\boldsymbol{\omega}$ due to the slowly time-varying bias vector $\vb{b}_\mathrm{g}$ and the random noise vector $\vb{n}_\mathrm{g}$, which has a mean of zero.
 
 \subsubsection{(\glsentrytext{mems}) Magnetometer}
 A magnetometer measures the local magnetic field.
@@ -336,35 +338,69 @@ Services allow for a synchronized communication, instead of the asynchronous top
 
 
 
-\section{Signal processing}
-\itodo{Not even sure if this needs an own section}
-\dots is necessary.
-\dots can be divided into filtering and smoothing.
-Filtering can be used in live applications and produces an estimate of the current value by taking the past values into account, whereas smoothing uses past and future samples and thus introduces a delay if used on live data \todo{filtering also often introduces a delay}.
-Because the detection should be live, only the filtering methods will be examined.
-Digital filters can be generally divided into two different categories.
-\gls{fir} filter rely on a fixed number of recent input values. An example would be the moving average filter, which takes the past $n$ values into account.
-\gls{iir} filter rely on previous output and most recent input by summing all points with a certain weight (e.g. exponential filter).
-This also explains the naming of the two types, the \gls{fir} filter "forgets" past values, whereas the \gls{iir} filter uses the previous estimate and thus theoretically takes all past values into account.\\
-Savitzky-Golay filter
-\begin{equation}
-	y = \frac{1}{h}\sum_{i =\frac{1 - m}{2}}^{\frac{m - 1}{2}}C
-\end{equation}
-\iquest{How much about dsp? E.g. also noise, aa etc. or only type of filters?}
+\section{Computer Vision}
+\subsection{Object detection}
+Objection detection is a common task in the field of computer vision and is used to detect, localize and classify objects in images or videos.
+In contrast to image classification, which only assigns a label to an image, objection detection allows for the detection of multiple objects by drawing a bounding box around each individual object.
+\todoin{\begin{itemize}
+		\item Types (machine learning-based and deep learning)
+		\item Working principle can be omitted I think?
+		\item Application
+	\end{itemize}
+}
+
+\subsection{Image segmentation}
+Image segmentation partitions an image into multiple segments or objects.
+It can be divided into the three categories semantic segmentation, instance segmentation or panoptic segmentation \cite{Minaee2021}.\\
+In semantic segmentation all pixels corresponding to the same class are clustered together and assigned a label.
+Multiple different classes can be detected, but no difference is made between multiple instances of the same class.
+Every pixel is associated with a class.\\
+Instance segmentation goes one step further by also differentiating between different individual objects of the same class.
+It combines objection detection, objection localization and object classification.
+However, it does not classify every pixel anymore, things that are hard to enumerate such as walls and roads are ignored.\\
+The panoptic segmentation combines both methods.
+\iimprov{Add resources}
+\missingfigure{Comparison picture of both segmentation types}
 
 
-\subsection{Discretization}
-Because the data from the sensor is time discrete, the derivation must be approximated.
-The three basic types are the forward, backward and central differences.
-Forward difference:
-\begin{equation}
-	\dot{x}_t = \frac{x_\mathrm{t + 1} - x_\mathrm{t}}{\Delta t}
-\end{equation}
-backward difference:
-\begin{equation}
-	\dot{x}_t = \frac{x_\mathrm{t} - x_\mathrm{t - 1}}{\Delta t}
-\end{equation}
-central difference
-\begin{equation}
-	\dot{x}_t = \frac{x_\mathrm{t + 1} - x_\mathrm{t - 1}}{2\Delta t}
-\end{equation}
+\subsection{\glsentrytext{cnn}}
+A \gls{cnn} consists of three different type of layers, convolutional, pooling and the fully connected layers.
+The convolutional layers help to abstract the input image as a feature map using a filter or kernel.
+The pooling layers reduce the complexity by downsampling the feature maps.
+Redundant information is removed in this step, which reduces the calculation time and storage requirement.
+The connected layers nonlinear layers?
+\iimprov{Explain better}
+In more complex situations with multiple objects in an image the \gls{cnn} architecture is not ideal.\\
+That is why in 2014 a deep convolutional network called \gls{rcnn} has been introduced \cite{Girshick2014}, which can detect up to 80 different type of objects in images.
+\gls{rcnn} is a type of machine learning model designed for computer vision tasks, specifically for object detection.
+It sets bounding boxes across the object regions and then applies convolutional networks independently on the all the \gls{roi}.
+The working principle is shown in \cref{fig:rcnn}.
+In the first step the image is divided into approximately 2000 region proposals using the selective search algorithm.
+The selective search algorithm groups similar regions based on their color, texture, size and shape compatibility.
+After extracting a feature vector from each region proposal a pretrained \gls{svm} algorithm is applied to each region and classifies the proposal either to the background or to one of the object classes.
+Disadvantages of \gls{rcnn} are that the training of the network requires a lot of storage and it is not possible to run \gls{rcnn} in real time.
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=.7\linewidth]{rcnn.png}
+	\caption{\gls{rcnn} framework \cite{Girshick2014}}
+	\label{fig:rcnn}
+\end{figure}\\
+There exist multiple improvement with Fast \gls{rcnn} \cite{Girshick2015} and Faster \gls{rcnn} \cite{Ren2017}.
+Fast \gls{rcnn} greatly improves the performance by using a new \gls{roi} pooling layer, which allows to share computations across all proposals instead of doing it for each proposal individually.
+Furthermore, it reduces the necessary storage for training the network while also providing better results.
+Faster \gls{rcnn} improves the performance even further.
+It uses a \gls{rpn} instead of the selective search algorithm to generate region proposals.
+Advantages of \gls{rpn} over the selective search algorithm are that the network can be specifically trained and customized for the detection task.
+And by using the same convolutional layers for the \gls{rpn} and the Fast \gls{rcnn} detection network, the region proposal does not take any extra time.\\
+Mask \gls{rcnn} \cite{He2017} is an extension of Faster \gls{rcnn} and is a form of instance segmentation, which combines objection detection and semantic segmentation.
+It adds a third branch to the Faster \gls{rcnn}, by also returning an object mask in addition to the bounding box and class label.
+The process can be seen in \cref{fig:mask_rcnn}.
+In the first stage \gls{roi}s are selected using a \gls{rpn}, just as with the Faster \gls{rcnn}.
+The network has only to be run once on the image.
+But in the second stage, a binary mask is predicted for each \gls{roi} in parallel to predicting the class and bounding box.
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=.7\linewidth]{mask_rcnn.png}
+	\caption{Mask \gls{rcnn} framework \cite{He2017}}
+	\label{fig:mask_rcnn}
+\end{figure}
