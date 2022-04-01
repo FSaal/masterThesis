@@ -18,74 +18,43 @@
 		\caption{Stereolabs ZED 2i camera with integrated \acrshort{imu} \cite{Stereolabs2019}}
 		\label{fig:imu_zed}
 	\end{subfigure}
-	\caption{The two used \acrshort{imu}s}
+	\caption{The two used \acrshort{imu}s during the experiments}
 	\label{fig:imus_used}
 \end{figure}
-Two different \gls{imu}s will be used for the experiment.
+Two different \glspl{imu} will be used for the experiment.\\
 The first one being the Withrobot myAHRS+, a low-cost high performance \gls{ahrs}.
-An \gls{ahrs} contains an \gls{imu} and outputs the raw measurements, but also has an on-board processing system which estimates attitude and heading.
-The myAHRS+ uses an extended Kalman filter for the estimation and outputs the estimation in quaternion form and also in Euler angles.
-The second \gls{imu} used during the experiment is integrated in the Stereolabs ZED 2i stereo camera.
-The ZED 2i camera has two horizontally displaced lenses, allowing for stereo vision and thus also depth estimation.
-A barometer, temperature sensor and an \gls{imu} are integrated as well.
-The ZED 2i is also an \gls{ahrs} and estimates the orientation using \todo{what kind of filter?}.
+An \gls{ahrs} contains an \gls{imu} and outputs the raw measurements of the sensors, but also has an on-board processing system which estimates attitude and heading.
+The myAHRS+ uses an extended Kalman filter for the estimation and outputs the estimation in quaternion form and also in Euler angles.\\
+The second \gls{imu} used during the experiment is integrated in the Stereolabs ZED 2i stereo camera and is also an \gls{ahrs}.
+More information about the ZED 2i can be found in \cref{ssec:camera}.\\
 Both sensors are connected to the computer via USB.
 The specifications of each \gls{imu} can be read in \cref{tab:imu_datasheets}.
 Because no information about the noise density or random walk of the myAHRS+ \gls{imu} could be found, a manual estimation of the error was done using the package \texttt{allan\_variance\_ros}~\footnote{\url{https://github.com/gaowenliang/imu_utils}}.
 It analyzes the Allan variance from \gls{imu} measurement data recorded over a two-hour period, during which the \gls{imu} has not been moved.
-\iquest{How to cite/link to a GitHub package?}
-
+The smaller values of the ZED 2i \gls{imu} indicate, that it is the better sensor.
 \begin{table}[ht]
 	\centering
-	\caption{Comparison of the two used \gls{imu}s \cite{Withrobot2017, Stereolabs2019}}
+	\caption{Comparison of the two used \glspl{imu} \cite{Withrobot2017, Stereolabs2019}}
 	\label{tab:imu_datasheets}
-	\begin{tabular}[t]{lcc}
+	\begin{tabular}[t]{lccc}
 		\toprule
-		                            & \textbf{myAHRS+}                                                      & \textbf{ZED 2i \gls{imu}}                                             \\
+		\textbf{Property}           & \textbf{myAHRS+} & \textbf{ZED 2i \gls{imu}} & \textbf{Unit}                                               \\
 		\midrule
-		Accelerometer range         & $\pm\SI{16}{\g}$                                                      & $\pm\SI{8}{\g}$                                                       \\
-		Gyroscope range             & $\pm\SI{2000}{\degree\per\second}$                                    & $\pm\SI{1000}{\degree\per\second}$                                    \\
-		Magnetometer range          & $\pm\SI{1200}{\micro\tesla}$                                          & $\pm\SI{2500}{\micro\tesla}$                                          \\
-		Rate                        & \SI{100}{\hertz}                                                      & \SI{400}{\hertz}                                                      \\
-		Accelerometer noise density & \SI{4.502e-3}{\frac{\metre}{\second\squared}\frac{1}{\sqrt{\hertz}}}  & \SI{1.148e-3}{\frac{\metre}{\second\squared}\frac{1}{\sqrt{\hertz}}}  \\
-		Accelerometer random walk   & \SI{7.337e-5}{\frac{\metre}{\second\cubed}\frac{1}{\sqrt{\hertz}}}    & \SI{6.458e-5}{\frac{\metre}{\second\cubed}\frac{1}{\sqrt{\hertz}}}    \\
-		Gyroscope noise density     & \SI{1.674e-4}{\frac{\radian}{\second}\frac{1}{\sqrt{\hertz}}}         & \SI{8.254e-5}{\frac{\radian}{\second}\frac{1}{\sqrt{\hertz}}}         \\
-		Gyroscope random walk       & \SI{5.042e-6}{\frac{\radian}{\second\squared}\frac{1}{\sqrt{\hertz}}} & \SI{1.632e-7}{\frac{\radian}{\second\squared}\frac{1}{\sqrt{\hertz}}} \\
+		Accelerometer range         & $\pm16$          & $\pm8$                    & \si{g}                                                      \\
+		Gyroscope range             & $\pm2000$        & $\pm1000$                 & \si{\degree\per\second}                                     \\
+		Magnetometer range          & $\pm1200$        & $\pm2500$                 & \si{\micro\tesla}                                           \\
+		Rate                        & \SI{100}         & \SI{400}                  & \si{\hertz}                                                 \\
+		Accelerometer noise density & \SI{4.502e-3}{}  & \SI{1.148e-3}{}           & \si{\frac{\metre}{\second\squared}\frac{1}{\sqrt{\hertz}}}  \\
+		Accelerometer random walk   & \SI{7.337e-5}{}  & \SI{6.458e-5}{}           & \si{\frac{\metre}{\second\cubed}\frac{1}{\sqrt{\hertz}}}    \\
+		Gyroscope noise density     & \SI{1.674e-4}{}  & \SI{8.254e-5}{}           & \si{\frac{\radian}{\second}\frac{1}{\sqrt{\hertz}}}         \\
+		Gyroscope random walk       & \SI{5.042e-6}{}  & \SI{1.632e-7}{}           & \si{\frac{\radian}{\second\squared}\frac{1}{\sqrt{\hertz}}} \\
 		\bottomrule
 	\end{tabular}
 \end{table}
 
 
 \subsection{\glsentrytext{lidar}}
-Two different \gls{lidar}s will be used during the experiment.
-The RS-Bpearl and the Velodyne UltraPuck, see \cref{fig:lidars_used}.
-The most relevant specifications of the two \gls{lidar}s can be seen in \cref{tab:lidar_datasheets}.
-Both are mechanical \gls{lidar}s and have the same number of laser channels, but the Velodyne has a significant better vertical resolution, due to the smaller vertical \gls{fov}.
-Both \gls{lidar}s need an external power supply and transfer the data over Ethernet.
-\begin{table}[ht]
-	\centering
-	% todo: Manual citation prop wrong
-	\caption{Comparison of the two used \acrshort{lidar}s \cite{RoboSense2020, Velodyne2018}}
-	\label{tab:lidar_datasheets}
-	\begin{tabular}[t]{lcc}
-		\toprule
-		                      & \textbf{RS-Bpearl}          & \textbf{Velodyne Ultra Puck}                  \\
-		\midrule
-		Channels              & 32                          & 32                                            \\
-		Range                 & \SI{100}{\metre}            & \SI{200}{\metre}                              \\
-		Range accuracy        & $\pm\SI{3}{\centi\metre}$   & $\pm\SI{3}{\centi\metre}$                     \\
-		Horizontal \gls{fov}  & \SI{360}{\degree}           & \SI{360}{\degree}                             \\
-		Vertical \gls{fov}    & \SI{90}{\degree}            & \SI{40}{\degree} (\SIrange{-25}{15}{\degree}) \\
-		Horizontal resolution & \SIrange{0.2}{0.4}{\degree} & \SIrange{0.1}{0.4}{\degree}                   \\
-		Vertical resolution   & \SI{2.81}{\degree}          & \SI{0.33}{\degree}                            \\
-		Frame rate            & \SIrange{10}{20}{\hertz}    & \SIrange{5}{20}{\hertz}                       \\
-		Laser wavelength      & \SI{905}{\nano\metre}       & \SI{903}{\nano\metre}                         \\
-		% \midrule
-		Points per second     & 576,000                     & 600,000                                       \\
-		\bottomrule
-	\end{tabular}
-\end{table}%
-\begin{figure}[htb]
+\begin{figure}[htbp]
 	\centering
 	\begin{subfigure}{0.3\textwidth}
 		\centering
@@ -100,10 +69,65 @@ Both \gls{lidar}s need an external power supply and transfer the data over Ether
 		\caption{Velodyne Ultra puck \cite{Velodyne2018}}
 		\label{fig:lidar_velodyne}
 	\end{subfigure}
-	\caption{The two used \gls{lidar}s}
+	\caption{The two used \glspl{lidar}}
 	\label{fig:lidars_used}
 \end{figure}
+Two different \glspl{lidar} will be used during the experiment.
+The RS-Bpearl and the Velodyne UltraPuck, see \cref{fig:lidars_used}.
+The most relevant specifications of the two \glspl{lidar} can be seen in \cref{tab:lidar_datasheets}.
+Both are mechanical \glspl{lidar} and have the same number of laser channels, but the Velodyne has a significant better vertical resolution, due to the smaller vertical \gls{fov}.
+Both \glspl{lidar} need an external power supply and the data transfer to the pc is done via Ethernet connection.
+Due to the setup of the test car it is only possible to mount one \gls{lidar} at a time.
+\begin{table}[ht]
+	\centering
+	\caption{Comparison of the two used \acrshort{lidar}s \cite{RoboSense2020, Velodyne2018}}
+	\label{tab:lidar_datasheets}
+	\begin{tabular}[t]{lccc}
+		\toprule
+		\textbf{Property}     & \textbf{RS-Bpearl}   & \textbf{Velodyne Ultra Puck}    & \textbf{Unit}     \\
+		\midrule
+		Channels              & 32                   & 32                              &                   \\
+		Points per second     & 576,000              & 600,000                         & \si{}             \\
+		Laser wavelength      & \SI{905}{}           & \SI{903}{}                      & \si{\nano\metre}  \\
+		Frame rate            & \SIrange{10}{20}{}   & \SIrange{5}{20}{}               & \si{\hertz}       \\
+		Range                 & \SI{100}{}           & \SI{200}{}                      & \si{\metre}       \\
+		Range accuracy        & $\pm\SI{3}{}$        & $\pm\SI{3}{}$                   & \si{\centi\metre} \\
+		Horizontal \gls{fov}  & \SI{360}{}           & \SI{360}{}                      & \si{\degree}      \\
+		Vertical \gls{fov}    & \SI{90}{}            & \SI{40}{} (\SIrange{-25}{15}{}) & \si{\degree}      \\
+		Horizontal resolution & \SIrange{0.2}{0.4}{} & \SIrange{0.1}{0.4}{}            & \si{\degree}      \\
+		Vertical resolution   & \SI{2.81}{}          & \SI{0.33}{}                     & \si{\degree}      \\
+		\bottomrule
+	\end{tabular}
+\end{table}
 
+
+\subsection{Camera}
+\label{ssec:camera}
+The ZED 2i camera from Stereolabs as seen in \cref{fig:imu_zed} will be used during the experiment to record the camera image.
+The camera has two horizontally displaced lenses, allowing for stereo vision and thus also depth estimation.
+A barometer, temperature sensor and an \gls{imu} are integrated as well.
+It also provides many more features such as 3D positional tracking, mapping, object detection and point cloud generation.\\
+The specifications of the camera can be seen in \cref{tab:camera_datasheet}.
+For the recordings a resolution of 1280x720 at a frame rate of 30 fps is used.
+\begin{table}[ht]
+	\centering
+	\caption{Specifications of the ZED 2i camera \cite{Stereolabs2019}}
+	\label{tab:camera_datasheet}
+	\begin{tabular}[t]{lccc}
+		\toprule
+		\textbf{Property}                          & \textbf{Value}                       & \textbf{Unit}       \\
+		\midrule
+		\multirow{4}{*}{Resolution (Side by side)} & 2 x (2208x1242)    @ \SI{15}{\hertz} & \multirow{4}{*}{px} \\
+		                                           & 2 x (1920 x 1080) @ \SI{30}{\hertz}  &                     \\
+		                                           & 2 x (1280 x 720) @ \SI{60}{\hertz}   &                     \\
+		                                           & 2 x (672 x 376)   @ \SI{100}{\hertz} &                     \\
+		Focal length                               & 2.12                                 & \si{\milli\metre}   \\
+		\gls{fov}                                  & Max. 110 (H) x 70 (V) x 120 (D)      & \si{\degree}        \\
+		Aperture                                   & f/1.8                                &                     \\
+		
+		\bottomrule
+	\end{tabular}
+\end{table}
 
 
 \section{Sensor placement}
@@ -176,9 +200,9 @@ Putting everything together, the total x distance from the \gls{lidar} to the co
 	d_\mathrm{hit,ramp} & = d + \frac{h_\mathrm{l} - d\tan(\gamma)}{\sin(\alpha + \gamma)} \cos(\alpha) \cos(2\alpha + \gamma).
 	\label{eq:final_equation}
 \end{align}
-Using \cref{eq:ground_points} and \cref{eq:final_equation} and optimizing $\beta$ such that the number of points in the area at the start of the ramp are maximized, the optimal mounting pitch angle $\beta$ for the two \gls{lidar}s has been found with $\beta_\mathrm{velodyne} = \ang{0}$ and $\beta_\mathrm{robos} = \ang{20}$.
+Using \cref{eq:ground_points} and \cref{eq:final_equation} and optimizing $\beta$ such that the number of points in the area at the start of the ramp are maximized, the optimal mounting pitch angle $\beta$ for the two \glspl{lidar} has been found with $\beta_\mathrm{velodyne} = \ang{0}$ and $\beta_\mathrm{robos} = \ang{20}$.
 The optimization was done for a distance of \SI{10}{\metre} to the ramp.
-The angle between the two \gls{lidar}s differs due to the different starting opening angle of \SI{-25}{\degree} and \SI{0}{\degree} for the Velodyne and Robosense respectively, as well as due to the different vertical resolution.
+The angle between the two \glspl{lidar} differs due to the different starting opening angle of \SI{-25}{\degree} and \SI{0}{\degree} for the Velodyne and Robosense respectively, as well as due to the different vertical resolution.
 
 
 \section{Car}
@@ -200,3 +224,24 @@ The car has a PC in the booth, at which all the sensors were connected to and wh
 \section{Garage}
 \missingfigure{Picture of ramps and/or figure of ramps showing angles}
 \itodo{Think of a good way to measure the true angle of the ramps}
+\begin{figure}
+	\begin{subfigure}{.3\linewidth}
+		\centering
+		\includegraphics[angle=-90, width=1\linewidth]{RampA.jpg}
+		\caption{}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{.3\linewidth}
+		\centering
+		\includegraphics[angle=-90, width=1\linewidth]{RampB.jpg}
+		\caption{}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{.3\linewidth}
+		\centering
+		\includegraphics[angle=-90, width=1\linewidth]{RampC.jpg}
+		\caption{}
+	\end{subfigure}
+	\caption{All the ramps}
+	\label{fig:all_ramps}
+\end{figure}
