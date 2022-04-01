@@ -20,15 +20,18 @@ The pitch angle $\theta$ of the car is defined as the angle between the ground p
 If the car accelerates or decelerates the suspension does get compressed in the back or respectively front, which makes the pitch angle not in alignment with the road grade anymore.
 The difference between the two angles is defined as $\beta = \theta - \alpha$ and may also occur due to rotational movement or vibrations.
 The mentioned variables are visualized in \cref{fig:tikz_car_tilt}.\\
-In this chapter different sensors and methods will be tested to estimate the car's pitch angle.
+In this chapter different sensors and methods will be tested to estimate the car's pitch angle and thus the estimated ramp angle, as well as other properties of the ramp, such as the width and length.
 A common problem is that the coordinate frame of the sensor is usually not aligned with car's frame, see \cref{fig:tikz_car_frames}.
 To determine the true car pitch angle the sensor frame must be transformed onto the car frame.
 Semi-automatic calibration methods for the \gls{imu} and \gls{lidar} sensor will be represented, which determine the necessary rotation to align both frames.
 But the translation difference can not be easily estimated and must be measured by hand.\\
-At first the accelerometer and gyroscope of the \gls{imu} will be used separately to determine the pitch angle.
-Then it will be tested how the estimate improves when both sensors will be used together in a complementary filter.
-The gravity method, which involves the accelerometer and wheel sensor measurements will be tested as well.
-A method using a \gls{lidar} sensor will be represented in the end, followed by a final method which incorporates all available sensors.
+At first, different methods to estimate the pitch angle using the \gls{imu} will be represented in \cref{sec:methods_imu}.
+The measurements of the accelerometer and gyroscope of the \gls{imu} will be used separately to determine the pitch angle.
+Then it will be tested how the estimate improves when both sensors are used together in a complementary filter.
+The gravity method, which involves the accelerometer and wheel sensor measurements will be tested as well.\\
+A novel method using a \gls{lidar} sensor will be represented in \cref{sec:methods_lidar}.
+It tracks the distance to the ramp and estimates the angle and width of the ramp.
+Finally, the ramp detection using a camera and trained neural network will be tested.
 \begin{figure}[htpb]
 	\centering
 	\input{Graphics/TikZ/car_frames.tex}
@@ -39,7 +42,16 @@ A method using a \gls{lidar} sensor will be represented in the end, followed by 
 
 
 \section{\glsentrytext{imu} only}
+Before being able to apply the different methods, a transformation from the sensor frame to the car frame is necessary.
+This is described in \cref{ssec:calibration_imu}.
+After the transformation an estimation of the car's pitch angle is possible, for which different methods are presented in \cref{ssec:road_grade_estimation}.
+In \cref{ssec:ramp_detection_imu} a ramp detection algorithm based on the pitch angle is presented.
+Furthermore, a method to estimate the average ramp angle and length of the ramp is proposed.
+
+
+\label{sec:methods_imu}
 \subsection{Calibration}
+\label{ssec:calibration_imu}
 The \gls{imu} is usually not placed in such a way, that the coordinate frame of the device $\mathcal{I}$ aligns with that of the car $\mathcal{C}$, see \cref{fig:tikz_frame_transformation_init}.
 Because of that, a transformation between the two frames must be found.
 This can be achieved using a rotation matrix \mtf{i}{c} $\in \mathbb{R}^{3\times3}$ which transforms the measurements of the linear acceleration $\vincs{a}{I}_n \in \mathbb{R}^{1\times3}$ and angular velocity ${\vincs{v}{I}_n \in \mathbb{R}^{1\times3}}$ into the car frame.
@@ -98,7 +110,7 @@ Finally the measurements $\mathbf{A}$ can be transformed using
 \begin{equation}
 	\vincs{A}{c} = \mtf{i}{c} \vdot \vincs{A}{i}
 \end{equation}
-\begin{figure}[htb]
+\begin{figure}[htbp]
 	\centering
 	\begin{subfigure}[b]{0.3\textwidth}
 		\centering
@@ -125,6 +137,7 @@ Finally the measurements $\mathbf{A}$ can be transformed using
 \end{figure}
 
 \subsection{Road grade estimation}
+\label{ssec:road_grade_estimation}
 \subsubsection{Linear acceleration only}
 \label{ssec:linear_acceleration_only}
 If the car stands still, the only measurable acceleration besides measurement errors is the acceleration due to gravity.
@@ -267,9 +280,26 @@ For the experiment a cut-off frequency of $f_0=?$ was chosen, resulting in filte
 
 
 \subsection{Ramp detection}
+\label{ssec:ramp_detection_imu}
 Using the road grade the ramp can be classified.
+If the absolute number of the road grade surpasses a certain threshold, the part is classified as a ramp, otherwise it is classified as a normal road.\\
+The length of the ramp can be calculated by integrating the car's velocity.
+The velocity is calculated either by integrating the acceleration measured by the \gls{imu} or by using the wheel speed measurements.
+The problem when using the accelerometer data is that also other accelerations than the one caused by the car are measured.
+E.g. if the car is on a ramp, also the acceleration due to gravity is measured.
+But using \cref{eq:ang_from_acc} and transforming it to
+\begin{equation}
+	\hat{\vb{a}}_\mathrm{car} = \vb{a}_\mathrm{x} - \sin(\theta) \norm{\vb{g}}
+\end{equation}
+the acceleration due to gravity can be removed from the measurements, under the assumption that the estimated car pitch angle is close to the true value.
+When using the wheel speed sensors the ...
+\begin{equation}
+	d = d_0 + \sum_{i = 1}^k v_\mathrm{car} \Delta t
+\end{equation}
+
 
 \section{\glsentrytext{lidar} only}
+\label{sec:methods_lidar}
 \itodo{Maybe brief overview of section/algorithm}
 \itodo{Add pcl citation somewhere \cite{Rusu2011}}
 \subsection{Calibration}
@@ -321,6 +351,7 @@ must be entered manually, but the pitch and roll angle and the distance from the
 
 
 \subsection{Algorithm}
+\iimprov{Maybe divide into subsubsections, e.g. ramp detection, ramp props etc}
 \begin{figure}[htb]
 	\centering
 	\input{Graphics/TikZ/flowchart_lidar.tex}
@@ -389,7 +420,7 @@ A visual representation of the algorithm is depicted in \cref{fig:flowchart_lida
 
 
 \section{Camera only}
-
+Detectron2 was used to identify the ramp in the images.
 
 
 \section{Sensor fusion}
@@ -397,7 +428,7 @@ A visual representation of the algorithm is depicted in \cref{fig:flowchart_lida
 
 
 \subsection{\glsentrytext{imu} and Odometer}
-
+\iimprov{Probably move this to the \glsentrytext{imu} section}
 \subsubsection{Car acceleration from odometer data}
 \label{subsubsec:acc_from_odom}
 Because the odometer only delivers the speed of each wheel, the car velocity has to be calculated.
@@ -444,6 +475,7 @@ The prevailing accelerations during a positive acceleration can be seen in \cref
 When the car brakes, the direction of $\vb{a}_\mathrm{x}$ inverts.
 The car pitch angle calculation is the same as in \cref{eq:ang_from_acc}, just that now the car acceleration $\vb{a}_\mathrm{at}$ is taken into account.
 \begin{equation}
+	\label{eq:ang_from_acc_gravity}
 	\alpha = \arcsin\left(\frac{\vb{a}_\mathrm{x} - \vb{a}_\mathrm{at}}{\norm{\vb{g}}}\right)
 	= \arcsin\left(\frac{\vb{a}_\mathrm{x} - \dv{t}v_\mathrm{at} }{\norm{\vb{g}}}\right)
 \end{equation}
