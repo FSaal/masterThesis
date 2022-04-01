@@ -1,5 +1,10 @@
 \chapter{Background}
 \label{ch:Background}
+In this chapter the fundamentals to understand the methods are explained.
+The first section gives an overview of different ways to represent orientations.
+In \cref{sec:sensors} the functionality of the different sensors used in this thesis are explained.
+\cref{sec:computer_vision} gives a brief overview of the field of computer vision.
+
 
 \section{Mathematical}
 \itodo{Add references}
@@ -132,19 +137,21 @@ The found rotation can then be applied using e.g. a quaternion or a rotation mat
 
 
 \section{Sensors}
-\itodo{Add short overview}
-
+\label{sec:sensors}
+Sensors are necessary to acquire information to model the environment.
+In this section the functionality and properties of each sensor used in this thesis will be described.
+\iquest{What else to write here?}
 
 \subsection{\glsentrytext{imu}}
 An \gls{imu} is used to track the orientation and position of an object.
 Common uses are in the aerospace or automotive industry, often in combination with other sensors, to give information about the pose and position of a vehicle.
-More recently with the invention of \gls{mems} and specifically \gls{mems}-\gls{imu}s which allow for a very small form factor at a low cost, \gls{imu}s are also used in consumer electronics such as smartphones or fitness tracker.
+More recently with the invention of \gls{mems} and specifically \gls{mems}-\glspl{imu} which allow for a very small form factor at a low cost, \glspl{imu} are also used in consumer electronics such as smartphones or fitness tracker.
 An \gls{imu} usually consists of the three following sensors.
 The acceleration is measured using an accelerometer and can be used to determine the velocity and the covered distance by integrating the acceleration with respect to time once respectively twice.
 The gyroscope gives information about the change of orientation.
 The third part is the magnetometer, which is able to measure the earth's magnetic field and is used to correct the measurements of the gyroscope.
 It allows for the determination of the absolute heading, whereas the gyroscope can only measure relative change. But because it is very sensitive to other magnetic objects, it is often omitted.
-\gls{imu}s can be typically divided into the two following categories.\\
+\glspl{imu} can be typically divided into the two following categories.\\
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=0.4\linewidth]{stable_platform_imu}
@@ -165,10 +172,10 @@ Advantages are that due to the lack of gimbals and motors a significantly smalle
 A disadvantage is that the calculation of the orientation and position is more complex, the rate gyroscopes have to be integrated to get the orientation and can then be used to transform the accelerometer signals into the reference frame.
 But with the decrease of computational cost this disadvantages continues to diminish.\\
 There are many types of gyroscopes and accelerometers such as mechanical, optical or solid state, but only the functionality of \gls{mems} will be described, because those will also be used in the experiment.
-Information about the working principle of other systems and also much more information about \gls{imu}s in general can be found in \cite{Woodman2007}.\\
+Information about the working principle of other systems and also much more information about \glspl{imu} in general can be found in \cite{Woodman2007}.\\
 \gls{mems} consist of electrical and/or mechanical components in the size of \SI{100}{\nano\metre} to \SI{1}{\milli\metre}, allowing for a very small form factor.
 Other characteristics of \gls{mems} are that they can easily be mass-produced allowing for low cost and usually also need less power than traditional systems, because everything is integrated on the chip \cite{Shaeffer2013}.
-Almost all consumer grade electronics uses \gls{mems}-\gls{imu}s nowadays, but they also find more and more use in many industry segments, as their accuracy continues to improve \cite{Perlmutter2016}.
+Almost all consumer grade electronics uses \gls{mems}-\glspl{imu} nowadays, but they also find more and more use in many industry segments, as their accuracy continues to improve \cite{Perlmutter2016}.
 
 \subsubsection{\glsentrytext{mems} Accelerometer}
 \begin{figure}[htb]
@@ -242,14 +249,14 @@ Every time the sensor is placed in a (magnetically) new environment, a recalibra
 
 \subsubsection{Typical \glsentrytext{mems} errors}
 \label{sse:mems_errors}
-The errors can be divided into two categories: systematic and stochastic errors \cite{Zhang2019}.
+The errors can be divided into two categories: systematic and stochastic errors \cite{Zhang2019}.\\
 Systematic errors or also known as calibration errors are constant over time and can be eliminated by calibration.
 Typical examples are bias (offset), scaling or axis misalignment.
 Integrating a constant bias once or twice leads to a drift (error grows linearly with respect to time) or a second-order drift (error grows quadratically) respectively.
 Hence, the elimination of the bias is necessary to get reliable estimations of the orientation, velocity or position, which are calculated by integrating the angular velocity or the accelerometer measurements.\\
 Stochastic errors change at every measurement and can be modeled using a statistical approach.
 The turn-on bias is different every time the \gls{imu} is powered up, but can be eliminated after a rest period.
-Errors due to temperature fluctuations influencing the measurements are also common, but because most \gls{imu}s are equipped with a temperature sensor, the introduced error can be eliminated.
+Errors due to temperature fluctuations influencing the measurements are also common, but because most \glspl{imu} are equipped with a temperature sensor, the introduced error can be eliminated.
 Harder to correct is the introduced error due to thermo-mechanical noise, which is measured as white noise.
 The integration of white noise leads than to a random walk.\\
 Angle errors introduced by random walk are usually the hardest to correct and are the reason, why the measurements of the gyroscope can not be trusted over a long period of time \cite{Woodman2007}.
@@ -279,14 +286,14 @@ The scanning system allows the laser to explore a large area instead of only a s
 Mechanical spinning systems is the oldest technology and is still mainly used today.
 A mirror which can be rotated around an axis is used, allowing for a greater vertical \gls{fov}.
 Moreover, the whole \gls{lidar} base on which the laser is mounted can be rotated independently from the mirror, allowing for a \SI{360}{\degree} horizontal \gls{fov}.
-To get a sufficient resolution the \gls{lidar} has to spin at a high speed, but some \gls{lidar}s also use additionally a vertical array of lasers instead of only one to further increase the density of the generated point cloud.
+To get a sufficient resolution the \gls{lidar} has to spin at a high speed, but some \glspl{lidar} also use additionally a vertical array of lasers instead of only one to further increase the density of the generated point cloud.
 The working principle of a \gls{lidar} using the mechanical spinning method is shown in \cref{fig:lidar}.
 While mechanical spinning systems are very precise, they are bulky, need a lot of power and are expensive \cite{Fujii2005}.\\
-Solid state systems and especially \gls{mems} \gls{lidar}s try to overcome those problems.
+Solid state systems and especially \gls{mems} \glspl{lidar} try to overcome those problems.
 \gls{mems}-\gls{lidar} are quasi-static, the only part that moves is the on the chip embedded mirror, but because of the small size (\SIrange{1}{7}{\milli\metre} diameter), very little power has to be used to move it.
 The mirror can be rotated on up to two axes, but because the base cannot be rotated as with mechanical systems, a horizontal view of \SI{360}{\degree} is not possible.
 Though by using multiple lasers with different incident angles the \gls{fov} can be increased.
-Advantages of \gls{mems}-\gls{lidar}s compared to mechanical systems are the smaller form factor and lower cost \cite{Wang2020}.\\
+Advantages of \gls{mems}-\glspl{lidar} compared to mechanical systems are the smaller form factor and lower cost \cite{Wang2020}.\\
 After transmitting the laser signal the reflected light passes through the receiving optic and is received by photodetectors.
 A processing unit then generates a 3D point cloud from all the received measurements.
 
@@ -315,39 +322,18 @@ Due to the embedded processing unit the hall wheel speed sensor is also often ca
 	\label{fig:wheel_speed_sensor_active}
 \end{figure}
 
-
-\subsection{Camera?}
-\itodo{Probably not necessary, as everyone knows what a camera is}
-
-
-
-\section{ROS}
-\gls{ros} is a framework that allows the communication between sensors and actuators of a robot.
-It is a meta-operating system and provides services such as hardware abstraction, low-level device control......
-Different languages such as C++, Python or Lisp are supported.
-The fundamental concepts are nodes, messages, topics and services \cite{Quigley2009}.
-A node is a process that performs computation and should be responsible for only one task.
-A package can contain multiple nodes.
-The communication between nodes is done using messages.
-There are different type of messages, but they all consist of standard types such as integer, float or bool but can also contain other messages.
-The messages are published on a specific topic.
-The topic can then be subscribed by other nodes, to retrieve the messages.
-A topic can be published and subscribed by multiple different nodes.
-Services allow for a synchronized communication, instead of the asynchronous topics.
-\iimprov{Better explanation}
-
-
-
 \section{Computer Vision}
+\itodo{Brief overview}
+\label{sec:computer_vision}
 \subsection{Object detection}
 Objection detection is a common task in the field of computer vision and is used to detect, localize and classify objects in images or videos.
-In contrast to image classification, which only assigns a label to an image, objection detection allows for the detection of multiple objects by drawing a bounding box around each individual object.
-\todoin{\begin{itemize}
-		\item Types (machine learning-based and deep learning)
-		\item Working principle can be omitted I think?
-		\item Application
-	\end{itemize}
-}
+In contrast to image classification, which only assigns a label to an image, objection detection allows for the detection of multiple objects by drawing a bounding box around each individual object.\\
+Object detection can be divided into machine learning-based methods and deep learning-based methods.
+In the traditional machine learning-based methods features from the image must be chosen manually.
+This process is very time-consuming and tedious, that is why nowadays almost exclusively deep learning-based approaches based on \gls{cnn} are used.
+Here, the features are extracted automatically.
+\iimprov{Add resources}
+
 
 \subsection{Image segmentation}
 Image segmentation partitions an image into multiple segments or objects.
@@ -360,13 +346,19 @@ It combines objection detection, objection localization and object classificatio
 However, it does not classify every pixel anymore, things that are hard to enumerate such as walls and roads are ignored.\\
 The panoptic segmentation combines both methods.
 \iimprov{Add resources}
-\missingfigure{Comparison picture of both segmentation types}
 
 
-\subsection{\glsentrytext{cnn}}
-A \gls{cnn} consists of three different type of layers, convolutional, pooling and the fully connected layers.
+\subsection{\acrfull{cnn}}
+An \gls{ann} is a way for a computer to detect patterns and is inspired by the biological neural networks found in animal brains.
+It is based on a collection of neurons which are connected with each other.
+A neuron receives a signal, processes it and then sends a signal to its connected neurons.
+The output of each neuron is calculated by a non-linear function.\\
+A \gls{cnn} is a class of \gls{ann} and most commonly used in computer vision.
+It consists of three different type of layers, convolutional, pooling and the fully connected layers.
 The convolutional layers help to abstract the input image as a feature map using a filter or kernel.
-The pooling layers reduce the complexity by downsampling the feature maps.
+Using overlapping blocks of pixels, each region of the image is scanned.
+Each block is then assigned a value based on the filter.
+The pooling layers reduce the complexity by pooling all pixels of a feature map together.
 Redundant information is removed in this step, which reduces the calculation time and storage requirement.
 The connected layers nonlinear layers?
 \iimprov{Explain better}
@@ -378,7 +370,7 @@ The working principle is shown in \cref{fig:rcnn}.
 In the first step the image is divided into approximately 2000 region proposals using the selective search algorithm.
 The selective search algorithm groups similar regions based on their color, texture, size and shape compatibility.
 After extracting a feature vector from each region proposal a pretrained \gls{svm} algorithm is applied to each region and classifies the proposal either to the background or to one of the object classes.
-Disadvantages of \gls{rcnn} are that the training of the network requires a lot of storage and it is not possible to run \gls{rcnn} in real time.
+Disadvantages of \gls{rcnn} are that the training of the network requires a lot of storage, and it is not possible to run \gls{rcnn} in real time.
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=.7\linewidth]{rcnn.png}
@@ -395,7 +387,7 @@ And by using the same convolutional layers for the \gls{rpn} and the Fast \gls{r
 Mask \gls{rcnn} \cite{He2017} is an extension of Faster \gls{rcnn} and is a form of instance segmentation, which combines objection detection and semantic segmentation.
 It adds a third branch to the Faster \gls{rcnn}, by also returning an object mask in addition to the bounding box and class label.
 The process can be seen in \cref{fig:mask_rcnn}.
-In the first stage \gls{roi}s are selected using a \gls{rpn}, just as with the Faster \gls{rcnn}.
+In the first stage \glspl{roi} are selected using a \gls{rpn}, just as with the Faster \gls{rcnn}.
 The network has only to be run once on the image.
 But in the second stage, a binary mask is predicted for each \gls{roi} in parallel to predicting the class and bounding box.
 \begin{figure}[htbp]
@@ -404,3 +396,19 @@ But in the second stage, a binary mask is predicted for each \gls{roi} in parall
 	\caption{Mask \gls{rcnn} framework \cite{He2017}}
 	\label{fig:mask_rcnn}
 \end{figure}
+
+
+
+\section{ROS}
+\label{sec:ros}
+\gls{ros} is a framework that allows the communication between sensors and actuators of a robot and is typically run on Linux.
+It is a meta-operating system and provides services such as hardware abstraction and low-level device control.
+Different languages such as C++, Python or Lisp are supported.
+The fundamental concepts are nodes, messages, topics and services \cite{Quigley2009}.
+A node is a process that performs computation and should be responsible for only one task.
+A package can contain multiple nodes, which can interact with each other.
+The communication between nodes is done using messages.
+There are different type of messages, but they all consist of standard types such as integer, float or bool but can also contain other messages.
+The messages are published on a specific topic.
+The topic can then be subscribed by other nodes, to retrieve the messages.
+Services allow for a synchronized communication, instead of the asynchronous topics.
