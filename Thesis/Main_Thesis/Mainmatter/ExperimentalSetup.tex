@@ -1,5 +1,15 @@
 \chapter{Experimental Setup}
 \label{ch:ExperimentalSetup}
+% Do not write long version of imu or lidar acronym again
+\glslocalunset{imu}
+\glslocalunset{lidar}
+
+To evaluate the performance of the proposed methods, different test drives must be conducted using a car with the appropriate sensor setup.
+In this chapter the properties of the sensors used during the recordings and their placement on the car are described.
+Information about the car and its limitations are described in \cref{sec:car}.
+Finally, in \cref{sec:garage}, the different type of ramps and their properties are presented.
+
+
 
 \section{Sensors}
 \subsection{\glsentrytext{imu}}
@@ -15,19 +25,20 @@
 	\begin{subfigure}[b]{0.4\textwidth}
 		\centering
 		\includegraphics[width=\textwidth]{zed2i.jpg}
-		\caption{Stereolabs ZED 2i camera with integrated \acrshort{imu} \cite{Stereolabs2019}}
+		\caption{Stereolabs ZED 2i camera \cite{Stereolabs2019}}
 		\label{fig:imu_zed}
 	\end{subfigure}
-	\caption{The two used \acrshort{imu}s during the experiments}
+	\caption{The two \glspl{imu} which will be used for the recordings. The Stereolabs ZED 2i camera has an integrated \gls{imu}.}
 	\label{fig:imus_used}
 \end{figure}
 Two different \glspl{imu} will be used for the experiment.\\
-The first one being the Withrobot myAHRS+, a low-cost high performance \gls{ahrs}.
+The first one being the Withrobot myAHRS+ (see \cref{fig:imu_myahrs}), a low-cost high performance \gls{ahrs}.
 An \gls{ahrs} contains an \gls{imu} and outputs the raw measurements of the sensors, but also has an on-board processing system which estimates attitude and heading.
 The myAHRS+ uses an extended Kalman filter for the estimation and outputs the estimation in quaternion form and also in Euler angles.\\
 The second \gls{imu} used during the experiment is integrated in the Stereolabs ZED 2i stereo camera and is also an \gls{ahrs}.
-More information about the ZED 2i can be found in \cref{ssec:camera}.\\
-Both sensors are connected to the computer via USB.
+A picture of the camera can be seen in \cref{fig:imu_zed}.
+More information about the ZED 2i camera and their other integrated sensors and functionalities will be described in \cref{ssec:camera}.\\
+Both sensors are connected to a computer via USB.
 The specifications of each \gls{imu} can be read in \cref{tab:imu_datasheets}.
 Because no information about the noise density or random walk of the myAHRS+ \gls{imu} could be found, a manual estimation of the error was done using the package \texttt{allan\_variance\_ros}~\footnote{\url{https://github.com/gaowenliang/imu_utils}}.
 It analyzes the Allan variance from \gls{imu} measurement data recorded over a two-hour period, during which the \gls{imu} has not been moved.
@@ -56,27 +67,29 @@ The smaller values of the ZED 2i \gls{imu} indicate, that it is the better senso
 \subsection{\glsentrytext{lidar}}
 \begin{figure}[htbp]
 	\centering
-	\begin{subfigure}{0.3\textwidth}
+	\begin{subfigure}{0.4\textwidth}
 		\centering
 		\includegraphics[width=\textwidth]{Robosense.png}
 		\caption{Robosense RS-Bpearl \cite{RoboSense2020}}
 		\label{fig:lidar_robosense}
 	\end{subfigure}
 	% \hfill
-	\begin{subfigure}{0.3\textwidth}
+	\begin{subfigure}{0.4\textwidth}
 		\centering
 		\includegraphics[width=\textwidth]{Velodyne.png}
 		\caption{Velodyne Ultra puck \cite{Velodyne2018}}
 		\label{fig:lidar_velodyne}
 	\end{subfigure}
-	\caption{The two used \glspl{lidar}}
+	\caption{The two \glspl{lidar} which will be used for the recordings.}
 	\label{fig:lidars_used}
 \end{figure}
 Two different \glspl{lidar} will be used during the experiment.
 The RS-Bpearl and the Velodyne UltraPuck, see \cref{fig:lidars_used}.
 The most relevant specifications of the two \glspl{lidar} can be seen in \cref{tab:lidar_datasheets}.
 Both are mechanical \glspl{lidar} and have the same number of laser channels, but the Velodyne has a significant better vertical resolution, due to the smaller vertical \gls{fov}.
-Both \glspl{lidar} need an external power supply and the data transfer to the pc is done via Ethernet connection.
+This is because the RS-Bpearl is intended to be used as near-field blind-spots detection \gls{lidar} mounted on the side where coverage is more important than resolution.
+The Velodyne UltraPuck on the other hand has been specifically designed for being mounted on the roof and hence also has a greater range.\\
+Both \glspl{lidar} need an external power supply and the data transfer to the PC is done via Ethernet connection.
 Due to the setup of the test car it is only possible to mount one \gls{lidar} at a time.
 \begin{table}[ht]
 	\centering
@@ -107,66 +120,31 @@ The ZED 2i camera from Stereolabs as seen in \cref{fig:imu_zed} will be used dur
 The camera has two horizontally displaced lenses, allowing for stereo vision and thus also depth estimation.
 A barometer, temperature sensor and an \gls{imu} are integrated as well.
 It also provides many more features such as 3D positional tracking, mapping, object detection and point cloud generation.\\
-The specifications of the camera can be seen in \cref{tab:camera_datasheet}.
-For the recordings a resolution of 1280x720 at a frame rate of 30 fps is used.
-\begin{table}[ht]
-	\centering
-	\caption{Specifications of the ZED 2i camera \cite{Stereolabs2019}}
-	\label{tab:camera_datasheet}
-	\begin{tabular}[t]{lccc}
-		\toprule
-		\textbf{Property}                          & \textbf{Value}                       & \textbf{Unit}       \\
-		\midrule
-		\multirow{4}{*}{Resolution (Side by side)} & 2 x (2208x1242)    @ \SI{15}{\hertz} & \multirow{4}{*}{px} \\
-		                                           & 2 x (1920 x 1080) @ \SI{30}{\hertz}  &                     \\
-		                                           & 2 x (1280 x 720) @ \SI{60}{\hertz}   &                     \\
-		                                           & 2 x (672 x 376)   @ \SI{100}{\hertz} &                     \\
-		Focal length                               & 2.12                                 & \si{\milli\metre}   \\
-		\gls{fov}                                  & Max. 110 (H) x 70 (V) x 120 (D)      & \si{\degree}        \\
-		Aperture                                   & f/1.8                                &                     \\
-		
-		\bottomrule
-	\end{tabular}
-\end{table}
+Because only one image is needed, only the image of the left camera is used.
+The resolution is set to 1280x720 and a frame rate of 30 fps is used.
+The camera is connected to the PC through USB.
+
 
 
 \section{Sensor placement}
+To ensure the best possible performance of the system, the sensors must be placed in a specific way.
+The \gls{imu} must be placed on a rigid point of the car, such that the \gls{imu}'s position always stays the same relative to the car.
+Other than that it should also be placed in the transversal center of the car to guarantee that the centripetal acceleration is not skewed towards one side when driving around a corner.
+The placement of the \gls{imu} integrated in the ZED 2i camera is limited, because the camera images are needed as well.
+It was placed on the roof of the car, which is sturdy enough to not be suspect to flexion, while also allowing for a good \gls{fov} for the camera.
+The myAHRS+ \gls{imu} was mounted on the floor of the car trunk.\\
 \begin{figure}[htpb]
 	\centering
 	\input{Graphics/TikZ/lidar_mount.tex}
-	\caption{Mounting of the \acrshort{lidar}. Variable description in \cref{tab:lidar_mount}}
+	\caption{Mounting of the \acrshort{lidar}. Variable description in \cref{tab:lidar_mount}.}
 	\label{fig:tikz_lidar_mount}
 \end{figure}
-\begin{table}[htbp]
-	\centering
-	\caption{Some params}
-	\label{tab:lidar_mount}
-	\begin{tabular}[t]{clc}
-		\toprule
-		\textbf{Variable} & \textbf{Description}                                   & \textbf{Unit} \\
-		\midrule
-		$h_\mathrm{l} $   & \gls{lidar} height above ground                        & \si{\metre}   \\
-		$d$               & Distance to ramp                                       & \si{\metre}   \\
-		$h_\mathrm{r}$    & Height of ramp                                         & \si{\metre}   \\
-		$l_\mathrm{w}$    & Light travel distance from ramp start to contact point & \si{\metre}   \\
-		$d_\mathrm{w}$    & Distance from ramp start to contact point              & \si{\metre}   \\
-		$\alpha$          & Ramp angle                                             & \si{\degree}  \\
-		$\beta$           & \gls{lidar} mount angle                                & \si{\degree}  \\
-		$\gamma$          & Laser line angle                                       & \si{\degree}  \\
-		$\epsilon$        & \gls{lidar} vertical resolution                        & \si{\degree}  \\
-		$n$               & Number of laser channels                               &               \\
-		\bottomrule
-	\end{tabular}
-\end{table}
-The \gls{imu} must be placed on a rigid point of the car, such that the \gls{imu}'s position always stays the same relative to the car.
-Other than that it should also be placed in the transversal center of the car to guarantee that the centripetal acceleration is not skewed towards one side when driving around a corner.
-The ZED 2i camera with the integrated \gls{imu} was placed on the roof of the car, because the camera images were used as well.
-The myAHRS+ \gls{imu} was mounted on the floor of the car trunk.\\
-The \gls{lidar} will be placed on top of the car, to get a greater \gls{fov}.
+The \gls{lidar} is placed on top of the car, to get a greater \gls{fov}.
 The pitch angle $\beta$ at which the \gls{lidar} will be mounted should be chosen such that the number of points in the area at the beginning of the ramp are maximized.
 This allows for the most accurate distinction between planes of different inclination angles.
 Because the distance to the ramp is not constant due to the movement of the car, the optimization can only be done for a specific distance.
 The coordinates at which the lasers hit the ground and ramp depend on the height of the \gls{lidar} $h_\mathrm{l}$, the distance to the ramp $d$, the angle of the ramp $\alpha$, the angle $\beta$ at which the \gls{lidar} has been mounted on the car and finally on the vertical resolution $\epsilon$ and \gls{fov} of the \gls{lidar}.
+A visualization of the different variables can be seen in \cref{fig:tikz_lidar_mount}.
 The coordinates at which the laser lines of the \gls{lidar} hit the ground can be calculated in the following way.\\
 The angle $\gamma$ between the plane parallel to the ground at \gls{lidar} height and each laser wave is defined as
 \begin{equation}
@@ -189,10 +167,10 @@ The distance $l_\mathrm{w}$ which the light travels from the beginning of the ra
 	l_\mathrm{w} & = \frac{h_\mathrm{w,start} }{\sin(\alpha + \gamma)} \sin(\ang{90} - \alpha) \nonumber \\
 	             & = -\frac{h_\mathrm{w,start} }{\sin(\alpha + \gamma)} \cos(\alpha).
 \end{align}
-The travelled distance along the x-axis from the start of the ramp to the contact point is then
+The traveled distance along the x-axis from the start of the ramp to the contact point is then
 \begin{align}
 	d_\mathrm{w} & = l_\mathrm{w} \sin(\ang{90} - 2\alpha - \gamma) \nonumber \\
-	             & = -l_\mathrm{w} \cos(2\alpha + \gamma)
+	             & = -l_\mathrm{w} \cos(2\alpha + \gamma).
 \end{align}
 Putting everything together, the total x distance from the \gls{lidar} to the contact point on the ramp can be calculated by
 \begin{align}
@@ -203,28 +181,66 @@ Putting everything together, the total x distance from the \gls{lidar} to the co
 Using \cref{eq:ground_points} and \cref{eq:final_equation} and optimizing $\beta$ such that the number of points in the area at the start of the ramp are maximized, the optimal mounting pitch angle $\beta$ for the two \glspl{lidar} has been found with $\beta_\mathrm{velodyne} = \ang{0}$ and $\beta_\mathrm{robos} = \ang{20}$.
 The optimization was done for a distance of \SI{10}{\metre} to the ramp.
 The angle between the two \glspl{lidar} differs due to the different starting opening angle of \SI{-25}{\degree} and \SI{0}{\degree} for the Velodyne and Robosense respectively, as well as due to the different vertical resolution.
+A detailed description of all the variables used for the calculation can be found in \cref{tab:lidar_mount}.
+\begin{table}[htbp]
+	\centering
+	\caption{Variables used to calculate the optimal mounting angle of the \gls{lidar}.}
+	\label{tab:lidar_mount}
+	\begin{tabular}[t]{clc}
+		\toprule
+		\textbf{Variable} & \textbf{Description}                                   & \textbf{Unit} \\
+		\midrule
+		$h_\mathrm{l} $   & \gls{lidar} height above ground                        & \si{\metre}   \\
+		$d$               & Distance to ramp                                       & \si{\metre}   \\
+		$h_\mathrm{r}$    & Height of ramp                                         & \si{\metre}   \\
+		$l_\mathrm{w}$    & Light travel distance from ramp start to contact point & \si{\metre}   \\
+		$d_\mathrm{w}$    & Distance from ramp start to contact point              & \si{\metre}   \\
+		$\alpha$          & Ramp angle                                             & \si{\degree}  \\
+		$\beta$           & \gls{lidar} mount angle                                & \si{\degree}  \\
+		$\gamma$          & Laser line angle                                       & \si{\degree}  \\
+		$\epsilon$        & \gls{lidar} vertical resolution                        & \si{\degree}  \\
+		$n$               & Number of laser channels                               &               \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+
+\section{Data recording}
+All the sensors are connected to an PC in the car, located in the booth.
+A notebook is connected to the PC using an \gls{ssh} connection and is used to start the different sensor streams.
+For the communication between the PC and sensors and the recording of the sensor data the \gls{ros} framework is used.
+Each sensor publishes its data to a specific topic, which can be subscribed to.
+While \gls{ros} allows for real-time running of nodes it is also possible to record all sensor streams and store them in a rosbag.
+A rosbag contains the serialized message data and can later be used as a dataset.
+The rosbag can be played back in \gls{ros}, simulating the same conditions as during the recording, by publishing the same topics again which were initially subscribed to during the recording.
+The different algorithms can then be tested and perhaps improved, without having to physically do test drive again.
 
 
 \section{Car}
 \label{sec:car}
-The car used in the experiment is an eGolf 2017.
+The car used for the recordings is an eGolf 2017.
 Being an electric car it provides better vibration properties than a car with an internal combustion engine, which means that the \gls{imu} measurements are less influenced by external noise.
 The car has been "hacked" which allows among other things for the reading of the wheel ticks by tapping the signals from the CAN bus.
-Unfortunately the wheel speed readings are only available in this "hacked" state, in which the output power of the motor is limited.
-In this mode, the maximum speed is capped at \SI{5}{\kilo\metre\per\hour} and the power is not enough to allow for the traversing of ramps.
+\iquest{PLA I think? How technical should I go?}
+Unfortunately, the wheel speed readings are only available in this "hacked" state, in which the output power of the motor is limited.
+In this mode, the maximum speed is capped at \SI{5}{\kilo\metre\per\hour} and the torque is limited, such that is not possible to drive a ramp all the way up.
 The car can only make it about halfway up.
 Because of that, the normal mode was used to drive between different levels.
 Before driving down, the mode was switched again to also provide the wheel speed measurements.
-The car has a PC in the booth, at which all the sensors were connected to and which ran all the algorithms.
-\iimprov{Text is bad e.g. "hacked" }
 \missingfigure{Picture of eGolf}
 
 
 
 \section{Garage}
-\missingfigure{Picture of ramps and/or figure of ramps showing angles}
-\itodo{Think of a good way to measure the true angle of the ramps}
-\begin{figure}
+\label{sec:garage}
+To prevent an overfitting of the model it is important to have different test scenarios.
+But due to the registration of the car as an ?, the car was not allowed to drive on public roads.
+Hence, only the ramps inside the garage could be used.
+The different type of ramps are shown in \cref{fig:all_ramps}.
+The properties of each ramp are described in \cref{tab:ramp_properties}.
+The values were measured by inspecting the point cloud.
+\itodo{I think this should be moved to results}
+\begin{figure}[htb]
 	\begin{subfigure}{.3\linewidth}
 		\centering
 		\includegraphics[angle=-90, width=1\linewidth]{RampA.jpg}
@@ -245,3 +261,19 @@ The car has a PC in the booth, at which all the sensors were connected to and wh
 	\caption{All the ramps}
 	\label{fig:all_ramps}
 \end{figure}
+Measured ramp props
+\begin{table}[htb]
+	\centering
+	\caption{True stats}
+	\label{tab:ramp_properties}
+	\begin{tabular}[t]{cccc}
+		\toprule
+		\textbf{Ramp} & \textbf{Angle}    & \textbf{Width}    & \textbf{Length} \\
+		\midrule
+		Ramp A        & \SI{7.2}{\degree} & \SI{3.94}{\metre} & \SI{0}{\metre}  \\
+		Ramp B        & \SI{7.4}{\degree} & \SI{3.90}{\metre} & \SI{0}{\metre}  \\
+		Ramp C        & \SI{6.5}{\degree} & \SI{3.96}{\metre} & \SI{0}{\metre}  \\
+		Ramp D        & \SI{0}{\degree}   & \SI{0}{\metre}    & \SI{0}{\metre}  \\
+		\bottomrule
+	\end{tabular}
+\end{table}
