@@ -20,11 +20,14 @@ from unpack_rosbag import unpack_bag, synchronize_topics
 class GetScore(object):
     """Run lidar ramp detection on rosbag and calculate some scores"""
 
-    def __init__(self, bag_name, x_range, y_range, ramp_type):
+    def __init__(self, bag_name, x_range, y_range, ramp_type, true_angle, true_width, true_length):
         self.bag_name = bag_name
         self.x_range = x_range
         self.y_range = y_range
         self.ramp_type = ramp_type
+        self.true_angle = true_angle
+        self.true_width = true_width
+        self.true_length = true_length
 
     @staticmethod
     def extract_data(bag_path):
@@ -143,6 +146,7 @@ class GetScore(object):
     def calc_score(self, df_stats, true_dists, min_dist, max_dist, step_dist):
         """Calculates some scores to determine performance"""
         scores = []
+        self.min_rmse(df_stats)
         for _, min_d in enumerate(range(min_dist, max_dist, step_dist)):
             max_d = min_d + step_dist
             # Reduce df to range
@@ -167,18 +171,18 @@ class GetScore(object):
 
             # Calculate std_dev and stuff
             diff_dist = df_range["Dist"] - df_range["TrueDist"]
-            diff_angle = df_range["Angle"] - 7
-            diff_width = df_range["Width"] - 4
+            diff_angle = df_range["Angle"] - self.true_angle
+            diff_width = df_range["Width"] - self.true_width
             diff_all = np.vstack((diff_dist, diff_angle, diff_width))
             rmse = np.sqrt(np.mean(diff_all ** 2, axis=1))
-            print("RMSE: {}".format(rmse))
+            # print("RMSE: {}".format(rmse))
             # Print information for every bag
-            print(
-                (
-                    "In the range {}m to {}m {} frames have been recorded with "
-                    "{:.2f}% true positives and {:.2f} false positives"
-                ).format(min_d, max_d, frames, true_positives, false_positives)
-            )
+            # print(
+            #     (
+            #         "In the range {}m to {}m {} frames have been recorded with "
+            #         "{:.2f}% true positives and {:.2f} false positives"
+            #     ).format(min_d, max_d, frames, true_positives, false_positives)
+            # )
             scores.append(
                 (
                     self.ramp_type,
@@ -193,6 +197,35 @@ class GetScore(object):
                 )
             )
         return scores
+
+    # Find best true value to minimize rmse
+    def min_rmse(self, df_stats):
+        df_range = df_stats[(1 < df_stats["TrueDist"]) & (df_stats["TrueDist"] < 15)]
+        vals = []
+        for i in np.arange(2.5, 4.5, 0.02):
+            # diff_angle = df_range["Angle"] - self.true_angle
+            diff_width = df_range["Width"] - i
+            rmse = np.sqrt(np.mean(diff_width ** 2))
+            vals.append((rmse, i))
+        vals = np.asarray(vals)
+        min_rmse = np.argmin(vals[:, 0])
+        print("Best RMSE: {} with width {}".format(vals[min_rmse, 0], vals[min_rmse, 1]))
+        vals = []
+        for i in np.arange(6, 9, 0.1):
+            diff_angle = df_range["Angle"] - i
+            rmse = np.sqrt(np.mean(diff_angle ** 2))
+            vals.append((rmse, i))
+        vals = np.asarray(vals)
+        min_rmse = np.argmin(vals[:, 0])
+        print("Best RMSE: {} with angle {}".format(vals[min_rmse, 0], vals[min_rmse, 1]))
+        vals = []
+        for i in np.arange(-1, 1, 0.02):
+            diff_dist = df_range["Dist"] - df_range["TrueDist"] + i
+            rmse = np.sqrt(np.mean(diff_dist ** 2))
+            vals.append((rmse, i))
+        vals = np.asarray(vals)
+        min_rmse = np.argmin(vals[:, 0])
+        print("Best RMSE: {} with distance {}".format(vals[min_rmse, 0], vals[min_rmse, 1]))
 
     def boss_method(self, min_dist=0, max_dist=30):
         """Run all methods above"""
@@ -214,11 +247,16 @@ def run_evaluation(bag_info):
         # Unpack dictionary
         bag_name = v["bag_name"]
         ramp_type = v["ramp_type"]
+        # if ramp_type != "u_d2e":
+        #     continue
         x_range, y_range = v["xy_range"]
+        true_angle = v["true_angle"]
+        true_width = v["true_width"]
+        true_length = v["true_length"]
 
         print("Loading bag: {}".format(bag_name))
         # Create instance of class
-        gs = GetScore(bag_name, x_range, y_range, ramp_type)
+        gs = GetScore(bag_name, x_range, y_range, ramp_type, true_angle, true_width, true_length)
         # Run algorithm + evaluation
         score = gs.boss_method()
         scores.append(score)
@@ -258,19 +296,23 @@ def create_latex_table(scores):
     display(df)
     print("\nAnd in latex format:")
     # Print each row
-    for row in range(len(df)):
-        row = df.iloc[row]
+    for i in range(len(df)):
+        row = df.iloc[i]
+        if i == 0:
+            ramp_type = "\multirow{{6}}{{*}}{{{}}}".format(row["rampType"])
+        else:
+            ramp_type = ""
         print(
-            "{} & \\SIrange{{{}}}{{{}}}{{\\metre}} & {} & {:.2f}\% & {:.2f}\% & \SI{{{:.2f}}}{{\\metre}} & \SI{{{:.2f}}}{{\\degree}} & \SI{{{:.2f}}}{{\\metre}}\\\\".format(
-                row["rampType"],
+            "{} & \\SIrange{{{}}}{{{}}}{{\\metre}} & {} & {:.2f}\% & {:.2f}\% & \SI{{{:.2f}}}{{\\metre}} & \SI{{{:.2f}}}{{\\metre}} & \SI{{{:.2f}}}{{\\degree}}\\\\".format(
+                ramp_type,
                 row["min_d"],
                 row["max_d"],
                 row["frames"],
                 row["truePositives"],
                 row["falsePositives"],
                 row["rmse_dist"],
+                row["rmse_width"],
                 row["rmse_ang"],
-                row["rmse_dist"],
             )
         )
 
@@ -285,44 +327,68 @@ LIDAR_TOPIC = "/velodyne_points"
 BAG_INFO = [
     {
         "bag_name": "u_c2s_half_odom_hdl.bag",
-        "ramp_type": "us",
+        "ramp_type": "u_c2s",
         "xy_range": [[20.3, 33], [-0.9, 2.8]],
+        "true_angle": 7.2,
+        "true_width": 3.94,
+        "true_length": 12,
     },
     {
         "bag_name": "u_c2s_half_odom_stereo_hdl.bag",
-        "ramp_type": "us",
+        "ramp_type": "u_c2s",
         "xy_range": [[23.8, 36], [-3.3, 0.5]],
+        "true_angle": 7.2,
+        "true_width": 3.94,
+        "true_length": 12,
     },
     {
         "bag_name": "u_c2s_hdl.bag",
-        "ramp_type": "us",
+        "ramp_type": "u_c2s",
         "xy_range": [[45, 58], [-1.9, 1.8]],
+        "true_angle": 7.2,
+        "true_width": 3.94,
+        "true_length": 12,
     },
     {
         "bag_name": "u_c2s_stop_hdl.bag",
-        "ramp_type": "us",
+        "ramp_type": "u_c2s",
         "xy_range": [[38, 51], [-1.5, 2.2]],
+        "true_angle": 7.2,
+        "true_width": 3.94,
+        "true_length": 12,
     },
     {
         "bag_name": "u_d2e_hdl.bag",
-        "ramp_type": "us",
+        "ramp_type": "u_d2e",
         "xy_range": [[32.5, 44], [2, 5.5]],
+        "true_angle": 7.4,
+        "true_width": 3.9,
+        "true_length": 99,
     },
     {
         "bag_name": "u_s2c_half_odom_hdl.bag",
-        "ramp_type": "uc",
+        "ramp_type": "u_s2c",
         "xy_range": [[42, 56], [-2.2, 2]],
+        "true_angle": 6.5,
+        "true_width": 3.96,
+        "true_length": 99,
     },
     {
         "bag_name": "u_s2c2d_part1_hdl.bag",
-        "ramp_type": "uc",
+        "ramp_type": "u_s2c",
         "xy_range": [[47.3, 62], [-2.8, 1.5]],
+        "true_angle": 6.5,
+        "true_width": 3.96,
+        "true_length": 99,
     },
-    {
-        "bag_name": "u_s2c2d_part2_hdl.bag",
-        "ramp_type": "us",
-        "xy_range": [[47, 58.8], [36.5, 40.5]],
-    },
+    # {
+    #     "bag_name": "u_s2c2d_part2_hdl.bag",
+    #     "ramp_type": "u_c2d",
+    #     "xy_range": [[47, 58.8], [36.5, 40.5]],
+    #     "true_angle": 7,
+    #     "true_width": 3.85,
+    #     "true_length": 99,
+    # },
 ]
 
 # Run evaluation
