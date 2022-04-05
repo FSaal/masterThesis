@@ -1,9 +1,22 @@
 \chapter{Methods}
 \label{ch:Methods}
-\begin{figure}[htpb]
+In this chapter various methods using different sensors to estimate the car's pitch angle and thus the ramp angle, as well as other properties of the ramp, such as the width and length, will be described.
+The problem definition is discussed in \cref{sec:road_grade_definition}.
+Before being able to use the sensor measurements, a coordinate frame transformation to the device frame is necessary.
+This problem is described in \cref{sec:coordinate_frames}.
+In \cref{sec:methods_imu} multiple methods to estimate the car's pitch angle using an \gls{imu} are described.
+The angle is then used to identify a ramp.
+A novel method using a \gls{lidar} sensor will be represented in \cref{sec:methods_lidar}.
+It tracks the distance to the ramp and estimates the angle and width of the ramp.
+Finally, a ramp detection algorithm using a camera and a trained neural network will be presented.
+
+
+\section{Road grade definition}
+\label{sec:road_grade_definition}
+\begin{figure}[htb]
 	\centering
 	\input{Graphics/TikZ/car_tilt.tex}
-	\caption{Car driving on a ramp. Due to forward acceleration the car tilts back.}
+	\caption[Ramp angle definition]{Car driving on a ramp. Due to forward acceleration the car tilts back.}
 	\label{fig:tikz_car_tilt}
 \end{figure}
 The road grade $\alpha$ is the angle between the road plane and the ground plane.
@@ -19,37 +32,40 @@ or in percentage
 The pitch angle $\theta$ of the car is defined as the angle between the ground plane and the longitudinal axis of the car.
 If the car accelerates or decelerates the suspension does get compressed in the back or respectively front, which makes the pitch angle not in alignment with the road grade anymore.
 The difference between the two angles is defined as $\beta = \theta - \alpha$ and may also occur due to rotational movement or vibrations.
-The mentioned variables are visualized in \cref{fig:tikz_car_tilt}.\\
-In this chapter different sensors and methods will be tested to estimate the car's pitch angle and thus the estimated ramp angle, as well as other properties of the ramp, such as the width and length.
-A common problem is that the coordinate frame of the sensor is usually not aligned with car's frame, see \cref{fig:tikz_car_frames}.
-To determine the true car pitch angle the sensor frame must be transformed onto the car frame.
-Semi-automatic calibration methods for the \gls{imu} and \gls{lidar} sensor will be represented, which determine the necessary rotation to align both frames.
-But the translation difference can not be easily estimated and must be measured by hand.\\
-At first, different methods to estimate the pitch angle using the \gls{imu} will be represented in \cref{sec:methods_imu}.
-The measurements of the accelerometer and gyroscope of the \gls{imu} will be used separately to determine the pitch angle.
-Then it will be tested how the estimate improves when both sensors are used together in a complementary filter.
-The gravity method, which involves the accelerometer and wheel sensor measurements will be tested as well.\\
-A novel method using a \gls{lidar} sensor will be represented in \cref{sec:methods_lidar}.
-It tracks the distance to the ramp and estimates the angle and width of the ramp.
-Finally, the ramp detection using a camera and trained neural network will be tested.
-\begin{figure}[htpb]
+The mentioned variables are visualized in \cref{fig:tikz_car_tilt}.
+
+
+
+\section{Coordinate frames}
+\label{sec:coordinate_frames}
+A common problem is that the coordinate frames of the sensors are usually not aligned with the device (in this case the car) frame, see \cref{fig:tikz_car_frames}.
+To get meaningful results, the sensor frames must first be aligned with the car frame.
+Semi-automatic calibration methods for the \gls{imu} and \gls{lidar} sensor will be represented in \cref{ssec:calibration_imu} and \cref{ssec:calibration_lidar} respectively, which determine the necessary rotation to align both frames.
+But the translation difference between the coordinate frames can not be easily estimated or requires a more sophisticated calibration setup which was not available, and must be measured by hand.\\
+The x-axis is pointing in the direction of travel , the y-axis to the left and the z-axis upwards.
+The center of the coordinate system of the car is located at the center in the front of the car at the height of the wheel axle.
+\begin{figure}[htb]
 	\centering
 	\input{Graphics/TikZ/car_frames.tex}
-	\caption{Example of a typical sensor setup. All sensors must be aligned to the car frame.}
+	\caption[Sensor coordinate frames]{Example of a typical sensor setup. All measurements of the sensors must be transformed, such that they align with the car frame.}
 	\label{fig:tikz_car_frames}
 \end{figure}
 
 
 
-\section{\glsentrytext{imu} only}
+\section{\glsentryshort{imu}}
+\label{sec:methods_imu}
 Before being able to apply the different methods, a transformation from the sensor frame to the car frame is necessary.
 This is described in \cref{ssec:calibration_imu}.
 After the transformation an estimation of the car's pitch angle is possible, for which different methods are presented in \cref{ssec:road_grade_estimation}.
 In \cref{ssec:ramp_detection_imu} a ramp detection algorithm based on the pitch angle is presented.
 Furthermore, a method to estimate the average ramp angle and length of the ramp is proposed.
+At first, different methods to estimate the pitch angle using the \gls{imu} will be represented in \cref{sec:methods_imu}.
+The measurements of the accelerometer and gyroscope of the \gls{imu} will be used separately to determine the pitch angle.
+Then it will be tested how the estimate improves when both sensors are used together in a complementary filter.
+The gravity method, which involves the accelerometer and wheel sensor measurements will be tested as well.\\
 
 
-\label{sec:methods_imu}
 \subsection{Calibration}
 \label{ssec:calibration_imu}
 The \gls{imu} is usually not placed in such a way, that the coordinate frame of the device $\mathcal{I}$ aligns with that of the car $\mathcal{C}$, see \cref{fig:tikz_frame_transformation_init}.
@@ -298,11 +314,12 @@ When using the wheel speed sensors the ...
 \end{equation}
 
 
-\section{\glsentrytext{lidar} only}
+\section{\glsentryshort{lidar} only}
 \label{sec:methods_lidar}
 \itodo{Maybe brief overview of section/algorithm}
 \itodo{Add pcl citation somewhere \cite{Rusu2011}}
 \subsection{Calibration}
+\label{ssec:calibration_lidar}
 As for the \gls{imu}, a transformation from the \gls{lidar} frame to the car frame is necessary.
 The calibration is very similar to that of the \gls{imu}.
 At first both z-axes will be aligned.
@@ -427,8 +444,8 @@ Detectron2 was used to identify the ramp in the images.
 \itodo{Brief explanation what sensor fusion is and why useful}
 
 
-\subsection{\glsentrytext{imu} and Odometer}
-\iimprov{Probably move this to the \glsentrytext{imu} section}
+\subsection{\glsentryshort{imu} and Odometer}
+\iimprov{Probably move this to the \glsentryshort{imu} section}
 \subsubsection{Car acceleration from odometer data}
 \label{subsubsec:acc_from_odom}
 Because the odometer only delivers the speed of each wheel, the car velocity has to be calculated.
