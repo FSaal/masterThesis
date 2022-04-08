@@ -5,6 +5,7 @@
 % First mention long, others short
 \setabbreviationstyle[acronym]{long-short}
 \newacronym{ahrs}{AHRS}{Attitude Heading Reference System}
+\newacronym{ann}{ANN}{Artificial Neural Network}
 \newacronym{avp}{AVP}{Automated Valet Parking}
 \newacronym{cnn}{CNN}{Convolutional Neural Network}
 \newacronym{fov}{FOV}{Field Of View}
@@ -31,15 +32,25 @@
 \newacronym[type=ignored]{esp}{ESP}{Electronic Stabilzation Program}
 \newacronym[type=ignored]{fir}{FIR}{Finite Impulse Response}
 \newacronym[type=ignored]{iir}{IIR}{Infinite Impulse Response}
+\newacronym[type=ignored]{ssh}{SSH}{Secure Shell}
 \newacronym[type=ignored]{sonar}{SONAR}{Sound Navigation And Ranging}
 
 % Symbols
 \glsxtrnewsymbol[description={Vector}]{v}{$\vb{v}$}
 \glsxtrnewsymbol[description={Unit vector}]{v_uv}{$\vu{v}$}
-\glsxtrnewsymbol[description={Norm of vector}]{v_norm}{$\norm{v}$}
+\glsxtrnewsymbol[description={Norm of vector}]{v_norm}{$\norm{\vb{v}}$}
 \glsxtrnewsymbol[description={Vector in coordinate frame $\mathcal{A}$}]{v2}{\vincs{v}{a}}
-\glsxtrnewsymbol[description={Rotation matrix to transform from a to b}]{R}{\mtf{a}{b}}
-\glsxtrnewsymbol[description={Quaternion to transform from a to b}]{q}{\qtf{a}{b}}
+\glsxtrnewsymbol[description={Rotation matrix to transform a vector from frame $\mathcal{A}$ to $\mathcal{B}$}]{R}{\mtf{a}{b}}
+\glsxtrnewsymbol[description={Quaternion to transform a vector from frame $\mathcal{A}$ to $\mathcal{B}$}]{q}{\qtf{a}{b}}
+\glsxtrnewsymbol[description={Linear acceleration}]{a}{$\vb{a}$}
+\glsxtrnewsymbol[description={Angular velocity}]{w}{$\mathbf{\omega}$}
+\glsxtrnewsymbol[description={Quaternion multiplication}]{q_mult}{$\otimes$}
+\glsxtrnewsymbol[description={Rotation axis}]{j}{$\vb{j}$}
+\glsxtrnewsymbol[description={Gravitatinal acceleration}]{g}{$\vb{g}$}
+\glsxtrnewsymbol[description={Normal vector}]{n}{$\vb{n}$}
+\glsxtrnewsymbol[description={Ramp angle?!}]{alpha}{$\alpha$}
+\glsxtrnewsymbol[description={Coefficent of determination}]{R2}{$R^2$}
+
 
 % % Glossary
 % \newglossaryentry{latex}
