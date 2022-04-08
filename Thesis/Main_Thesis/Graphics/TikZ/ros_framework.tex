@@ -1,0 +1,26 @@
+\documentclass[11pt]{standalone}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric}
+
+\usetikzlibrary{calc, positioning}
+
+\begin{document}
+% Define styles
+\tikzstyle{block} = [draw, minimum width=2cm, minimum height=1.2cm]
+
+\begin{tikzpicture}
+    % Master
+    \node [circle, draw] (m) at (0,3) {ROS Master};
+    % Nodes
+    \node [ellipse, draw, fill=white, minimum width=1cm, minimum height=1cm] (n1) at (-5,0) {Node 1};
+    \node [ellipse, draw, fill=white, minimum width=1cm, minimum height=1cm] (n2) at (5,0) {Node 2};
+    % Topic
+    \node [block] (tp1) at ($(n1)!0.5!(n2)$) {Topic};
+
+    % Connections
+    \draw [-stealth] (n1) -- (tp1) node[midway, above] {Publish};
+    \draw [-stealth] (tp1) -- (n2) node[midway, above] {Callback};
+    \path [-stealth] (n1) edge [bend left] node [left=0.1cm] {Advertising} (m);
+    \path [-stealth] (n2) edge [bend right] node [right=0.1cm] {Subscribing} (m);
+\end{tikzpicture}
+\end{document}
