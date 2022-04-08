@@ -1,4 +1,5 @@
 \documentclass[11pt]{standalone}
+\usepackage{physics}			% Vector stuff
 \usepackage{tikz}
 \usetikzlibrary{angles, calc, decorations.pathmorphing, quotes, spy}
 
@@ -61,7 +62,7 @@
         \draw[draw=black,fill=gray!80,semithick] (w) ++(\cl*0.55,0) circle (.35);
 
         % Draw car acceleration
-        \draw[blue, thick, ->] (m) -- ++(-1.3,0) node[anchor=east]{$a_\mathrm{at}$};
+        \draw[blue, thick, ->] (m) -- ++(-1.3,0) node[anchor=east]{$\vb{a}_\mathrm{at}$};
         % Gravity vectors
         % Length of g vector
         \def\gl{2.8}
@@ -69,9 +70,9 @@
         \def\gxl{{\gl*sin(\ra)}}
         \def\gzl{{\gl*cos(\ra)}}
         % Draw vectors
-        \draw[red, ->, very thick, rotate=-\ra] (m) -- ++(0,-\gl) node[anchor=east](g_end){$\mathbf{g}$};
-        \draw[red, semithick, ->] (m) -- ++(-\gxl,0) node[anchor=south]{$g_\mathrm{x}$};
-        \draw[red, semithick, ->] (m) -- ++(0,-\gzl) node[anchor=west]{$g_\mathrm{z}$};
+        \draw[red, ->, very thick, rotate=-\ra] (m) -- ++(0,-\gl) node[anchor=east](g_end){$\vb{g}$};
+        \draw[red, semithick, ->] (m) -- ++(-\gxl,0) node[anchor=south]{$\vb{g}_\mathrm{x}$};
+        \draw[red, semithick, ->] (m) -- ++(0,-\gzl) node[anchor=west]{$\vb{g}_\mathrm{z}$};
         \draw[red, dotted] ($(m)+(-\gxl,0)$) -- ++(0,-\gzl) -- ++(\gxl,0);
         % \draw[red, dotted] ($(m)+(0,0)$) -- ++(0,-\gzl) -- ++(\gxl,0);
     \end{scope}
