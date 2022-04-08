@@ -1,15 +1,17 @@
 \chapter{Background}
 \label{ch:Background}
-In this chapter the fundamentals to understand the methods are explained.
+In this chapter the fundamentals to understand the methods used in this thesis are explained.
 The first section gives an overview of different ways to represent orientations.
 In \cref{sec:sensors} the functionality of the different sensors used in this thesis are explained.
-\cref{sec:computer_vision} gives a brief overview of the field of computer vision.
+A brief overview of the field of computer vision is given in \cref{sec:computer_vision}.
+Lastly, in \cref{sec:ros} the \gls{ros} framework, which allows for the communication to the different sensors, is introduced.
 
 
 \section{Mathematical}
-\itodo{Add references}
 \subsection{Mathematical Representations of 3D Orientations}
-Rotations can be expressed in several ways, I will briefly describe the ones used in this thesis.
+Different sensors will be used in this thesis and each sensor will make its measurements in its own coordinate frame.
+In order to obtain meaningful results, all frames must be aligned to one common frame.
+The necessary 3D rotations can be expressed in several ways, I will briefly describe the ones used in this thesis.
 
 \subsubsection{Rotation matrix}
 A rotation matrix \mtf{b}{a} $\in \mathbb{R}^{3\times3}$ transforms an arbitrary vector from the coordinate system $\mathcal{B}$ to the coordinate system $\mathcal{A}$.
@@ -35,7 +37,7 @@ The most common convention is the zyx (intrinsic), which first rotates an angle 
 \begin{figure}[htpb]
 	\centering
 	\input{Graphics/TikZ/euler_angles.tex}
-	\caption{Definition of the zyx Euler convention. The rotation starts with a rotation $\psi$ around the z-axis and ends with a rotation $\phi$ around the x-axis.}
+	\caption[zxy Euler convention]{Definition of the zyx Euler convention. The rotation starts with a rotation $\psi$ around the z-axis and ends with a rotation $\phi$ around the x-axis.}
 	\label{fig:tikz_euler_angles}
 \end{figure}
 
@@ -72,6 +74,7 @@ If the quaternion is a unit vector, which means it satisfies
 then it can be used to represent rotations.
 The rotation is then described with
 \begin{equation}
+	\label{eq:quaternion}
 	q =
 	\begin{bmatrix}
 		\hat{\vb{j}}\vdot\sin(\frac{\alpha}{2}) \\
@@ -102,10 +105,11 @@ The symbol $\otimes$ denotes the quaternion multiplication, which is given by
 	p \otimes q=\left(\begin{array}{c}
 			p_{w} q_{w}-p_v \cdot q_v \\
 			p_{w} q_v+q_{w} p_v+p_v \times q_v
-		\end{array}\right)
+		\end{array}\right).
 \end{equation}
 A quaternion can be converted to a rotation matrix with
 \begin{equation}
+	\label{eq:q_to_M}
 	\mathbf{M} =
 	\left[
 		\begin{array}{ccc}
@@ -113,12 +117,13 @@ A quaternion can be converted to a rotation matrix with
 			2(q_x q_y + q_z q_w) & 1-2 q_x^2-2 q_z^2   & 2(q_y q_z -q_x q_w)  \\
 			2(q_x q_z-q_y q_w)   & 2(q_y q_z+ q_x q_w) & 1 - 2 q_x^2- 2 q_y^2
 		\end{array}
-		\right]
+		\right].
 \end{equation}
 More information about quaternions can be found in \cite{Kok2017,Trawny2005}.\\
 
 \subsection{Vector projection}
 \label{subsec:vector_projection}
+Vector projection is used later in this thesis to align different coordinate frames, this section describes the theory behind it.
 In general, the rotation to align a vector $\vb{v}_1$ with a vector $\vb{v}_2$ can be expressed using a quaternion.
 At first both vectors must be normalized, resulting in the two unit vectors $\vu{v}_1$ and $\vu{v}_2$.
 The rotation axis is perpendicular to both vectors and can thus be calculated using the cross product, which is then divided by the norm, to get a unit vector
@@ -132,37 +137,36 @@ The angle between two vectors can be calculated by
 	\alpha = \arccos(\vu{v}_1 \vdot \vu{v}_2).
 \end{equation}
 The denominator is equal to 1 (because the norm of a unit vector is 1) and thus omitted.
-The found rotation can then be applied using e.g. a quaternion or a rotation matrix.
+Using \cref{eq:quaternion} the rotation can then be expressed as a quaternion.
 
 
 
 \section{Sensors}
 \label{sec:sensors}
-Sensors are necessary to acquire information to model the environment.
-In this section the functionality and properties of each sensor used in this thesis will be described.
-\iquest{What else to write here?}
+Sensors are necessary to acquire information about the environment.
+In this section the functionality and advantages and disadvantages of each sensor used in this thesis will be described.
 
-\subsection{\glsentrytext{imu}}
+\subsection{\glsentryshort{imu}}
 An \gls{imu} is used to track the orientation and position of an object.
 Common uses are in the aerospace or automotive industry, often in combination with other sensors, to give information about the pose and position of a vehicle.
 More recently with the invention of \gls{mems} and specifically \gls{mems}-\glspl{imu} which allow for a very small form factor at a low cost, \glspl{imu} are also used in consumer electronics such as smartphones or fitness tracker.
-An \gls{imu} usually consists of the three following sensors.
+An \gls{imu} usually consists of the three following sensors.\\
 The acceleration is measured using an accelerometer and can be used to determine the velocity and the covered distance by integrating the acceleration with respect to time once respectively twice.
 The gyroscope gives information about the change of orientation.
 The third part is the magnetometer, which is able to measure the earth's magnetic field and is used to correct the measurements of the gyroscope.
 It allows for the determination of the absolute heading, whereas the gyroscope can only measure relative change. But because it is very sensitive to other magnetic objects, it is often omitted.
 \glspl{imu} can be typically divided into the two following categories.\\
-\begin{figure}[htbp]
+\begin{figure}[htb]
 	\centering
 	\includegraphics[width=0.4\linewidth]{stable_platform_imu}
-	\caption{A stable platform \acrshort{imu} \cite{Woodman2007}}
+	\caption[Setup of a stable platform \acrshort{imu}]{Setup of a stable platform \acrshort{imu} \cite{Woodman2007}.}
 	\label{fig:stable_platform_imu}
 \end{figure}
 In the first type, the stable platform systems, the inertial sensors are mounted in such way, that they are always aligned with the reference frame.
 This is achieved using gimbals, which allow movement along all three axes.
 The gyroscopes on the platform measure the rotation and send them to torque motors, which rotate the gimbals to keep the platform in alignment with the reference frame.
 A typical setup of a stable platform system can be seen in \cref{fig:stable_platform_imu}.
-The advantage of stable platform systems is that the calculation of orientation and position is straightforward.
+The advantage of a stable platform systems is that the calculation of orientation and position is straightforward.
 The angles of the gimbals can be measured to receive the orientation and position, the accelerometer measurements have to be corrected for gravity and be integrated two times.
 No coordinate transformation is necessary.
 The disadvantages are that the mechanical structure of the setup is complex, needs regular maintenance, requires a lot of space and has high costs.\\
@@ -177,7 +181,7 @@ Information about the working principle of other systems and also much more info
 Other characteristics of \gls{mems} are that they can easily be mass-produced allowing for low cost and usually also need less power than traditional systems, because everything is integrated on the chip \cite{Shaeffer2013}.
 Almost all consumer grade electronics uses \gls{mems}-\glspl{imu} nowadays, but they also find more and more use in many industry segments, as their accuracy continues to improve \cite{Perlmutter2016}.
 
-\subsubsection{\glsentrytext{mems} Accelerometer}
+\subsubsection{\glsentryshort{mems} Accelerometer}
 \begin{figure}[htb]
 	\centering
 	\begin{subfigure}{0.48\textwidth}
@@ -193,7 +197,7 @@ Almost all consumer grade electronics uses \gls{mems}-\glspl{imu} nowadays, but 
 		\caption{\acrshort{mems} gyroscope}
 		\label{fig:MEMS_Gyroscope}
 	\end{subfigure}
-	\caption{Micro structure of \acrshort{mems} TODO: Better images}
+	\caption[Micro structure of a \acrshort{mems} accelerometer and gyroscope]{Micro structure of a \acrshort{mems} accelerometer and gyroscope. \color{red}TODO: Better images (with ref or make own)}
 	\label{fig:MEMS_design}
 \end{figure}
 The accelerometer is used to measure the acceleration.
@@ -212,7 +216,7 @@ The measurements $\hat{\vb{a}}$ of a \gls{mems} accelerometer are not free of no
 The measurement differs from the true acceleration $\vb{a}$ due to random noise $\vb{n}_\mathrm{a}$ and a slowly time-varying bias $\vb{b}_\mathrm{a}$.
 More about the specific error terms can be read in \cref{sse:mems_errors}.
 
-\subsubsection{\glsentrytext{mems} Gyroscopes}
+\subsubsection{\glsentryshort{mems} Gyroscopes}
 A gyroscope measures the angular velocity.
 The setup of a \gls{mems} gyroscope is similar to that of a \gls{mems} accelerometer.
 A proof mass is suspended on a frame and responds to an input force.
@@ -225,14 +229,14 @@ If the mass is oscillating along one axis and a rotation is applied, a second os
 E.g.\ if the mass oscillates along the x-axis and a rotation around the z-axis is applied, a vibration along the y-axis can be observed.
 By measuring the amplitude and phase of the secondary oscillation the absolute value and direction of the angular velocity can be calculated.
 While \gls{mems} gyroscopes do not achieve the same accuracy as optical gyroscopes they offer many advantages such as smaller physical properties (weight and size), lower power consumption and startup time as well as a significantly lower cost.
-\gls{mems} gyroscopes have replaced other gyroscope types in most areas, but in areas where the highest precision possible is necessary, typically in military industry, optical gyroscopes are still used today \cite{Perlmutter2016}.
+\gls{mems} gyroscopes have replaced other gyroscope types in most areas, but in areas where the highest precision possible is necessary, typically in military industry, optical gyroscopes are still used today \cite{Perlmutter2016}.\\
 Similar to the accelerometer, the measurements $\hat{\boldsymbol{\omega}}$ of the \gls{mems} gyroscope are influenced by errors, which can be modeled according to \cite{Lefferts1982} as
 \begin{equation}
 	\hat{\boldsymbol{\omega}} = \boldsymbol{\omega} + \vb{b}_\mathrm{g} + \vb{n}_\mathrm{g}.
 \end{equation}
 The measurement differs from the true angular velocity $\boldsymbol{\omega}$ due to the slowly time-varying bias vector $\vb{b}_\mathrm{g}$ and the random noise vector $\vb{n}_\mathrm{g}$, which has a mean of zero.
 
-\subsubsection{(\glsentrytext{mems}) Magnetometer}
+\subsubsection{(\glsentryshort{mems}) Magnetometer}
 A magnetometer measures the local magnetic field.
 Most sensors work using the Hall effect.
 A current is set to flow through a conductive plate.
@@ -240,14 +244,14 @@ Without the presence of a magnetic field the electrons flow in a straight line, 
 The voltage between the two sides can then be measured, from which the strength and direction of the magnetic field can be determined.\\
 Without any magnetic disturbances, the magnetometer measures a constant local magnetic field vector.
 The vector points to magnetic North and can thus be used to determine the heading.
-Because the magnitude of the earth's magnetic field is very low (\SIrange{25}{65}{\micro\tesla}), the magnetometer readings can easily be influenced by other objects \cite{Kok2016}.
+Because the magnitude of the earth's magnetic field is very low (\SIrange{25}{65}{\micro\tesla}), the magnetometer readings can easily be influenced by other objects \cite{Kok2016}.\\
 The distortions can be divided into two categories: hard or soft iron.
 Hard iron distortions are created by objects which actively produce a magnetic field, causing a permanent bias.
 Soft iron disturbances are due to deflections or altercations of an existing magnetic field.
 Both types of disturbances can be removed with a proper calibration if their position and orientation, relative to the sensor, stays the same \cite{Guo2008}.
 Every time the sensor is placed in a (magnetically) new environment, a recalibration is necessary.
 
-\subsubsection{Typical \glsentrytext{mems} errors}
+\subsubsection{Typical \glsentryshort{mems} errors}
 \label{sse:mems_errors}
 The errors can be divided into two categories: systematic and stochastic errors \cite{Zhang2019}.\\
 Systematic errors or also known as calibration errors are constant over time and can be eliminated by calibration.
@@ -262,13 +266,7 @@ The integration of white noise leads than to a random walk.\\
 Angle errors introduced by random walk are usually the hardest to correct and are the reason, why the measurements of the gyroscope can not be trusted over a long period of time \cite{Woodman2007}.
 
 
-\subsection{\glsentrytext{lidar}}
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=0.5\textwidth]{Lidar.png}
-	\caption{Setup of a mechanical spinning \acrshort{lidar} \cite{Li2020}}
-	\label{fig:lidar}
-\end{figure}
+\subsection{\glsentryshort{lidar}}
 \gls{lidar} is a method to measure distance to objects.
 Similar to other systems such as \gls{sonar} or \gls{radar}, \gls{lidar} uses the time-of-flight principle.
 A short laser pulse with the velocity of light $c$ is sent into the environment and the reflected light is analyzed.
@@ -286,9 +284,15 @@ The scanning system allows the laser to explore a large area instead of only a s
 Mechanical spinning systems is the oldest technology and is still mainly used today.
 A mirror which can be rotated around an axis is used, allowing for a greater vertical \gls{fov}.
 Moreover, the whole \gls{lidar} base on which the laser is mounted can be rotated independently from the mirror, allowing for a \SI{360}{\degree} horizontal \gls{fov}.
-To get a sufficient resolution the \gls{lidar} has to spin at a high speed, but some \glspl{lidar} also use additionally a vertical array of lasers instead of only one to further increase the density of the generated point cloud.
+To get a sufficient resolution the \gls{lidar} has to spin at a high speed, but some \glspl{lidar} also use additionally a vertical array of lasers instead of only one, to further increase the density of the generated point cloud.
 The working principle of a \gls{lidar} using the mechanical spinning method is shown in \cref{fig:lidar}.
-While mechanical spinning systems are very precise, they are bulky, need a lot of power and are expensive \cite{Fujii2005}.\\
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=0.5\textwidth]{Lidar.png}
+	\caption[Setup of a mechanical spinning \acrshort{lidar}]{Setup of a mechanical spinning \acrshort{lidar} \cite{Li2020}.}
+	\label{fig:lidar}
+\end{figure}
+While mechanical spinning systems are very precise and offer a great \gls{fov}, they are bulky, need a lot of power and are expensive \cite{Fujii2005}.\\
 Solid state systems and especially \gls{mems} \glspl{lidar} try to overcome those problems.
 \gls{mems}-\gls{lidar} are quasi-static, the only part that moves is the on the chip embedded mirror, but because of the small size (\SIrange{1}{7}{\milli\metre} diameter), very little power has to be used to move it.
 The mirror can be rotated on up to two axes, but because the base cannot be rotated as with mechanical systems, a horizontal view of \SI{360}{\degree} is not possible.
@@ -302,6 +306,12 @@ A processing unit then generates a 3D point cloud from all the received measurem
 The wheel speed sensors measure the speed of each wheel and allow for the calculation of the car velocity.
 The measurements are also used by many driver assistance systems such as \gls{abs} to be able to detect wheel slip.
 Different techniques exist to measure the speed with the most common ones being magnetoelectric and Hall type wheel speed sensors.\\
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=0.5\linewidth]{wheel_speed_sensor_active.pdf}
+	\caption[Setup of an active wheel speed sensor]{Setup of an active wheel speed sensor \cite{Re2011}.}
+	\label{fig:wheel_speed_sensor_active}
+\end{figure}
 The magnetoelectric sensor is composed of a sensor head and a ring gear.
 The head is mounted stationary on the car frame while the ring gear is mounted on the wheel hub or axle and rotates with the wheel.
 The sensor head is composed of a permanent magnet core and a coil.
@@ -310,29 +320,31 @@ The amplitude and frequency of the induced voltage increases with increasing whe
 Advantages of the technique are the low cost, robustness and good performance even in the presence of mud etc.
 A disadvantage is the frequency dependency, very low speeds can not be measured due to the induced voltage being too small, while at very high speeds the changes can not be picked anymore up by the head \cite{AutoReif2014}.\\
 Nowadays, almost exclusively the hall wheel speed sensor is used.
-The functionality is similar to that of the magnetoelectric sensor, but instead of ring gear a ring, on which alternating north and south magnets are placed, is used.
+The functionality is similar to that of the magnetoelectric sensor, but instead of a ring gear, a ring, on which alternating north and south magnets are placed, is used.
 The hall element in the sensor head measures the alternating magnetic field.
 A signal amplifier and processing unit is integrated in the sensor head and thus allows for a greater detection rate and range \cite{Re2011}.
 The setup is shown in \cref{fig:wheel_speed_sensor_active}.
 Due to the embedded processing unit the hall wheel speed sensor is also often called an active sensor, while the magnetoelectric sensor is referred to as passive sensor.
-\begin{figure}[htbp]
-	\centering
-	\includegraphics[width=0.5\linewidth]{wheel_speed_sensor_active.pdf}
-	\caption{Setup of an active wheel speed sensor \cite{Re2011}}
-	\label{fig:wheel_speed_sensor_active}
-\end{figure}
+
+
 
 \section{Computer Vision}
-\itodo{Brief overview}
 \label{sec:computer_vision}
+This section gives an overview of computer vision techniques and their applications.
+In this thesis a trained neural network is used to detect objects in images.
+The basics of object detection and image segmentation are explained.
+Furthermore, the framework of the neural network used for the training and its predecessors are discussed.
+Most of the following information is from ref. \cite{Szeliski2022}, which gives a great overview over the field of computer vision.
+\iquest{Is this ok, or should I add ref to each section?}
+
+
 \subsection{Object detection}
 Objection detection is a common task in the field of computer vision and is used to detect, localize and classify objects in images or videos.
 In contrast to image classification, which only assigns a label to an image, objection detection allows for the detection of multiple objects by drawing a bounding box around each individual object.\\
 Object detection can be divided into machine learning-based methods and deep learning-based methods.
-In the traditional machine learning-based methods features from the image must be chosen manually.
+In the traditional machine learning-based methods, features from the image must be chosen manually.
 This process is very time-consuming and tedious, that is why nowadays almost exclusively deep learning-based approaches based on \gls{cnn} are used.
 Here, the features are extracted automatically.
-\iimprov{Add resources}
 
 
 \subsection{Image segmentation}
@@ -345,27 +357,33 @@ Instance segmentation goes one step further by also differentiating between diff
 It combines objection detection, objection localization and object classification.
 However, it does not classify every pixel anymore, things that are hard to enumerate such as walls and roads are ignored.\\
 The panoptic segmentation combines both methods.
-\iimprov{Add resources}
 
 
-\subsection{\acrfull{cnn}}
+\subsection{Neural Networks}
 An \gls{ann} is a way for a computer to detect patterns and is inspired by the biological neural networks found in animal brains.
 It is based on a collection of neurons which are connected with each other.
-A neuron receives a signal, processes it and then sends a signal to its connected neurons.
-The output of each neuron is calculated by a non-linear function.\\
-A \gls{cnn} is a class of \gls{ann} and most commonly used in computer vision.
+In the input layer each neuron receives a signal, processes it and then sends a signal to its connected neurons.
+Each neuron has an associated weight and threshold (also known as bias), which determines the activation of the neuron.
+If the threshold has not been reached, the neuron does not fire.
+The output of each neuron is calculated by a non-linear function.
+
+\subsubsection{\acrfull{cnn}}
+A \gls{cnn} is a class of \gls{ann} and is usually used in the field of computer vision.
 It consists of three different type of layers, convolutional, pooling and the fully connected layers.
 The convolutional layers help to abstract the input image as a feature map using a filter or kernel.
 Using overlapping blocks of pixels, each region of the image is scanned.
 Each block is then assigned a value based on the filter.
 The pooling layers reduce the complexity by pooling all pixels of a feature map together.
-Redundant information is removed in this step, which reduces the calculation time and storage requirement.
-The connected layers nonlinear layers?
-\iimprov{Explain better}
-In more complex situations with multiple objects in an image the \gls{cnn} architecture is not ideal.\\
+Redundant information is removed in this step, which reduces the calculation time, storage requirement and also reduces the risk of overfitting.
+The last layer is the fully connected layer.
+In the previous layers neurons of the same layer were independent of each other, whereas in this final layer all neurons are connected to each other.
+In this layer the actual classification is done.
+In more complex situations with multiple objects in an image the \gls{cnn} architecture is not ideal.
+
+\subsubsection{\acrfull{rcnn}}
 That is why in 2014 a deep convolutional network called \gls{rcnn} has been introduced \cite{Girshick2014}, which can detect up to 80 different type of objects in images.
 \gls{rcnn} is a type of machine learning model designed for computer vision tasks, specifically for object detection.
-It sets bounding boxes across the object regions and then applies convolutional networks independently on the all the \gls{roi}.
+It sets bounding boxes across the object regions and then applies convolutional networks independently on all the \glspl{roi}.
 The working principle is shown in \cref{fig:rcnn}.
 In the first step the image is divided into approximately 2000 region proposals using the selective search algorithm.
 The selective search algorithm groups similar regions based on their color, texture, size and shape compatibility.
@@ -374,10 +392,10 @@ Disadvantages of \gls{rcnn} are that the training of the network requires a lot 
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=.7\linewidth]{rcnn.png}
-	\caption{\gls{rcnn} framework \cite{Girshick2014}}
+	\caption[\acrshort{rcnn} framework]{The \acrshort{rcnn} framework \cite{Girshick2014}.}
 	\label{fig:rcnn}
 \end{figure}\\
-There exist multiple improvement with Fast \gls{rcnn} \cite{Girshick2015} and Faster \gls{rcnn} \cite{Ren2017}.
+There exist multiple improvement methods with Fast \gls{rcnn} \cite{Girshick2015} and Faster \gls{rcnn} \cite{Ren2017}.
 Fast \gls{rcnn} greatly improves the performance by using a new \gls{roi} pooling layer, which allows to share computations across all proposals instead of doing it for each proposal individually.
 Furthermore, it reduces the necessary storage for training the network while also providing better results.
 Faster \gls{rcnn} improves the performance even further.
@@ -393,7 +411,7 @@ But in the second stage, a binary mask is predicted for each \gls{roi} in parall
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=.7\linewidth]{mask_rcnn.png}
-	\caption{Mask \gls{rcnn} framework \cite{He2017}}
+	\caption[Mask \acrshort{rcnn} framework]{The Mask \acrshort{rcnn} framework \cite{He2017}.}
 	\label{fig:mask_rcnn}
 \end{figure}
 
@@ -408,7 +426,17 @@ The fundamental concepts are nodes, messages, topics and services \cite{Quigley2
 A node is a process that performs computation and should be responsible for only one task.
 A package can contain multiple nodes, which can interact with each other.
 The communication between nodes is done using messages.
-There are different type of messages, but they all consist of standard types such as integer, float or bool but can also contain other messages.
+There are different type of messages, but they all consist of standard types such as integer, float or bool, but can also contain other messages.
 The messages are published on a specific topic.
 The topic can then be subscribed by other nodes, to retrieve the messages.
-Services allow for a synchronized communication, instead of the asynchronous topics.
+Services allow for a synchronized communication, instead of the broadcast type topics.\\
+A typical communication setup between two nodes can be seen in \cref{fig:ros_framework}.
+Node 1 publishes data, e.g. the position of a robot, on a topic.
+Node 2 listens to the published data and can then process it.
+All the communication is running through the \gls{ros} master.
+\begin{figure}[htb]
+	\centering
+	\input{Graphics/TikZ/ros_framework.tex}
+	\caption[\acrshort{ros} communication]{\acrshort{ros} communication between two nodes.}
+	\label{fig:ros_framework}
+\end{figure}
