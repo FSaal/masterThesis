@@ -1,4 +1,4 @@
-\documentclass[11pt, twoside]{report}
+\documentclass[11pt]{report}
 % Load packages
 \usepackage[a4paper,width=150mm,top=25mm,bottom=25mm]{geometry} %todo: Get correct margins
 \usepackage[english]{babel}
@@ -58,6 +58,7 @@
 % \sisetup{range-phrase=--}		% - instead of to, e.g. "1-7 nm" instead of "1 to 7 nm "
 % \sisetup{range-units=single}	% Only one unit after second value (and none after first)
 \sisetup{per-mode=fraction}
+\renewcommand{\arraystretch}{1.2} % Increase space between rows in tables
 
 % My own commands
 \newcommand{\subInd}[1]{_\mathrm{#1}}
@@ -83,9 +84,12 @@
 % Start document and load all parts
 \input{Frontmatter/Glossary.tex}
 \begin{document}
-\pagenumbering{Alph}
 \input{Frontmatter/Titlepage}
-% Preamble stuff should not count to page numbers
+% Add an empty page after titlepage
+\newpage
+\thispagestyle{plain}
+\mbox{}
+% Use roman numbers for preamble stuff
 \pagenumbering{roman}
 % MDT Fachgebiet Erklaerung
 \includepdf[pages=-]{Frontmatter/Aufgabenstellung_Saalfrank.pdf}
@@ -103,10 +107,10 @@
 % Start page counter
 \pagenumbering{arabic}
 \input{Mainmatter/Introduction}
-\input{Mainmatter/StateOfTheArt}
 \input{Mainmatter/Background}
-\input{Mainmatter/ExperimentalSetup}
+\input{Mainmatter/StateOfTheArt}
 \input{Mainmatter/Methods}
+\input{Mainmatter/ExperimentalSetup}
 \input{Mainmatter/Results}
 \input{Mainmatter/Conclusion}
 % References
