@@ -1,4 +1,4 @@
-\documentclass[12pt]{standalone}
+\documentclass[11pt]{standalone}
 \usepackage{tikz}
 \usetikzlibrary{angles, calc, decorations.pathmorphing, quotes, spy}
 
@@ -22,7 +22,7 @@
     % Label length and draw angle
     \path (A) -- (B) node [midway, below] {$d$}
     pic[draw, ->, angle radius=40pt,
-    angle eccentricity=0.75, "$\alpha$"]{angle=B--A--C};
+            angle eccentricity=0.75, "$\alpha$"]{angle=B--A--C};
     % Label height
     \draw (B) -- (C) node [midway, right] {$h$};
 
@@ -75,12 +75,12 @@
             pic[draw, ->, angle radius=100pt, angle eccentricity=1.1, "$\theta$"] {angle = pg--m--pb};
         \end{scope}
 
-            % Wheels
-            \draw[draw=black,fill=gray!50,thick] (w) circle (.5);
-            \draw[draw=black,fill=gray!50,thick] (w) ++(\cl*0.55,0) circle (.5);
-            % Inner wheels
-            \draw[draw=black,fill=gray!80,semithick] (w) circle (.35);
-            \draw[draw=black,fill=gray!80,semithick] (w) ++(\cl*0.55,0) circle (.35);
+        % Wheels
+        \draw[draw=black,fill=gray!50,thick] (w) circle (.5);
+        \draw[draw=black,fill=gray!50,thick] (w) ++(\cl*0.55,0) circle (.5);
+        % Inner wheels
+        \draw[draw=black,fill=gray!80,semithick] (w) circle (.35);
+        \draw[draw=black,fill=gray!80,semithick] (w) ++(\cl*0.55,0) circle (.35);
     \end{scope}
 \end{tikzpicture}
 \end{document}
