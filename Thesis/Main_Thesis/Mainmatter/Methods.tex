@@ -372,7 +372,6 @@ At first both z-axes will be aligned.
 This is achieved by detecting the ground plane in the point cloud and finding the transform, such that the normal vector of the plane aligns with the z-axis of the car (the plane gets projected onto the xy-plane of the car frame).
 This results in the correct pitch and roll angle.
 The yaw angle can not be easily determined and is assumed to be equal to zero, but can also be measured by hand and given as parameter.\\
-\iquest{Should I move info about ransac to background?}
 For the ground plane detection \gls{ransac} \cite{Fischler1981} is used.\\
 \gls{ransac} is a non-deterministic algorithm to remove outliers and is often used in computer vision.
 \gls{ransac} can also be used for plane segmentation in 3D point clouds.
@@ -448,6 +447,7 @@ The accidental detection of the ceiling was already prevented during the passthr
 Wrong detections of the ground plane or side walls can be prevented by requiring the angle to be in a certain range.
 
 \subsubsection{Ramp properties}
+\label{sssec:ramp_properties}
 \iimprov{This section needs imporovement}
 Beside the angle, the width of the plane (y-range) is being calculated and compared to the parameters, to make sure that the plane is a drivable ramp for cars and not e.g. a small ramp for wheelchairs \todo{no idea if wheel chair ramps are common in parking garages?}.
 The distance to the ramp is estimated by taking the $n$ nearest points of the ramp plane and calculating their mean.
@@ -489,21 +489,94 @@ A visual representation of the algorithm is depicted in \cref{fig:flowchart_lida
 
 
 \section{Camera only}
-Detectron2 was used to identify the ramp in the images.
-\todoin{\begin{itemize}
-		\item Explain...
-		\item Choice of detectron2
-		\item Pretrained model
-		\item Hyperparameters
-		\item Data augmentation
-		\item Labeling and stuff
-	\end{itemize}}
+In this section an approach using the images captured by the camera to detect a ramp is presented.
+At first, the choice of a deep learning network as the method of choice to solve this task is explained.
+In the next section the generation of the dataset used for the training is described.
+And finally the training of the network and the choice of the different hyperparameters is discussed.
 
-\cite{Wu2019}
-\dots limited data.
-For the ... the detectron2 network is used.
-\dots
+\subsection{Approach}
+Different techniques exist, more classic methods like edge detection and thresholding or more sophisticated methods like machine learning.
+While less complex methods like edge detection and thresholding might work, they require a well lit environment with a high contrast between different textures, which is not the case in the parking garage.
+Furthermore, the features need to be chosen manually, and the algorithm would most probably only work in a very limited certain environment.\\
+That is why a deep learning method has been chosen instead.
+It is more robust and can easily be adapted to other environments.
+The choice of the network depends on the problem.
+Different approaches such as object detection, instance or semantic segmentation are available.
+For this project, the instance semantic approach was chosen.
+While the object detection approach requires the least computational effort, it only provides a bounding box around the object.
+Both segmentation approaches on the other hand create a mask around the object, allowing for a more accurate localization of the object.
+For the specific task of detecting ramps in parking garages the semantic segmentation would probably be enough since most times only one ramp will be visible, in which case the semantic and instance segmentation will be the same.
+But the instance segmentation approach is more general and can be adapted more easily to support also the detection of other objects.
+That is why the mask \gls{rcnn} neural network architecture is used in this thesis.
+It allows for instance segmentation, which means that multiple objects of the same class can be detected as distinct objects.
+\itodo{Semantic segmentation would not be any worse than instance segmentation}
+While for this task only one class is used (ramp) and most times only one object will be visible, the network can be easily expanded to support multiple classes and is already supporting the detection of multiple ramps at once.
+Furthermore, it is well documented, and different implementations are already available for use.\\
+For this thesis the open-source \texttt{Detectron2}~\footnote{\url{https://github.com/facebookresearch/detectron2}} \cite{Wu2019} library developed by Facebook is chosen as the framework.
+It is widely used and also provides a number of pretrained networks, which can be used for transfer learning.
+Transfer learning is the process of training a new model on top of an existing one.
+This provides multiple advantages over training a new model from scratch, such as a great reduction of the training time and hence also the use of resources, a better accuracy and reducing the risk of overfitting.\\
+A model trained on the \gls{coco} dataset \cite{Lin2014} is used as the basis for the training of the network.
+\gls{coco} is a large-scale dataset consisting of more than \num{200000} labeled images with various annotations (e.g. bounding boxes, segmentation masks, image captions) of 80 different object categories (e.g. car, chair, dog, person, train).
+It is often used to benchmark neural network algorithms and to compare their performance.\\
+Since no class of type ramp already exists in the \gls{coco} dataset, an own dataset has to be created.
+\iimprov{Write here already about point cloud extraction?}
 
-Using transfer learning the training time of the model can be greatly reduced.
-The COCO dataset is used for training.
-\cite{Lin2014}
+
+\subsection{Dataset}
+While several datasets specifically for the task of autonomous driving already exist, no dataset with ramps as a class could be found.
+That is why an own dataset had to be created, by taking pictures of a ramp and labeling them by hand.
+To reduce the workload, for the creation of the dataset only straight ramps as shown are considered.
+The three different ramps shown in FIGURE are used for the training.
+\missingfigure{Three ramps}
+Multiple recordings of each ramp were made from different distances and angles.
+The images were taken from a video with a frame rate of 30, but since the car approached the ramp with a low speed of \SI{5}{\kilo\metre\per\hour}, the difference between two frames is very small.
+Since many pictures of the more or less same scenery do not provide any extra information, while increasing the training time and the potential of overfitting, only every 30th image (one every second) was used.
+80? different were collected in the end.
+Since the training of the network is based on supervised learning, the images have to be labelled manually.
+For this task the tool \texttt{labelme}~\footnote{\url{https://github.com/wkentaro/labelme}} \cite{Wada2018} is used.
+Each ramp is labelled using a polygon consisting of four points, placed at the corners of the ramp.
+The \texttt{labelme} tool creates an annotation containing the coordinate of each point, which had to be converted to \gls{coco} format, which also calculates a bounding box of the polygon.
+Data augmentation \cite{Shorten2019}.
+\missingfigure{Some labeled examples of different ramps and angles}
+
+\subsection{Training}
+Since the size of the dataset is not very great, the training of the network is challenging, because it increases the risk of overfitting.
+To alleviate the problem, data augmentation is used in addition to the previously mentioned transfer learning.
+Data augmentation provides a good alternative to when the collection of more data is not feasible or possible.
+It increases the size of the dataset by adding slightly modified versions of the original images.
+Common transformations are horizontal or vertical flipping of the image, cropping, adding noise, blur or changing the brightness and contrast of the image.
+The library \texttt{imgaug}~\footnote{\url{https://github.com/aleju/imgaug}} \cite{Jung2018} is used for this task.
+In addition to editing the image, it automatically adapts the annotation according to the new position of the label, e.g. when flipping the image.
+The following augmentations techniques are used to increase the dataset: horizontal flipping of the image (with a probability of 50\%), changing the brightness by \SIrange{-50}{50}{\percent}, changing the contrast by \SIrange{-20}{10}{\percent}, adding motion blur with a kernel size of 3 and adding Gaussian blur with a kernel with a sigma in the range of \SIrange{0}{1}{}.
+All the added changes are also common occurrences in the real world, which should help to improve the accuracy of the network in other environments.
+One augmentation is performed on each image which is then added to the dataset.
+To evaluate the performance of the network, the dataset has to be split into a training and a validation set.
+The split is done before the data augmentation to ensure, that the training set does not contain any only slightly modified versions of the images used in the validation set.
+Due to the small size of the dataset, 80\% of the dataset is used for the training and 20\% for the validation set.\\
+The accuracy of the network depends on the correct choice of multiple hyperparameters.
+Since the dataset is small and thus the training using transfer learning does not take very long, different hyperparameter configurations could be tested to find the best one.
+One of the most important parameters is the learning rate.
+It is often in the range of \SIrange{0.0}{1.0}{} and describes how fast the weights of the network are updated.
+Is the learning rate too low, the training of the network takes a longer time and might not converge to find a solution, whereas if the learning rate is too high, a suboptimal solution might be found.
+The learning rate is often initially set to a high value and then slowly reduced, which helps both optimization and generalization.
+The speed of the decay of the learning rate can be based on many things, such as the number of steps in the training, the time, or it can be reduced exponentially.
+In this thesis, an approach where the learning rate is decayed after every $n$ steps is used.
+Another parameter, specifically for the mask \gls{rcnn} neural network architecture, is the number of \gls{roi} proposals.
+As described in \cref{sssec:rcnn}, the image is divided into a grid of \glspl{roi}.
+The number of \gls{roi} proposals determines how many of those \glspl{roi} are taken into account for the calculation.
+It can be chosen lower than the size of the grid to accelerate the training.
+The final parameter which will be varied is the number of epochs.
+It describes how often the network is trained on the entire dataset, a higher number of epochs means a longer training time, but usually also a better performance, except if it is chosen to high, in which case it can lead to overfitting.
+
+\subsection{Point cloud extraction}
+The ZED 2i stereo camera used in this thesis also generates point cloud.
+More information about the camera can be found in \cref{ssec:camera}.
+\itodo{Only bounding box atm, how to use mask?}
+The point cloud can be projected on the camera image.
+For the projection the rotation vector and translation from the point cloud frame to the camera frame is necessary, as well as the intrinsic camera matrix $A$.
+Using the \texttt{projectPoints} function of the \texttt{opencv} library \cite{Bradski2000}, the point cloud is projected onto the camera image.
+Using the predicted bounding box, all the projected points outside the box are removed.
+The points are then transformed back into the 3D space.
+By applying the \gls{ransac} algorithms outliers are removed and a model of the ramp is created.
+Different properties of the ramp can now be calculated, similarly as described in \cref{ramp_properties}.
