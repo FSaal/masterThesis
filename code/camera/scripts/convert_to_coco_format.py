@@ -2,13 +2,10 @@
 import labelme2coco
 
 # set directory that contains labelme annotations and image files
-labelme_folder = "/home/user/rosbags/final/object_detection"
+labelme_folder = "/home/user/rosbags/final/final_object_detection/imgs"
 
 # set export dir
-export_dir = "/home/user/rosbags/final/coco/gen_coco.json"
-
-# set train split rate
-train_split_rate = 0.85
+export_dir = "/home/user/rosbags/final/final_object_detection/dataset_full.json"
 
 # convert labelme annotations to coco
 labelme2coco.convert(labelme_folder, export_dir)
