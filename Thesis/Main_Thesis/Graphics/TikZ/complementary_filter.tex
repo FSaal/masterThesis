@@ -1,5 +1,6 @@
-\documentclass[12pt]{standalone}
+\documentclass[11pt]{standalone}
 \usepackage{tikz}
+\usepackage{physics}
 
 \usetikzlibrary{calc, positioning}
 
@@ -16,17 +17,19 @@
     % HP-Filter block
     \node [block, below left=0.1cm and 1cm of sum] (hpf) {High-Pass Filter};
     % Integrator block
-    \node [draw, minimum height=1.2cm, left=1.5cm of hpf] (int) {$\int$};
+    \node [draw, minimum height=1.2cm, left=1.5cm of lpf] (acc) {$\arcsin(\frac{\vb{a}_x}{\norm{\vb{g}}})$};
+    \node [draw, minimum height=1.2cm, left=2.25cm of hpf] (int) {$\int$};
 
     % Connect blocks with sum
     \draw[-stealth] (lpf.east) -| (sum.north);
     \draw[-stealth] (hpf.east) -| (sum.south);
 
     % Input signals
-    \node [left=3cm of lpf] (start_acc){};
+    \node [left=5cm of lpf] (start_acc){};
     \node [below=1.7cm of start_acc] (start_gyr){};
-    \draw[stealth-] (lpf.west) -- (start_acc) node[left]{$\theta_\mathrm{acc}$};
-    \draw[stealth-] (int.west) -- (start_gyr) node[left]{$\dot{\theta}_\mathrm{gyr}$};
+    \draw[stealth-] (acc.west) -- (start_acc) node[left]{$\vb{a}$};
+    \draw[-stealth] (acc.east) -- (lpf.west) node[midway, above]{$\theta_\mathrm{acc}$};
+    \draw[stealth-] (int.west) -- (start_gyr) node[left]{$\boldsymbol{\omega}$};
     \draw[-stealth] (int.east) -- (hpf.west) node[midway, above]{$\theta_\mathrm{gyr}$};
     \draw[-stealth] (sum.east) -- ++(1,0) node[right]{$\hat{\theta}$};
 \end{tikzpicture}
