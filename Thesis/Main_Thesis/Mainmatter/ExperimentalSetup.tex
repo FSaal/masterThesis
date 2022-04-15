@@ -120,7 +120,7 @@ The camera has two horizontally displaced lenses, allowing for stereo vision and
 A barometer, temperature sensor and an \gls{imu} are integrated as well.
 It also provides many more features such as 3D positional tracking, mapping, object detection and point cloud generation.\\
 Because only one image is needed, only the image of the left camera is used.
-The resolution is set to 1280x720 and a frame rate of 30 fps is used.
+The resolution is set to 1280x720 and a frame rate of 30 \gls{fps} is used.
 The camera is connected to the PC through USB.
 
 
@@ -142,39 +142,39 @@ The \gls{lidar} is placed on top of the car, to get a greater \gls{fov}.
 The pitch angle $\beta$ at which the \gls{lidar} will be mounted should be chosen such that the number of points in the area at the beginning of the ramp are maximized.
 This allows for the most accurate distinction between planes of different inclination angles.
 Because the distance to the ramp is not constant due to the movement of the car, the optimization can only be done for a specific distance.
-The coordinates at which the lasers hit the ground and ramp depend on the height of the \gls{lidar} $h_\mathrm{l}$, the distance to the ramp $d$, the angle of the ramp $\alpha$, the angle $\beta$ at which the \gls{lidar} has been mounted on the car and finally on the vertical resolution $\epsilon$ and \gls{fov} of the \gls{lidar}.
+The coordinates at which the lasers hit the ground and ramp depend on the height of the \gls{lidar} $h_\mathrm{l}$, the distance to the ramp $d$, the angle of the ramp \gls{ramp_ang}, the angle $\beta$ at which the \gls{lidar} has been mounted on the car and finally on the vertical resolution $\epsilon$ and \gls{fov} of the \gls{lidar}.
 A visualization of the different variables can be seen in \cref{fig:tikz_lidar_mount}.
 The coordinates at which the laser lines of the \gls{lidar} hit the ground can be calculated in the following way.\\
-The angle $\gamma$ between the plane parallel to the ground at \gls{lidar} height and each laser wave is defined as
+The angle $\kappa$ between the plane parallel to the ground at \gls{lidar} height and each laser wave is defined as
 \begin{equation}
-	\gamma = \beta - i\epsilon
+	\kappa = \beta - i\epsilon
 \end{equation}
 with $i \in [0,1,2,\dots,n]$ being the laser channel ID starting from the lowest opening angle and going to the highest and $n$ being the number of laser channels.
 On flat ground the distance at which the laser waves hit the ground can be calculated by
 \begin{equation}
-	d_\mathrm{hit,ground}  = \tan(\ang{90} - \gamma) h_\mathrm{l}.
+	d_\mathrm{hit,ground}  = \tan(\ang{90} - \kappa) h_\mathrm{l}.
 	\label{eq:ground_points}
 \end{equation}
 With a ramp, the assumption from \cref{eq:ground_points} does not hold anymore.
 The light does not travel as far.
 The height above ground, when the light is at the beginning of the ramp can be calculated by
 \begin{equation}
-	h_\mathrm{w,start} = h_\mathrm{l} - d\tan(\gamma).
+	h_\mathrm{w,start} = h_\mathrm{l} - d\tan(\kappa).
 \end{equation}
 The distance $l_\mathrm{w}$ which the light travels from the beginning of the ramp to the contact point with the ramp can be calculated using the law of sines
 \begin{align}
-	l_\mathrm{w} & = \frac{h_\mathrm{w,start} }{\sin(\alpha + \gamma)} \sin(\ang{90} - \alpha) \nonumber \\
-	             & = -\frac{h_\mathrm{w,start} }{\sin(\alpha + \gamma)} \cos(\alpha).
+	l_\mathrm{w} & = \frac{h_\mathrm{w,start} }{\sin(\gls{ramp_ang} + \kappa)} \sin(\ang{90} - \gls{ramp_ang}) \nonumber \\
+	             & = -\frac{h_\mathrm{w,start} }{\sin(\gls{ramp_ang} + \kappa)} \cos(\gls{ramp_ang}).
 \end{align}
 The traveled distance along the x-axis from the start of the ramp to the contact point is then
 \begin{align}
-	d_\mathrm{w} & = l_\mathrm{w} \sin(\ang{90} - 2\alpha - \gamma) \nonumber \\
-	             & = -l_\mathrm{w} \cos(2\alpha + \gamma).
+	d_\mathrm{w} & = l_\mathrm{w} \sin(\ang{90} - 2\gls{ramp_ang} - \kappa) \nonumber \\
+	             & = -l_\mathrm{w} \cos(2\gls{ramp_ang} + \kappa).
 \end{align}
 Putting everything together, the total x distance from the \gls{lidar} to the contact point on the ramp can be calculated by
 \begin{align}
-	d_\mathrm{hit,ramp} & = d + d_\mathrm{w}                                                                                    \nonumber \\
-	d_\mathrm{hit,ramp} & = d + \frac{h_\mathrm{l} - d\tan(\gamma)}{\sin(\alpha + \gamma)} \cos(\alpha) \cos(2\alpha + \gamma).
+	d_\mathrm{hit,ramp} & = d + d_\mathrm{w}                                                                                    \nonumber               \\
+	d_\mathrm{hit,ramp} & = d + \frac{h_\mathrm{l} - d\tan(\kappa)}{\sin(\gls{ramp_ang} + \kappa)} \cos(\gls{ramp_ang}) \cos(2\gls{ramp_ang} + \kappa).
 	\label{eq:final_equation}
 \end{align}
 Using \cref{eq:ground_points} and \cref{eq:final_equation} and optimizing $\beta$ such that the number of points in the area at the start of the ramp are maximized, the optimal mounting pitch angle $\beta$ for the two \glspl{lidar} has been found with $\beta_\mathrm{velodyne} = \ang{0}$ and $\beta_\mathrm{robos} = \ang{20}$.
@@ -194,9 +194,9 @@ A detailed description of all the variables used for the calculation can be foun
 		$h_\mathrm{r}$    & Height of ramp                                         & \si{\metre}   \\
 		$l_\mathrm{w}$    & Light travel distance from ramp start to contact point & \si{\metre}   \\
 		$d_\mathrm{w}$    & Distance from ramp start to contact point              & \si{\metre}   \\
-		$\alpha$          & Ramp angle                                             & \si{\degree}  \\
+		$\gls{ramp_ang}$  & Ramp angle                                             & \si{\degree}  \\
 		$\beta$           & \gls{lidar} mount angle                                & \si{\degree}  \\
-		$\gamma$          & Laser line angle                                       & \si{\degree}  \\
+		$\kappa$          & Laser line angle                                       & \si{\degree}  \\
 		$\epsilon$        & \gls{lidar} vertical resolution                        & \si{\degree}  \\
 		$n$               & Number of laser channels                               &               \\
 		\bottomrule
@@ -225,7 +225,13 @@ In this mode, the maximum speed is capped at \SI{5}{\kilo\metre\per\hour} and th
 The car can only make it about halfway up.
 Because of that, the normal mode was used to drive between different levels.
 Before driving down, the mode was switched again to also provide the wheel speed measurements.
-\missingfigure{Picture of eGolf with full sensor setup}
+A picture of the car with the mounted \gls{lidar} and ZED 2i camera can be found in \cref{fig:car}.
+\begin{figure}[htb]
+	\centering
+	\includegraphics[trim={0, 5cm, 0, 5cm}, clip, width=0.6\linewidth]{eGolf}
+	\caption[Car with mounted sensors]{The car used for the recordings with the full sensor setup mounted on the roof.}
+	\label{fig:eGolf}
+\end{figure}
 
 
 
