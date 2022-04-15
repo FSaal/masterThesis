@@ -22,7 +22,7 @@
     % Label length and draw angle
     \path (A) -- (B) node [midway, below] {$d$}
     pic[draw, ->, angle radius=40pt,
-            angle eccentricity=0.75, "$\alpha$"]{angle=B--A--C};
+            angle eccentricity=0.75, "$\gamma$"]{angle=B--A--C};
     % Label height
     \draw (B) -- (C) node [midway, right] {$h$};
 
@@ -70,7 +70,7 @@
             \draw[rotate = -\ct-\ra] (m) -- ++(7,0) coordinate (pg);
             % Draw angles
             \path (pb) -- (pr)
-            pic[draw, ->, angle radius=60pt, angle eccentricity=1.2, "$\alpha$"] {angle = pg--m--pr}
+            pic[draw, ->, angle radius=60pt, angle eccentricity=1.2, "$\gamma$"] {angle = pg--m--pr}
             pic[draw, ->, angle radius=80pt, angle eccentricity=1.1, "$\beta$"] {angle = pr--m--pb}
             pic[draw, ->, angle radius=100pt, angle eccentricity=1.1, "$\theta$"] {angle = pg--m--pb};
         \end{scope}
