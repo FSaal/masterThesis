@@ -309,7 +309,7 @@ Therefore, the distance can only be updated if a line which has previously hit t
 Fig. \ref{fig:lidar_angle_eval} shows the difference between the estimated angle and the HOW measured angle.
 It can be seen that the estimation varies by about \ang{1} if the distance is less than \SI{20}{\metre}.
 The angle is almost exclusively underestimated (OR OVER?), which could be due to the fact that the measurement was wrong.\\
-The estimated width at different distances to the ramp can be seen in \ref{fig:lidar_width_eval}.
+The estimated width at different distances to the ramp can be seen in \cref{fig:lidar_width_eval}.
 The error is very small compared to the tracking error and lies in the order of \SI{10}{\cm}.
 This is because the horizontal resolution is significantly better than the vertical resolution.
 Note that the estimated width is the width of the whole ramp and not only the width of the drivable part.\\
@@ -361,8 +361,6 @@ This makes the precise tracking of the distance to the ramp difficult.
 
 \subsection{Camera}
 The camera was used to detect the ramp and mask the region.
-\itodo{Make new recording, apparently there is also a pointcloud msg from zed cam}
-\isug{Detection of 2d camera could be used to extract certain pointcloud region}
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=1\linewidth]{camera_detection_compare}
@@ -389,3 +387,57 @@ A perfect detection would have an \gls{iou} score of 1.
 Since selecting a meaningful threshold for the \gls{ap} score depends on the dataset, an average score \gls{map} is used.
 The \gls{map} scores is the average over multiple \gls{iou} thresholds for all the different classes.
 It is calculated by averaging all \gls{ap} scores in the range of 50\% to 95\% with a step size of 5\%, meaning that the average of 10 different values is used.
+
+% \begin{table}
+% 	\centering
+% 	\caption[Detection evaluation]{bla}
+% 	\label{tab:detection_eval}
+% 	\begin{tabular}[htb]{ccccccc}
+% 		\toprule
+% 		\textbf{Epochs} & \textbf{LR} & \textbf{SR} & \textbf{Box mAP} & $\textbf{Box AP}_{75}$ & $\textbf{Mask mAP}$ & $\textbf{Mask AP}_\mathbf{75}$ \\
+% 		\midrule
+% 		1.0             & 0.025       & 128.0       & 55.8             & 79.4                   & 52.5                & 100.0                          \\
+% 		1.0             & 0.025       & 512.0       & 81.1             & 86.1                   & 100.0               & 100.0                          \\
+% 		\bottomrule
+% 	\end{tabular}
+% \end{table}
+
+\begin{table}
+	\centering
+	\caption[Detection evaluation]{bla}
+	\label{tab:detection_eval1}
+	\begin{tabular}[H!]{ccccccc}
+		\toprule
+		\textbf{Epochs} & \textbf{LR} & \textbf{SR} & \textbf{Box mAP} & \textbf{Mask mAP} \\
+		\midrule
+		1               & 0.05        & 256         & 39.8             & 64.8              \\
+		1               & 0.01        & 256         & 73.1             & 84.7              \\
+		1               & 0.005       & 256         & 78.4             & 85.9              \\
+		1               & 0.001       & 256         & 82.1             & 89.7              \\
+		2               & 0.05        & 256         & 58.0             & 74.3              \\
+		2               & 0.01        & 256         & 83.1             & 87.2              \\
+		2               & 0.005       & 256         & 83.9             & 90.2              \\
+		2               & 0.001       & 256         & 85.3             & 89.5              \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\begin{table}
+	\centering
+	\caption[Detection evaluation]{bla}
+	\label{tab:detection_eval}
+	\begin{tabular}[H!]{ccccccc}
+		\toprule
+		\textbf{Epochs} & \textbf{LR} & \textbf{SR} & \textbf{Box mAP} & \textbf{Mask mAP} \\
+		\midrule
+		1               & 0.005       & 128         & 67.4             & 81.6              \\
+		1               & 0.005       & 512         & 80.5             & 85.8              \\
+		1               & 0.001       & 128         & 86.1             & 87.3              \\
+		1               & 0.001       & 512         & 86.2             & 90.5              \\
+		3               & 0.005       & 128         & 71.6             & 80.6              \\
+		3               & 0.005       & 512         & 85.6             & 86.2              \\
+		3               & 0.001       & 128         & 87.3             & 91.7              \\
+		3               & 0.001       & 512         & 89.0             & 90.3              \\
+		\bottomrule
+	\end{tabular}
+\end{table}
