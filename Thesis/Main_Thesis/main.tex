@@ -24,6 +24,8 @@
 \usepackage{tikz-3dplot}
 \usepackage{tikz-dimline}		% Dimension (measure) lines for TikZ
 \usepackage{titlesec}           % Allows for different title styles, but also allows for full gls every chapter
+% \usepackage[nottoc,notlot,notlof]{tocbibind}
+\usepackage[nottoc]{tocbibind}
 \usepackage{todonotes}			% Todo commands
 
 % Load tikz libraries, styles and commands
@@ -100,7 +102,7 @@
 \tableofcontents
 \listoffigures
 \listoftables
-\printglossary[type=acronym, nonumberlist]
+\printglossary[type=acronym, title=List of Acronyms, nonumberlist]
 \printglossary[type=symbols, title=List of Symbols, nonumberlist]
 \listoftodos
 \newpage
