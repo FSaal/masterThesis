@@ -335,7 +335,6 @@ In this thesis a trained neural network is used to detect objects in images.
 The basics of object detection and image segmentation are explained.
 Furthermore, the framework of the neural network used for the training and its predecessors are discussed.
 Most of the following information is from ref. \cite{Szeliski2022}, which gives a great overview over the field of computer vision.
-\iquest{Is this ok, or should I add ref to each section?}
 
 
 \subsection{Object detection}
@@ -367,7 +366,7 @@ Each neuron has an associated weight and threshold (also known as bias), which d
 If the threshold has not been reached, the neuron does not fire.
 The output of each neuron is calculated by a non-linear function.
 
-\subsubsection{\acrfull{cnn}}
+\subsubsection{\glsentrylong{cnn} (\glsentryshort{cnn})}
 A \gls{cnn} is a class of \gls{ann} and is usually used in the field of computer vision.
 It consists of three different type of layers, convolutional, pooling and the fully connected layers.
 The convolutional layers help to abstract the input image as a feature map using a filter or kernel.
@@ -378,9 +377,10 @@ Redundant information is removed in this step, which reduces the calculation tim
 The last layer is the fully connected layer.
 In the previous layers neurons of the same layer were independent of each other, whereas in this final layer all neurons are connected to each other.
 In this layer the actual classification is done.
-In more complex situations with multiple objects in an image the \gls{cnn} architecture is not ideal.
+While a \gls{cnn} provides great improvement, in more complex situations with multiple objects in an image the \gls{cnn} architecture is not ideal.
 
-\subsubsection{\acrfull{rcnn}}
+\subsubsection{\glsentrylong{rcnn} (\glsentryshort{rcnn})}
+\label{sssec:rcnn}
 That is why in 2014 a deep convolutional network called \gls{rcnn} has been introduced \cite{Girshick2014}, which can detect up to 80 different type of objects in images.
 \gls{rcnn} is a type of machine learning model designed for computer vision tasks, specifically for object detection.
 It sets bounding boxes across the object regions and then applies convolutional networks independently on all the \glspl{roi}.
@@ -396,7 +396,7 @@ Disadvantages of \gls{rcnn} are that the training of the network requires a lot 
 	\label{fig:rcnn}
 \end{figure}\\
 There exist multiple improvement methods with Fast \gls{rcnn} \cite{Girshick2015} and Faster \gls{rcnn} \cite{Ren2017}.
-Fast \gls{rcnn} greatly improves the performance by using a new \gls{roi} pooling layer, which allows to share computations across all proposals instead of doing it for each proposal individually.
+Fast \gls{rcnn} greatly improves the performance by using a new \gls{roi} pooling layer, which allows sharing computations across all proposals instead of doing it for each proposal individually.
 Furthermore, it reduces the necessary storage for training the network while also providing better results.
 Faster \gls{rcnn} improves the performance even further.
 It uses a \gls{rpn} instead of the selective search algorithm to generate region proposals.
