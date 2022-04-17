@@ -478,7 +478,7 @@ The rotation is then converted to Euler angles.
 \iimprov{This section needs improvement}
 Beside the angle, also the width of the plane is being calculated and checked if it surpasses a certain threshold, to make sure that the plane is a drivable ramp for cars and not e.g. a small ramp for wheelchairs.
 The width is calculated by taking the mean of the $m$ most left and right points respectively and calculating the absolute difference between them.
-The distance to the ramp is estimated by taking the $n$ nearest points of the ramp plane and calculating their mean.
+Furthermore, the distance to the ramp is estimated by taking the $n$ nearest points of the ramp plane and calculating their mean.
 If all the conditions have been fulfilled, the estimated angle and distance from the car front to the beginning of the ramp are returned.\\
 A visual representation of the full algorithm is depicted in \cref{fig:flowchart_lidar}.
 \itodo{Add down ramp detection}
@@ -544,19 +544,30 @@ Data augmentation \cite{Shorten2019}.
 \missingfigure{Some labeled examples of different ramps and angles}
 \begin{figure}[htb]
 	\centering
-	\begin{subfigure}{.9\linewidth}
+	\begin{subfigure}{.47\linewidth}
 		\centering
-		\includegraphics[width=1\linewidth]{side_by_side_0.jpg}
-		\caption{}
+		\includegraphics[width=1\linewidth]{orig.jpg}
+		\caption{Original image}
+	\end{subfigure}
+	% \hfill
+	\begin{subfigure}{.47\linewidth}
+		\centering
+		\includegraphics[width=1\linewidth]{aug.jpg}
+		\caption{Augmented image}
 	\end{subfigure}
 	\\
 	% \hfill
-	\begin{subfigure}{.9\linewidth}
+	\begin{subfigure}{.47\linewidth}
 		\centering
-		\includegraphics[width=1\linewidth]{side_by_side_1.jpg}
-		\caption{}
+		\includegraphics[width=1\linewidth]{orig2.jpg}
+		\caption{Original image}
 	\end{subfigure}
-	\caption[Ramps of the garage]{On the ramps A, B and C the car will be driven up. On the ramp D as well as also on the ramp A the car will be driven down.}
+	\begin{subfigure}{.47\linewidth}
+		\centering
+		\includegraphics[width=1\linewidth]{aug2.jpg}
+		\caption{Augmented image}
+	\end{subfigure}
+	\caption[TODO]{Couple of examples of the annotated images used for the training. On the left side the original image can be seen, on the right side the augmented image.}
 	\label{fig:img_augmentated}
 \end{figure}
 
