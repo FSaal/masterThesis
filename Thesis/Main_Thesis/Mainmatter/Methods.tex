@@ -6,9 +6,9 @@ Before being able to use the sensor measurements, a coordinate frame transformat
 This problem is described in \cref{sec:coordinate_frames}.
 In \cref{sec:methods_imu} multiple methods to estimate the car's pitch angle using an \gls{imu} are described.
 The angle is then used to identify a ramp.
-A novel method using a \gls{lidar} sensor will be represented in \cref{sec:methods_lidar}.
-It tracks the distance to the ramp and estimates the angle and width of the ramp.
-Finally, a ramp detection algorithm using a camera and a trained neural network will be presented.
+A novel method using a \gls{lidar} sensor will be presented in \cref{sec:methods_lidar}.
+It tracks the distance to the ramp and estimates the angle, width and length of the ramp.
+Finally, a ramp detection algorithm using a camera and a trained neural network will be presented in \cref{sec:methods_camera}.
 
 
 \section{Road grade definition}
@@ -53,11 +53,11 @@ The center of the coordinate system of the car is located at the center in the f
 
 
 
-\section{\glsentryshort{imu}}
+\section{\glsentryshort{imu} based}
 \label{sec:methods_imu}
 Before being able to apply the different methods, a transformation from the sensor frame to the car frame is necessary.
 This is described in \cref{ssec:calibration_imu}.
-After the transformation an estimation of the car's pitch angle is possible, for which different methods are presented in \cref{ssec:road_grade_estimation}.
+After the transformation an estimation of the car's pitch angle is possible, for which different methods are presented in \cref{ssec:road_grade_estimation_imu}.
 In \cref{ssec:ramp_detection_imu} a ramp detection algorithm based on the estimated pitch angle is presented.
 Furthermore, a method to estimate the average ramp angle and length of the ramp is proposed.
 
@@ -149,7 +149,7 @@ Each new measurement is then transformed from the sensor frame to the car frame 
 
 
 \subsection{Road grade estimation}
-\label{ssec:road_grade_estimation}
+\label{ssec:road_grade_estimation_imu}
 \subsubsection{Accelerometer}
 \label{ssec:linear_acceleration_only}
 If the car stands still, the only measurable acceleration besides measurement errors is the acceleration due to gravity.
@@ -283,7 +283,7 @@ E.g. if the drift from the gyroscope is only negligible for \SI{10}{\second} the
 The filter gain can then be calculated using \cref{eq:filter_f0} and \cref{eq:filter_gain}.
 Using the previous example and assuming a sample frequency of \SI{100}{\hertz}, the filter gain would then be $\gamma = 0.9938$.
 For the experiment a cut-off frequency of $f_0=?$ was chosen, resulting in a filter coefficient of $\alpha = ?$ and a filter gain of $\gamma = ?$.
-\itodo{Enter filter coefficient (or should this be done in results?)}
+\itodo{Enter filter coefficient}
 
 \subsubsection{Gravity method}
 \label{subsubsec:gravity_method}
@@ -293,7 +293,8 @@ As described in \cref{ssec:linear_acceleration_only}, the linear acceleration me
 But the estimation is only valid under the condition, that there are no accelerations other than the acceleration due to gravity.
 This condition is not necessarily true when the car is driving, during which the car can accelerate or brake.
 To get the correct estimation, the car's acceleration must be subtracted from the measurement.
-\paragraph{Car acceleration from odometer data}\mbox{}\\
+\paragraph{Car acceleration from odometer data}\mbox{}
+\label{para:acc_from_odom}\\
 Using the wheel speed measurements the velocity of the vehicle can be calculated.
 Because the wheel speed sensors only deliver the speed of each wheel, a model has to be used to estimate the velocity of the car.
 This is necessary, because during turns the left and right wheels travel at different speeds, the wheel on the inner side of the turn travels slower, than the outer wheel.
@@ -325,6 +326,7 @@ One solution is to use a moving average filter, which is a simple average of the
 \end{equation}
 The finite difference of the approximation can then be calculated as
 \begin{equation}
+	\label{eq:v_car_diff}
 	\hat{a}_\mathrm{k, car} = \frac{\hat{v}_\mathrm{k, car} - \hat{v}_\mathrm{k - 1, car}}{T}.
 \end{equation}
 
@@ -341,16 +343,17 @@ It is important the both the \gls{imu} and odometer measurements are synchronize
 Since $\hat{a}_\mathrm{car}$ is slightly delayed due to the filtering, the same filter must be applied to the \gls{imu} measurements.
 
 
-\subsection{Ramp detection}
+\subsection{Ramp detection and classification}
 \label{ssec:ramp_detection_imu}
-\iimprov{This section needs improvement}
 In the previous section different methods to estimate the pitch angle \gls{car_ang} of the car were presented.
 Assuming that the car is accelerating moderately and other factors which might engage the suspension, such as road vibrations or movement in the car are minimal, the estimated pitch angle can be assumed to be close to the road grade \gls{ramp_ang}.
 Using the estimated road grade, it can be determined whether the car is on a ramp.
 If the absolute number of the road grade surpasses a certain threshold, the part is classified as a ramp, otherwise it is classified as a normal road.\\
-Because the angle of a ramp is not constant, but increases and decreases at the beginning and end respectively, only the average angle can be estimated.
-The average angle of the ramp is calculated by
-\itodo{Explain method to estimate average ramp angle}
+Using the \gls{imu}, properties of the ramp such as the angle and length of the ramp can be determined.
+Because the angle of the ramp is not constant, but increases and decreases at the beginning and end respectively, the average angle is calculated.
+It is assumed that the average angle is equal to angle in the middle of the ramp.
+The average angle of the ramp is then calculated by measuring the pitch angle and checking whether the rate of the change is near zero for a certain time.
+If this is the case, it is assumed that the car is in the middle of the ramp and the angle is then computed by averaging the last $n$ measurements to decrease the influence of outliers.\\
 The length of the ramp can be calculated by integrating the velocity of the car over time.
 The velocity can be calculated in two different ways.
 Using the wheel speed measurements (\cref{eq:v_car}), or by integrating the accelerometer measurements along the x-axis.
@@ -363,19 +366,26 @@ But by using \cref{eq:ang_from_acc} and transforming it to
 the acceleration due to gravity can be removed from the measurements, under the assumption that the estimated car pitch angle is close to the true value.
 The length $l$ of the ramp can then be calculated by first integrating the acceleration with respect to the time to get the velocity
 \begin{equation}
+	\label{eq:v_car_acc}
 	\hat{v}_\mathrm{i, car} = \hat{a}_\mathrm{0, car} + \sum_{i = 1}^k \hat{a}_\mathrm{i, car} \Delta t                         \\
 \end{equation}
 and then integrating the velocity to get the length
 \begin{equation}
+	\label{eq:l_ramp}
 	l = \sum_{i = 1}^k v_\mathrm{i, car} \Delta t                         \\
 \end{equation}
 where the velocity $v_\mathrm{1, car}$ is the velocity at the start of the ramp and $v_\mathrm{k, car}$ is the velocity at the end of the ramp.
 $\Delta t$ is the sample time.
+In \cref{eq:l_ramp} either the estimated velocity $\hat{v}_\mathrm{car}$ using \cref{eq:v_car_acc} or the velocity ${v}_\mathrm{car}$, calculated by using the wheel speed measurements (\cref{eq:v_car}), can be used.
 
 
-\section{\glsentryshort{lidar} only}
+\section{\glsentryshort{lidar} based}
 \label{sec:methods_lidar}
-\itodo{Maybe brief overview of section/algorithm}
+This section is similarly structured as the previous section.
+At first the calibration process to transform the \gls{lidar} measurements from the sensor frame to the car coordinate system is described in \cref{ssec:calibration_lidar}.
+Then, one novel method to detect ramps before entering them is presented in \cref{ssec:algorithm_lidar}.
+Finally, it is described how different ramp properties such as the angle, width, length and distance to the ramp are estimated after a ramp has been detected.
+
 \subsection{Calibration}
 \label{ssec:calibration_lidar}
 Same as for the \gls{imu}, a transformation from the \gls{lidar} frame to the car frame is necessary.
@@ -426,6 +436,7 @@ must be entered manually, but the pitch and roll angle and the distance from the
 
 
 \subsection{Algorithm}
+\label{ssec:algorithm_lidar}
 \subsubsection{Point cloud preprocessing}
 Because the raw \gls{lidar} point cloud consists of many points and is too big to allow for real time processing on the available setup, preprocessing is necessary.
 It consists of a passthrough filter to remove unwanted points (e.g. behind the car) and a voxel grid filter to downsample the point cloud.
@@ -441,19 +452,6 @@ The point cloud is converted into a 3D grid consisting of small cubes called vox
 Each cube can contain multiple points or none, the size of the voxels (also known as leaf size) determines the resolution.
 All the points inside a cube are then reduced to their most centroid point.
 If the cube does not contain any points, it is neglected.
-\subsubsection{Ramp detection}
-Now that the point cloud size is reduced greatly the actual ramp detection can be performed with sufficient performance.
-For this task the \gls{ransac} algorithm is used again.
-It usually detects the following types of planes: ceiling, ground, side wall or the desired ramp.
-\gls{ransac} is applied iteratively until a plane of type ramp has been found.
-If a plane of different type has been found, it gets removed and the \gls{ransac} algorithm is applied again.
-To prevent an infinite loop, the algorithm will exit after either a certain number of iterations has been performed, or if after the removal of a plane not enough points are left in the point cloud.
-For the implementation of the \gls{ransac} algorithm and the voxel grid filter the PCL library \cite{Rusu2011} has been used.\\
-The accidental detection of the ceiling was already prevented during the passthrough filter step, where the ceiling points have been removed from the point cloud.
-Wrong detections of the ground plane or side walls as ramp plane can be prevented by requiring the roll and pitch angle respectively to be in a certain range.
-Since the \gls{ransac} algorithm provides the normal vector of the plane, the angle of the detected plane can be compared to the normal vector of the ground vector, which is $\left(\begin{array}{lll} 0 & 0 & 1 \end{array}\right)^{\intercal}$ after the calibration.
-The normal vector of the detected plane is then projected on the ground vector and the rotation between both is calculated as described in \cref{subsec:vector_projection}.
-The rotation is then converted to Euler angles.
 \begin{table}[htb]
 	\centering
 	\caption{The parameters used for the preprocessing of the point cloud.}
@@ -473,32 +471,56 @@ The rotation is then converted to Euler angles.
 	\end{tabular}
 \end{table}
 
-\subsubsection{Ramp properties}
-\label{sssec:ramp_properties}
-\iimprov{This section needs improvement}
-Beside the angle, also the width of the plane is being calculated and checked if it surpasses a certain threshold, to make sure that the plane is a drivable ramp for cars and not e.g. a small ramp for wheelchairs.
-The width is calculated by taking the mean of the $m$ most left and right points respectively and calculating the absolute difference between them.
-Furthermore, the distance to the ramp is estimated by taking the $n$ nearest points of the ramp plane and calculating their mean.
-If all the conditions have been fulfilled, the estimated angle and distance from the car front to the beginning of the ramp are returned.\\
+\subsubsection{Ramp detection and classification}
+\label{sssec:ramp_detecion_lidar}
+Now that the point cloud size is reduced greatly the actual ramp detection can be performed with sufficient performance.
+For this task the \gls{ransac} algorithm is used again.
+It usually detects the following types of planes: ceiling, ground, side wall or the desired ramp.
+\gls{ransac} is applied iteratively until a plane of type ramp has been found.
+If a plane of different type has been found, it gets removed and the \gls{ransac} algorithm is applied again.
+To prevent an infinite loop, the algorithm will exit after either a certain number of iterations has been performed, or if after the removal of a plane not enough points are left in the point cloud.
+For the implementation of the \gls{ransac} algorithm and the voxel grid filter the PCL library \cite{Rusu2011} has been used.\\
+The accidental detection of the ceiling was already prevented during the passthrough filter step, where the ceiling points have been removed from the point cloud.
+Wrong detections of the ground plane or side walls as ramp plane can be prevented by requiring the roll and pitch angle respectively to be in a certain range.
+Since the \gls{ransac} algorithm provides the normal vector of the plane, the angle of the detected plane can be compared to the normal vector of the ground plane, which is $\left(\begin{array}{lll} 0 & 0 & 1 \end{array}\right)^{\intercal}$ after the calibration.
+The normal vector of the detected plane is then projected on the ground vector and the rotation between both is calculated as described in \cref{subsec:vector_projection}.
+The rotation is then converted to Euler angles.\\
+Since the \gls{lidar} generates a 3D model of the environment, other properties of the ramp can be estimated as well.
+Beside using the angle of the detected plane to determine whether the detected plane is the ramp, the width of the ramp is used as well.
+The width of the ramp is calculated by taking the mean of the $m$ most left and right points (y-axis) respectively and calculating the absolute difference between them.
+It is used to classify the ramp as a proper drivable ramp for cars.
+If the width is not greater than a certain threshold, it could also be a small ramp for e.g. wheelchairs and should not be labeled as a ramp.
+The length of the ramp is calculated similarly, by taking the mean of the $n$ nearest and furthest points (x-axis) respectively and calculating the absolute difference between them.
+Furthermore, the distance to the ramp is estimated by taking the $o$ nearest points of the ramp plane and calculating their mean.
+In the calculation of the width, length and distance to the ramp, the mean is used to further reduce the possibility of outliers.
+Even though most potential outliers should already have been removed after the \gls{ransac} algorithm.
+In the end, the angle, width and distance to the ramp are returned, if a ramp has been detected.\\
 A visual representation of the full algorithm is depicted in \cref{fig:flowchart_lidar}.
-\itodo{Add down ramp detection}
-\iimprov{Add some more algo parameters to table (full one in appendix)}
+At the start the calibration is performed once and the returned rotation to align the point cloud with the car frame is applied to every new measurement.
+The size of the point cloud is then reduced by the voxel grid filter and the passthrough filter.
+Using the \gls{ransac} algorithm a plane is extracted from the point cloud and validated.
+If it fulfills the angle and width requirements, it is classified as a ramp and the estimated angle, width, length and distance to the ramp are returned.
+Otherwise, the plane is removed from the point cloud and the \gls{ransac} algorithm is applied again.
+This process is repeated until either not enough points are left in the point cloud for the \gls{ransac} algorithm to find a plane or if a certain number of iterations has been exceeded.
 \begin{figure}[htb]
 	\centering
-	\input{Graphics/TikZ/flowchart_lidar.tex}
-	\caption{Flow chart of the ramp detection algorithm using the \acrshort{lidar} sensor.}
+	\includegraphics{Graphics/TikZ/flowchart_lidar.pdf}
+	\caption[Flow chart \glsentryshort{lidar} algorithm]{Flow chart of the ramp detection algorithm using the \acrshort{lidar} sensor.}
 	\label{fig:flowchart_lidar}
 \end{figure}
 
 
-\section{Camera only}
+
+\section{Camera based}
+\label{sec:methods_camera}
 In this section an approach using the images captured by the camera to detect a ramp is presented.
 At first, the choice of a deep learning network as the method of choice to solve this task is explained.
 In the next section the generation of the dataset used for the training is described.
-And finally the training of the network and the choice of the different hyperparameters is discussed.
+The training of the network and the choice of the different hyperparameters is discussed in \cref{ssec:training}.
+And in the last section it is described, how the 2D prediction of the network can be used, to extract the ramp region from a point cloud.
 
 \subsection{Approach}
-Different techniques exist, more classic methods like edge detection and thresholding or more sophisticated methods like machine learning.
+Different techniques to detect objects exist, more classic methods like edge detection and thresholding or more sophisticated methods like machine learning.
 While less complex methods like edge detection and thresholding might work, they require a well lit environment with a high contrast between different textures, which is not the case in the parking garage.
 Furthermore, the features need to be chosen manually, and the algorithm would most probably only work in a very limited certain environment.\\
 That is why a deep learning method has been chosen instead.
@@ -509,13 +531,12 @@ For this project, the instance semantic approach was chosen.
 While the object detection approach requires the least computational effort, it only provides a bounding box around the object.
 Both segmentation approaches on the other hand create a mask around the object, allowing for a more accurate localization of the object.
 For the specific task of detecting ramps in parking garages the semantic segmentation would probably be enough since most times only one ramp will be visible, in which case the semantic and instance segmentation will be the same.
-But the instance segmentation approach is more general and can be adapted more easily to support also the detection of other objects.
-That is why the mask \gls{rcnn} neural network architecture is used in this thesis.
+But the instance segmentation approach is more general and can be adapted more easily to support also the detection of other objects.\\
+That is why the mask \gls{rcnn} architecture is used in this thesis.
 It allows for instance segmentation, which means that multiple objects of the same class can be detected as distinct objects.
-\itodo{Semantic segmentation would not be any worse than instance segmentation}
 While for this task only one class is used (ramp) and most times only one object will be visible, the network can be easily expanded to support multiple classes and is already supporting the detection of multiple ramps at once.
 Furthermore, it is well documented, and different implementations are already available for use.\\
-For this thesis the open-source \texttt{Detectron2}~\footnote{\url{https://github.com/facebookresearch/detectron2}} \cite{Wu2019} library developed by Facebook is chosen as the framework.
+For this thesis the open-source library \texttt{Detectron2}~\footnote{\url{https://github.com/facebookresearch/detectron2}} \cite{Wu2019} developed by Facebook is chosen as the framework.
 It is widely used and also provides a number of pretrained networks, which can be used for transfer learning.
 Transfer learning is the process of training a new model on top of an existing one.
 This provides multiple advantages over training a new model from scratch, such as a great reduction of the training time and hence also the use of resources, a better accuracy and reducing the risk of overfitting.\\
@@ -523,25 +544,24 @@ A model trained on the \gls{coco} dataset \cite{Lin2014} is used as the basis fo
 \gls{coco} is a large-scale dataset consisting of more than \num{200000} labeled images with various annotations (e.g. bounding boxes, segmentation masks, image captions) of 80 different object categories (e.g. car, chair, dog, person, train).
 It is often used to benchmark neural network algorithms and to compare their performance.\\
 Since no class of type ramp already exists in the \gls{coco} dataset, an own dataset has to be created.
-\iimprov{Write here already about point cloud extraction?}
 
 
 \subsection{Dataset}
 While several datasets specifically for the task of autonomous driving already exist, no dataset with ramps as a class could be found.
 That is why an own dataset had to be created, by taking pictures of a ramp and labeling them by hand.
-To reduce the workload, for the creation of the dataset only straight ramps as shown are considered.
-The three different ramps shown in FIGURE are used for the training.
-\missingfigure{Three ramps}
-Multiple recordings of each ramp were made from different distances and angles.
+To reduce the workload, for the creation of the dataset only straight ramps of one specific parking garage are considered.
+An image of the three ramps used for the training is shown in \cref{fig:img_augmentated} on the left-hand side.
+Multiple recordings of each ramp were made from different distances and angles, by mounting a camera on the roof of a car and driving the car in the direction of the ramp.
 The images were taken from a video with a frame rate of 30, but since the car approached the ramp with a low speed of \SI{5}{\kilo\metre\per\hour}, the difference between two frames is very small.
 Since many pictures of the more or less same scenery do not provide any extra information, while increasing the training time and the potential of overfitting, only every 30th image (one every second) was used.
-80? different were collected in the end.
+In the end, 144 different images of three ramps were collected.\\
 Since the training of the network is based on supervised learning, the images have to be labelled manually.
 For this task the tool \texttt{labelme}~\footnote{\url{https://github.com/wkentaro/labelme}} \cite{Wada2018} is used.
 Each ramp is labelled using a polygon consisting of four points, placed at the corners of the ramp.
-The \texttt{labelme} tool creates an annotation containing the coordinate of each point, which had to be converted to \gls{coco} format, which also calculates a bounding box of the polygon.
-Data augmentation \cite{Shorten2019}.
-\missingfigure{Some labeled examples of different ramps and angles}
+Only the drivable area of the ramp is marked, and the curbside is not considered.
+The \texttt{labelme} tool creates an annotation containing the coordinate of each point and the class of the marking.
+The format of the annotation had to be converted to the \gls{coco} format, to allow for the training using the \texttt{Detectron2} library.
+The \gls{coco} format contains information about the segmentation mask consisting of the coordinates of the polygon, the bounding box and the class of the object.
 \begin{figure}[htb]
 	\centering
 	\begin{subfigure}{.47\linewidth}
@@ -567,21 +587,38 @@ Data augmentation \cite{Shorten2019}.
 		\includegraphics[width=1\linewidth]{aug2.jpg}
 		\caption{Augmented image}
 	\end{subfigure}
-	\caption[TODO]{Couple of examples of the annotated images used for the training. On the left side the original image can be seen, on the right side the augmented image.}
+	\\
+	% \hfill
+	\begin{subfigure}{.47\linewidth}
+		\centering
+		\includegraphics[width=1\linewidth]{orig3.jpg}
+		\caption{Original image}
+	\end{subfigure}
+	\begin{subfigure}{.47\linewidth}
+		\centering
+		\includegraphics[width=1\linewidth]{aug3.jpg}
+		\caption{Augmented image}
+	\end{subfigure}
+	\caption[Augmented images]{The three ramps used for the training. The augmented images are shown on the right-hand side and the manually created label is marked green.}
 	\label{fig:img_augmentated}
 \end{figure}
 
+
 \subsection{Training}
+\label{ssec:training}
 Since the size of the dataset is not very great, the training of the network is challenging, because it increases the risk of overfitting.
 To alleviate the problem, data augmentation is used in addition to the previously mentioned transfer learning.
-Data augmentation provides a good alternative to when the collection of more data is not feasible or possible.
+Data augmentation provides a good alternative to when the collection of more data is not feasible or possible \cite{Shorten2019}.
 It increases the size of the dataset by adding slightly modified versions of the original images.
 Common transformations are horizontal or vertical flipping of the image, cropping, adding noise, blur or changing the brightness and contrast of the image.
 The library \texttt{imgaug}~\footnote{\url{https://github.com/aleju/imgaug}} \cite{Jung2018} is used for this task.
-In addition to editing the image, it automatically adapts the annotation according to the new position of the label, e.g. when flipping the image.
-The following augmentations techniques are used to increase the dataset: horizontal flipping of the image (with a probability of 50\%), changing the brightness by \SIrange{-50}{50}{\percent}, changing the contrast by \SIrange{-20}{10}{\percent}, adding motion blur with a kernel size of 3 and adding Gaussian blur with a kernel with a sigma in the range of \SIrange{0}{1}{}.
+In addition to editing the image, it automatically adapts the annotation according to the new position of the label, e.g. when flipping the image.\\
+The following augmentations techniques are used to artificially increase the dataset: horizontal flipping of the image (with a probability of 50\%), changing the brightness by \SIrange{-20}{20}{\percent}, changing the contrast by \SIrange{-20}{10}{\percent}, adding motion blur with a kernel size of 3 and adding salt and pepper (turning some pixels black or white, simulating dead pixels).
+Some examples of the augmented images are shown in \cref{fig:img_augmentated} on the right-hand side.
+In each picture the annotation is shown as a mask and bounding box in green.
+Note that the label is automatically transformed when flipping the image.
 All the added changes are also common occurrences in the real world, which should help to improve the accuracy of the network in other environments.
-One augmentation is performed on each image which is then added to the dataset.
+One augmentation is performed on each image which is then added to the dataset.\\
 To evaluate the performance of the network, the dataset has to be split into a training and a validation set.
 The split is done before the data augmentation to ensure, that the training set does not contain any only slightly modified versions of the images used in the validation set.
 Due to the small size of the dataset, 80\% of the dataset is used for the training and 20\% for the validation set.\\
@@ -592,22 +629,27 @@ It is often in the range of \SIrange{0.0}{1.0}{} and describes how fast the weig
 Is the learning rate too low, the training of the network takes a longer time and might not converge to find a solution, whereas if the learning rate is too high, a suboptimal solution might be found.
 The learning rate is often initially set to a high value and then slowly reduced, which helps both optimization and generalization.
 The speed of the decay of the learning rate can be based on many things, such as the number of steps in the training, the time, or it can be reduced exponentially.
-In this thesis, an approach where the learning rate is decayed after every $n$ steps is used.
+% In this thesis, an approach where the learning rate is decayed after every $n$ steps is used.
 Another parameter, specifically for the mask \gls{rcnn} neural network architecture, is the number of \gls{roi} proposals.
 As described in \cref{sssec:rcnn}, the image is divided into a grid of \glspl{roi}.
-The number of \gls{roi} proposals determines how many of those \glspl{roi} are taken into account for the calculation.
+The number of \gls{roi} proposals determines how many of those \glspl{roi} are taken into account for the calculation of the loss function.
 It can be chosen lower than the size of the grid to accelerate the training.
 The final parameter which will be varied is the number of epochs.
 It describes how often the network is trained on the entire dataset, a higher number of epochs means a longer training time, but usually also a better performance, except if it is chosen to high, in which case it can lead to overfitting.
+Because the dataset is small, has only one class and contains similar images, the number of epochs can be chosen fairly small.
 
 \subsection{Point cloud extraction}
-The ZED 2i stereo camera used in this thesis also generates point cloud.
-More information about the camera can be found in \cref{ssec:camera}.
-\itodo{Only bounding box atm, how to use mask?}
-The point cloud can be projected on the camera image.
-For the projection the rotation vector and translation from the point cloud frame to the camera frame is necessary, as well as the intrinsic camera matrix $A$.
+The ZED 2i stereo camera used in this thesis also generates a point cloud.
+More information about the camera will be described in \cref{ssec:camera}.
+The 3D point cloud can be projected onto the 2D camera image.
+For the projection, the rotation vector and translation from the point cloud frame to the camera frame is necessary, as well as the intrinsic camera matrix $A$.
+Because the ZED 2i stereo camera records both the point cloud and camera image at once, the rotation and translation between the two frames is zero.
 Using the \texttt{projectPoints} function of the \texttt{opencv} library \cite{Bradski2000}, the point cloud is projected onto the camera image.
-Using the predicted bounding box, all the projected points outside the box are removed.
+The camera image is then fed into the network, which predicts a bounding box and segmentation mask of the ramp.
+Then, using the predicted bounding box or the segmentation mask, all the projected points outside the box or mask are removed.
 The points are then transformed back into the 3D space.
-By applying the \gls{ransac} algorithms outliers are removed and a model of the ramp is created.
-Different properties of the ramp can now be calculated, similarly as described in \cref{sssec:ramp_properties}.
+Now that only points inside the ramp region are left, the \gls{ransac} algorithm can be applied.
+It is used to find the best fitting plane of all the inliers and removes potential outliers.
+Different properties of the ramp can now be calculated, as described in \cref{sssec:ramp_detecion_lidar}.\\
+Instead of using the point cloud generated by the camera, the point cloud of the \gls{lidar} can be used as well.
+The \gls{lidar} point cloud is more accurate, but the projection of the \gls{lidar} points onto the camera image is more difficult since the rotation and translation difference between both sensor frames is not zero anymore and must be measured by hand, which is subject to error.
