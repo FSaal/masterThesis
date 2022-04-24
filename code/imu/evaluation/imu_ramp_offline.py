@@ -62,22 +62,28 @@ class ImuRampDetect(object):
         # else:
         #     dist = 0
 
-        # Calculate ramp angle
-        ramp_angle = self.ramp_props_class.ramp_angle_est(
-            np.rad2deg(car_angle_compl_grav), 4, 2, 0.5
-        )
+        angles = [
+            car_angle_acc,
+            car_angle_gyr,
+            car_angle_grav,
+            car_angle_compl,
+            car_angle_compl_grav,
+        ]
+        # Calculate average ramp angle
+        avg_ramp_angles = []
+        for angle in angles:
+            rp = RampProperties(self.rate)
+            avg_ramp_angle = rp.ramp_angle_est(np.rad2deg(angle), 4, 2, 0.5)
+            avg_ramp_angles.append(avg_ramp_angle)
+        # ramp_angle = self.ramp_props_class.ramp_angle_est(
+        #     np.rad2deg(car_angle_compl_grav), 4, 2, 0.5
+        # )
 
         return (
             lin_acc,
             ang_vel,
-            [
-                car_angle_acc,
-                car_angle_gyr,
-                car_angle_grav,
-                car_angle_compl,
-                car_angle_compl_grav,
-            ],
-            ramp_angle,
+            angles,
+            avg_ramp_angles,
         )
 
     def align_imu(self, lin_acc, ang_vel, odom):
@@ -355,11 +361,3 @@ class RampProperties(object):
         if np.abs(angle) > ramp_thresh:
             return True
         return False
-
-
-if __name__ == "__main__":
-    try:
-        IRD = ImuRampDetect()
-        IRD.spin()
-    except rospy.ROSInterruptException:
-        pass
