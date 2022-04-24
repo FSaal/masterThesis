@@ -82,7 +82,7 @@ The ramp detection using the \gls{imu} relies on the correct estimation of the r
 Hence, the evaluation of the goodness of the estimation is necessary to determine the performance of the ramp detection algorithm.\\
 Different recordings of different ramps were made, but the results will be discussed on only two test drives.
 Furthermore, two different \glspl{imu} were used, but only the measurements of one \gls{imu} will be used to present the results, since both produced similar results.
-Because the \gls{imu} of the ZED camera is slightly more accurate as shown in \cref{tab:imu_datasheets} only those measurements will be used.
+Because the \gls{imu} of the ZED camera is slightly more accurate as shown in \cref{tab:imu_datasheets}, only those measurements will be used.
 In the first drive the car was accelerated from stand still and drove up ramp A about half-way up.
 As explained in \cref{sec:car}, the ramp could not be driven completely, due to the need of the odometer readings, which are only available when the motor output is limited.
 The result of using only the raw measurements of the \gls{imu} for the pitch angle calculation is shown in \cref{fig:imu_raw_angle}.
@@ -103,7 +103,7 @@ Figure \ref{fig:imu_odometer_acc} shows the (low-pass filtered) acceleration mea
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=.9\linewidth]{imu_odometer_acc.pdf}
-	\caption[Acceleration from \gls{imu} and odometer]{The measured acceleration in x-direction by the \gls{imu} and the acceleration derived from the wheel speed measurements and the difference between both.}
+	\caption[Acceleration from \glsentryshort{imu} and odometer]{The measured acceleration in x-direction by the \gls{imu} and the acceleration derived from the wheel speed measurements and the difference between both.}
 	\label{fig:imu_odometer_acc}
 \end{figure}
 $\vb{a}_\mathrm{grav,x} $ is the acceleration measured by the \gls{imu} from which the car acceleration $\vb{a}_\mathrm{odom,x} $ was subtracted.
@@ -114,112 +114,124 @@ Although both sensor are synchronized in time, the \gls{imu} senses the accelera
 This could be due to the wheel speed sensors having a certain velocity threshold, below which they do not pick up any changes.
 Other reasons for the difference could be, that other forces than the one from the car are present, e.g. from the suspension of the car or vibrations due to the road quality, which are not measured by the wheel speed sensors.
 Also, the approximations made by calculating the finite difference of the car velocity to get the car acceleration have a negative influence on the result.
-The resulting angle from the acceleration can be seen in \cref{fig:imu_odometer_angle}.
-\begin{figure}[htbp]
+The resulting angles calculated from the accelerations can be seen in \cref{fig:imu_odometer_angle}.
+\begin{figure}[htb]
 	\centering
 	\includegraphics[width=.9\linewidth]{imu_odometer_angle.pdf}
 	\caption[Angle estimation using the gravity method]{Pitch angle estimation using only the accelerometer compared to the gravity method, which additionally uses the wheel speed measurements.}
 	\label{fig:imu_odometer_angle}
 \end{figure}
-It can be seen that the gravity method improves the estimation accuracy significantly, compared to when only using the accelerometer data.
-Especially the angle at the start and on the ramp is more accurately described when adding the odometer data to the accelerometer data for the calculation.
+It can be seen that the gravity method improves the estimation accuracy significantly, compared to when only the accelerometer data is used.
+Especially the angle at the start and on the ramp is more accurately described when subtracting the odometer data from the accelerometer data for the calculation.
 But it can also be seen that the time synchronization between both signals is important, as seen in during the initial acceleration phase.
 Here, the subtraction leads to a negative value, which neither sensor had measured.\\
 Another way to improve the estimation is using a complementary filter.
-The results of which are shown in \cref{fig:imu_raw_compl_angle}.
+The results of which, together with all other methods, are shown in \cref{fig:imu_all_angles}.
 Those are the results of a new drive, where the car was driven the ramp D and afterwards ramp A down.
 \begin{figure}[htb]
 	\centering
-	\begin{subfigure}{1\textwidth}
-		\centering
-		\includegraphics[width=0.9\linewidth]{imu_raw_compl_angle.pdf}
-		\caption{Pitch angle estimation using the complementary filter compared to using the raw measurements.}
-		\label{fig:imu_raw_compl_angle}
-	\end{subfigure}
-	
-	% \bigskip
-	\begin{subfigure}{1\textwidth}
-		\centering
-		\includegraphics[width=0.9\linewidth]{imu_grav_compl_angle.pdf}
-		\caption{Pitch angle estimation comparison of the other methods.}
-		\label{fig:imu_grav_compl_angle}
-	\end{subfigure}
-	\caption{Comparison of different methods to estimate the pitch angle. Two different ramps were driven down successively.}
+	\includegraphics[width=.9\linewidth]{imu_all_angles.pdf}
+	\caption[Angle estimation using the gravity method]{Comparison of different methods to estimate the pitch angle. Two different ramps were driven down successively.}
+	\label{fig:imu_all_angles}
 \end{figure}
-\itodo{Probably remove compl grav filter from plot and do not mention it anywhere}
 The complementary filter uses the estimation of the gyroscope measurements and corrects them using the accelerometer measurements to prevent drift.
 It can be seen that the estimation using the complementary filter closely follows the reference except for the part between the two ramps (\SIrange{30}{60}{\second}).
-Also, it has no offset at the end, unlike the estimation from the gyroscope data.\\
-Other methods applied to the recordings of the same ride are shown in \cref{fig:imu_grav_compl_angle}.
-The gravity method reduces the spikes of the raw accelerometer estimation, but introduces some new errors due to the odometer readings being slightly shifted in time in regard to the accelerometer readings.
-\itodo{Check text below}
-The gravity complementary filter which fuses the estimation from the gravity method instead of only the accelerometer data together with the gyroscope data achieves the best results.
-The filer gain could be reduced such that the estimation of the gravity method can be trusted more because it peaks less.
-This makes the estimation more responsive to changes.\\
-The metrics to evaluate the different methods, when driving up a ramp, is shown in \cref{tab:eval_table_imu_up}.
-\itodo{Describe results shown in table}
-\iimprov{Maybe mark best result for each column}
-\itodo{Create new tables with avg angle estimation and length estimation (going down)}
+\iquest{Could also be that the reference data is wrong here, should I mention this?}
+Also, it has no offset at the end, unlike the estimation from the gyroscope data.
+The results of the other methods applied to the recordings of the same ride are also shown in the same figure.
+The gravity method reduces the spikes of the raw accelerometer estimation, but introduces some new errors due to the odometer readings being slightly shifted in time in regard to the accelerometer readings.\\
+While a visual inspection gives a first impression on which method performs the best, the use of different metrics allows for a more accurate evaluation.
+The \gls{rmse}, $R^2$ as well as the maximal error of different methods for two different ramps are shown in \cref{tab:eval_table_imu_up}.
+Multiple recordings have been made for each ramp, but in all of them the car started from stand still and ended in the middle of the ramp.
+The average of all drives was then calculated.\\
+The estimation using the raw accelerometer data performs the worst and has the greatest max error.
+Using the gyroscope the deviation from the reference data is fairly small, which can be seen in the max error.
+But due to the drifting the errors cumulate, resulting in a high \gls{rmse} value.
+The acceleration method performs well, but is negatively influenced by the acceleration from stand still, during which the accelerometer and wheel speed data are not properly aligned.
+The best results are achieved using the complementary filter.
+\iimprov{Find better variable name for max error}
+\iimprov{Information about rides in table necessary?}
 \begin{table}[htb]
 	\centering
 	\caption{Performance measures up ZED \gls{imu}}
 	\label{tab:eval_table_imu_up}
-	\resizebox{\textwidth}{!}{
-		\begin{tabular}[t]{lcccccccc}
-			\toprule
-			\textbf{Properties} & \multicolumn{4}{c}{\textbf{Ramp A}} & \multicolumn{4}{c}{\textbf{Ramp B}}                                                                                                                           \\
-			\midrule
-			Angle               & \multicolumn{4}{c}{?}               & \multicolumn{4}{c}{?}                                                                                                                                         \\
-			\hline
-			\textbf{Method}     & \textbf{RMSE}                       & $\mathbf{R^2}$                      & $\mathbf{error_{max}}$ & \textbf{Angle} & \textbf{RMSE}    & $\mathbf{R^2}$   & $\mathbf{error_{max}}$ & \textbf{Angle} \\
-			\cmidrule(lr){2-5}   \cmidrule(lr){6-9}
-			Accelerometer       & 0.875                               & 0.675                               & 4.944                  & 7.74           & 0.650            & 0.787            & 3.378                  & 6.93           \\
-			Gyroscope           & 0.508                               & 0.905                               & 1.373                  & 4.78           & 0.768            & 0.802            & $\mathbf{1.594  }$     & 4.34           \\
-			Acceleration method & 0.357                               & 0.954                               & 2.482                  & 7.95           & 0.351            & $\mathbf{0.955}$ & 1.707                  & 7.06           \\
-			Complementary       & $\mathbf{0.273} $                   & $\mathbf{0.976}$                    & $\mathbf{1.231 }$      & 4.96           & $\mathbf{0.324}$ & 0.952            & 1.647                  & 4.92           \\
-			% Complementary grav  & 0.371                               & 0.948                               & 1.990                  & 6.54           & 0.358            & 0.951            & 1.211                  & 6.55           \\
-			\bottomrule
-		\end{tabular}
-	}
+	% \resizebox{\textwidth}{!}{
+	\begin{tabular}[t]{lcccccc}
+		\toprule
+		\textbf{Properties} & \multicolumn{3}{c}{\textbf{Ramp A}} & \multicolumn{3}{c}{\textbf{Ramp B}}                                                                                         \\
+		\midrule
+		Remove?             & \multicolumn{3}{c}{?}               & \multicolumn{3}{c}{?}                                                                                                       \\
+		\hline
+		\textbf{Method}     & \textbf{RMSE}                       & $\mathbf{R^2}$                      & $\mathbf{error_{max}}$ & \textbf{RMSE}    & $\mathbf{R^2}$   & $\mathbf{error_{max}}$ \\
+		\cmidrule(lr){2-4}   \cmidrule(lr){5-7}
+		Accelerometer       & 0.875                               & 0.675                               & 4.944                  & 0.650            & 0.787            & 3.378                  \\
+		Gyroscope           & 0.508                               & 0.905                               & 1.373                  & 0.768            & 0.802            & $\mathbf{1.594  }$     \\
+		Acceleration method & 0.357                               & 0.954                               & 2.482                  & 0.351            & $\mathbf{0.955}$ & 1.707                  \\
+		Complementary       & $\mathbf{0.273} $                   & $\mathbf{0.976}$                    & $\mathbf{1.231 }$      & $\mathbf{0.324}$ & 0.952            & 1.647                  \\
+		% Complementary grav  & 0.371                               & 0.948                               & 1.990                  & 0.358            & 0.951            & 1.211                  \\
+		\bottomrule
+	\end{tabular}
+	% }
 \end{table}
+In table \cref{tab:eval_table_imu_down} the average results for down drives are shown.
+The data is from a test drive in which at first the ramp C was driven down, followed by ramp A in one consecutive drive.
+The estimations for one exemplary ride were shown \cref{fig:imu_all_angles}.
+It can be seen that at the beginning (ramp C) the gyroscope performs the best, but with increasing time the drift negatively impacts the results.
+\iimprov{Some more text}
+\iquest{I split the bag into two parts 0-31s? and 31s-end. Should I instead start second part at 60s?}
 \begin{table}[htb]
 	\centering
 	\caption{Performance measures down ZED \gls{imu}}
 	\label{tab:eval_table_imu_down}
-	\resizebox{\textwidth}{!}{
-		\begin{tabular}[t]{lcccccccc}
-			\toprule
-			\textbf{Properties} & \multicolumn{4}{c}{\textbf{Ramp C}} & \multicolumn{4}{c}{\textbf{Ramp A}}                                                                                                                      \\
-			\midrule
-			Angle               & \multicolumn{4}{c}{?}               & \multicolumn{4}{c}{?}                                                                                                                                    \\
-			\hline
-			\textbf{Method}     & \textbf{RMSE}                       & $\mathbf{R^2}$                      & $\mathbf{error_{max}}$ & \textbf{Angle} & \textbf{RMSE} & $\mathbf{R^2}$ & $\mathbf{error_{max}}$ & \textbf{Angle} \\
-			\cmidrule(lr){2-5}   \cmidrule(lr){6-9}
-			Accelerometer       & 0.894                               & 0.746                               & 8.291                  & 7.74           & 0.938         & 0.784          & 3.967                  & 6.93           \\
-			Gyroscope           & 0.219                               & 0.990                               & 0.736                  & 4.78           & 0.784         & 0.867          & 1.481                  & 4.34           \\
-			Acceleration method & 0.369                               & 0.964                               & 2.211                  & 7.95           & 0.719         & 0.872          & 2.136                  & 7.06           \\
-			Complementary       & 0.327                               & 0.977                               & 1.184                  & 4.96           & 0.753         & 0.862          & 2.131                  & 4.92           \\
-			% Complementary grav& 0.328 & 0.977 & 1.190     & 6.54        & 0.754 & 0.862 & 2.142      & 6.55           \\
-			\bottomrule
-		\end{tabular}
-	}
+	% \resizebox{\textwidth}{!}{
+	\begin{tabular}[t]{lcccccc}
+		\toprule
+		\textbf{Properties} & \multicolumn{3}{c}{\textbf{Ramp C}} & \multicolumn{3}{c}{\textbf{Ramp A}}                                                                                    \\
+		\midrule
+		Remove?             & \multicolumn{3}{c}{?}               & \multicolumn{3}{c}{?}                                                                                                  \\
+		\hline
+		\textbf{Method}     & \textbf{RMSE}                       & $\mathbf{R^2}$                      & $\mathbf{error_{max}}$ & \textbf{RMSE} & $\mathbf{R^2}$ & $\mathbf{error_{max}}$ \\
+		\cmidrule(lr){2-4}   \cmidrule(lr){5-7}
+		Accelerometer       & 0.894                               & 0.746                               & 8.291                  & 0.938         & 0.784          & 3.967                  \\
+		Gyroscope           & 0.219                               & 0.990                               & 0.736                  & 0.784         & 0.867          & 1.481                  \\
+		Acceleration method & 0.369                               & 0.964                               & 2.211                  & 0.719         & 0.872          & 2.136                  \\
+		Complementary       & 0.327                               & 0.977                               & 1.184                  & 0.753         & 0.862          & 2.131                  \\
+		% Complementary grav& 0.328 & 0.977 & 1.190     & 6.54        & 0.754 & 0.862 & 2.142      & 6.55           \\
+		\bottomrule
+	\end{tabular}
+	% }
 \end{table}
 
 
 \subsection{Ramp properties estimation}
-\iquest{Ramp angle estimation already discussed in table or not?}
 As discussed in \cref{ssec:ramp_detection_imu}, the length of the ramp can be estimated by integrating the velocity of the car over the time interval between the start and end of the ramp.
 The velocity can be estimated in two different ways.
 Either by using the wheel speed measurements, or by integrating the accelerometer measurements.
 For the evaluation of the accuracy of the estimation, recordings of a drive with a full traverse of a ramp is necessary.
-As mentioned in ?, this is only possible when driving down.
-Ramp D is used for this evaluation, the first part of the drive show in \cref{fig:imu_raw_compl_angle}.
+As mentioned in \cref{sec:car}, this is only possible when driving down.
+Ramp D is used for this evaluation, the first part of the drive show in \cref{fig:imu_all_angles}.\\
 In \cref{fig:imu_distance_velocity} different methods to estimate the velocity of the car are shown.
+$v_\mathrm{car}$ is the velocity calculated from the wheel speed measurements using \cref{eq:v_car}.
+The other three methods are based on the integration of the accelerometer measurements.
+$v_\mathrm{acc}$ is the result of integrating the raw accelerometer measurements $\vb{a}_x$.
+Because the raw signal also contains the gravity component, the estimation is not correct anymore when entering the ramp.
+Up until the point where the car enters the ramp both estimation are very similar, but during the phase on the ramp the acceleration disturbs the estimation.
+This problem is partially solved by $v_\mathrm{acc, grav}$, which eliminates the gravity component by subtracting it using the pitch angle of the car, according to \cref{eq:acc_from_imu_wo_grav}.
+The angle estimation using the complementary filter method is used in \cref{eq:acc_from_imu_wo_grav}.
+Because the estimation of the angle is not correct at the start of the acceleration (\SIrange{3}{5}{\second}), an error is introduced.
+As it can be seen in \cref{fig:imu_all_angles} the angle is slightly overestimated by the complementary filter during the acceleration phase.
+This leads according to \cref{eq:acc_from_imu_wo_grav} to an underestimation of the acceleration, and thus also an underestimation of the velocity.
+Due to the integration the error is cumulated over time and increases with the time.
+This error can be fixed by introducing a new method, which ignores the initial acceleration phase, the results of which are visualized by $v_\mathrm{acc, grav, later}$.\\
+The estimation of the distance for the different methods is shown in \cref{fig:imu_distance_position}.
+Since the distance is calculated from the velocity, an error is cumulated over time.
+This can be seen in both $d_\mathrm{acc}$ and $d_\mathrm{acc, grav}$.
+The only usable results are produced by the methods using the odometer measurements or by ignoring the initial acceleration?.
 \begin{figure}[htb]
 	\centering
 	\begin{subfigure}{1\textwidth}
 		\centering
-		\includegraphics[width=0.9\linewidth]{imu_distance_velocity.pdf}
+		\includegraphics[width=.9\linewidth]{imu_distance_velocity.pdf}
 		\caption{Estimated car velocity calculated from the wheel speed measurements and the accelerometer data.}
 		\label{fig:imu_distance_velocity}
 	\end{subfigure}
@@ -227,27 +239,13 @@ In \cref{fig:imu_distance_velocity} different methods to estimate the velocity o
 	% \bigskip
 	\begin{subfigure}{1\textwidth}
 		\centering
-		\includegraphics[width=0.9\linewidth]{imu_distance_position.pdf}
+		\includegraphics[width=.9\linewidth]{imu_distance_position.pdf}
 		\caption{The integration of the velocity leads to the travelled distance.}
 		\label{fig:imu_distance_position}
 	\end{subfigure}
 	\caption{Comparison of different methods to estimate the length of the ramp.}
 \end{figure}
-$v_\mathrm{car}$ is the velocity calculated from the wheel speed measurements using \cref{eq:v_car}.
-The other three methods are based on the integration of the accelerometer measurements.
-$v_\mathrm{car}$ is the result of integrating the raw accelerometer measurements $\vb{a}_x$.
-Because the raw signal also contains the gravity component, the estimation is not correct anymore when entering the ramp.
-Up until the point where the car enters the ramp both estimation are very similar, but during the phase on the ramp the acceleration disturbs the estimation.
-This problem is partially solved by $v_\mathrm{car, grav}$, which eliminates the gravity component by subtracting it using the pitch angle of the car, according to \cref{eq:acc_from_imu_wo_grav}.
-The angle estimation using the complementary filter method is used in \cref{eq:acc_from_imu_wo_grav}.
-Because the estimation of the angle is not correct at the start of the acceleration (\SIrange{3}{5}{\second}), an error is introduced.
-As it can be seen in \cref{fig:imu_raw_compl_angle} the angle is slightly overestimated by the complementary filter during the acceleration phase.
-This leads according to \cref{eq:acc_from_imu_wo_grav} to an underestimation of the acceleration, and thus also an underestimation of the velocity.
-Due to the integration the error is cumulated over time and increases with the time.
-This error can be fixed by introducing a new method, which ignores the initial acceleration phase, the results of which are visualized by $v_\mathrm{acc, grav, later}$.
-The estimation of the distance for the different methods is shown in \cref{fig:imu_distance_position}.
-Since the distance is calculated from the velocity, an error is cumulated over time.
-This can be seen in both $d_\mathrm{acc}$ and $d_\mathrm{acc, grav}$.\\
+
 The actual length of the ramp is calculated by subtracting the position of the car at the end of the ramp from the position at the start of the ramp.
 The results for the different methods are shown in \cref{tab:ramp_length}.
 
@@ -266,22 +264,18 @@ The results for the different methods are shown in \cref{tab:ramp_length}.
 		\bottomrule
 	\end{tabular}
 \end{table}
+\iquest{Should I add a reference? Looks a bit wrong after end of ramp}
+\iimprov{Find better variable names}
+\itodo{New table with angle estimation (or add to length table)}
 
 
 
-\todoin{\begin{itemize}
-		\item Tune parameters
-		\item Add distance measurement (for full drives)
-		\item Ramp A = uc2s, Ramp B = us2c, Ramp C = dd2r, Ramp D = ds2c
-	\end{itemize}}
-
-\newpage
 \section{Ramp detection (\glsentryshort{lidar})}
 The \gls{lidar} is used to detect if a ramp is visible, track the position to the ramp as well as to estimate the angle and width of the ramp.
 Due to the setup it was only possible to mount one \gls{lidar} at a time.
 To get the best possible results the \gls{lidar} with the best resolution, especially in vertical direction, should be used.
 A comparison of the resolution of the two \glspl{lidar} can be seen in \cref{fig:lidar_resolution_eval}.
-\begin{figure}[htbp]
+\begin{figure}[htb]
 	\centering
 	\begin{subfigure}{1\textwidth}
 		\centering
@@ -329,33 +323,36 @@ Due to the passthrough filter the ramp was thus not visible for the algorithm.\\
 	\centering
 	\caption{Performance evaluation}
 	\label{tab:eval_table_lidar}
-	\begin{tabular}[t]{cccccccc}
-		\toprule
-		\textbf{Ramp}          & \textbf{Distance}        & \textbf{Frames} & \textbf{TP \%} & \textbf{FP \%} & $\textbf{RMSE}_d$  & $\textbf{RMSE}_w$ & $\textbf{RMSE}_\theta$ \\
-		\midrule
-		\multirow{6}{*}{u c2s} & \SIrange{0}{5}{\metre}   & 116             & 100.00\%       & 0.00\%         & \SI{0.73}{\metre}  & \SI{0.03}{\metre} & \SI{0.31}{\degree}     \\
-		                       & \SIrange{5}{10}{\metre}  & 117             & 100.00\%       & 0.00\%         & \SI{0.73}{\metre}  & \SI{0.04}{\metre} & \SI{0.30}{\degree}     \\
-		                       & \SIrange{10}{15}{\metre} & 116             & 100.00\%       & 0.00\%         & \SI{0.77}{\metre}  & \SI{0.07}{\metre} & \SI{0.34}{\degree}     \\
-		                       & \SIrange{15}{20}{\metre} & 123             & 100.00\%       & 0.00\%         & \SI{1.07}{\metre}  & \SI{0.05}{\metre} & \SI{0.27}{\degree}     \\
-		                       & \SIrange{20}{25}{\metre} & 140             & 99.23\%        & 0.00\%         & \SI{2.06}{\metre}  & \SI{0.12}{\metre} & \SI{0.65}{\degree}     \\
-		                       & \SIrange{25}{30}{\metre} & 50              & 59.78\%        & 0.00\%         & \SI{1.66}{\metre}  & \SI{0.25}{\metre} & \SI{1.79}{\degree}     \\
-		\hline
-		\multirow{6}{*}{u s2c} & \SIrange{0}{5}{\metre}   & 62              & 100.00\%       & 0.00\%         & \SI{0.75}{\metre}  & \SI{0.02}{\metre} & \SI{0.52}{\degree}     \\
-		                       & \SIrange{5}{10}{\metre}  & 62              & 100.00\%       & 0.00\%         & \SI{0.84}{\metre}  & \SI{0.02}{\metre} & \SI{0.53}{\degree}     \\
-		                       & \SIrange{10}{15}{\metre} & 59              & 100.00\%       & 0.00\%         & \SI{0.89}{\metre}  & \SI{0.02}{\metre} & \SI{0.51}{\degree}     \\
-		                       & \SIrange{15}{20}{\metre} & 61              & 97.92\%        & 2.08\%         & \SI{2.75}{\metre}  & \SI{0.02}{\metre} & \SI{0.68}{\degree}     \\
-		                       & \SIrange{20}{25}{\metre} & 61              & 97.83\%        & 2.17\%         & \SI{3.69}{\metre}  & \SI{0.12}{\metre} & \SI{0.90}{\degree}     \\
-		                       & \SIrange{25}{30}{\metre} & 59              & 42.75\%        & 0.00\%         & \SI{2.36}{\metre}  & \SI{0.90}{\metre} & \SI{1.82}{\degree}     \\
-		\hline
-		\multirow{6}{*}{u d2e} & \SIrange{0}{5}{\metre}   & 21              & 100.00\%       & 0.00\%         & \SI{0.94}{\metre}  & \SI{0.05}{\metre} & \SI{0.64}{\degree}     \\
-		                       & \SIrange{5}{10}{\metre}  & 23              & 100.00\%       & 0.00\%         & \SI{0.79}{\metre}  & \SI{0.11}{\metre} & \SI{0.50}{\degree}     \\
-		                       & \SIrange{10}{15}{\metre} & 28              & 100.00\%       & 0.00\%         & \SI{0.75}{\metre}  & \SI{0.10}{\metre} & \SI{0.44}{\degree}     \\
-		                       & \SIrange{15}{20}{\metre} & 27              & 37.04\%        & 3.70\%         & \SI{2.59}{\metre}  & \SI{0.18}{\metre} & \SI{1.11}{\degree}     \\
-		                       & \SIrange{20}{25}{\metre} & 29              & 0.00\%         & 3.45\%         & \SI{19.83}{\metre} & \SI{0.04}{\metre} & \SI{3.28}{\degree}     \\
-		                       & \SIrange{25}{30}{\metre} & 28              & 10.71\%        & 0.00\%         & \SI{1.87}{\metre}  & \SI{0.25}{\metre} & \SI{1.91}{\degree}     \\
-		\bottomrule
-	\end{tabular}
+	\resizebox{\textwidth}{!}{
+		\begin{tabular}[t]{ccccccccc}
+			\toprule
+			\textbf{Ramp}      & \textbf{Distance}        & \textbf{Frames} & \textbf{TP \%} & \textbf{FP \%} & $\textbf{RMSE}_d$  & $\textbf{RMSE}_w$ & $\textbf{RMSE}_\theta$ & $\textbf{RMSE}_l$  \\
+			\midrule
+			\multirow{7}{*}{A} & \SIrange{0}{5}{\metre}   & 116             & 100.00\%       & 0.00\%         & \SI{0.70}{\metre}  & \SI{0.03}{\metre} & \SI{0.31}{\degree}     & \SI{1.27}{\metre}  \\
+			                   & \SIrange{5}{10}{\metre}  & 117             & 100.00\%       & 0.00\%         & \SI{0.77}{\metre}  & \SI{0.04}{\metre} & \SI{0.30}{\degree}     & \SI{0.94}{\metre}  \\
+			                   & \SIrange{10}{15}{\metre} & 116             & 100.00\%       & 0.00\%         & \SI{0.81}{\metre}  & \SI{0.07}{\metre} & \SI{0.34}{\degree}     & \SI{1.03}{\metre}  \\
+			                   & \SIrange{15}{20}{\metre} & 123             & 100.00\%       & 0.00\%         & \SI{1.01}{\metre}  & \SI{0.05}{\metre} & \SI{0.27}{\degree}     & \SI{1.84}{\metre}  \\
+			                   & \SIrange{20}{25}{\metre} & 140             & 99.23\%        & 0.00\%         & \SI{1.70}{\metre}  & \SI{0.12}{\metre} & \SI{0.65}{\degree}     & \SI{6.28}{\metre}  \\
+			                   & \SIrange{25}{30}{\metre} & 50              & 59.78\%        & 0.00\%         & \SI{1.21}{\metre}  & \SI{0.25}{\metre} & \SI{1.79}{\degree}     & \SI{10.04}{\metre} \\
+			\hline
+			\multirow{7}{*}{B} & \SIrange{0}{5}{\metre}   & 21              & 100.00\%       & 0.00\%         & \SI{0.87}{\metre}  & \SI{0.05}{\metre} & \SI{0.64}{\degree}     & \SI{2.65}{\metre}  \\
+			                   & \SIrange{5}{10}{\metre}  & 23              & 100.00\%       & 0.00\%         & \SI{0.89}{\metre}  & \SI{0.11}{\metre} & \SI{0.50}{\degree}     & \SI{4.10}{\metre}  \\
+			                   & \SIrange{10}{15}{\metre} & 28              & 100.00\%       & 0.00\%         & \SI{0.70}{\metre}  & \SI{0.10}{\metre} & \SI{0.44}{\degree}     & \SI{1.48}{\metre}  \\
+			                   & \SIrange{15}{20}{\metre} & 27              & 37.04\%        & 3.70\%         & \SI{4.82}{\metre}  & \SI{0.18}{\metre} & \SI{1.11}{\degree}     & \SI{2.75}{\metre}  \\
+			                   & \SIrange{20}{25}{\metre} & 29              & 0.00\%         & 3.45\%         & \SI{20.34}{\metre} & \SI{0.04}{\metre} & \SI{3.28}{\degree}     & \SI{3.39}{\metre}  \\
+			                   & \SIrange{25}{30}{\metre} & 28              & 10.71\%        & 0.00\%         & \SI{1.40}{\metre}  & \SI{0.25}{\metre} & \SI{1.91}{\degree}     & \SI{11.48}{\metre} \\
+			\hline
+			\multirow{7}{*}{C} & \SIrange{0}{5}{\metre}   & 62              & 100.00\%       & 0.00\%         & \SI{0.71}{\metre}  & \SI{0.02}{\metre} & \SI{0.52}{\degree}     & \SI{0.81}{\metre}  \\
+			                   & \SIrange{5}{10}{\metre}  & 62              & 100.00\%       & 0.00\%         & \SI{0.77}{\metre}  & \SI{0.02}{\metre} & \SI{0.53}{\degree}     & \SI{0.78}{\metre}  \\
+			                   & \SIrange{10}{15}{\metre} & 59              & 100.00\%       & 0.00\%         & \SI{0.86}{\metre}  & \SI{0.02}{\metre} & \SI{0.51}{\degree}     & \SI{0.85}{\metre}  \\
+			                   & \SIrange{15}{20}{\metre} & 61              & 97.92\%        & 2.08\%         & \SI{2.58}{\metre}  & \SI{0.02}{\metre} & \SI{0.68}{\degree}     & \SI{3.44}{\metre}  \\
+			                   & \SIrange{20}{25}{\metre} & 61              & 97.83\%        & 2.17\%         & \SI{3.40}{\metre}  & \SI{0.12}{\metre} & \SI{0.90}{\degree}     & \SI{9.31}{\metre}  \\
+			                   & \SIrange{25}{30}{\metre} & 59              & 42.75\%        & 0.00\%         & \SI{4.35}{\metre}  & \SI{0.90}{\metre} & \SI{1.82}{\degree}     & \SI{11.98}{\metre} \\
+			\bottomrule
+		\end{tabular}
+	}
 \end{table}
+
 The estimated ramp properties and distance to the ramp for one exemplary ride are shown in \cref{fig:lidar_eval}.
 In \cref{fig:lidar_distance_eval} the estimated distance is shown in comparison to the reference distance provided by the \texttt{hdl\_graph\_slam} package.
 The error reduces when the car is closer to the ramp.
@@ -372,7 +369,7 @@ The estimated width at different distances to the ramp can be seen in \cref{fig:
 The error is very small compared to the tracking error and lies in the order of \SI{10}{\cm}.
 This is because the horizontal resolution is significantly better than the vertical resolution.
 Note that the estimated width is the width of the whole ramp and not only the width of the drivable part.\\
-\begin{figure}[htbp]
+\begin{figure}[htb]
 	\centering
 	\begin{subfigure}{1\textwidth}
 		\centering
@@ -394,7 +391,14 @@ Note that the estimated width is the width of the whole ramp and not only the wi
 		\caption{Width of the ramp}
 		\label{fig:lidar_width_eval}
 	\end{subfigure}
-	\caption{Estimated ramp properties and tracking of the ramp over ? using Velodyne}
+	
+	\begin{subfigure}{1\textwidth}
+		\centering
+		\includegraphics[width=.9\linewidth]{lidar_length_eval.pdf}
+		\caption{Length of the ramp}
+		\label{fig:lidar_length_eval}
+	\end{subfigure}
+	\caption{Estimated ramp properties and tracking of the distance to the ramp at different distances to the ramp.}
 	\label{fig:lidar_eval}
 \end{figure}
 An visualization of the detection algorithm can be seen in \cref{fig:points_projection}.
