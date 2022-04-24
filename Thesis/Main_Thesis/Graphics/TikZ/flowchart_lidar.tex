@@ -18,9 +18,9 @@
     \node (transform) [process, below of=raw] {Transform};
     \node (passthrough) [process, below of=transform] {Passthrough filter};
     \node (downsample) [process, below of=passthrough] {Downsample};
-    \node (is_enough_points) [decision, below of=downsample, yshift=-0.5cm] {Enough points left?};
+    \node (is_enough_points) [decision, below of=downsample, yshift=-0.5cm] {Points \& Iterations left?};
     \node (ransac) [process, below of=is_enough_points, yshift=-0.5cm] {RANSAC};
-    \node (is_ramp) [decision, below of=ransac, yshift=-0.3cm] {Angle and width?};
+    \node (is_ramp) [decision, below of=ransac, yshift=-0.3cm] {Angle \& width?};
     \node (reduce) [process, right of=is_ramp, xshift=4cm] {Remove plane};
     \node (rotmat) [io, below of=is_ramp, yshift=-0.3cm] {Ramp properties};
     \node (skip) [startstop, left of=rotmat, xshift=-3cm] {Skip};
