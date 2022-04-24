@@ -226,7 +226,7 @@ It blocks signals with a frequency below $f_0$ while allowing signals over this 
 \begin{figure}[htb]
 	\centering
 	\input{Graphics/TikZ/complementary_filter.tex}
-	\caption[Block diagram complementary filter]{The block diagram of the complementary filter.}
+	\caption[Block diagram of the complementary filter]{The block diagram of the complementary filter.}
 	\label{fig:tikz_complementary_filter}
 \end{figure}
 The angle estimation obtained from the linear acceleration (\cref{eq:ang_from_acc}) will be referred to as $\theta_\mathrm{acc}$, the angle estimation from the gyroscope estimation as $\theta_\mathrm{gyr}$ and the fused estimation of the complementary filter will be denoted as $\hat{\theta}$.
@@ -361,6 +361,7 @@ The problem when using the accelerometer data is that also other accelerations t
 If the car is on a ramp, the acceleration due to gravity is measured as well.
 But by using \cref{eq:ang_from_acc} and transforming it to
 \begin{equation}
+	\label{eq:acc_from_imu_wo_grav}
 	\hat{a}_\mathrm{car} = \vb{a}_\mathrm{x} - \sin(\theta) \norm{\vb{g}}
 \end{equation}
 the acceleration due to gravity can be removed from the measurements, under the assumption that the estimated car pitch angle is close to the true value.
@@ -505,7 +506,7 @@ This process is repeated until either not enough points are left in the point cl
 \begin{figure}[htb]
 	\centering
 	\includegraphics{Graphics/TikZ/flowchart_lidar.pdf}
-	\caption[Flow chart \glsentryshort{lidar} algorithm]{Flow chart of the ramp detection algorithm using the \acrshort{lidar} sensor.}
+	\caption[Flow chart of the \glsentryshort{lidar} algorithm]{Flow chart of the ramp detection algorithm using the \acrshort{lidar} sensor.}
 	\label{fig:flowchart_lidar}
 \end{figure}
 
