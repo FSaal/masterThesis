@@ -9,15 +9,14 @@ from tf.transformations import (
     unit_vector,
     vector_norm,
     quaternion_matrix,
-    euler_from_matrix
+    euler_from_matrix,
 )
 
 # My ROS Node
 class VisualDetection(object):
-
     def __init__(self, ramp_start_x):
         self.ramp_data = [[] for i in range(5)]
-        self.arr = np.zeros((1,3))
+        self.arr = np.zeros((1, 3))
         # x coordinates where ramp starts
         self.ramp_start = ramp_start_x
         self.is_calibrated = False
@@ -36,8 +35,9 @@ class VisualDetection(object):
             self.is_calibrated = True
 
         # Apply lidar to car frame transformation
-        pc_array_tf = self.transform_pc(pc_array, rpy=(self.roll, self.pitch, 0),
-                                        translation_xyz=(-2.36, -0.05, -self.height))
+        pc_array_tf = self.transform_pc(
+            pc_array, rpy=(self.roll, self.pitch, 0), translation_xyz=(-2.36, -0.05, -self.height)
+        )
 
         # Reduce point cloud size with a passthrough filter
         pc_array_cut = self.reduce_pc(pc_array_tf, (0, 30), (-2, 2), (-1, 2))
@@ -74,11 +74,10 @@ class VisualDetection(object):
         roll, pitch, _ = euler_from_matrix(rot)
 
         # Display calculated transform
-        print('\n__________LIDAR__________')
-        print('Euler angles in deg to tf lidar to car frame:')
-        print('Roll: {:.2f}\nPitch: {:.2f}'.format(
-            np.rad2deg(roll), np.rad2deg(pitch)))
-        print('Lidar height above ground: {:.2f} m\n'.format(lidar_height))
+        print("\n__________LIDAR__________")
+        print("Euler angles in deg to tf lidar to car frame:")
+        print("Roll: {:.2f}\nPitch: {:.2f}".format(np.rad2deg(roll), np.rad2deg(pitch)))
+        print("Lidar height above ground: {:.2f} m\n".format(lidar_height))
         return (roll, pitch, lidar_height)
 
     def get_ground_plane(self, pc, max_iter=10):
@@ -125,7 +124,7 @@ class VisualDetection(object):
             # Prevent infinite loop
             counter += 1
             if counter == max_iter:
-                raise RuntimeError ('No ground could be detected.')
+                raise RuntimeError("No ground could be detected.")
 
     def test_ground_estimation(self, plane, est_ground_vec, lidar_height=1):
         """Tests if detected plane fullfills conditions to be considered the ground.
@@ -172,14 +171,14 @@ class VisualDetection(object):
         if roll0:
             roll = 0
         # Get rotation matrix (ignoring yaw angle)
-        rot = euler_matrix(roll, pitch, 0, 'sxyz')[:3, :3]
+        rot = euler_matrix(roll, pitch, 0, "sxyz")[:3, :3]
         return rot
 
     @staticmethod
     def array_to_pcl(pc_array):
         """Get pcl point cloud from numpy array"""
         pc = pcl.PointCloud()
-        pc.from_array(pc_array.astype('float32'))
+        pc.from_array(pc_array.astype("float32"))
         return pc
 
     @staticmethod
@@ -196,7 +195,7 @@ class VisualDetection(object):
         ang = np.arctan2(vector_norm(cross_prod), dot_prod)
 
         # Quaternion ([x,y,z,w])
-        quat = np.append(axis*np.sin(ang/2), np.cos(ang/2))
+        quat = np.append(axis * np.sin(ang / 2), np.cos(ang / 2))
         return quat
 
     @staticmethod
@@ -209,7 +208,7 @@ class VisualDetection(object):
         transl_x, transl_y, transl_z = translation_xyz
 
         # Rotation matrix
-        rot = euler_matrix(roll, pitch, yaw, 'sxyz')[:3, :3]
+        rot = euler_matrix(roll, pitch, yaw, "sxyz")[:3, :3]
         # Apply rotation
         pc_tf = np.inner(pc, rot)
 
@@ -230,7 +229,7 @@ class VisualDetection(object):
             & (pc[:, 1] < y_range[1])
             & (pc[:, 2] > z_range[0])
             & (pc[:, 2] < z_range[1])
-            ]
+        ]
         return pc_cut
 
     @staticmethod
@@ -266,8 +265,7 @@ class VisualDetection(object):
             # Ignore planes parallel to the side or front walls
             if self.is_plane_near_ground(n_vec):
                 # Check if ramp conditions are fullfilled
-                is_ramp, data = self.ramp_detection(
-                    plane, n_vec, (3, 9), (2, 6))
+                is_ramp, data = self.ramp_detection(plane, n_vec, (3, 9), (2, 6))
                 # Ramp conditions met
                 if is_ramp:
                     plane_global = self.relative_to_absolute(plane)
@@ -303,20 +301,23 @@ class VisualDetection(object):
 
         # Calculate angle [deg] between normal vector of plane and ground
         angle = self.angle_calc([0, 0, 1], n_vec)
-        # Get ramp width (difference between y-values)
+        # Calcualte ramp width (difference between y-values)
         width = max(plane_array[:, 1]) - min(plane_array[:, 1])
         # Ramp distance (average x-value of nearest points of the plane)
         n_nearest = 10
-        dist = np.mean(np.sort(plane_array[:n_nearest, 0]))
+        # Sort array by x-values
+        plane_array_sort = np.sort(plane_array[:, 0])
+        dist = np.mean(plane_array_sort[:n_nearest])
+        # Calculate ramp length (difference between x-values)
+        length = np.mean(plane_array_sort[-n_nearest:]) - np.mean(plane_array_sort[:n_nearest])
 
         # True distance to ramp using odometer from hdl_slam
         true_dist = self.ramp_start - self.pose.position.x
 
         # Assert ramp angle and width thresholds
-        if (angle_range[0] <= angle <= angle_range[1]
-                and width_range[0] <= width <= width_range[1]):
-            return True, [angle, width, dist, true_dist]
-        return False, [angle, width, dist, true_dist]
+        if angle_range[0] <= angle <= angle_range[1] and width_range[0] <= width <= width_range[1]:
+            return True, [angle, width, dist, true_dist, length]
+        return False, [angle, width, dist, true_dist, length]
 
     @staticmethod
     def ransac(pc):
