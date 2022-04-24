@@ -121,7 +121,7 @@ class GetScore(object):
             true_inliers.append(true_inlier_perc)
 
         # New dataframe with stats for each frame
-        # Structure reminder of ramp_stats: [angle, width, dist, true_dist]
+        # Structure reminder of ramp_stats: [angle, width, dist, true_dist, length]
         dic = []
         for i in range(samples_num):
             dic.append(
@@ -132,12 +132,15 @@ class GetScore(object):
                     "Width": ramp_stats[i][1],
                     "Dist": ramp_stats[i][2],
                     "TrueDist": ramp_stats[i][3],
+                    "Length": ramp_stats[i][4],
                 }
             )
         # Convert dictionary to dataframe
         df_stats = pd.DataFrame(dic)
         # Reorder columns
-        df_stats = df_stats[["sampleIdx", "TrueInliers", "Angle", "Width", "Dist", "TrueDist"]]
+        df_stats = df_stats[
+            ["sampleIdx", "TrueInliers", "Angle", "Width", "Dist", "TrueDist", "Length"]
+        ]
         # Remove all estimations from when after the ramp has been entered
         if only_before_ramp:
             df_stats = df_stats[df_stats["TrueDist"] > 0]
@@ -173,7 +176,9 @@ class GetScore(object):
             diff_dist = df_range["Dist"] - df_range["TrueDist"]
             diff_angle = df_range["Angle"] - self.true_angle
             diff_width = df_range["Width"] - self.true_width
-            diff_all = np.vstack((diff_dist, diff_angle, diff_width))
+            diff_length = df_range["Length"] - self.true_length
+            # diff_length = df_range["Length"]
+            diff_all = np.vstack((diff_dist, diff_angle, diff_width, diff_length))
             rmse = np.sqrt(np.mean(diff_all ** 2, axis=1))
             # print("RMSE: {}".format(rmse))
             # Print information for every bag
@@ -194,12 +199,13 @@ class GetScore(object):
                     rmse[0],
                     rmse[1],
                     rmse[2],
+                    rmse[3],
                 )
             )
         return scores
 
-    # Find best true value to minimize rmse
     def min_rmse(self, df_stats):
+        """Find best true value to minimize rmse"""
         df_range = df_stats[(1 < df_stats["TrueDist"]) & (df_stats["TrueDist"] < 15)]
         vals = []
         for i in np.arange(2.5, 4.5, 0.02):
@@ -226,6 +232,14 @@ class GetScore(object):
         vals = np.asarray(vals)
         min_rmse = np.argmin(vals[:, 0])
         print("Best RMSE: {} with distance {}".format(vals[min_rmse, 0], vals[min_rmse, 1]))
+        vals = []
+        for i in np.arange(6, 15, 0.1):
+            diff_length = df_range["Length"] - i
+            rmse = np.sqrt(np.mean(diff_length ** 2))
+            vals.append((rmse, i))
+        vals = np.asarray(vals)
+        min_rmse = np.argmin(vals[:, 0])
+        print("Best RMSE: {} with length {}".format(vals[min_rmse, 0], vals[min_rmse, 1]))
 
     def boss_method(self, min_dist=0, max_dist=30):
         """Run all methods above"""
@@ -281,6 +295,7 @@ def create_latex_table(scores):
         "rmse_dist",
         "rmse_ang",
         "rmse_width",
+        "rmse_length",
     ]
     # Group by ramp type and distance range and calculate sum of frames and avg detection rate
     df = df.groupby(["rampType", "min_d", "max_d"], as_index=False).agg(
@@ -291,6 +306,7 @@ def create_latex_table(scores):
             "rmse_dist": "mean",
             "rmse_ang": "mean",
             "rmse_width": "mean",
+            "rmse_length": "mean",
         }
     )
     display(df)
@@ -303,7 +319,7 @@ def create_latex_table(scores):
         else:
             ramp_type = ""
         print(
-            "{} & \\SIrange{{{}}}{{{}}}{{\\metre}} & {} & {:.2f}\% & {:.2f}\% & \SI{{{:.2f}}}{{\\metre}} & \SI{{{:.2f}}}{{\\metre}} & \SI{{{:.2f}}}{{\\degree}}\\\\".format(
+            "{} & \\SIrange{{{}}}{{{}}}{{\\metre}} & {} & {:.2f}\% & {:.2f}\% & \SI{{{:.2f}}}{{\\metre}} & \SI{{{:.2f}}}{{\\metre}} & \SI{{{:.2f}}}{{\\degree}} & \SI{{{:.2f}}}{{\\metre}}\\\\".format(
                 ramp_type,
                 row["min_d"],
                 row["max_d"],
@@ -313,6 +329,7 @@ def create_latex_table(scores):
                 row["rmse_dist"],
                 row["rmse_width"],
                 row["rmse_ang"],
+                row["rmse_length"],
             )
         )
 
@@ -331,7 +348,7 @@ BAG_INFO = [
         "xy_range": [[20.3, 33], [-0.9, 2.8]],
         "true_angle": 7.2,
         "true_width": 3.94,
-        "true_length": 12,
+        "true_length": 11.97,
     },
     {
         "bag_name": "u_c2s_half_odom_stereo_hdl.bag",
@@ -339,7 +356,7 @@ BAG_INFO = [
         "xy_range": [[23.8, 36], [-3.3, 0.5]],
         "true_angle": 7.2,
         "true_width": 3.94,
-        "true_length": 12,
+        "true_length": 11.97,
     },
     {
         "bag_name": "u_c2s_hdl.bag",
@@ -347,7 +364,7 @@ BAG_INFO = [
         "xy_range": [[45, 58], [-1.9, 1.8]],
         "true_angle": 7.2,
         "true_width": 3.94,
-        "true_length": 12,
+        "true_length": 11.97,
     },
     {
         "bag_name": "u_c2s_stop_hdl.bag",
@@ -355,7 +372,7 @@ BAG_INFO = [
         "xy_range": [[38, 51], [-1.5, 2.2]],
         "true_angle": 7.2,
         "true_width": 3.94,
-        "true_length": 12,
+        "true_length": 11.97,
     },
     {
         "bag_name": "u_d2e_hdl.bag",
@@ -363,7 +380,7 @@ BAG_INFO = [
         "xy_range": [[32.5, 44], [2, 5.5]],
         "true_angle": 7.4,
         "true_width": 3.9,
-        "true_length": 99,
+        "true_length": 11.8,
     },
     {
         "bag_name": "u_s2c_half_odom_hdl.bag",
@@ -371,7 +388,7 @@ BAG_INFO = [
         "xy_range": [[42, 56], [-2.2, 2]],
         "true_angle": 6.5,
         "true_width": 3.96,
-        "true_length": 99,
+        "true_length": 14.15,
     },
     {
         "bag_name": "u_s2c2d_part1_hdl.bag",
@@ -379,7 +396,7 @@ BAG_INFO = [
         "xy_range": [[47.3, 62], [-2.8, 1.5]],
         "true_angle": 6.5,
         "true_width": 3.96,
-        "true_length": 99,
+        "true_length": 14.15,
     },
     # {
     #     "bag_name": "u_s2c2d_part2_hdl.bag",
