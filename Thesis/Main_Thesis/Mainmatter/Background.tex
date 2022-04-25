@@ -1,13 +1,13 @@
 \chapter{Background}
 \label{ch:Background}
 In this chapter the fundamentals to understand the methods used in this thesis are explained.
-The first section gives an overview of different ways to represent orientations.
+The first section gives some mathematical background for different ways to represent orientations.
 In \cref{sec:sensors} the functionality of the different sensors used in this thesis are explained.
 A brief overview of the field of computer vision is given in \cref{sec:computer_vision}.
 Lastly, in \cref{sec:ros} the \gls{ros} framework, which allows for the communication to the different sensors, is introduced.
 
 
-\section{Mathematical}
+\section{Mathematical Background}
 \subsection{Mathematical Representations of 3D Orientations}
 Different sensors will be used in this thesis and each sensor will make its measurements in its own coordinate frame.
 In order to obtain meaningful results, all frames must be aligned to one common frame.
@@ -50,16 +50,16 @@ The other two angles are then undefined, because both their rotations axes are p
 \subsubsection{Quaternions}
 A quaternion is defined as
 \begin{equation}
-	q = q_w + q_x\vb{i} + q_y\vb{j} + q_z\vb{k}
+	\vb{q} = q_w + q_x\vb{i} + q_y\vb{j} + q_z\vb{k}
 \end{equation}
 with a real part $q_w$ and three imaginary parts $\vb{i}, \vb{j}$ and $\vb{k}$ satisfying
 \begin{equation}
 	\vb{i}^2 = \vb{j}^2 = \vb{k}^2 = \vb{i}\vb{j}\vb{k} = -1.
 \end{equation}
-The quaternion can also be written in vector form by dividing the quaternion in a real or scalar and an imaginary or vector part
+The quaternion can also be written in vector form by dividing the quaternion in a real or scalar part $q_w$ and an imaginary or vector part $q_v = \begin{bmatrix} q_x & q_y & q_z	\end{bmatrix}^\intercal$
 \begin{equation}
-	q = \begin{bmatrix}
-		q_v \\
+	\vb{q} = \begin{bmatrix}
+		\vb{q}_v \\
 		q_w
 	\end{bmatrix}
 	=\begin{bmatrix}
@@ -69,13 +69,13 @@ The quaternion can also be written in vector form by dividing the quaternion in 
 Note that in some literature the order of the real and imaginary part are swapped.
 If the quaternion is a unit vector, which means it satisfies
 \begin{equation}
-	\abs*{q} = \sqrt{q^\intercal q} = \sqrt{\abs*{q_v^2 + q_w^2}} = 1
+	\abs*{\vb{q}} = \sqrt{\vb{q}^\intercal \vb{q}} = \sqrt{\abs*{\vb{q}_v^2 + q_w^2}} = 1
 \end{equation}
 then it can be used to represent rotations.
 The rotation is then described with
 \begin{equation}
 	\label{eq:quaternion}
-	q =
+	\vb{q} =
 	\begin{bmatrix}
 		\hat{\vb{j}}\vdot\sin(\frac{\alpha}{2}) \\
 		\cos(\frac{\alpha}{2})
@@ -85,7 +85,7 @@ with $\alpha$ being the rotation angle and $\hat{\vb{j}}$ being the normalized r
 Each rotation is uniquely described by one unit quaternion, but each orientation can be described by two unit quaternions with opposite signs.
 A rotation to transform a point ${}_\mathcal{A}\vb{p}$ from frame $\mathcal{A}$ to $\mathcal{B}$ is defined as
 \begin{equation}
-	{}_\mathcal{B}\vb{p} = \qtf{a}{b} \otimes {}_\mathcal{A}\overline{\vb{p}} \otimes \qtf{a}{b}^* \otimes,
+	{}_\mathcal{B}\vb{p} = \qtf{a}{b} \otimes {}_\mathcal{A}\overline{\vb{p}} \otimes \qtf{a}{b}^*,
 \end{equation}
 where
 \begin{equation}
@@ -96,13 +96,13 @@ where
 and $\qtf{a}{b}^* = \qtf{b}{a}$ is the conjugate defined as
 \begin{equation}
 	\qtf{}{}^* = \begin{bmatrix}
-		-q_v \\
+		-\vb{q}_v \\
 		q_w
 	\end{bmatrix}.
 \end{equation}
 The symbol $\otimes$ denotes the quaternion multiplication, which is given by
 \begin{equation}
-	p \otimes q=\left(\begin{array}{c}
+	\vb{p} \otimes \vb{q}=\left(\begin{array}{c}
 			p_{w} q_{w}-p_v \cdot q_v \\
 			p_{w} q_v+q_{w} p_v+p_v \times q_v
 		\end{array}\right).
@@ -146,7 +146,7 @@ Using \cref{eq:quaternion} the rotation can then be expressed as a quaternion.
 Sensors are necessary to acquire information about the environment.
 In this section the functionality and advantages and disadvantages of each sensor used in this thesis will be described.
 
-\subsection{\glsentryshort{imu}}
+\subsection{\glsentryfull{imu}}
 An \gls{imu} is used to track the orientation and position of an object.
 Common uses are in the aerospace or automotive industry, often in combination with other sensors, to give information about the pose and position of a vehicle.
 More recently with the invention of \gls{mems} and specifically \gls{mems}-\glspl{imu} which allow for a very small form factor at a low cost, \glspl{imu} are also used in consumer electronics such as smartphones or fitness tracker.
@@ -209,7 +209,7 @@ A mass is suspended by springs along one axis and if an acceleration along this 
 The mass has little fingers perpendicular to the axis along which the movement occurs, which affect the capacity between the fixed plates.
 The change of capacity and thus voltage can be measured, from which the acceleration can be calculated.
 To be able to measure the acceleration along all three axis the same setup is used three times, perpendicular to each other.\\
-The measurements $\hat{\vb{a}}$ of a \gls{mems} accelerometer are not free of noise and can be modeled according to \cite{Lefferts1982} in a simplified way as
+The accelerations $\hat{\vb{a}}$ measured with a \gls{mems} accelerometer are not free of noise and can be modeled according to \cite{Lefferts1982} in a simplified way as
 \begin{equation}
 	\hat{\vb{a}} = \vb{a} + \vb{b}_\mathrm{a} + \vb{n}_\mathrm{a}.
 \end{equation}
@@ -220,9 +220,9 @@ More about the specific error terms can be read in \cref{sse:mems_errors}.
 A gyroscope measures the angular velocity.
 The setup of a \gls{mems} gyroscope is similar to that of a \gls{mems} accelerometer.
 A proof mass is suspended on a frame and responds to an input force.
-\gls{mems} gyroscopes make use of the Coriolis effect, which states that a rotating object with the angular velocity $w$ of mass $m$ and velocity $v$ experiences a force
+\gls{mems} gyroscopes make use of the Coriolis effect, which states that a rotating object with the angular velocity $\boldsymbol{\omega}$ of mass $m$ and velocity $\vb{v}$ experiences a force
 \begin{equation}
-	F_C = -2m(w\times v).
+	\vb{F}_\mathrm{C}  = -2m(\boldsymbol{\omega}\times \vb{v}).
 \end{equation}
 To measure the effect, a mass is vibrating along one axis, which in turn is also suspended.
 If the mass is oscillating along one axis and a rotation is applied, a second oscillation on the axis perpendicular to the rotation axis can be observed.
@@ -266,7 +266,7 @@ The integration of white noise leads than to a random walk.\\
 Angle errors introduced by random walk are usually the hardest to correct and are the reason, why the measurements of the gyroscope can not be trusted over a long period of time \cite{Woodman2007}.
 
 
-\subsection{\glsentryshort{lidar}}
+\subsection{\glsentryfull{lidar}}
 \gls{lidar} is a method to measure distance to objects.
 Similar to other systems such as \gls{sonar} or \gls{radar}, \gls{lidar} uses the time-of-flight principle.
 A short laser pulse with the velocity of light $c$ is sent into the environment and the reflected light is analyzed.
@@ -289,7 +289,7 @@ The working principle of a \gls{lidar} using the mechanical spinning method is s
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=0.5\textwidth]{Lidar.png}
-	\caption[Setup of a mechanical spinning \acrshort{lidar}]{Setup of a mechanical spinning \acrshort{lidar} \cite{Li2020}.}
+	\caption[Setup of a mechanical spinning \acrshort{lidar}]{Setup of a mechanical spinning \acrshort{lidar} \cite{Li2020}. The laser is reflected off a tilting mirror and is received through a transmission optic by the receiver. A rotation of the base independently of the mirror allows for a \SI{360}{\degree} horizontal \gls{fov}.}
 	\label{fig:lidar}
 \end{figure}
 While mechanical spinning systems are very precise and offer a great \gls{fov}, they are bulky, need a lot of power and are expensive \cite{Fujii2005}.\\
@@ -309,7 +309,7 @@ Different techniques exist to measure the speed with the most common ones being 
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=0.5\linewidth]{wheel_speed_sensor_active.pdf}
-	\caption[Setup of an active wheel speed sensor]{Setup of an active wheel speed sensor \cite{Re2011}.}
+	\caption[Setup of an active wheel speed sensor]{Setup of an active wheel speed sensor \cite{Re2011}.\color{red}TODO: Add short explanation}
 	\label{fig:wheel_speed_sensor_active}
 \end{figure}
 The magnetoelectric sensor is composed of a sensor head and a ring gear.
@@ -389,12 +389,13 @@ In the first step the image is divided into approximately 2000 region proposals 
 The selective search algorithm groups similar regions based on their color, texture, size and shape compatibility.
 After extracting a feature vector from each region proposal a pretrained \gls{svm} algorithm is applied to each region and classifies the proposal either to the background or to one of the object classes.
 Disadvantages of \gls{rcnn} are that the training of the network requires a lot of storage, and it is not possible to run \gls{rcnn} in real time.
+\isug{Expand image description}
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=.7\linewidth]{rcnn.png}
 	\caption[\acrshort{rcnn} framework]{The \acrshort{rcnn} framework \cite{Girshick2014}.}
 	\label{fig:rcnn}
-\end{figure}\\
+\end{figure}
 There exist multiple improvement methods with Fast \gls{rcnn} \cite{Girshick2015} and Faster \gls{rcnn} \cite{Ren2017}.
 Fast \gls{rcnn} greatly improves the performance by using a new \gls{roi} pooling layer, which allows sharing computations across all proposals instead of doing it for each proposal individually.
 Furthermore, it reduces the necessary storage for training the network while also providing better results.
@@ -417,9 +418,9 @@ But in the second stage, a binary mask is predicted for each \gls{roi} in parall
 
 
 
-\section{ROS}
+\section{\glsentryfull{ros}}
 \label{sec:ros}
-\gls{ros} is a framework that allows the communication between sensors and actuators of a robot and is typically run on Linux.
+\acrfull{ros} is a framework that allows the communication between sensors and actuators of a robot and is typically run on Linux.
 It is a meta-operating system and provides services such as hardware abstraction and low-level device control.
 Different languages such as C++, Python or Lisp are supported.
 The fundamental concepts are nodes, messages, topics and services \cite{Quigley2009}.
