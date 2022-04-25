@@ -35,7 +35,8 @@
             {Graphics/ExperimentalSetup/}
             {Graphics/Methods/}
             {Graphics/Background/}
-            {Graphics/Results/}}
+            {Graphics/Results/}
+            {Graphics/TikZ}}
 
 % Formatting settings
 \pagestyle{fancy}				% Activate fancy style
@@ -79,7 +80,7 @@
 % Vector #1 in coordinate frame #2
 \newcommand{\vincs}[2]{\ensuremath{{}_{\mathcal{\MakeUppercase{#2}}}\mathbf{{#1}}}}
 % Quaternion to transform from cs #1 to cs #2
-\newcommand{\qtf}[2]{\ensuremath{{}_{\mathcal{\MakeUppercase{#2}}}^{\mathcal{\MakeUppercase{#1}}}{q}}}
+\newcommand{\qtf}[2]{\ensuremath{{}_{\mathcal{\MakeUppercase{#2}}}^{\mathcal{\MakeUppercase{#1}}}{\vb{q}}}}
 % Rotation matrix to transform from cs #1 to cs #2
 \newcommand{\mtf}[2]{\ensuremath{{}_{\mathcal{\MakeUppercase{#2}}}^{\mathcal{\MakeUppercase{#1}}}\mathbf{{M}}}}
 
