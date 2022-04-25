@@ -13,22 +13,22 @@ Finally, in \cref{sec:garage}, the different type of ramps and their properties 
 \section{Sensors}
 \subsection{\glsentryshort{imu}}
 \begin{figure}[htb]
-	\centering
-	\begin{subfigure}[b]{0.4\textwidth}
-		\centering
-		\includegraphics[width=\textwidth]{myAHRS.png}
-		\caption{Withrobot myAHRS+ \cite{Withrobot2017}}
-		\label{fig:imu_myahrs}
-	\end{subfigure}
-	% \hfill
-	\begin{subfigure}[b]{0.4\textwidth}
-		\centering
-		\includegraphics[width=\textwidth]{zed2i.jpg}
-		\caption{Stereolabs ZED 2i camera \cite{Stereolabs2019}}
-		\label{fig:imu_zed}
-	\end{subfigure}
-	\caption[The \glsentryplural{imu} used in the experiment]{The two \glspl{imu} which will be used for the recordings. The Stereolabs ZED 2i camera has an integrated \gls{imu}.}
-	\label{fig:imus_used}
+    \centering
+    \begin{subfigure}[b]{0.4\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{myAHRS.png}
+        \caption{Withrobot myAHRS+ \cite{Withrobot2017}}
+        \label{fig:imu_myahrs}
+    \end{subfigure}
+    % \hfill
+    \begin{subfigure}[b]{0.4\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{zed2i.jpg}
+        \caption{Stereolabs ZED 2i camera \cite{Stereolabs2019}}
+        \label{fig:imu_zed}
+    \end{subfigure}
+    \caption[The \glsentryplural{imu} used in the experiment]{The two \glspl{imu} which will be used for the recordings. The Stereolabs ZED 2i camera has an integrated \gls{imu}.}
+    \label{fig:imus_used}
 \end{figure}
 Two different \glspl{imu} will be used for the experiment.\\
 The first one being the Withrobot myAHRS+ (see \cref{fig:imu_myahrs}), a low-cost high performance \gls{ahrs}.
@@ -43,44 +43,44 @@ Because no information about the noise density or random walk of the myAHRS+ \gl
 It analyzes the Allan variance from \gls{imu} measurement data recorded over a two-hour period, during which the \gls{imu} has not been moved.
 The smaller values of the ZED 2i \gls{imu} indicate, that it is the better sensor.
 \begin{table}[ht]
-	\centering
-	\caption{Comparison of the two used \glspl{imu} \cite{Withrobot2017, Stereolabs2019}}
-	\label{tab:imu_datasheets}
-	\begin{tabular}[t]{lccc}
-		\toprule
-		\textbf{Property}           & \textbf{myAHRS+} & \textbf{ZED 2i \gls{imu}} & \textbf{Unit}                                               \\
-		\midrule
-		Accelerometer range         & $\pm16$          & $\pm8$                    & \si{g}                                                      \\
-		Gyroscope range             & $\pm2000$        & $\pm1000$                 & \si{\degree\per\second}                                     \\
-		Magnetometer range          & $\pm1200$        & $\pm2500$                 & \si{\micro\tesla}                                           \\
-		Rate                        & \SI{100}         & \SI{400}                  & \si{\hertz}                                                 \\
-		Accelerometer noise density & \SI{4.502e-3}{}  & \SI{1.148e-3}{}           & \si{\frac{\metre}{\second\squared}\frac{1}{\sqrt{\hertz}}}  \\
-		Accelerometer random walk   & \SI{7.337e-5}{}  & \SI{6.458e-5}{}           & \si{\frac{\metre}{\second\cubed}\frac{1}{\sqrt{\hertz}}}    \\
-		Gyroscope noise density     & \SI{1.674e-4}{}  & \SI{8.254e-5}{}           & \si{\frac{\radian}{\second}\frac{1}{\sqrt{\hertz}}}         \\
-		Gyroscope random walk       & \SI{5.042e-6}{}  & \SI{1.632e-7}{}           & \si{\frac{\radian}{\second\squared}\frac{1}{\sqrt{\hertz}}} \\
-		\bottomrule
-	\end{tabular}
+    \centering
+    \caption{Comparison of the two used \glspl{imu} \cite{Withrobot2017, Stereolabs2019}}
+    \label{tab:imu_datasheets}
+    \begin{tabular}[t]{lccc}
+        \toprule
+        \textbf{Property}           & \textbf{myAHRS+} & \textbf{ZED 2i \gls{imu}} & \textbf{Unit}                                               \\
+        \midrule
+        Accelerometer range         & $\pm16$          & $\pm8$                    & \si{g}                                                      \\
+        Gyroscope range             & $\pm2000$        & $\pm1000$                 & \si{\degree\per\second}                                     \\
+        Magnetometer range          & $\pm1200$        & $\pm2500$                 & \si{\micro\tesla}                                           \\
+        Rate                        & \SI{100}         & \SI{400}                  & \si{\hertz}                                                 \\
+        Accelerometer noise density & \SI{4.502e-3}{}  & \SI{1.148e-3}{}           & \si{\frac{\metre}{\second\squared}\frac{1}{\sqrt{\hertz}}}  \\
+        Accelerometer random walk   & \SI{7.337e-5}{}  & \SI{6.458e-5}{}           & \si{\frac{\metre}{\second\cubed}\frac{1}{\sqrt{\hertz}}}    \\
+        Gyroscope noise density     & \SI{1.674e-4}{}  & \SI{8.254e-5}{}           & \si{\frac{\radian}{\second}\frac{1}{\sqrt{\hertz}}}         \\
+        Gyroscope random walk       & \SI{5.042e-6}{}  & \SI{1.632e-7}{}           & \si{\frac{\radian}{\second\squared}\frac{1}{\sqrt{\hertz}}} \\
+        \bottomrule
+    \end{tabular}
 \end{table}
 
 
 \subsection{\glsentryshort{lidar}}
 \begin{figure}[htbp]
-	\centering
-	\begin{subfigure}{0.4\textwidth}
-		\centering
-		\includegraphics[width=\textwidth]{Robosense.png}
-		\caption[The \glspl{lidar} used in the experiment]{Robosense RS-Bpearl \cite{RoboSense2020}}
-		\label{fig:lidar_robosense}
-	\end{subfigure}
-	% \hfill
-	\begin{subfigure}{0.4\textwidth}
-		\centering
-		\includegraphics[width=\textwidth]{Velodyne.png}
-		\caption{Velodyne Ultra puck \cite{Velodyne2018}}
-		\label{fig:lidar_velodyne}
-	\end{subfigure}
-	\caption{The two \glsentryplural{lidar} which will be used for the recordings.}
-	\label{fig:lidars_used}
+    \centering
+    \begin{subfigure}{0.4\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Robosense.png}
+        \caption[The \glspl{lidar} used in the experiment]{Robosense RS-Bpearl \cite{RoboSense2020}}
+        \label{fig:lidar_robosense}
+    \end{subfigure}
+    % \hfill
+    \begin{subfigure}{0.4\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Velodyne.png}
+        \caption{Velodyne Ultra puck \cite{Velodyne2018}}
+        \label{fig:lidar_velodyne}
+    \end{subfigure}
+    \caption{The two \glsentryplural{lidar} which will be used for the recordings.}
+    \label{fig:lidars_used}
 \end{figure}
 Two different \glspl{lidar} will be used during the experiment.
 The RS-Bpearl and the Velodyne UltraPuck, see \cref{fig:lidars_used}.
@@ -91,25 +91,25 @@ The Velodyne UltraPuck on the other hand has been specifically designed for bein
 Both \glspl{lidar} need an external power supply and the data transfer to the PC is done via Ethernet connection.
 Due to the setup of the test car it is only possible to mount one \gls{lidar} at a time.
 \begin{table}[ht]
-	\centering
-	\caption{Comparison of the two used \acrshort{lidar}s \cite{RoboSense2020, Velodyne2018}}
-	\label{tab:lidar_datasheets}
-	\begin{tabular}[t]{lccc}
-		\toprule
-		\textbf{Property}     & \textbf{RS-Bpearl}   & \textbf{Velodyne Ultra Puck}    & \textbf{Unit}     \\
-		\midrule
-		Channels              & 32                   & 32                              &                   \\
-		Points per second     & 576,000              & 600,000                         & \si{}             \\
-		Laser wavelength      & \SI{905}{}           & \SI{903}{}                      & \si{\nano\metre}  \\
-		Frame rate            & \SIrange{10}{20}{}   & \SIrange{5}{20}{}               & \si{\hertz}       \\
-		Range                 & \SI{100}{}           & \SI{200}{}                      & \si{\metre}       \\
-		Range accuracy        & $\pm\SI{3}{}$        & $\pm\SI{3}{}$                   & \si{\centi\metre} \\
-		Horizontal \gls{fov}  & \SI{360}{}           & \SI{360}{}                      & \si{\degree}      \\
-		Vertical \gls{fov}    & \SI{90}{}            & \SI{40}{} (\SIrange{-25}{15}{}) & \si{\degree}      \\
-		Horizontal resolution & \SIrange{0.2}{0.4}{} & \SIrange{0.1}{0.4}{}            & \si{\degree}      \\
-		Vertical resolution   & \SI{2.81}{}          & \SI{0.33}{}                     & \si{\degree}      \\
-		\bottomrule
-	\end{tabular}
+    \centering
+    \caption{Comparison of the two used \acrshort{lidar}s \cite{RoboSense2020, Velodyne2018}}
+    \label{tab:lidar_datasheets}
+    \begin{tabular}[t]{lccc}
+        \toprule
+        \textbf{Property}     & \textbf{RS-Bpearl}   & \textbf{Velodyne Ultra Puck}    & \textbf{Unit}     \\
+        \midrule
+        Channels              & 32                   & 32                              &                   \\
+        Points per second     & 576,000              & 600,000                         & \si{}             \\
+        Laser wavelength      & \SI{905}{}           & \SI{903}{}                      & \si{\nano\metre}  \\
+        Frame rate            & \SIrange{10}{20}{}   & \SIrange{5}{20}{}               & \si{\hertz}       \\
+        Range                 & \SI{100}{}           & \SI{200}{}                      & \si{\metre}       \\
+        Range accuracy        & $\pm\SI{3}{}$        & $\pm\SI{3}{}$                   & \si{\centi\metre} \\
+        Horizontal \gls{fov}  & \SI{360}{}           & \SI{360}{}                      & \si{\deg}         \\
+        Vertical \gls{fov}    & \SI{90}{}            & \SI{40}{} (\SIrange{-25}{15}{}) & \si{\deg}         \\
+        Horizontal resolution & \SIrange{0.2}{0.4}{} & \SIrange{0.1}{0.4}{}            & \si{\deg}         \\
+        Vertical resolution   & \SI{2.81}{}          & \SI{0.33}{}                     & \si{\deg}         \\
+        \bottomrule
+    \end{tabular}
 \end{table}
 
 
@@ -133,10 +133,10 @@ The placement of the \gls{imu} integrated in the ZED 2i camera is limited, becau
 It was placed on the roof of the car, which is sturdy enough to not be suspect to flexion, while also allowing for a good \gls{fov} for the camera.
 The myAHRS+ \gls{imu} was mounted on the floor of the car trunk.\\
 \begin{figure}[htpb]
-	\centering
-	\input{Graphics/TikZ/lidar_mount.tex}
-	\caption[\acrshort{lidar} placement on the car]{Calculation of the best mounting angle of the \acrshort{lidar} on the car. Variable description in \cref{tab:lidar_mount}.}
-	\label{fig:tikz_lidar_mount}
+    \centering
+    \input{Graphics/TikZ/lidar_mount.tex}
+    \caption[\acrshort{lidar} placement on the car]{Calculation of the best mounting angle of the \acrshort{lidar} on the car. Variable description in \cref{tab:lidar_mount}.}
+    \label{fig:tikz_lidar_mount}
 \end{figure}
 The \gls{lidar} is placed on top of the car, to get a greater \gls{fov}.
 The pitch angle $\beta$ at which the \gls{lidar} will be mounted should be chosen such that the number of points in the area at the beginning of the ramp are maximized.
@@ -147,60 +147,60 @@ A visualization of the different variables can be seen in \cref{fig:tikz_lidar_m
 The coordinates at which the laser lines of the \gls{lidar} hit the ground can be calculated in the following way.\\
 The angle $\kappa$ between the plane parallel to the ground at \gls{lidar} height and each laser wave is defined as
 \begin{equation}
-	\kappa = \beta - i\epsilon
+    \kappa = \beta - i\epsilon
 \end{equation}
 with $i \in [0,1,2,\dots,n]$ being the laser channel ID starting from the lowest opening angle and going to the highest and $n$ being the number of laser channels.
 On flat ground the distance at which the laser waves hit the ground can be calculated by
 \begin{equation}
-	d_\mathrm{hit,ground}  = \tan(\ang{90} - \kappa) h_\mathrm{l}.
-	\label{eq:ground_points}
+    d_\mathrm{hit,ground}  = \tan(\ang{90} - \kappa) h_\mathrm{l}.
+    \label{eq:ground_points}
 \end{equation}
 With a ramp, the assumption from \cref{eq:ground_points} does not hold anymore.
 The light does not travel as far.
 The height above ground, when the light is at the beginning of the ramp can be calculated by
 \begin{equation}
-	h_\mathrm{w,start} = h_\mathrm{l} - d\tan(\kappa).
+    h_\mathrm{w,start} = h_\mathrm{l} - d\tan(\kappa).
 \end{equation}
 The distance $l_\mathrm{w}$ which the light travels from the beginning of the ramp to the contact point with the ramp can be calculated using the law of sines
 \begin{align}
-	l_\mathrm{w} & = \frac{h_\mathrm{w,start} }{\sin(\gls{ramp_ang} + \kappa)} \sin(\ang{90} - \gls{ramp_ang}) \nonumber \\
-	             & = -\frac{h_\mathrm{w,start} }{\sin(\gls{ramp_ang} + \kappa)} \cos(\gls{ramp_ang}).
+    l_\mathrm{w} & = \frac{h_\mathrm{w,start} }{\sin(\gls{ramp_ang} + \kappa)} \sin(\ang{90} - \gls{ramp_ang}) \nonumber \\
+                 & = -\frac{h_\mathrm{w,start} }{\sin(\gls{ramp_ang} + \kappa)} \cos(\gls{ramp_ang}).
 \end{align}
 The traveled distance along the x-axis from the start of the ramp to the contact point is then
 \begin{align}
-	d_\mathrm{w} & = l_\mathrm{w} \sin(\ang{90} - 2\gls{ramp_ang} - \kappa) \nonumber \\
-	             & = -l_\mathrm{w} \cos(2\gls{ramp_ang} + \kappa).
+    d_\mathrm{w} & = l_\mathrm{w} \sin(\ang{90} - 2\gls{ramp_ang} - \kappa) \nonumber \\
+                 & = -l_\mathrm{w} \cos(2\gls{ramp_ang} + \kappa).
 \end{align}
 Putting everything together, the total x distance from the \gls{lidar} to the contact point on the ramp can be calculated by
 \begin{align}
-	d_\mathrm{hit,ramp} & = d + d_\mathrm{w}                                                                                    \nonumber               \\
-	d_\mathrm{hit,ramp} & = d + \frac{h_\mathrm{l} - d\tan(\kappa)}{\sin(\gls{ramp_ang} + \kappa)} \cos(\gls{ramp_ang}) \cos(2\gls{ramp_ang} + \kappa).
-	\label{eq:final_equation}
+    d_\mathrm{hit,ramp} & = d + d_\mathrm{w}                                                                                    \nonumber               \\
+    d_\mathrm{hit,ramp} & = d + \frac{h_\mathrm{l} - d\tan(\kappa)}{\sin(\gls{ramp_ang} + \kappa)} \cos(\gls{ramp_ang}) \cos(2\gls{ramp_ang} + \kappa).
+    \label{eq:final_equation}
 \end{align}
 Using \cref{eq:ground_points} and \cref{eq:final_equation} and optimizing $\beta$ such that the number of points in the area at the start of the ramp are maximized, the optimal mounting pitch angle $\beta$ for the two \glspl{lidar} has been found with $\beta_\mathrm{velodyne} = \ang{0}$ and $\beta_\mathrm{robos} = \ang{20}$.
 The optimization was done for a distance of \SI{10}{\metre} to the ramp.
 The angle between the two \glspl{lidar} differs due to the different starting opening angle of \SI{-25}{\degree} and \SI{0}{\degree} for the Velodyne and Robosense respectively, as well as due to the different vertical resolution.
 A detailed description of all the variables used for the calculation can be found in \cref{tab:lidar_mount}.
 \begin{table}[htbp]
-	\centering
-	\caption{Variables used to calculate the optimal mounting angle of the \gls{lidar}.}
-	\label{tab:lidar_mount}
-	\begin{tabular}[t]{clc}
-		\toprule
-		\textbf{Variable} & \textbf{Description}                                   & \textbf{Unit} \\
-		\midrule
-		$h_\mathrm{l} $   & \gls{lidar} height above ground                        & \si{\metre}   \\
-		$d$               & Distance to ramp                                       & \si{\metre}   \\
-		$h_\mathrm{r}$    & Height of ramp                                         & \si{\metre}   \\
-		$l_\mathrm{w}$    & Light travel distance from ramp start to contact point & \si{\metre}   \\
-		$d_\mathrm{w}$    & Distance from ramp start to contact point              & \si{\metre}   \\
-		$\gls{ramp_ang}$  & Ramp angle                                             & \si{\degree}  \\
-		$\beta$           & \gls{lidar} mount angle                                & \si{\degree}  \\
-		$\kappa$          & Laser line angle                                       & \si{\degree}  \\
-		$\epsilon$        & \gls{lidar} vertical resolution                        & \si{\degree}  \\
-		$n$               & Number of laser channels                               &               \\
-		\bottomrule
-	\end{tabular}
+    \centering
+    \caption{Variables used to calculate the optimal mounting angle of the \gls{lidar}.}
+    \label{tab:lidar_mount}
+    \begin{tabular}[t]{clc}
+        \toprule
+        \textbf{Variable} & \textbf{Description}                                   & \textbf{Unit} \\
+        \midrule
+        $h_\mathrm{l} $   & \gls{lidar} height above ground                        & \si{\metre}   \\
+        $d$               & Distance to ramp                                       & \si{\metre}   \\
+        $h_\mathrm{r}$    & Height of ramp                                         & \si{\metre}   \\
+        $l_\mathrm{w}$    & Light travel distance from ramp start to contact point & \si{\metre}   \\
+        $d_\mathrm{w}$    & Distance from ramp start to contact point              & \si{\metre}   \\
+        $\gls{ramp_ang}$  & Ramp angle                                             & \si{\deg}     \\
+        $\beta$           & \gls{lidar} mount angle                                & \si{\deg}     \\
+        $\kappa$          & Laser line angle                                       & \si{\deg}     \\
+        $\epsilon$        & \gls{lidar} vertical resolution                        & \si{\deg}     \\
+        $n$               & Number of laser channels                               &               \\
+        \bottomrule
+    \end{tabular}
 \end{table}
 
 
@@ -227,10 +227,10 @@ Because of that, the normal mode was used to drive between different levels.
 Before driving down, the mode was switched again to also provide the wheel speed measurements.
 A picture of the car with the mounted \gls{lidar} and ZED 2i camera can be found in \cref{fig:eGolf}.
 \begin{figure}[htb]
-	\centering
-	\includegraphics[trim={0, 5cm, 0, 5cm}, clip, width=0.6\linewidth]{eGolf}
-	\caption[Car with mounted sensors]{The car used for the recordings with the full sensor setup mounted on the roof.}
-	\label{fig:eGolf}
+    \centering
+    \includegraphics[trim={0, 5cm, 0, 5cm}, clip, width=0.6\linewidth]{eGolf}
+    \caption[Car with mounted sensors]{The car used for the recordings with the full sensor setup mounted on the roof.}
+    \label{fig:eGolf}
 \end{figure}
 
 
@@ -244,44 +244,46 @@ The values were measured by inspecting the point cloud generated by the \gls{lid
 The width of the ramp is measured between the side wall and the railing, and not between the two curbsides.
 Because the ramps do not have a constant angle, because the change of the angle gradually increases, decreases and then increases again, the average angle of the ramps is used.
 \begin{figure}[htb]
-	\begin{subfigure}{.24\linewidth}
-		\centering
-		\includegraphics[angle=-90, width=1\linewidth]{RampA.jpg}
-		\caption{}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}{.24\linewidth}
-		\centering
-		\includegraphics[angle=-90, width=1\linewidth]{RampB.jpg}
-		\caption{}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}{.24\linewidth}
-		\centering
-		\includegraphics[width=1\linewidth]{RampC.jpg}
-		\caption{}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}{.24\linewidth}
-		\centering
-		\includegraphics[angle=-90, width=1\linewidth]{RampD.jpg}
-		\caption{}
-	\end{subfigure}
-	\caption[Ramps of the garage]{On the ramps A, B and C the car will be driven up. On the ramp D as well as also on the ramp A the car will be driven down.}
-	\label{fig:all_ramps}
+    \begin{subfigure}{.24\linewidth}
+        \centering
+        \includegraphics[angle=-90, width=1\linewidth]{RampA.jpg}
+        \caption{}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{.24\linewidth}
+        \centering
+        \includegraphics[angle=-90, width=1\linewidth]{RampB.jpg}
+        \caption{}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{.24\linewidth}
+        \centering
+        \includegraphics[width=1\linewidth]{RampC.jpg}
+        \caption{}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{.24\linewidth}
+        \centering
+        \includegraphics[angle=-90, width=1\linewidth]{RampD.jpg}
+        \caption{}
+    \end{subfigure}
+    \caption[Ramps of the garage]{On the ramps A, B and C the car will be driven up. On the ramp D as well as also on the ramp A the car will be driven down.}
+    \label{fig:all_ramps}
 \end{figure}
 \begin{table}[htb]
-	\centering
-	\caption[Measured ramp properties]{The measured ramp properties.}
-	\label{tab:ramp_properties}
-	\begin{tabular}[t]{cccc}
-		\toprule
-		\textbf{Ramp} & \textbf{Angle}    & \textbf{Width}    & \textbf{Length}       \\
-		\midrule
-		Ramp A        & \SI{7.2}{\degree} & \SI{3.94}{\metre} & \SI{11.97}{\metre}    \\
-		Ramp B        & \SI{6.5}{\degree} & \SI{3.96}{\metre} & \SI{14.15}{\metre}??? \\
-		Ramp C        & \SI{7.4}{\degree} & \SI{3.90}{\metre} & \SI{11.85}{\metre}    \\
-		Ramp D        & \SI{0}{\degree}   & \SI{0}{\metre}    & \SI{11.89}{\metre}    \\
-		\bottomrule
-	\end{tabular}
+    \centering
+    \caption[Measured ramp properties]{The measured ramp properties.}
+    \label{tab:ramp_properties}
+    \begin{tabular}[t]{cccc}
+        \toprule
+        \textbf{Ramp} & \textbf{Angle} [\si{\degree}] & \textbf{Width} [\si{\metre}] & \textbf{Length} [\si{\metre}] \\
+        \midrule
+        A             & \SI{7.2}{}                    & \SI{3.94}{}                  & \SI{11.97}{}                  \\
+        B             & \SI{6.5}{}                    & \SI{3.96}{}                  & \SI{14.15}{}???               \\
+        C             & \SI{7.4}{}                    & \SI{3.90}{}                  & \SI{11.85}{}                  \\
+        D             & \SI{0}{}                      & \SI{0}{}                     & \SI{11.89}{}                  \\
+        \bottomrule
+    \end{tabular}
 \end{table}
+\itodo{Measure ramp D and check lengths again}
+\iquest{What about ramp E (only used for cam)?}
