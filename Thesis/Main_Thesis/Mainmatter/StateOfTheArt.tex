@@ -38,6 +38,16 @@ The estimated quaternions using the accelerometer and angular velocity measureme
 
 
 \section{\glsentryshort{lidar}}
+While it does seem that no research exists, where a \gls{lidar} is used to detect ramps, several papers discuss the detection of planes in point cloud data and estimate road grade?
+Different methods exist where the \gls{lidar} recordings from a plane are used to map the road grade.
+In ref.\cite{El-Sayed2018} a new technique for plane detection is proposed.
+The point cloud is down-sampled using octree into small cubes, which are then down-sampled based on their local density.
+\gls{pca} is used to find planar surfaces.
+It is able to process large point clouds faster than the efficient \gls{ransac} algorithm, while achieving a higher accuracy.
+Ref. \cite{Sakenas2007} introduces a new algorithm, to extract planar maps from 3D data.
+The point cloud is divided into 3D cells and a histogram over the z-axis is created.
+Ramps can then be detected by searching for neighboring cells, where the height increases gradually.
+
 \todoin{
 	\begin{itemize}
 		\item \gls{lidar} methods for plane detection
@@ -56,6 +66,7 @@ The estimated quaternions using the accelerometer and angular velocity measureme
 }
 Ref.~\cite{Nejati2016} used an RGB-D sensor (camera image + depth sensor) to detect ramps for wheelchairs.
 Ramp properties such as angle, width, length and the orientation of the ramp were determined as well.
+A ground plane estimation using a disparity map, which can be generated from a stereo camera, is proposed in \cite{Chumerin2008}.
 
 
 
