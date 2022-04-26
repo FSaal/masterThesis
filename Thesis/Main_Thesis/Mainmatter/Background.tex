@@ -155,14 +155,14 @@ The acceleration is measured using an accelerometer and can be used to determine
 The gyroscope gives information about the change of orientation.
 The third part is the magnetometer, which is able to measure the earth's magnetic field and is used to correct the measurements of the gyroscope.
 It allows for the determination of the absolute heading, whereas the gyroscope can only measure relative change. But because it is very sensitive to other magnetic objects, it is often omitted.
-\glspl{imu} can be typically divided into the two following categories.\\
-\begin{figure}[htb]
+\glspl{imu} can be typically divided into the two following categories.
+\begin{figure}[h]
 	\centering
 	\includegraphics[width=0.4\linewidth]{stable_platform_imu}
 	\caption[Setup of a stable platform \acrshort{imu}]{Setup of a stable platform \acrshort{imu} \cite{Woodman2007}.}
 	\label{fig:stable_platform_imu}
 \end{figure}
-In the first type, the stable platform systems, the inertial sensors are mounted in such way, that they are always aligned with the reference frame.
+\\In the first type, the stable platform systems, the inertial sensors are mounted in such way, that they are always aligned with the reference frame.
 This is achieved using gimbals, which allow movement along all three axes.
 The gyroscopes on the platform measure the rotation and send them to torque motors, which rotate the gimbals to keep the platform in alignment with the reference frame.
 A typical setup of a stable platform system can be seen in \cref{fig:stable_platform_imu}.
@@ -305,14 +305,14 @@ A processing unit then generates a 3D point cloud from all the received measurem
 \subsection{Wheel speed sensor}
 The wheel speed sensors measure the speed of each wheel and allow for the calculation of the car velocity.
 The measurements are also used by many driver assistance systems such as \gls{abs} to be able to detect wheel slip.
-Different techniques exist to measure the speed with the most common ones being magnetoelectric and Hall type wheel speed sensors.\\
+Different techniques exist to measure the speed with the most common ones being magnetoelectric and Hall type wheel speed sensors.
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=0.5\linewidth]{wheel_speed_sensor_active.pdf}
-	\caption[Setup of an active wheel speed sensor]{Setup of an active wheel speed sensor \cite{Re2011}.\color{red}TODO: Add short explanation}
+	\caption[Setup of an active wheel speed sensor]{Setup of an active wheel speed sensor \cite{Re2011}. The sensor head measures the alternating magnetic field. The amplitude of the induced voltage can then be used to determine the wheel speed.}
 	\label{fig:wheel_speed_sensor_active}
 \end{figure}
-The magnetoelectric sensor is composed of a sensor head and a ring gear.
+\\The magnetoelectric sensor is composed of a sensor head and a ring gear.
 The head is mounted stationary on the car frame while the ring gear is mounted on the wheel hub or axle and rotates with the wheel.
 The sensor head is composed of a permanent magnet core and a coil.
 When the wheel and thus the ring gear turns the teeth and gaps of the wheel pass by the sensor head and change the magnetic field which induces an alternating voltage in the coil.
@@ -389,11 +389,10 @@ In the first step the image is divided into approximately 2000 region proposals 
 The selective search algorithm groups similar regions based on their color, texture, size and shape compatibility.
 After extracting a feature vector from each region proposal a pretrained \gls{svm} algorithm is applied to each region and classifies the proposal either to the background or to one of the object classes.
 Disadvantages of \gls{rcnn} are that the training of the network requires a lot of storage, and it is not possible to run \gls{rcnn} in real time.
-\isug{Expand image description}
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=.7\linewidth]{rcnn.png}
-	\caption[\acrshort{rcnn} framework]{The \acrshort{rcnn} framework \cite{Girshick2014}.}
+	\caption[\acrshort{rcnn} framework]{The \acrshort{rcnn} framework \cite{Girshick2014}. The image is divided into subregions and each subregion is classified as one of the object classes or the background independently.}
 	\label{fig:rcnn}
 \end{figure}
 There exist multiple improvement methods with Fast \gls{rcnn} \cite{Girshick2015} and Faster \gls{rcnn} \cite{Ren2017}.
@@ -412,7 +411,7 @@ But in the second stage, a binary mask is predicted for each \gls{roi} in parall
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=.7\linewidth]{mask_rcnn.png}
-	\caption[Mask \acrshort{rcnn} framework]{The Mask \acrshort{rcnn} framework \cite{He2017}.}
+	\caption[Mask \acrshort{rcnn} framework]{The Mask \acrshort{rcnn} framework \cite{He2017}. It also generates a segmentation mask in addition to the bounding box and class label.}
 	\label{fig:mask_rcnn}
 \end{figure}
 
