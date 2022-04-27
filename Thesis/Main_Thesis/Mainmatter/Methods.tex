@@ -222,14 +222,14 @@ To minimize the error of the linear acceleration estimate, a \gls{lpf} should be
 A \gls{lpf} passes all signals with frequency lower than a certain cut-off frequency $f_0$ and attenuates signals with a frequency above $f_0$.
 In contrast, a \gls{hpf} should be used on the estimate of the gyroscope.
 A \gls{hpf} works exactly opposite to a \gls{lpf}.
-It blocks signals with a frequency below $f_0$ while allowing signals over this frequency to pass through \cite{Lyons1996}. A block diagram of the complementary filter is shown in \cref{fig:tikz_complementary_filter}.\\
+It blocks signals with a frequency below $f_0$ while allowing signals over this frequency to pass through \cite{Lyons1996}. A block diagram of the complementary filter is shown in \cref{fig:tikz_complementary_filter}.
 \begin{figure}[htb]
 	\centering
 	\input{Graphics/TikZ/complementary_filter.tex}
 	\caption[Block diagram of the complementary filter]{The block diagram of the complementary filter.}
 	\label{fig:tikz_complementary_filter}
 \end{figure}
-The angle estimation obtained from the linear acceleration (\cref{eq:ang_from_acc}) will be referred to as $\theta_\mathrm{acc}$, the angle estimation from the gyroscope estimation as $\theta_\mathrm{gyr}$ and the fused estimation of the complementary filter will be denoted as $\hat{\theta}$.
+\\The angle estimation obtained from the linear acceleration (\cref{eq:ang_from_acc}) will be referred to as $\theta_\mathrm{acc}$, the angle estimation from the gyroscope estimation as $\theta_\mathrm{gyr}$ and the fused estimation of the complementary filter will be denoted as $\hat{\theta}$.
 As seen in \cref{eq:ang_from_gyro}, $\theta_\mathrm{gyr}$ is calculated by integrating the angular velocity $\boldsymbol{\omega}_\mathrm{gyr} $ measured by the gyroscope.
 The Laplace transformation can be used to transform the angles from the time domain to the frequency domain.
 The angles $\theta_\mathrm{acc}$, $\theta_\mathrm{gyr}$ and $\hat{\theta}$ will be denoted as $\Theta_\mathrm{acc}(s)$, $\Theta_\mathrm{gyr}(s)$ and $\hat{\Theta}(s)$ in the frequency domain, the gyroscope measurements $\boldsymbol{\omega}_\mathrm{gyr} $ as $\Omega_\mathrm{gyr} (s)$.
@@ -282,8 +282,7 @@ The time $T_\mathrm{free}$ where the drift of the angle estimation from the gyro
 E.g. if the drift from the gyroscope is only negligible for \SI{10}{\second} then the cut-off frequency should be chosen at $f_0 = \frac{1}{\SI{10}{\second}} = \SI{0.1}{\hertz}$ or higher.
 The filter gain can then be calculated using \cref{eq:filter_f0} and \cref{eq:filter_gain}.
 Using the previous example and assuming a sample frequency of \SI{100}{\hertz}, the filter gain would then be $\gamma = 0.9938$.
-For the experiment a cut-off frequency of $f_0=?$ was chosen, resulting in a filter coefficient of $\alpha = ?$ and a filter gain of $\gamma = ?$.
-\itodo{Enter filter coefficient}
+For the experiment a cut-off frequency of $f_0=0.16076$ was chosen, resulting in a filter gain of $\gamma = 0.99$.
 
 \subsubsection{Gravity method}
 \label{subsubsec:gravity_method}
@@ -455,7 +454,7 @@ All the points inside a cube are then reduced to their most centroid point.
 If the cube does not contain any points, it is neglected.
 \begin{table}[htb]
 	\centering
-	\caption{The parameters used for the preprocessing of the point cloud.}
+	\caption[Parameters for the preprocessing of the point cloud]{The parameters used for the preprocessing of the point cloud.}
 	\label{tab:lidar_preprocessing_params}
 	\begin{tabular}[t]{lcc}
 		\toprule
