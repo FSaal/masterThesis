@@ -639,6 +639,7 @@ It describes how often the network is trained on the entire dataset, a higher nu
 Because the dataset is small, has only one class and contains similar images, the number of epochs can be chosen fairly small.
 
 \subsection{Point cloud extraction}
+\label{ssec:point_cloud_extraction}
 The ZED 2i stereo camera used in this thesis also generates a point cloud.
 More information about the camera will be described in \cref{ssec:camera}.
 The 3D point cloud can be projected onto the 2D camera image.
@@ -646,8 +647,11 @@ For the projection, the rotation vector and translation from the point cloud fra
 Because the ZED 2i stereo camera records both the point cloud and camera image at once, the rotation and translation between the two frames is zero.
 Using the \texttt{projectPoints} function of the \texttt{opencv} library \cite{Bradski2000}, the point cloud is projected onto the camera image.
 The camera image is then fed into the network, which predicts a bounding box and segmentation mask of the ramp.
+The bounding box is in the form ($x_0$, $y_0$, $w$, $h$) with $x_0, y_0$ being the coordinates of the upper left corner and $w, h$ the width and height of the bounding box.
+The segmentation mask is stored as a binary image with the same size as the camera image.
 Then, using the predicted bounding box or the segmentation mask, all the projected points outside the box or mask are removed.
 The points are then transformed back into the 3D space.
+Since it is possible that multiple points get projected onto the same pixel, some information might be lost during this step.\\
 Now that only points inside the ramp region are left, the \gls{ransac} algorithm can be applied.
 It is used to find the best fitting plane of all the inliers and removes potential outliers.
 Different properties of the ramp can now be calculated, as described in \cref{sssec:ramp_detecion_lidar}.\\
