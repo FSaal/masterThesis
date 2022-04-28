@@ -369,6 +369,7 @@ This can be explained by the working principle of the \gls{lidar}, which sends o
 The horizontal resolution is thus greater than the vertical resolution.\\
 Beside the three ramps, data consisting of 252 frames were recorded of an environment where no ramp was visible.
 One frame was wrongly labeled as ramp, which results together with the other recordings in a precision score of \SI{99.54}{\percent} or \SI{99.91}{\percent}.
+\iquest{What is a fp and fn in my case?}
 \begin{table}[htb]
 	\centering
 	\caption{Ramp detection and property estimation evaluation of the \glsentryshort{lidar} algorithm. The precision increases the closer the car gets to the ramp.}
@@ -426,8 +427,7 @@ Note that the estimated width is the width of the whole ramp and not only the wi
 Finally, the estimated length of the ramp is shown in \cref{fig:lidar_length_eval}.
 At a great distance not enough lines fall into the ramp region, which leads to an underestimation of the length at first.
 However, the estimation improves at a distance of about \SI{17}{\metre} to the ramp, after which the estimation fluctuates around the measured value.
-\iimprov{Remove legend for each plot and only use one legend for all plots.}
-\begin{figure}[H]
+\begin{figure}[htb]
 	\centering
 	\begin{subfigure}{1\textwidth}
 		\centering
@@ -482,46 +482,10 @@ This makes the precise tracking of the distance to the ramp difficult.
 
 \section{Camera}
 The camera was used to detect the ramp and mask the region.
-\begin{figure}[htbp]
-	\centering
-	\includegraphics[width=1\linewidth]{camera_detection_compare}
-	\caption{Machine learning}
-	\label{fig:camera_detection_compare}
-\end{figure}
-\begin{equation}
-	\text{Precision} = \frac{TP}{TP+FP}
-\end{equation}
-\begin{equation}
-	\text{Recall} = \frac{TP}{TP+FN}
-\end{equation}
-$TP$ is the number of true positives, $FP$ is the number of false positives and $FN$ is the number of false negatives.
-So the precision gives information about how accurate the predictions are and the recall gives information about how much of the ground truth is detected.
-The \gls{ap} is a detection evaluation metric used by the \gls{coco} dataset.
-$\text{AP}_{50}$ means how many detections have been made with an \gls{iou} score of at least 50\%.
-The \gls{iou} is defined as
-\begin{equation}
-	\text{\acrshort{iou}} = \frac{\text{Area of Overlap}}{\text{Area of Union}}.
-\end{equation}
-The area of overlap is defined as the intersection between the predicted and ground truth bounding box, and the area of union is the area of both boxes added together.
-A perfect detection would have an \gls{iou} score of 1.
-Since selecting a meaningful threshold for the \gls{ap} score depends on the dataset, an average score \gls{map} is used.
-The \gls{map} score is the average over multiple \gls{iou} thresholds for all the different classes.
-It is calculated by averaging all \gls{ap} scores in the range of 50\% to 95\% with a step size of 5\%, meaning that the average of 10 different values is used.\\
-In \cref{tab:detection_eval} the \gls{map} score for different hyperparameters is shown.
+As described in \cref{sec:performance_measures}, the \gls{map} score is used to evaluate the performance of the neural network.
+Since transfer learning is used and the dataset is fairly small, different hyperparameters could be tested.
+In \cref{tab:detection_eval} the \gls{map} score for different hyperparameters is listed.
 
-% \begin{table}
-% 	\centering
-% 	\caption[Detection evaluation]{bla}
-% 	\label{tab:detection_eval}
-% 	\begin{tabular}[htb]{ccccccc}
-% 		\toprule
-% 		\textbf{Epochs} & \textbf{LR} & \textbf{SR} & \textbf{Box mAP} & $\textbf{Box AP}_{75}$ & $\textbf{Mask mAP}$ & $\textbf{Mask AP}_\mathbf{75}$ \\
-% 		\midrule
-% 		1.0             & 0.025       & 128.0       & 55.8             & 79.4                   & 52.5                & 100.0                          \\
-% 		1.0             & 0.025       & 512.0       & 81.1             & 86.1                   & 100.0               & 100.0                          \\
-% 		\bottomrule
-% 	\end{tabular}
-% \end{table}
 \begin{table}
 	\centering
 	\caption[Detection evaluation]{Testing of different training hyperparameters and their influence on the \acrshort{ap} score.}
@@ -533,55 +497,33 @@ In \cref{tab:detection_eval} the \gls{map} score for different hyperparameters i
 		\cmidrule(lr){1-3}                       \cmidrule(lr){4-5}
 		\textbf{Epochs}                         & \textbf{LR}                          & \textbf{SR} & \textbf{Box mAP} & \textbf{Mask mAP} \\
 		\midrule
-		1                                       & 0.001                                & 128         & 75.5             & 77.7              \\
-		1                                       & 0.001                                & 256         & 80.1             & 85.1              \\
-		1                                       & 0.0025                               & 128         & 78.2             & 83.5              \\
-		1                                       & 0.0025                               & 256         & 85.3             & 88.5              \\
-		1                                       & 0.005                                & 128         & 77.1             & 84.6              \\
-		1                                       & 0.005                                & 256         & 84.7             & 85.0              \\
-		3                                       & 0.001                                & 128         & 86.0             & 89.8              \\
-		3                                       & 0.001                                & 256         & 86.6             & 90.0              \\
-		3                                       & 0.0025                               & 128         & 81.0             & 85.6              \\
-		3                                       & 0.0025                               & 256         & 88.3             & 91.6              \\
-		3                                       & 0.005                                & 128         & 81.3             & 87.1              \\
-		3                                       & 0.005                                & 256         & 81.6             & 88.5              \\
-		5                                       & 0.001                                & 128         & 86.8             & 91.8              \\
-		5                                       & 0.001                                & 256         & 89.4             & 90.4              \\
-		5                                       & 0.0025                               & 128         & 86.0             & 88.9              \\
-		5                                       & 0.0025                               & 256         & 88.4             & 91.4              \\
-		5                                       & 0.005                                & 128         & 86.2             & 90.2              \\
-		5                                       & 0.005                                & 256         & 89.5             & 91.4              \\
+		1                                       & 0.001                                & 128         & 69.3             & 83.4              \\
+		1                                       & 0.001                                & 512         & 84.8             & 85.7              \\
+		1                                       & 0.003                                & 128         & 73.3             & 76.8              \\
+		1                                       & 0.003                                & 512         & 83.1             & 89.6              \\
+		3                                       & 0.001                                & 128         & 77.6             & 90.1              \\
+		3                                       & 0.001                                & 512         & 87.3             & 90.8              \\
+		3                                       & 0.003                                & 128         & 83.9             & 89.0              \\
+		3                                       & 0.003                                & 512         & 84.9             & 87.6              \\
+		\bottomrule
+		
 		\bottomrule
 	\end{tabular}
 \end{table}
-\begin{table}
+Since ... achieved the best results, the were used from here on.
+A visualization of the prediction for when driving straight and from an angle can be seen in \cref{fig:camera_detection_compare2} and \cref{fig:camera_detection_compare} respectively.
+\begin{figure}[htb]
 	\centering
-	\caption[Detection evaluation]{bla}
-	\label{tab:detection_eval}
-	\begin{tabular}[htb]{ccccccc}
-		\toprule
-		\textbf{Epochs} & \textbf{LR} & \textbf{SR} & \textbf{Box mAP} & \textbf{Mask mAP} \\
-		\midrule
-		1               & 0.05        & 256         & 39.8             & 64.8              \\
-		1               & 0.01        & 256         & 73.1             & 84.7              \\
-		1               & 0.005       & 256         & 78.4             & 85.9              \\
-		1               & 0.001       & 256         & 82.1             & 89.7              \\
-		2               & 0.05        & 256         & 58.0             & 74.3              \\
-		2               & 0.01        & 256         & 83.1             & 87.2              \\
-		2               & 0.005       & 256         & 83.9             & 90.2              \\
-		2               & 0.001       & 256         & 85.3             & 89.5              \\
-		\midrule
-		1               & 0.005       & 128         & 67.4             & 81.6              \\
-		1               & 0.005       & 512         & 80.5             & 85.8              \\
-		1               & 0.001       & 128         & 86.1             & 87.3              \\
-		1               & 0.001       & 512         & 86.2             & 90.5              \\
-		3               & 0.005       & 128         & 71.6             & 80.6              \\
-		3               & 0.005       & 512         & 85.6             & 86.2              \\
-		3               & 0.001       & 128         & 87.3             & 91.7              \\
-		3               & 0.001       & 512         & 89.0             & 90.3              \\
-		\bottomrule
-	\end{tabular}
-\end{table}
+	\includegraphics[width=1\linewidth]{img_stack_0.jpg}
+	\caption{Predicted bounding box and mask when driving at an angle at a ramp. The class of the object and the confidence are shown in the top left corner of the box.}
+	\label{fig:camera_detection_compare}
+\end{figure}
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=1\linewidth]{img_stack_1.jpg}
+	\caption{Predicted bounding box and mask when driving straight a ramp. The class of the object and the confidence are shown in the top left corner of the box.}
+	\label{fig:camera_detection_compare2}
+\end{figure}
 
 
 \subsection{Point cloud}
@@ -606,31 +548,18 @@ Using the point cloud of the ZED camera, both the width and length of the ramp a
 This can attribute to the fact, that the range is limited.
 The angles are both bad because the transformation are bad\dots
 \iimprov{This only explains length, and also why does it look in img?}
-
+\itodo{Describe problem of quantization}
 \begin{figure}[htb]
 	\centering
-	\includegraphics[width=.9\linewidth]{points_prokection_mask_zed-cropped.pdf}
+	\includegraphics[width=.9\linewidth]{points_projection_mask_zed.pdf}
 	\caption{Machine learning}
-	\label{fig:points_projection_mask_zed_zoom}
-\end{figure}
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=.9\linewidth]{points_prokection_mask_zed.pdf}
-	\caption{Machine learning}
-	\label{fig:points_projection_zed_mask}
-\end{figure}
-\itodo{Use other frame where the car is in a similar position as with zed cam}
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=.9\linewidth]{points_projection_mask_lidar-cropped.pdf}
-	\caption{Machine learning}
-	\label{fig:points_projection_mask_lidar_zoom}
+	\label{fig:points_projection_mask_zed}
 \end{figure}
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=.9\linewidth]{points_projection_mask_lidar.pdf}
 	\caption{Machine learning}
-	\label{fig:points_projection_lidar_mask}
+	\label{fig:points_projection_mask_lidar}
 \end{figure}
 
 \begin{table}[htb]
@@ -643,8 +572,8 @@ The angles are both bad because the transformation are bad\dots
 		\midrule
 		ZED Box         & \SI{8.84}{}                   & \SI{2.80}{}                  & \SI{6.23}[]{}                 \\
 		ZED Mask        & \SI{8.72}{}                   & \SI{2.60}{}                  & \SI{6.25}[]{}                 \\
-		Lidar Box       & \SI{7.78}{}                   & \SI{4.40}{}                  & \SI{9.69}[]{}                 \\
-		Lidar Mask      & \SI{7.64}{}                   & \SI{3.20}{}                  & \SI{9.29}[]{}                 \\
+		Lidar Box       & \SI{7.78}{}                   & \SI{4.40}{}                  & \SI{9.49}[]{}                 \\
+		Lidar Mask      & \SI{7.64}{}                   & \SI{3.30}{}                  & \SI{10.19}[]{}                \\
 		\bottomrule
 	\end{tabular}
 \end{table}
