@@ -17,7 +17,6 @@ Because the wheel speed sensor measurements are needed for some methods, which a
 But a full recording including the wheel speed measurements could be done for ramp D and A, when driving down.\\
 The algorithms using the \gls{lidar} and camera only detect ramps going up, so only the ramps A, B and C were used.
 Furthermore, a test drive without any ramps in sight was made to test if false positives are being detected.
-\iquest{What about Ramp E, only used for camera?}
 
 
 
@@ -74,7 +73,6 @@ Furthermore, the coefficient of determination $R^2$ is used to evaluate the pitc
 \end{equation}
 where $\overline{y}$ indicates the mean of the reference.
 The goodness of the fit is described in the range from 0 to 1, where 1 describes a perfect fit.\\
-\iquest{True positives, sensitivity and stuff here or later?}
 The \gls{lidar} is used to detect a ramp, and to calculate its properties if a ramp is detected.
 The detection rate is evaluated by using the number of \glspl{tp} and \glspl{fp}.
 What is counted as \gls{tp} or \glspl{fp} always depends on the use case.
@@ -471,7 +469,7 @@ It mostly fits the actual ramp very well.
 The previously mentioned problem of the vertical resolution is clearly visible here.
 While the density of the laser lines is sufficient in the ramp region, the start of the ramp and especially the ground is covered by very few lines.
 This makes the precise tracking of the distance to the ramp difficult.
-\begin{figure}[htbp]
+\begin{figure}[htb]
 	\centering
 	\includegraphics[width=1\linewidth]{points_projection.pdf}
 	\caption{Lidar points projected onto the camera image. The green points were identified as part of a ramp by the algorithm.}
@@ -484,12 +482,13 @@ This makes the precise tracking of the distance to the ramp difficult.
 The camera was used to detect the ramp and mask the region.
 As described in \cref{sec:performance_measures}, the \gls{map} score is used to evaluate the performance of the neural network.
 Since transfer learning is used and the dataset is fairly small, different hyperparameters could be tested.
-In \cref{tab:detection_eval} the \gls{map} score for different hyperparameters is listed.
-
+The influence of the different hyperparameters on the score was ?
+\itodo{Explain choice of parameters}
+In \cref{tab:detection_eval} the \gls{map} scores for different hyperparameters are listed.
 \begin{table}
 	\centering
 	\caption[Detection evaluation]{Testing of different training hyperparameters and their influence on the \acrshort{ap} score.}
-	\label{tab:detection_eval3}
+	\label{tab:detection_eval}
 	\begin{tabular}[htb]{ccccccc}
 		\toprule
 		% \textbf{Epochs} & \textbf{LR} & \textbf{SR} & \textbf{Box mAP} & \textbf{Mask mAP} \\
@@ -506,60 +505,76 @@ In \cref{tab:detection_eval} the \gls{map} score for different hyperparameters i
 		3                                       & 0.003                                & 128         & 83.9             & 89.0              \\
 		3                                       & 0.003                                & 512         & 84.9             & 87.6              \\
 		\bottomrule
-		
-		\bottomrule
 	\end{tabular}
 \end{table}
-Since ... achieved the best results, the were used from here on.
-A visualization of the prediction for when driving straight and from an angle can be seen in \cref{fig:camera_detection_compare2} and \cref{fig:camera_detection_compare} respectively.
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=1\linewidth]{img_stack_0.jpg}
-	\caption{Predicted bounding box and mask when driving at an angle at a ramp. The class of the object and the confidence are shown in the top left corner of the box.}
-	\label{fig:camera_detection_compare}
-\end{figure}
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=1\linewidth]{img_stack_1.jpg}
-	\caption{Predicted bounding box and mask when driving straight a ramp. The class of the object and the confidence are shown in the top left corner of the box.}
-	\label{fig:camera_detection_compare2}
-\end{figure}
+Since ... achieved the best results, all the following images and calculations were generated using this configuration.\\
+A visualization of the prediction for when driving straight and from an angle at a ramp can be seen in \cref{fig:camera_prediction_straight} and \cref{fig:camera_prediction_angled} respectively.
+In all those cases the detection of the ramp was successful and seems to be fairly accurate.
 
+\begin{figure}[htb]
+	\centering
+	\begin{subfigure}{1\textwidth}
+		\centering
+		\includegraphics[width=1\linewidth]{camera_prediction_straight}
+		\caption{Driving straight at the ramp.}
+		\label{fig:camera_prediction_straight}
+	\end{subfigure}
+	
+	% \bigskip
+	\begin{subfigure}{1\textwidth}
+		\centering
+		\includegraphics[width=1\linewidth]{camera_prediction_angled}
+		\caption{Driving at an angle to the ramp.}
+		\label{fig:camera_prediction_angled}
+	\end{subfigure}
+	\caption{Predicted bounding box and mask when driving at a ramp. The class of the object and the confidence are shown in the top left corner of the box.}
+\end{figure}
 
 \subsection{Point cloud}
-As described in ?, the predicted segmentation mask can be used to only extract the points that are part of the ramp from the point cloud.
-This is achieved by first projecting the point cloud onto the 2D camera image.
-In \cref{fig:points_projection_mask_zed_zoom} the projected point cloud of the ZED 2i camera are shown as orange points.
+As described in \cref{ssec:point_cloud_extraction}, the predicted segmentation mask can be used to only extract the points that are part of the ramp from the point cloud.
+Different ramp properties can then be calculated from the point cloud.
+In a first step, the points must be projected from 3D space into 2D space.
+In \cref{fig:points_projection_mask_zed} the projected point cloud of the ZED 2i camera are shown as orange points.
 The green points symbolize the points that were detected by the neural network as part of the ramp.
 The blue box is the corresponding bounding box.
-It can be seen that detection works very well and also only the actual drivable part of the ramp is marked, unlike when just the \gls{lidar} is used.
+It can be seen that detection works very well and also only the actual drivable part of the ramp is marked, unlike when just the \gls{lidar} is used (see \cref{fig:points_projection}).
 While most of the area is covered by the point cloud, object further away than \SI{20}{\metre} are not detected.
 This can be seen in the area above the ramp, which is too far away for the sensor to detect.
+But since the car is not far away from the ramp, most of the ramp could be covered by points.\\
 This problem is not present, when the point cloud of the \gls{lidar} is used instead.
-The projection is shown in ?.
+The projection is shown in \cref{fig:points_projection_mask_lidar}.
 It can be seen that the vertical resolution is worse at most opening angles, but the horizontal resolution is better.
 This is especially apparent at the beginning of the ramp.
 The neural network marked the pixels where the bounding box ends as part of the ramp, but because the \gls{lidar} does not have any points near this line, the nearest marked points are multiple \si{\cm} further away.
-This would lead to a wrong distance estimation.\\
+This leads to a wrong distance and perhaps length estimation.\\
 Projecting the point cloud back into 3D space allows for the calculation of the properties of the ramp.
 The results for both sensors are shown in \cref{tab:cloud_extraction_estimation}.
 The BOX method uses the bounding box to extract the points from the point cloud and the MASK method uses the mask to extract the points from the point cloud.
 Using the point cloud of the ZED camera, both the width and length of the ramp are underestimated.
 This can attribute to the fact, that the range is limited.
 The angles are both bad because the transformation are bad\dots
-\iimprov{This only explains length, and also why does it look in img?}
+Also, as mentioned in \cref{ssec:point_cloud_extraction}, the accuracy of the back into the 3D projected point cloud depends on the resolution of the image.
+Since during the projection from 3D to 2D multiple points can be projected onto the same pixel, information is lost when transforming back.
+\iimprov{This only explains length, and also why does it look good in 2D image?}
 \itodo{Describe problem of quantization}
+
 \begin{figure}[htb]
 	\centering
-	\includegraphics[width=.9\linewidth]{points_projection_mask_zed.pdf}
-	\caption{Machine learning}
-	\label{fig:points_projection_mask_zed}
-\end{figure}
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=.9\linewidth]{points_projection_mask_lidar.pdf}
-	\caption{Machine learning}
-	\label{fig:points_projection_mask_lidar}
+	\begin{subfigure}{1\textwidth}
+		\centering
+		\includegraphics[width=.9\linewidth]{points_projection_mask_zed.pdf}
+		\caption{Projection using the by the ZED camera generated point cloud.}
+		\label{fig:points_projection_mask_zed}
+	\end{subfigure}
+	
+	% \bigskip
+	\begin{subfigure}{1\textwidth}
+		\centering
+		\includegraphics[width=.9\linewidth]{points_projection_mask_lidar.pdf}
+		\caption{Projection using the by the \acrshort{lidar} generated point cloud.}
+		\label{fig:points_projection_mask_lidar}
+	\end{subfigure}
+	\caption{The projection of the 3D point cloud onto a 2D image. Using the predicted segmentation mask, the points that lie in the ramp regions can now be extracted from the point cloud.}
 \end{figure}
 
 \begin{table}[htb]
