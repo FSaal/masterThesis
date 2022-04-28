@@ -38,16 +38,33 @@ The estimated quaternions using the accelerometer and angular velocity measureme
 
 
 \section{\glsentryshort{lidar}}
+\itodo{Probably merge \gls{lidar} and camera sections together}
+While an \gls{imu} allows for the estimation of the current road grade angle, it can not be used to detect changes in the road grade ahead of the vehicle.
+In the case of ramps, the road grade angle of the ramp can be seen as near constant and thus the ramp can be classified as a planar surface.
+By also detecting the ground plane, the transition from ground to ramp can be determined.
+Several techniques to detect planes in a point cloud exist.
+As mentioned in ref. \cite{Gallo2008}, there exist mainly three different approaches to segment and estimate planar regions in a point cloud simultaneously.
+The first approach, which will also be used in this master thesis, is to iteratively extract the most dominant plane from the point cloud.
+After a plane has been detected, its inliers are removed from the point cloud and the remaining points will be searched for the next biggest plane, until not enough points are left to build a proper plane.
+In the second approach, all visible planes are estimated simultaneously.
+Either using the Expectation-Maximization algorithm \cite{Liu2001, Triebel2005} or by using the Generalized \gls{pca} algorithm \cite{Vidal2005}.
+A disadvantage of this approach is that the number of planar surface elements in the scene must be estimated.
+The region growing algorithms \cite{Besl1988, Taubin1991} build the third family of algorithms.
+Starting from a certain region, neighboring points are added to the region if they share a similar model.
+Different patches can than be merged together, if they are consistent with each other.
+It is a fast and simple algorithm, but depends on a good selection of the first starting points.\\
+Since the point cloud is usually not free of outliers, a robust procedure must be employed to remove them.
+The most well known are the \gls{ransac} \cite{Fischler1981} and Hough transform \cite{Illingworth1988}.
+
 While it does seem that no research exists, where a \gls{lidar} is used to detect ramps, several papers discuss the detection of planes in point cloud data and estimate road grade?
 Different methods exist where the \gls{lidar} recordings from a plane are used to map the road grade.
-In ref.\cite{El-Sayed2018} a new technique for plane detection is proposed.
+In ref. \cite{El-Sayed2018} a new technique for plane detection is proposed.
 The point cloud is down-sampled using octree into small cubes, which are then down-sampled based on their local density.
 \gls{pca} is used to find planar surfaces.
 It is able to process large point clouds faster than the efficient \gls{ransac} algorithm, while achieving a higher accuracy.
 Ref. \cite{Sakenas2007} introduces a new algorithm, to extract planar maps from 3D data.
 The point cloud is divided into 3D cells and a histogram over the z-axis is created.
 Ramps can then be detected by searching for neighboring cells, where the height increases gradually.
-
 \todoin{
 	\begin{itemize}
 		\item \gls{lidar} methods for plane detection
@@ -70,9 +87,9 @@ A ground plane estimation using a disparity map, which can be generated from a s
 
 
 
-\section{Bla}
+\section{Outlook?}
 Due to the available sensor stack, not all mentioned methods can be tested.
 While a Kalman filter achieves very good results, it is generally complex and the precise knowledge of process and measurement noise is necessary \cite{Higgins1975}
 The gravity method and complementary filter will be tested for the \gls{imu}.
-
-\isug{Add ausblick was genommen wird}
+Because no method to detect ramps using a \gls{lidar} could be found, an own method has to be implemented.
+For the plane detection the \gls{ransac} algorithm will be used, since it is already implemented in the PCL library ADD LINK.
