@@ -13,7 +13,7 @@ Different sensors will be used in this thesis and each sensor will make its meas
 In order to obtain meaningful results, all frames must be aligned to one common frame.
 The necessary 3D rotations can be expressed in several ways, I will briefly describe the ones used in this thesis.
 
-\subsubsection{Rotation matrix}
+\subsubsection{Rotation Matrix}
 A rotation matrix \mtf{b}{a} $\in \mathbb{R}^{3\times3}$ transforms an arbitrary vector from the coordinate system $\mathcal{B}$ to the coordinate system $\mathcal{A}$.
 Rotation matrices have the following properties
 \begin{equation}
@@ -27,7 +27,7 @@ Rotation matrices can be concatenated, but this must be done in reverse order, e
 \end{equation}
 to transform the point ${}_\mathcal{A}\vb{p}$ over the intermediate frame $\mathcal{B}$ to the coordinate system $\mathcal{C}$.
 
-\subsubsection{Euler angles}
+\subsubsection{Euler Angles}
 Euler angles are the closest to intuition but mathematically the worst way to represent orientations.
 Every orientation can be produced by a concatenation of three rotations around each of the coordinate axes.
 Because the resulting orientation depends on the order of which the rotations were performed, there are different conventions.
@@ -56,15 +56,15 @@ with a real part $q_w$ and three imaginary parts $\vb{i}, \vb{j}$ and $\vb{k}$ s
 \begin{equation}
 	\vb{i}^2 = \vb{j}^2 = \vb{k}^2 = \vb{i}\vb{j}\vb{k} = -1.
 \end{equation}
-The quaternion can also be written in vector form by dividing the quaternion in a real or scalar part $q_w$ and an imaginary or vector part $q_v = \begin{bmatrix} q_x & q_y & q_z	\end{bmatrix}^\intercal$
+The quaternion can also be written in vector form by dividing the quaternion in a real or scalar part $q_w$ and an imaginary or vector part $q_v = \begin{pmatrix} q_x & q_y & q_z	\end{pmatrix}^\intercal$
 \begin{equation}
-	\vb{q} = \begin{bmatrix}
+	\vb{q} = \begin{pmatrix}
 		\vb{q}_v \\
 		q_w
-	\end{bmatrix}
-	=\begin{bmatrix}
+	\end{pmatrix}
+	=\begin{pmatrix}
 		q_x & q_y & q_z & q_w
-	\end{bmatrix}^\intercal.
+	\end{pmatrix}^\intercal.
 \end{equation}
 Note that in some literature the order of the real and imaginary part are swapped.
 If the quaternion is a unit vector, which means it satisfies
@@ -76,10 +76,10 @@ The rotation is then described with
 \begin{equation}
 	\label{eq:quaternion}
 	\vb{q} =
-	\begin{bmatrix}
+	\begin{pmatrix}
 		\hat{\vb{j}}\vdot\sin(\frac{\alpha}{2}) \\
 		\cos(\frac{\alpha}{2})
-	\end{bmatrix}
+	\end{pmatrix}
 \end{equation}
 with $\alpha$ being the rotation angle and $\hat{\vb{j}}$ being the normalized rotation axis.
 Each rotation is uniquely described by one unit quaternion, but each orientation can be described by two unit quaternions with opposite signs.
@@ -89,39 +89,38 @@ A rotation to transform a point ${}_\mathcal{A}\vb{p}$ from frame $\mathcal{A}$ 
 \end{equation}
 where
 \begin{equation}
-	{}_\mathcal{A}\overline{\vb{p}} = \begin{bmatrix}
+	{}_\mathcal{A}\overline{\vb{p}} = \begin{pmatrix}
 		0 & {}_\mathcal{A}\vb{p}^\intercal
-	\end{bmatrix}^\intercal,
+	\end{pmatrix}^\intercal,
 \end{equation}
 and $\qtf{a}{b}^* = \qtf{b}{a}$ is the conjugate defined as
 \begin{equation}
-	\qtf{}{}^* = \begin{bmatrix}
+	\qtf{}{}^* = \begin{pmatrix}
 		-\vb{q}_v \\
 		q_w
-	\end{bmatrix}.
+	\end{pmatrix}.
 \end{equation}
 The symbol $\otimes$ denotes the quaternion multiplication, which is given by
 \begin{equation}
-	\vb{p} \otimes \vb{q}=\left(\begin{array}{c}
-			p_{w} q_{w}-p_v \cdot q_v \\
-			p_{w} q_v+q_{w} p_v+p_v \times q_v
-		\end{array}\right).
+	\vb{p} \otimes \vb{q} =
+	\begin{pmatrix}
+		p_{w} q_{w}-p_v \cdot q_v \\
+		p_{w} q_v+q_{w} p_v+p_v \times q_v
+	\end{pmatrix}.
 \end{equation}
 A quaternion can be converted to a rotation matrix with
 \begin{equation}
 	\label{eq:q_to_M}
 	\mathbf{M} =
-	\left[
-		\begin{array}{ccc}
-			1 - 2q_y^2-2 q_z^2   & 2(q_x q_y- q_z q_w) & 2(q_x q_z + q_y q_w) \\
-			2(q_x q_y + q_z q_w) & 1-2 q_x^2-2 q_z^2   & 2(q_y q_z -q_x q_w)  \\
-			2(q_x q_z-q_y q_w)   & 2(q_y q_z+ q_x q_w) & 1 - 2 q_x^2- 2 q_y^2
-		\end{array}
-		\right].
+	\begin{pmatrix}
+		1 - 2q_y^2-2 q_z^2   & 2(q_x q_y- q_z q_w) & 2(q_x q_z + q_y q_w) \\
+		2(q_x q_y + q_z q_w) & 1-2 q_x^2-2 q_z^2   & 2(q_y q_z -q_x q_w)  \\
+		2(q_x q_z-q_y q_w)   & 2(q_y q_z+ q_x q_w) & 1 - 2 q_x^2- 2 q_y^2
+	\end{pmatrix}.
 \end{equation}
 More information about quaternions can be found in \cite{Kok2017,Trawny2005}.\\
 
-\subsection{Vector projection}
+\subsection{Vector Projection}
 \label{subsec:vector_projection}
 Vector projection is used later in this thesis to align different coordinate frames, this section describes the theory behind it.
 In general, the rotation to align a vector $\vb{v}_1$ with a vector $\vb{v}_2$ can be expressed using a quaternion.
@@ -251,7 +250,7 @@ Soft iron disturbances are due to deflections or altercations of an existing mag
 Both types of disturbances can be removed with a proper calibration if their position and orientation, relative to the sensor, stays the same \cite{Guo2008}.
 Every time the sensor is placed in a (magnetically) new environment, a recalibration is necessary.
 
-\subsubsection{Typical \glsentryshort{mems} errors}
+\subsubsection{Typical \glsentryshort{mems} Errors}
 \label{sse:mems_errors}
 The errors can be divided into two categories: systematic and stochastic errors \cite{Zhang2019}.\\
 Systematic errors or also known as calibration errors are constant over time and can be eliminated by calibration.
@@ -302,7 +301,7 @@ After transmitting the laser signal the reflected light passes through the recei
 A processing unit then generates a 3D point cloud from all the received measurements.
 
 
-\subsection{Wheel speed sensor}
+\subsection{Wheel Speed Sensor}
 The wheel speed sensors measure the speed of each wheel and allow for the calculation of the car velocity.
 The measurements are also used by many driver assistance systems such as \gls{abs} to be able to detect wheel slip.
 Different techniques exist to measure the speed with the most common ones being magnetoelectric and Hall type wheel speed sensors.
@@ -337,7 +336,7 @@ Furthermore, the framework of the neural network used for the training and its p
 Most of the following information is from ref. \cite{Szeliski2022}, which gives a great overview over the field of computer vision.
 
 
-\subsection{Object detection}
+\subsection{Object Detection}
 Objection detection is a common task in the field of computer vision and is used to detect, localize and classify objects in images or videos.
 In contrast to image classification, which only assigns a label to an image, objection detection allows for the detection of multiple objects by drawing a bounding box around each individual object.\\
 Object detection can be divided into machine learning-based methods and deep learning-based methods.
@@ -346,7 +345,7 @@ This process is very time-consuming and tedious, that is why nowadays almost exc
 Here, the features are extracted automatically.
 
 
-\subsection{Image segmentation}
+\subsection{Image Segmentation}
 Image segmentation partitions an image into multiple segments or objects.
 It can be divided into the three categories semantic segmentation, instance segmentation or panoptic segmentation \cite{Minaee2021}.\\
 In semantic segmentation all pixels corresponding to the same class are clustered together and assigned a label.
