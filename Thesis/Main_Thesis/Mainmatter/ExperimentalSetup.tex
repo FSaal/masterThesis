@@ -16,14 +16,14 @@ Finally, in \cref{sec:garage}, the different type of ramps and their properties 
     \centering
     \begin{subfigure}[b]{0.4\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{myAHRS.png}
+        \includegraphics[width=\textwidth]{myAHRS}
         \caption{Withrobot myAHRS+ \cite{Withrobot2017}}
         \label{fig:imu_myahrs}
     \end{subfigure}
     % \hfill
     \begin{subfigure}[b]{0.4\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{zed2i.jpg}
+        \includegraphics[width=\textwidth]{zed2i}
         \caption{Stereolabs ZED 2i camera \cite{Stereolabs2019}}
         \label{fig:imu_zed}
     \end{subfigure}
@@ -46,7 +46,7 @@ The smaller values of the ZED 2i \gls{imu} indicate, that it is the better senso
     \centering
     \caption{Comparison of the two used \glspl{imu} \cite{Withrobot2017, Stereolabs2019}}
     \label{tab:imu_datasheets}
-    \begin{tabular}[t]{lccc}
+    \begin{tabular}[t]{lrrc}
         \toprule
         \textbf{Property}           & \textbf{myAHRS+} & \textbf{ZED 2i \gls{imu}} & \textbf{Unit}                                               \\
         \midrule
@@ -68,14 +68,14 @@ The smaller values of the ZED 2i \gls{imu} indicate, that it is the better senso
     \centering
     \begin{subfigure}{0.4\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{Robosense.png}
+        \includegraphics[width=\textwidth]{Robosense}
         \caption[The \glspl{lidar} used in the experiment]{Robosense RS-Bpearl \cite{RoboSense2020}}
         \label{fig:lidar_robosense}
     \end{subfigure}
     % \hfill
     \begin{subfigure}{0.4\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{Velodyne.png}
+        \includegraphics[width=\textwidth]{Velodyne}
         \caption{Velodyne Ultra puck \cite{Velodyne2018}}
         \label{fig:lidar_velodyne}
     \end{subfigure}
@@ -94,7 +94,7 @@ Due to the setup of the test car it is only possible to mount one \gls{lidar} at
     \centering
     \caption{Comparison of the two used \acrshort{lidar}s \cite{RoboSense2020, Velodyne2018}}
     \label{tab:lidar_datasheets}
-    \begin{tabular}[t]{lccc}
+    \begin{tabular}[t]{lrrc}
         \toprule
         \textbf{Property}     & \textbf{RS-Bpearl}   & \textbf{Velodyne Ultra Puck}    & \textbf{Unit}     \\
         \midrule
@@ -125,25 +125,25 @@ The camera is connected to the PC through USB.
 
 
 
-\section{Sensor placement}
+\section{Sensor Placement}
 To ensure the best possible performance of the system, the sensors must be placed in a specific way.
 The \gls{imu} must be placed on a rigid point of the car, such that the \gls{imu}'s position always stays the same relative to the car.
 Other than that it should also be placed in the transversal center of the car to guarantee that the centripetal acceleration is not skewed towards one side when driving around a corner.
 The placement of the \gls{imu} integrated in the ZED 2i camera is limited, because the camera images are needed as well.
 It was placed on the roof of the car, which is sturdy enough to not be suspect to flexion, while also allowing for a good \gls{fov} for the camera.
 The myAHRS+ \gls{imu} was mounted on the floor of the car trunk.\\
-\begin{figure}[htpb]
-    \centering
-    \input{Graphics/TikZ/lidar_mount.tex}
-    \caption[\acrshort{lidar} placement on the car]{Calculation of the best mounting angle of the \acrshort{lidar} on the car. Variable description in \cref{tab:lidar_mount}.}
-    \label{fig:tikz_lidar_mount}
-\end{figure}
 The \gls{lidar} is placed on top of the car, to get a greater \gls{fov}.
 The pitch angle $\beta$ at which the \gls{lidar} will be mounted should be chosen such that the number of points in the area at the beginning of the ramp are maximized.
 This allows for the most accurate distinction between planes of different inclination angles.
 Because the distance to the ramp is not constant due to the movement of the car, the optimization can only be done for a specific distance.
 The coordinates at which the lasers hit the ground and ramp depend on the height of the \gls{lidar} $h_\mathrm{l}$, the distance to the ramp $d$, the angle of the ramp \gls{ramp_ang}, the angle $\beta$ at which the \gls{lidar} has been mounted on the car and finally on the vertical resolution $\epsilon$ and \gls{fov} of the \gls{lidar}.
 A visualization of the different variables can be seen in \cref{fig:tikz_lidar_mount}.
+\begin{figure}[htb]
+    \centering
+    \input{Graphics/TikZ/lidar_mount.tex}
+    \caption[\acrshort{lidar} placement on the car]{Calculation of the best mounting angle of the \acrshort{lidar} on the car. Variable description in \cref{tab:lidar_mount}.}
+    \label{fig:tikz_lidar_mount}
+\end{figure}
 The coordinates at which the laser lines of the \gls{lidar} hit the ground can be calculated in the following way.\\
 The angle $\kappa$ between the plane parallel to the ground at \gls{lidar} height and each laser wave is defined as
 \begin{equation}
@@ -181,7 +181,7 @@ Using \cref{eq:ground_points} and \cref{eq:final_equation} and optimizing $\beta
 The optimization was done for a distance of \SI{10}{\metre} to the ramp.
 The angle between the two \glspl{lidar} differs due to the different starting opening angle of \SI{-25}{\degree} and \SI{0}{\degree} for the Velodyne and Robosense respectively, as well as due to the different vertical resolution.
 A detailed description of all the variables used for the calculation can be found in \cref{tab:lidar_mount}.
-\begin{table}[htbp]
+\begin{table}[htb]
     \centering
     \caption{Variables used to calculate the optimal mounting angle of the \gls{lidar}.}
     \label{tab:lidar_mount}
@@ -204,8 +204,7 @@ A detailed description of all the variables used for the calculation can be foun
 \end{table}
 
 
-\section{Data recording}
-\iquest{Should a part of this moved to Evaluation concept (results)?}
+\section{Data Recording}
 All the sensors are connected to a PC in the car, located in the booth.
 A notebook is connected to the PC using a \gls{ssh} connection and is used to start the different sensor streams.
 For the communication between the PC and sensors and the recording of the sensor data the \gls{ros} framework is used.
@@ -274,16 +273,15 @@ Because the ramps do not have a constant angle, because the change of the angle 
     \centering
     \caption[Measured ramp properties]{The measured ramp properties.}
     \label{tab:ramp_properties}
-    \begin{tabular}[t]{cccc}
+    \begin{tabular}[t]{cSSS}
         \toprule
-        \textbf{Ramp} & \textbf{Angle} [\si{\degree}] & \textbf{Width} [\si{\metre}] & \textbf{Length} [\si{\metre}] \\
+        \textbf{Ramp} & {\textbf{Angle} [\si{\degree}]} & {\textbf{Width} [\si{\metre}]} & {\textbf{Length} [\si{\metre}]} \\
         \midrule
-        A             & \SI{7.2}{}                    & \SI{3.94}{}                  & \SI{11.97}{}                  \\
-        B             & \SI{6.5}{}                    & \SI{3.96}{}                  & \SI{14.15}{}???               \\
-        C             & \SI{7.4}{}                    & \SI{3.90}{}                  & \SI{11.85}{}                  \\
-        D             & \SI{0}{}                      & \SI{0}{}                     & \SI{11.89}{}                  \\
+        A             & 7.2                             & 3.94                           & 11.97                           \\
+        B             & 6.5                             & 3.96                           & 14.15                           \\
+        C             & 7.4                             & 3.90                           & 11.85                           \\
+        D             & -7.3?                           & 3.85                           & 11.89                           \\
         \bottomrule
     \end{tabular}
 \end{table}
-\itodo{Measure ramp D and check lengths again}
-\iquest{What about ramp E (only used for cam)?}
+\itodo{Add curb ramp width}
