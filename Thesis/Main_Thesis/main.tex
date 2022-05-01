@@ -1,32 +1,33 @@
 \documentclass[11pt]{report}
 % Load packages
-\usepackage[a4paper,width=150mm,top=25mm,bottom=25mm]{geometry} %todo: Get correct margins
+\usepackage[a4paper,width=150mm,top=25mm,bottom=25mm]{geometry} %todo: Get correct margin
 \usepackage[english]{babel}
-\usepackage{amsmath}			% Math
-\usepackage{amssymb}			% More math
-\usepackage{booktabs}			% Neat tables
-\usepackage{fancyhdr}			% Customize header and footers
-\usepackage{float}				% Floating figures / tables
-% Allows for definition of acronyms and stuff
-\usepackage[symbols,acronyms,abbreviations,automake]{glossaries-extra}
-\usepackage{graphicx}			% Pictures / Graphics
-\usepackage[hidelinks]{hyperref}% Clickable links in PDF (must be loaded before cleveref)
-\usepackage{cleveref}           % Automatically add prefix to reference (e.g. fig. if figure)
-\usepackage{listings}			% Typeset programming languages
-\usepackage{multirow}
-\usepackage{pdfpages}			% Allows for inclusion of pdf files
-\usepackage{pgfplots}			% Draw plots
-\usepackage{physics}			% Vector stuff
-\usepackage{siunitx}			% SI Units
-\usepackage{subcaption}         % Subfigure captions
-\usepackage{standalone}			% Used for TikZ code outsourcing
-\usepackage{tikz}				% Powerful drawing tool for latex
-\usepackage{tikz-3dplot}
-\usepackage{tikz-dimline}		% Dimension (measure) lines for TikZ
-\usepackage{titlesec}           % Allows for different title styles, but also allows for full gls every chapter
-% \usepackage[nottoc,notlot,notlof]{tocbibind}
-\usepackage[nottoc]{tocbibind}
-\usepackage{todonotes}			% Todo commands
+\usepackage[dvipsnames]{xcolor}     % More colors
+\usepackage[backref=page]{hyperref} % Clickable links in PDF (must be loaded before cleveref and glossaries)
+\usepackage{amsmath}			    % Math
+\usepackage{amssymb}			    % More math
+\usepackage{booktabs}			    % Neat tables
+\usepackage{fancyhdr}			    % Customize header and footers
+\usepackage{float}				    % Floating figures / tables
+\usepackage[symbols,acronyms,
+    abbreviations,automake]
+    {glossaries-extra}              % Allows for definition of acronyms, symbols and stuff
+\usepackage{graphicx}			    % Pictures / Graphics
+\usepackage{cleveref}               % Automatically add prefix to reference (e.g. fig. if figure)
+\usepackage{listings}			    % Typeset programming languages
+\usepackage{microtype}              % Overall improvement of formatting
+\usepackage{multirow}               % Table entries over multiple columns
+\usepackage{pdfpages}			    % Allows for inclusion of pdf files
+\usepackage{physics}			    % Vector stuff
+\usepackage{siunitx}			    % SI Units
+\usepackage{subcaption}             % Subfigure captions
+\usepackage{standalone}			    % Used for TikZ code outsourcing
+\usepackage{tikz}				    % Powerful drawing tool for latex
+\usepackage{tikz-3dplot}            % TikZ 3D
+\usepackage{tikz-dimline}		    % Dimension (measure) lines for TikZ
+\usepackage{titlesec}               % Allows for different title styles, but also allows for full gls every chapter
+\usepackage[nottoc]{tocbibind}      % nottoc means do not show toc in toc
+\usepackage{todonotes}			    % Todo commands
 
 % Load tikz libraries, styles and commands
 \input{tikz_styles.tex}
@@ -62,6 +63,22 @@
 % \sisetup{range-units=single}	% Only one unit after second value (and none after first)
 \sisetup{per-mode=fraction}
 \renewcommand{\arraystretch}{1.2} % Increase space between rows in tables
+\renewcommand*{\backref}[1]{}
+\renewcommand*{\backrefalt}[4]{{\footnotesize [%
+    \ifcase #1 Not cited.%
+	\or Cited on page~#2%
+	\else Cited on pages #2%
+	\fi%
+]}}
+\renewcommand*{\glstextformat}[1]{\textcolor{black}{#1}}
+% Change hyperlink colors
+\definecolor{winered}{rgb}{0,0,128}
+\hypersetup{
+  colorlinks   = true, %Colours links instead of ugly boxes
+  urlcolor     = blue, %Colour for external hyperlinks
+  linkcolor    = RoyalPurple, %Colour of internal links
+  citecolor   = OliveGreen %Colour of citations
+}
 
 % My own commands
 \newcommand{\subInd}[1]{_\mathrm{#1}}
@@ -100,9 +117,13 @@
 \input{Frontmatter/Abstract}
 \input{Frontmatter/Declaration}
 % Overview of different objects
-\tableofcontents
-\listoffigures
-\listoftables
+{
+    % Hide hyperlinks for toc, lof and lot
+    \hypersetup{hidelinks}
+    \tableofcontents
+    \listoffigures
+    \listoftables
+}
 \printglossary[type=acronym, title=List of Acronyms, nonumberlist]
 \printglossary[type=symbols, title=List of Symbols, nonumberlist]
 \listoftodos
