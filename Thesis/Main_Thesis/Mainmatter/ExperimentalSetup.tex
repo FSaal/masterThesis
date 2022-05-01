@@ -27,7 +27,7 @@ Finally, in \cref{sec:garage}, the different type of ramps and their properties 
         \caption{Stereolabs ZED 2i camera \cite{Stereolabs2019}}
         \label{fig:imu_zed}
     \end{subfigure}
-    \caption[The \glsentryplural{imu} used in the experiment]{The two \glspl{imu} which will be used for the recordings. The Stereolabs ZED 2i camera has an integrated \gls{imu}.}
+    \caption[\glsentryplural{imu} used in the experiment]{The two \glspl{imu} which will be used for the recordings. The Stereolabs ZED 2i camera has an integrated \gls{imu}.}
     \label{fig:imus_used}
 \end{figure}
 Two different \glspl{imu} will be used for the experiment.\\
@@ -44,7 +44,7 @@ It analyzes the Allan variance from \gls{imu} measurement data recorded over a t
 The smaller values of the ZED 2i \gls{imu} indicate, that it is the better sensor.
 \begin{table}[ht]
     \centering
-    \caption{Comparison of the two used \glspl{imu} \cite{Withrobot2017, Stereolabs2019}}
+    \caption[Comparison of the two used \glsentryplural{imu}]{Comparison of the two used \glsentryplural{imu} \cite{Withrobot2017, Stereolabs2019}}
     \label{tab:imu_datasheets}
     \begin{tabular}[t]{lrrc}
         \toprule
@@ -69,7 +69,7 @@ The smaller values of the ZED 2i \gls{imu} indicate, that it is the better senso
     \begin{subfigure}{0.4\textwidth}
         \centering
         \includegraphics[width=\textwidth]{Robosense}
-        \caption[The \glspl{lidar} used in the experiment]{Robosense RS-Bpearl \cite{RoboSense2020}}
+        \caption{Robosense RS-Bpearl \cite{RoboSense2020}}
         \label{fig:lidar_robosense}
     \end{subfigure}
     % \hfill
@@ -79,7 +79,7 @@ The smaller values of the ZED 2i \gls{imu} indicate, that it is the better senso
         \caption{Velodyne Ultra puck \cite{Velodyne2018}}
         \label{fig:lidar_velodyne}
     \end{subfigure}
-    \caption{The two \glsentryplural{lidar} which will be used for the recordings.}
+    \caption[\glsentryplural{lidar} used in the experiment]{The two \glsentryplural{lidar} which will be used for the recordings.}
     \label{fig:lidars_used}
 \end{figure}
 Two different \glspl{lidar} will be used during the experiment.
@@ -92,7 +92,7 @@ Both \glspl{lidar} need an external power supply and the data transfer to the PC
 Due to the setup of the test car it is only possible to mount one \gls{lidar} at a time.
 \begin{table}[ht]
     \centering
-    \caption{Comparison of the two used \acrshort{lidar}s \cite{RoboSense2020, Velodyne2018}}
+    \caption[\glsentryplural{lidar} used in the experiment]{Comparison of the two used \acrshort{lidar}s \cite{RoboSense2020, Velodyne2018}}
     \label{tab:lidar_datasheets}
     \begin{tabular}[t]{lrrc}
         \toprule
@@ -183,7 +183,7 @@ The angle between the two \glspl{lidar} differs due to the different starting op
 A detailed description of all the variables used for the calculation can be found in \cref{tab:lidar_mount}.
 \begin{table}[htb]
     \centering
-    \caption{Variables used to calculate the optimal mounting angle of the \gls{lidar}.}
+    \caption[Variables for the calculation of the \glsentryshort{lidar} mounting angle]{Variables used to calculate the optimal mounting angle of the \glsentryshort{lidar}.}
     \label{tab:lidar_mount}
     \begin{tabular}[t]{clc}
         \toprule
@@ -280,7 +280,7 @@ Because the ramps do not have a constant angle, because the change of the angle 
         A             & 7.2                             & 3.94                           & 11.97                           \\
         B             & 6.5                             & 3.96                           & 14.15                           \\
         C             & 7.4                             & 3.90                           & 11.85                           \\
-        D             & -7.3?                           & 3.85                           & 11.89                           \\
+        D             & -8.3                            & 3.85                           & 11.89                           \\
         \bottomrule
     \end{tabular}
 \end{table}
