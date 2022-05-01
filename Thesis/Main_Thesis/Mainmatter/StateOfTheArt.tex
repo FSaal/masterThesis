@@ -1,14 +1,11 @@
 %\pagestyle{fancy}
-\chapter{State of the art}
+\chapter{State of the Art}
 \label{ch:StateOfTheArt}
 \itodo{Add short overview}
-\isug{Move everything from this chapter to the corresponding subsection in chapter 3 (e.g. \gls{imu} state of the art after \gls{imu} background)}
-\isug{Or just switch this chapter with Background chapter}
-...
 In this chapter an overview of different existing methods to detect ramps or measure the road grade is given.
 It is divided into three sections, each focusing on work which relies mainly on the \gls{imu}, \gls{lidar} or camera sensor.
 
-\section{\glsentryshort{imu}}
+\section{Road Grade Measurement}
 \iimprov{Section also contains other methods without imu}
 In ref.~\cite{Jauch2018} different methods to estimate the road grade angle are discussed.
 There exist methods without Inertial Sensors relying on a model describing the longitudinal movement of the vehicle and the topology of the road.
@@ -17,15 +14,15 @@ A Kalman filter is also used in ref.~\cite{Sahlholm2010}, where vehicle sensor d
 Besides the road grade, the vehicle mass is often also unknown and estimated as well, using common sensors of heavy-duty vehicles \cite{Sahlholm2010, Maleej2014}.
 More methods such as recursive least squares, extended Kalman filtering and a dynamic grade observer are discussed in ref.~\cite{Kidambi2014}
 Another method using \gls{gps} data and \glspl{imu} to calculate the vertical and horizontal velocity change respectively and thereby the road grade is proposed in ref.~\cite{Ryu2004}.
-\cite{YazdaniBoroujeni2014} omits the \gls{imu} and relies on a \gls{gps} sensor and a barometer.\\
+\cite{YazdaniBoroujeni2014} omits the \gls{imu} and relies on a \gls{gps} sensor and a barometer.\par
 \gls{gps} satellites broadcast information about their position and exact time to a \gls{gps} receiver, which than can calculate its position using triangulation \cite{Mainetti2014}.
 While an accuracy of up to \SI{1}{\metre} can be achieved when outside, the performance significantly drops when used indoors.
-The radio waves sent from the satellites are scattered, attenuated or blocked completely by walls and other obstacles, resulting in a very weak or even a complete loss of the signal \cite{Ozdenizci2015}.\\
+The radio waves sent from the satellites are scattered, attenuated or blocked completely by walls and other obstacles, resulting in a very weak or even a complete loss of the signal \cite{Ozdenizci2015}.\par
 Most methods mentioned above do not seem fit for the task, due to the reliance on \gls{gps}.
-Furthermore, many internal measurements such as the engine torque, brake system usage, selected gear etc. can not easily be accessed and thus might not be available.\\
+Furthermore, many internal measurements such as the engine torque, brake system usage, selected gear etc. can not easily be accessed and thus might not be available.\par
 A method which does not use \gls{gps}, but only accelerometers and wheel odometers instead is described in ref.~\cite{Nilsson2012} and \cite{Palella2016}.
 The vehicle acceleration, calculated by deriving the wheel speed measurements in respect to time, is subtracted from the accelerometer signal in longitudinal direction.
-The remaining part is then the gravitational acceleration, which is zero if driving on flat ground but not anymore if driving on an elevated road, and can be used to calculate the road grade angle.
+The remaining part is then the gravitational acceleration, which is zero if driving on flat ground, but non-zero if driving on an elevated road, and can be used to calculate the road grade angle.
 A similar approach is used in ref.~\cite{Sentouh2008}.
 \cite{He2020} adds a gyroscope to the accelerometer and fuses their estimations using a quaternion unscented Kalman filter.
 The gyroscope measurements get integrated over time to receive the pitch angle.
@@ -37,11 +34,11 @@ The estimated quaternions using the accelerometer and angular velocity measureme
 
 
 
-\section{\glsentryshort{lidar}}
+\section{Object Detection and Plane Segmentation}
 \itodo{Probably merge \gls{lidar} and camera sections together}
 While an \gls{imu} allows for the estimation of the current road grade angle, it can not be used to detect changes in the road grade ahead of the vehicle.
 In the case of ramps, the road grade angle of the ramp can be seen as near constant and thus the ramp can be classified as a planar surface.
-By also detecting the ground plane, the transition from ground to ramp can be determined.
+By also detecting the ground plane, the transition from the ground to the ramp can be localized.
 Several techniques to detect planes in a point cloud exist.
 As mentioned in ref. \cite{Gallo2008}, there exist mainly three different approaches to segment and estimate planar regions in a point cloud simultaneously.
 The first approach, which will also be used in this master thesis, is to iteratively extract the most dominant plane from the point cloud.
@@ -51,39 +48,43 @@ Either using the Expectation-Maximization algorithm \cite{Liu2001, Triebel2005} 
 A disadvantage of this approach is that the number of planar surface elements in the scene must be estimated.
 The region growing algorithms \cite{Besl1988, Taubin1991} build the third family of algorithms.
 Starting from a certain region, neighboring points are added to the region if they share a similar model.
-Different patches can than be merged together, if they are consistent with each other.
-It is a fast and simple algorithm, but depends on a good selection of the first starting points.\\
-Since the point cloud is usually not free of outliers, a robust procedure must be employed to remove them.
-The most well known are the \gls{ransac} \cite{Fischler1981} and Hough transform \cite{Illingworth1988}.
-
-While it does seem that no research exists, where a \gls{lidar} is used to detect ramps, several papers discuss the detection of planes in point cloud data and estimate road grade?
-Different methods exist where the \gls{lidar} recordings from a plane are used to map the road grade.
+Different patches can then be merged together, if they are consistent with each other.
+It is a fast and simple algorithm, but depends on a good selection of the first starting points.\par
+Since the point cloud is usually not free of outliers, a robust procedure should be employed to remove them \cite{Stewart1999,Meer2004}.
+The most well known are the \gls{ransac} \cite{Fischler1981} and Hough transform \cite{Illingworth1988}.\par
+There is also some resarch done on the detection of ramps in point clouds.
 In ref. \cite{El-Sayed2018} a new technique for plane detection is proposed.
 The point cloud is down-sampled using octree into small cubes, which are then down-sampled based on their local density.
 \gls{pca} is used to find planar surfaces.
 It is able to process large point clouds faster than the efficient \gls{ransac} algorithm, while achieving a higher accuracy.
 Ref. \cite{Sakenas2007} introduces a new algorithm, to extract planar maps from 3D data.
 The point cloud is divided into 3D cells and a histogram over the z-axis is created.
-Ramps can then be detected by searching for neighboring cells, where the height increases gradually.
-\todoin{
-	\begin{itemize}
-		\item \gls{lidar} methods for plane detection
-		\item If found, methods for elevation estimation
-	\end{itemize}
-}
+Ramps can then be detected by searching for neighboring cells, where the height increases gradually.\par
 
-
-
-\section{Camera}
-\todoin{
-	\begin{itemize}
-		\item Something simple
-		\item Stereo vs mono
-	\end{itemize}
-}
+Cameras can also be used to generate a point cloud.
+Different type of technologies exist, the most common ones are stereo-cameras and \gls{tof} cameras.
+Stereo-cameras consist of two slightly shifted cameras.
+The difference between the two images is used to generate a disparity map.
+If the baseline (the distance between the two cameras), the focal length and the image size are known, the depth can be calculated from the disparity map.
+A common problem is the finding of the differences between the two images, since it requires a well light environment and does not work well when the scene has very few textures.
+Furthermore, they tend to only work in a short range.
+% Objects far away in the scene are at a similar location in both images, whereas nearby objects are shifted.
+% The depth can then be estimated using triangulation by
+% \begin{equation}
+%     d = (bf) / (x_\mathrm{right} - x_\mathrm{left}),
+% \end{equation}
+% where $b$ is the baseline of the stereo camera (distance between both cameras), $f$ the focal length and $x_\mathrm{right}$ and $x_\mathrm{left}$ the x-coordinates of the right and left image.
+% The difference between the coordinates is also known as the disparity.
+\gls{tof} cameras are active sensors, unlike stereo-cameras.
+They work similarly as a \gls{lidar}, by sending out light and measuring the time it takes to reflect back.
+But they are scannerless, which means that they capture the entire scene with a single light pulse.
+Since they are active sensors, they can also be used in low light conditions and do not depend on well textured scene.\par
+While the image from a monocular camera does not provide any 3D information, it can be used to detect objects.
+Either using classical approaches like APPROACH or by using machine learning techniques.
+As described in SECTION, ... \par
 Ref.~\cite{Nejati2016} used an RGB-D sensor (camera image + depth sensor) to detect ramps for wheelchairs.
-Ramp properties such as angle, width, length and the orientation of the ramp were determined as well.
-A ground plane estimation using a disparity map, which can be generated from a stereo camera, is proposed in \cite{Chumerin2008}.
+Ramp properties such as angle, width, length and the orientation of the ramp are determined as well.
+A ground plane estimation using a disparity map, which can be generated from a stereo camera, is proposed in \cite{Chumerin2008}.\par
 
 
 
