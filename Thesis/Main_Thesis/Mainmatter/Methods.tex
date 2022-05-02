@@ -1,5 +1,8 @@
 \chapter{Methods}
 \label{ch:Methods}
+% Do not write long version of imu or lidar acronym again
+\glslocalunset{imu}
+\glslocalunset{lidar}
 In this chapter various methods using different sensors to estimate the car's pitch angle and thus the ramp angle, as well as other properties of the ramp, such as the width and length, will be described.
 The problem definition is discussed in \cref{sec:road_grade_definition}.
 Before being able to use the sensor measurements, a coordinate frame transformation to the device frame is necessary.
@@ -176,7 +179,7 @@ A better approach, which incorporates the accelerations caused by the car, is de
 \begin{figure}[htb]
 	\centering
 	\input{Graphics/TikZ/car_gravity.tex}
-	\caption[Accelerations on a ramp]{The prevailing accelerations when a car is accelerating on a ramp.}
+	\caption[Prevailing accelerations on a ramp]{The prevailing accelerations when a car is accelerating on a ramp.}
 	\label{fig:tikz_car_gravity}
 \end{figure}
 \subsubsection{Gyroscope}
@@ -214,7 +217,7 @@ The random walk introduced by integrating white noise or a constant bias causes 
 
 
 \subsubsection{Complementary Filter}
-The complementary uses both the linear acceleration and angular velocity measurements and combines them using sensor fusion, such that the good properties of each sensor are used to reduce the poor properties of the other.
+The complementary filter uses both the linear acceleration and angular velocity measurements and combines them using sensor fusion, such that the good properties of each sensor are used to reduce the poor properties of the other.
 The angle estimation obtained from the linear acceleration measurements is reliable in the long-term, but is quite noisy.
 The estimation from the angular velocity measurements on the other hand provide good short-term accuracy, but should not be used for longer estimations due to drift.\par
 These properties can be interpreted in the frequency domain.
@@ -253,7 +256,7 @@ for the \gls{lpf} and
 	G_\mathrm{high} (s) = \frac{\alpha s}{1 + \alpha s}
 \end{equation}
 for the \gls{hpf}, when using a first-order filter.
-$\alpha$ is the filter coefficient and is depended on the cut-off frequency in the following way
+$\alpha$ is the filter coefficient and is dependent on the cut-off frequency in the following way
 \begin{equation}
 	\alpha
 	= \frac{\tau}{\tau + T}
@@ -339,7 +342,7 @@ The car pitch angle calculation is the same as in \cref{eq:ang_from_acc}, just t
 	\theta_\mathrm{grav}  = \arcsin\left(\frac{\vb{a}_\mathrm{x} - \hat{a}_\mathrm{car}}{\norm{\vb{g}}}\right)
 \end{equation}
 with $\vb{a}_\mathrm{x}$ being the acceleration measured by the x-axis of the \gls{imu} and $\norm{\vb{g}}$ being the magnitude of the overall measured acceleration.
-It is important the both the \gls{imu} and odometer measurements are synchronized in time, otherwise a change in acceleration leads to a wrong estimation.
+It is important that both the \gls{imu} and odometer measurements are synchronized in time, otherwise a change in acceleration leads to a wrong estimation.
 Since $\hat{a}_\mathrm{car}$ is slightly delayed due to the filtering, the same filter must be applied to the \gls{imu} measurements.
 
 
@@ -442,6 +445,7 @@ Therefore, the yaw angle is assumed to be zero.
 \subsection{Algorithm}
 \label{ssec:algorithm_lidar}
 \subsubsection{Point Cloud Preprocessing}
+\isug{Figure of a point cloud before and after preprocessing}
 Because the raw \gls{lidar} point cloud consists of many points and is too big to allow for real time processing on the available setup, preprocessing is necessary.
 It consists of a passthrough filter to remove unwanted points (e.g. behind the car) and a voxel grid filter to downsample the point cloud.
 Before the passthrough filter can be applied, the point cloud must be transformed to the car frame.
@@ -534,6 +538,7 @@ Different approaches such as object detection, instance or semantic segmentation
 For this project, the instance semantic approach was chosen.
 While the object detection approach requires the least computational effort, it only provides a bounding box around the object.
 Both segmentation approaches on the other hand create a mask around the object, allowing for a more accurate localization of the object.
+\isug{Rewrite "would probably be enough"}
 For the specific task of detecting ramps in parking garages the semantic segmentation would probably be enough since most times only one ramp will be visible, in which case the semantic and instance segmentation will be the same.
 But the instance segmentation approach is more general and can be adapted more easily to support also the detection of other objects.\par
 That is why the mask \gls{rcnn} architecture is used in this thesis.
@@ -610,7 +615,7 @@ The \gls{coco} format contains information about the segmentation mask consistin
 		\includegraphics[width=1\linewidth]{aug3.jpg}
 		\caption{Augmented image}
 	\end{subfigure}
-	\caption[Augmented images]{The three ramps used for the training. The augmented images are shown on the right-hand side and the manually created label is marked green.}
+	\caption[Examples of augmented images]{The three ramps used for the training. The augmented images are shown on the right-hand side and the manually created label is marked green.}
 	\label{fig:img_augmentated}
 \end{figure}
 
@@ -625,6 +630,7 @@ Common transformations are horizontal or vertical flipping of the image, croppin
 The library \texttt{imgaug}~\footnote{\url{https://github.com/aleju/imgaug}} \cite{Jung2018} is used for this task.
 In addition to editing the image, it automatically adapts the annotation according to the new position of the label, e.g. when flipping the image.\par
 The following augmentations techniques are used to artificially increase the dataset: horizontal flipping of the image (with a probability of 50\%), changing the brightness by \SIrange{-20}{20}{\percent}, changing the contrast by \SIrange{-20}{10}{\percent}, adding motion blur with a kernel size of 3 and adding salt and pepper (turning some pixels black or white, simulating dead pixels).
+\isug{Convert to table (hatte ich auch ueberlegt aber ist komisch mit Probability und so)}
 Some examples of the augmented images are shown in \cref{fig:img_augmentated} on the right-hand side.
 In each picture the annotation is shown as a mask and bounding box in green.
 Note that the label is automatically transformed when flipping the image.
