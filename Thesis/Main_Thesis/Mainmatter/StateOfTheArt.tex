@@ -18,7 +18,7 @@ Another method using \gls{gps} data and \glspl{imu} to calculate the vertical an
 \gls{gps} satellites broadcast information about their position and exact time to a \gls{gps} receiver, which than can calculate its position using triangulation \cite{Mainetti2014}.
 While an accuracy of up to \SI{1}{\metre} can be achieved when outside, the performance significantly drops when used indoors.
 The radio waves sent from the satellites are scattered, attenuated or blocked completely by walls and other obstacles, resulting in a very weak or even a complete loss of the signal \cite{Ozdenizci2015}.\par
-Most methods mentioned above do not seem fit for the task, due to the reliance on \gls{gps}.
+Most of the previously described methods are not suitable for the road grade estimation in indoor requirement, due to the reliance on \gls{gps}.
 Furthermore, many internal measurements such as the engine torque, brake system usage, selected gear etc. can not easily be accessed and thus might not be available.\par
 A method which does not use \gls{gps}, but only accelerometers and wheel odometers instead is described in ref.~\cite{Nilsson2012} and \cite{Palella2016}.
 The vehicle acceleration, calculated by deriving the wheel speed measurements in respect to time, is subtracted from the accelerometer signal in longitudinal direction.
@@ -36,13 +36,19 @@ The estimated quaternions using the accelerometer and angular velocity measureme
 
 \section{Object Detection and Plane Segmentation}
 \itodo{Probably merge \gls{lidar} and camera sections together}
-While an \gls{imu} allows for the estimation of the current road grade angle, it can not be used to detect changes in the road grade ahead of the vehicle.
-In the case of ramps, the road grade angle of the ramp can be seen as near constant and thus the ramp can be classified as a planar surface.
-By also detecting the ground plane, the transition from the ground to the ramp can be localized.
+While the in the previous section mentioned methods allow for the estimation of the current road grade angle, they can not be used to detect changes in the road grade ahead of the vehicle.
+For this purpose, \gls{radar}, \gls{lidar} or camera sensors, to name a few, must be used instead.
+Since no \gls{radar} sensors were available for the experiments of this thesis, the focus will be on the \gls{lidar} and camera instead.
+As described in \cref{ssec:lidar}, the \gls{lidar} generates a 3D point cloud of the environment.
+Structures in point cloud can be either identified by using object detection, which allows for the identification of for more complex objects, or a segmentation approach, in which points are grouped into homogeneous regions.
+Object detection allows for the detection of complex structures, it can either be applied by using hand-crafted features cite ...., or by using a more sophisticated deep learning approach \cite{Qi2017, Qi2017b, Zhuo2018}.
+Segmentation on the other hand is typically used to classify the point cloud into different planes, e.g. the ground or a wall in the case of autonomous driving.\par
+For the task of detecting a ramp, using a segmentation approach is sufficient, since a ramp can be seen as a planar surface.
+By also detecting the ground plane, the angle of the ramp and the distance to it can be estimated.
 Several techniques to detect planes in a point cloud exist.
 As mentioned in ref. \cite{Gallo2008}, there exist mainly three different approaches to segment and estimate planar regions in a point cloud simultaneously.
 The first approach, which will also be used in this master thesis, is to iteratively extract the most dominant plane from the point cloud.
-After a plane has been detected, its inliers are removed from the point cloud and the remaining points will be searched for the next biggest plane, until not enough points are left to build a proper plane.
+After a plane has been detected, its inliers are removed from the point cloud and the remaining points will be searched for the next biggest plane, until not enough points are left to build a proper plane, or the desired planes have been detected.
 In the second approach, all visible planes are estimated simultaneously.
 Either using the Expectation-Maximization algorithm \cite{Liu2001, Triebel2005} or by using the Generalized \gls{pca} algorithm \cite{Vidal2005}.
 A disadvantage of this approach is that the number of planar surface elements in the scene must be estimated.
@@ -52,7 +58,7 @@ Different patches can then be merged together, if they are consistent with each 
 It is a fast and simple algorithm, but depends on a good selection of the first starting points.\par
 Since the point cloud is usually not free of outliers, a robust procedure should be employed to remove them \cite{Stewart1999,Meer2004}.
 The most well known are the \gls{ransac} \cite{Fischler1981} and Hough transform \cite{Illingworth1988}.\par
-There is also some resarch done on the detection of ramps in point clouds.
+There is also some research done on the detection of ramps in point clouds.
 In ref. \cite{El-Sayed2018} a new technique for plane detection is proposed.
 The point cloud is down-sampled using octree into small cubes, which are then down-sampled based on their local density.
 \gls{pca} is used to find planar surfaces.
