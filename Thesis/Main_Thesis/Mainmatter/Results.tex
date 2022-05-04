@@ -4,7 +4,7 @@
 \glslocalunset{imu}
 \glslocalunset{lidar}
 In this chapter the results of the different proposed methods will be presented.
-At first, the collection of the reference data w7ill be explained.
+At first, the collection of the reference data will be explained.
 The different metrics used for the evaluation of the results will be described in \cref{sec:performance_measures}.
 The different methods using the \gls{imu} are analyzed in \cref{sec:eval_imu}.
 Afterwards the performance of the \gls{lidar} algorithm will be discussed in \cref{sec:eval_lidar} and finally the results of the object detection using the camera will be presented in \cref{sec:eval_camera}.
@@ -27,7 +27,7 @@ Furthermore, a test drive without any ramps in sight was made to test if false p
 
 \section{Reference Data}
 To evaluate the performance of the different algorithms a reference is necessary.
-The open-source \gls{ros} package \texttt{hdl\_graph\_slam}~\footnote{\url{https://github.com/koide3/hdl_graph_slam}} \cite{Koide2019} is used for this task.
+The open-source \gls{ros} package \texttt{hdl\_graph\_slam}~\footnote{\url{https://github.com/koide3/hdl_graph_slam}}~\cite{Koide2019} is used for this task.
 It is based on 3D graph \gls{slam} and uses the \gls{lidar} data to map the environment and estimate the pose (position and orientation) of the car.
 It uses \gls{ndt} scan matching-based odometry estimation with loop detection.
 The point cloud of common features at time $t$ is compared to the point cloud from the time $t-1$ and matched against each other.
@@ -40,7 +40,7 @@ The reference value for the length can be extracted from the generated point clo
 Because the ramp angle is not constant, the average angle of the ramp is used as reference.
 The average angle \gls{ramp_ang} is calculated by measuring the length and height of the ramp and using the law of sines
 \begin{equation}
-	\gls{ramp_ang} = \arcsin\left(\frac{h_\mathrm{ramp}}{l_\mathrm{ramp}}\right).
+    \gls{ramp_ang} = \arcsin\left(\frac{h_\mathrm{ramp}}{l_\mathrm{ramp}}\right).
 \end{equation}
 The \gls{lidar} is used to detect and track the distance to the ramp and also to estimate the angle, width and length.
 For the evaluation of the tracking accuracy, the generated map and pose provided by the HDL Graph \gls{slam} is used again.
@@ -53,10 +53,10 @@ In this example the car was driven only half-way up the ramp.
 As mentioned in \cref{sec:methods_camera}, the camera is also used to identify the ramp.
 Because manual labeling of all the images was necessary for the training of the network, the labels can be used as a reference.
 \begin{figure}[htb]
-	\centering
-	\includegraphics[width=1\linewidth, trim={0 0 0 2cm}, clip]{pcd_plotly}
-	\caption[Generated point cloud map]{The by the \texttt{hdl\_graph\_slam} package generated point cloud map. The ramp region was selected manually by visual inspection and is marked by the rainbow-colored points. The black squares visualize the trajectory of the car.}
-	\label{fig:pcd_plotly}
+    \centering
+    \includegraphics[width=1\linewidth, trim={0 0 0 2cm}, clip]{pcd_plotly}
+    \caption[Generated point cloud map]{The by the \texttt{hdl\_graph\_slam} package generated point cloud map. The ramp region was selected manually by visual inspection and is marked by the rainbow-colored points. The black squares visualize the trajectory of the car.}
+    \label{fig:pcd_plotly}
 \end{figure}
 
 
@@ -66,7 +66,7 @@ Because manual labeling of all the images was necessary for the training of the 
 Using the \gls{imu}, the pitch angle of the car is estimated over time.
 The goodness of the fit between the estimation $\hat{y} = (\hat{y}_i, \dots, \hat{y}_n)^\intercal$ and the reference $y = (y_i, \dots, y_n)^\intercal$ can then be described by the \gls{rmse}
 \begin{equation}
-	RMSE = \sqrt{\frac{1}{n}\sum_{i = 1}^n(\hat{y}_i - y_i)^2},
+    RMSE = \sqrt{\frac{1}{n}\sum_{i = 1}^n(\hat{y}_i - y_i)^2},
 \end{equation}
 which quantifies how much the predicted values differ from the reference value on average.
 It is defined in the range $[0, \infty)$, with a value of 0 indicating a perfect fit.\par
@@ -74,7 +74,7 @@ The same can be applied to the estimation for the angle, width, length and dista
 The only difference is that the reference angle, width and length are constant and thus the \gls{rmse} is basically the same as the standard deviation in this case.
 Furthermore, the coefficient of determination $R^2$ is used to evaluate the pitch angle estimation
 \begin{equation}
-	R^2 = 1 - \frac{\sum\limits_{i = 1}^n(\hat{y}_i - y_i)^2}{\sum\limits_{i = 1}^n(\hat{y}_i - \overline{y})^2},
+    R^2 = 1 - \frac{\sum\limits_{i = 1}^n(\hat{y}_i - y_i)^2}{\sum\limits_{i = 1}^n(\hat{y}_i - \overline{y})^2},
 \end{equation}
 where $\overline{y}$ indicates the mean of the reference.
 The goodness of the fit is described in the range from 0 to 1, where 1 describes a perfect fit.\par
@@ -89,10 +89,10 @@ One commonly used metric in the field of computer vision is the \gls{ap}.
 It is a detection evaluation metric, commonly used by the \gls{coco} dataset.
 It is based on the precision and recall score, which can be calculated by
 \begin{equation}
-	\text{Precision} = \frac{TP}{TP+FP}
+    \text{Precision} = \frac{TP}{TP+FP}
 \end{equation}
 \begin{equation}
-	\text{Recall} = \frac{TP}{TP+FN}.
+    \text{Recall} = \frac{TP}{TP+FN}.
 \end{equation}
 The precision gives information about how accurate the predictions are and the recall gives information about how much of the ground truth is detected.
 The area under the precision-recall curve is the \gls{ap} score.
@@ -101,7 +101,7 @@ Otherwise, a model which correctly detects some objects in the image, but misses
 Similarly to the \gls{lidar}, it first must be defined what classifies as a \gls{tp} and a \gls{fp}.
 For this, a new metric is introduced, the \gls{iou}, which is defined as
 \begin{equation}
-	\text{\acrshort{iou}} = \frac{\text{Area of Overlap}}{\text{Area of Union}}.
+    \text{\acrshort{iou}} = \frac{\text{Area of Overlap}}{\text{Area of Union}}.
 \end{equation}
 The area of overlap is defined as the intersection between the predicted and ground truth bounding box, and the area of union is the area of both boxes added together.
 Instead of a bounding box, a segmentation mask can be used as well.
@@ -128,10 +128,10 @@ In the first drive the car was accelerated from stand still and drove up ramp A 
 As explained in \cref{sec:car}, the ramp could not be driven completely, due to the need of the odometer readings, which are only available when the motor output is limited.
 The result of using only the raw measurements of the \gls{imu} for the pitch angle calculation is illustrated in \cref{fig:imu_raw_angle}.
 \begin{figure}[htb]
-	\centering
-	\includegraphics[width=.9\linewidth]{imu_raw_angle.pdf}
-	\caption[Angle estimation using raw measurements]{Pitch angle estimation from the raw accelerometer and gyroscope measurements. The drive did start from stand still and did end in the middle of the ramp.}
-	\label{fig:imu_raw_angle}
+    \centering
+    \includegraphics[width=.9\linewidth]{imu_raw_angle.pdf}
+    \caption[Angle estimation using raw measurements]{Pitch angle estimation from the raw accelerometer and gyroscope measurements. The drive did start from stand still and did end in the middle of the ramp.}
+    \label{fig:imu_raw_angle}
 \end{figure}
 The measurement by the accelerometer is very noisy and is easily influenced by accelerations other than gravity, which can be seen at time \SIrange{2}{4}{\second}, where the car started driving.
 The gyroscope on the other hand provides good short-term accuracy and is not influenced by other accelerations, but is slowly drifting over time.
@@ -142,10 +142,10 @@ The gravity method tries to overcome the problem of the accelerometer of also de
 The car's acceleration $\vb{a}_\mathrm{odom,x} $ was calculated by calculating the derivate of the low-pass filtered car velocity $v_\mathrm{car} $, which was calculated from the wheel speed measurements.
 Figure \ref{fig:imu_odometer_acc} shows the (low-pass filtered) acceleration measured by the \gls{imu} along the x-axis and the (low-pass filtered) car's acceleration.
 \begin{figure}[htb]
-	\centering
-	\includegraphics[width=.9\linewidth]{imu_odometer_acc.pdf}
-	\caption[Measured acceleration from \glsentryshort{imu} and odometer]{The measured acceleration in x-direction by the \glsentryshort{imu} and the acceleration derived from the wheel speed measurements and the difference between both.}
-	\label{fig:imu_odometer_acc}
+    \centering
+    \includegraphics[width=.9\linewidth]{imu_odometer_acc.pdf}
+    \caption[Measured acceleration from \glsentryshort{imu} and odometer]{The measured acceleration in x-direction by the \glsentryshort{imu} and the acceleration derived from the wheel speed measurements and the difference between both.}
+    \label{fig:imu_odometer_acc}
 \end{figure}
 And $\vb{a}_\mathrm{grav,x} $ is the acceleration measured by the \gls{imu} from which the car acceleration $\vb{a}_\mathrm{odom,x} $ was subtracted.
 It can be seen, that especially at the beginning of the ramp (\SIrange{21}{23}{\second}) the gravity method shows it advantages.
@@ -157,10 +157,10 @@ Other reasons for the difference could be, that other forces than the one from t
 Moreover, the approximations made by calculating the finite difference of the car velocity to get the car acceleration have a negative influence on the result.\par
 The resulting angles calculated from the accelerations can be seen in \cref{fig:imu_odometer_angle}.
 \begin{figure}[htb]
-	\centering
-	\includegraphics[width=.9\linewidth]{imu_odometer_angle.pdf}
-	\caption[Angle estimation using the gravity method]{Pitch angle estimation using only the accelerometer compared to the gravity method, which additionally uses the wheel speed measurements.}
-	\label{fig:imu_odometer_angle}
+    \centering
+    \includegraphics[width=.9\linewidth]{imu_odometer_angle.pdf}
+    \caption[Angle estimation using the gravity method]{Pitch angle estimation using only the accelerometer compared to the gravity method, which additionally uses the wheel speed measurements.}
+    \label{fig:imu_odometer_angle}
 \end{figure}
 It can be seen that the gravity method improves the estimation accuracy, compared to when only the accelerometer data is used.
 Especially the angle at the start and on the ramp is more accurately described when subtracting the odometer data from the accelerometer data for the calculation.
@@ -170,10 +170,10 @@ Another way to improve the estimation is using a complementary filter.
 The results of which, together with all other methods, are shown in \cref{fig:imu_all_angles}.
 Those are the results of a new drive, where the car was driven the ramp D and afterwards ramp A down.
 \begin{figure}[htb]
-	\centering
-	\includegraphics[width=.9\linewidth]{imu_all_angles.pdf}
-	\caption[Angle estimation comparison of all methods]{Comparison of different methods to estimate the pitch angle. Two different ramps were driven down successively.}
-	\label{fig:imu_all_angles}
+    \centering
+    \includegraphics[width=.9\linewidth]{imu_all_angles.pdf}
+    \caption[Angle estimation comparison of all methods]{Comparison of different methods to estimate the pitch angle. Two different ramps were driven down successively.}
+    \label{fig:imu_all_angles}
 \end{figure}
 The complementary filter uses the estimation of the gyroscope measurements and corrects them using the accelerometer measurements to prevent drift.
 It can be seen that the estimation using the complementary filter closely follows the reference except for the part between the two ramps (\SIrange{30}{60}{\second}).
@@ -192,24 +192,24 @@ But due to the drifting the errors cumulate, resulting in a high \gls{rmse} valu
 The acceleration method performs well, but is negatively influenced by the acceleration from stand still, during which the accelerometer and wheel speed data are not properly aligned.
 The best results are achieved using the complementary filter.
 \begin{table}[htb]
-	\centering
-	\caption[Road grade estimation for uphill drives]{Road grade estimation when driving ramps up, using different methods.}
-	\label{tab:eval_imu_up}
-	\resizebox{\textwidth}{!}{
-		\begin{tabular}{lcccccc}
-			\toprule
-			                    & \multicolumn{3}{c}{\textbf{Ramp A}} & \multicolumn{3}{c}{\textbf{Ramp B}}                                                                                                                                   \\
-			\midrule
-			\textbf{Method}     & \textbf{RMSE} [\si{\degree}]        & $\mathbf{R^2}$                      & $\mathbf{Error_{max}}$ [\si{\degree}] & \textbf{RMSE} [\si{\degree}] & $\mathbf{R^2}$   & $\mathbf{Error_{max}}$ [\si{\degree}] \\
-			\cmidrule(lr){2-4}   \cmidrule(lr){5-7}
-			Accelerometer       & 0.875                               & 0.675                               & 4.944                                 & 0.650                        & 0.787            & 3.378                                 \\
-			Gyroscope           & 0.508                               & 0.905                               & 1.373                                 & 0.768                        & 0.802            & $\mathbf{1.594  }$                    \\
-			Acceleration method & 0.357                               & 0.954                               & 2.482                                 & 0.351                        & $\mathbf{0.955}$ & 1.707                                 \\
-			Complementary       & $\mathbf{0.273} $                   & $\mathbf{0.976}$                    & $\mathbf{1.231 }$                     & $\mathbf{0.324}$             & 0.952            & 1.647                                 \\
-			% Complementary grav  & 0.371                               & 0.948                               & 1.990                  & 0.358            & 0.951            & 1.211                  \\
-			\bottomrule
-		\end{tabular}
-	}
+    \centering
+    \caption[Road grade estimation for uphill drives]{Road grade estimation when driving ramps up, using different methods.}
+    \label{tab:eval_imu_up}
+    \resizebox{\textwidth}{!}{
+        \begin{tabular}{lcccccc}
+            \toprule
+                                & \multicolumn{3}{c}{\textbf{Ramp A}} & \multicolumn{3}{c}{\textbf{Ramp B}}                                                                                                                                   \\
+            \midrule
+            \textbf{Method}     & \textbf{RMSE} [\si{\degree}]        & $\mathbf{R^2}$                      & $\mathbf{Error_{max}}$ [\si{\degree}] & \textbf{RMSE} [\si{\degree}] & $\mathbf{R^2}$   & $\mathbf{Error_{max}}$ [\si{\degree}] \\
+            \cmidrule(lr){2-4}   \cmidrule(lr){5-7}
+            Accelerometer       & 0.875                               & 0.675                               & 4.944                                 & 0.650                        & 0.787            & 3.378                                 \\
+            Gyroscope           & 0.508                               & 0.905                               & 1.373                                 & 0.768                        & 0.802            & $\mathbf{1.594  }$                    \\
+            Acceleration method & 0.357                               & 0.954                               & 2.482                                 & 0.351                        & $\mathbf{0.955}$ & 1.707                                 \\
+            Complementary       & $\mathbf{0.273} $                   & $\mathbf{0.976}$                    & $\mathbf{1.231 }$                     & $\mathbf{0.324}$             & 0.952            & 1.647                                 \\
+            % Complementary grav  & 0.371                               & 0.948                               & 1.990                  & 0.358            & 0.951            & 1.211                  \\
+            \bottomrule
+        \end{tabular}
+    }
 \end{table}
 In \cref{tab:eval_imu_down} the average results for down drives are shown.
 The data are from a test drive in which at first the ramp C was driven down, followed by ramp A in one consecutive drive.
@@ -220,23 +220,23 @@ It can be seen that at the beginning (ramp C) the gyroscope performs the best, b
 All methods perform significantly worse in the second part of the drive (ramp A), due to the deviation of the reference value in the time frame between the two ramps.
 But when looking at the graph in \cref{fig:imu_all_angles} it can be seen, that the gravity method and especially the complementary filter closely follows the reference data.
 \begin{table}[htb]
-	\centering
-	\caption[Road grade estimation for downhill drives]{Road grade estimation when driving ramps down, using different methods.}
-	\label{tab:eval_imu_down}
-	\resizebox{\textwidth}{!}{
-		\begin{tabular}{lcccccc}
-			\toprule
-			\textbf{Method}     & \multicolumn{3}{c}{\textbf{Ramp C}} & \multicolumn{3}{c}{\textbf{Ramp A}}                                                                                                                                   \\
-			\midrule
-			                    & \textbf{RMSE} [\si{\degree}]        & $\mathbf{R^2}$                      & $\mathbf{Error_{max}}$ [\si{\degree}] & \textbf{RMSE} [\si{\degree}] & $\mathbf{R^2}$   & $\mathbf{Error_{max}}$ [\si{\degree}] \\
-			\cmidrule(lr){2-4}   \cmidrule(lr){5-7}
-			Accelerometer       & 0.894                               & 0.746                               & 8.291                                 & 0.938                        & 0.784            & 3.967                                 \\
-			Gyroscope           & $\mathbf{0.219}$                    & $\mathbf{0.990}$                    & $\mathbf{0.736}$                      & 0.784                        & 0.867            & $\mathbf{1.481}$                      \\
-			Acceleration method & 0.369                               & 0.964                               & 2.211                                 & $\mathbf{0.719}$             & $\mathbf{0.872}$ & 2.136                                 \\
-			Complementary       & 0.327                               & 0.977                               & 1.184                                 & 0.753                        & 0.862            & 2.131                                 \\
-			\bottomrule
-		\end{tabular}
-	}
+    \centering
+    \caption[Road grade estimation for downhill drives]{Road grade estimation when driving ramps down, using different methods.}
+    \label{tab:eval_imu_down}
+    \resizebox{\textwidth}{!}{
+        \begin{tabular}{lcccccc}
+            \toprule
+            \textbf{Method}     & \multicolumn{3}{c}{\textbf{Ramp C}} & \multicolumn{3}{c}{\textbf{Ramp A}}                                                                                                                                   \\
+            \midrule
+                                & \textbf{RMSE} [\si{\degree}]        & $\mathbf{R^2}$                      & $\mathbf{Error_{max}}$ [\si{\degree}] & \textbf{RMSE} [\si{\degree}] & $\mathbf{R^2}$   & $\mathbf{Error_{max}}$ [\si{\degree}] \\
+            \cmidrule(lr){2-4}   \cmidrule(lr){5-7}
+            Accelerometer       & 0.894                               & 0.746                               & 8.291                                 & 0.938                        & 0.784            & 3.967                                 \\
+            Gyroscope           & $\mathbf{0.219}$                    & $\mathbf{0.990}$                    & $\mathbf{0.736}$                      & 0.784                        & 0.867            & $\mathbf{1.481}$                      \\
+            Acceleration method & 0.369                               & 0.964                               & 2.211                                 & $\mathbf{0.719}$             & $\mathbf{0.872}$ & 2.136                                 \\
+            Complementary       & 0.327                               & 0.977                               & 1.184                                 & 0.753                        & 0.862            & 2.131                                 \\
+            \bottomrule
+        \end{tabular}
+    }
 \end{table}
 
 
@@ -247,23 +247,23 @@ All the different methods seem to underestimate the angle when driving up (ramp 
 Because ramp A and B could only be driven half-way up, it could be possible that the average angle had not been reached yet.
 Overall it can be seen that the complementary filter and the acceleration method perform the best.\par
 \begin{table}[htb]
-	\centering
-	\caption{Estimation of ramp angle.}
-	\label{tab:eval_imu_angle}
-	\resizebox{\textwidth}{!}{
-		\begin{tabular}{lcccccc}
-			\toprule
-			                    & \multicolumn{2}{c}{\textbf{Ramp A}} & \multicolumn{2}{c}{\textbf{Ramp B}} & \multicolumn{2}{c}{\textbf{Ramp D}}                                                                                                 \\
-			\midrule
-			\textbf{Method}     & \textbf{Angle} [\si{\degree}]       & \textbf{Error} [\si{\degree}]       & \textbf{Angle} [\si{\degree}]       & \textbf{Error} [\si{\degree}] & \textbf{Angle} [\si{\degree}] & \textbf{Error} [\si{\degree}] \\
-			\cmidrule(lr){2-3}  \cmidrule(lr){4-5}   \cmidrule(lr){6-7}
-			Accelerometer       & 4.14                                & 3.06                                & 4.75                                & 1.75                          & -10.41                        & 2.11                          \\
-			Gyroscope           & 4.97                                & 2.23                                & 4.30                                & 2.20                          & -9.11                         & 0.81                          \\
-			Acceleration method & 6.15                                & 1.05                                & 6.18                                & 0.32                          & -9.52                         & 1.22                          \\
-			Complementary       & 5.42                                & 1.78                                & 6.12                                & 0.38                          & -9.01                         & 0.71                          \\
-			\bottomrule
-		\end{tabular}
-	}
+    \centering
+    \caption{Estimation of ramp angle.}
+    \label{tab:eval_imu_angle}
+    \resizebox{\textwidth}{!}{
+        \begin{tabular}{lcccccc}
+            \toprule
+                                & \multicolumn{2}{c}{\textbf{Ramp A}} & \multicolumn{2}{c}{\textbf{Ramp B}} & \multicolumn{2}{c}{\textbf{Ramp D}}                                                                                                 \\
+            \midrule
+            \textbf{Method}     & \textbf{Angle} [\si{\degree}]       & \textbf{Error} [\si{\degree}]       & \textbf{Angle} [\si{\degree}]       & \textbf{Error} [\si{\degree}] & \textbf{Angle} [\si{\degree}] & \textbf{Error} [\si{\degree}] \\
+            \cmidrule(lr){2-3}  \cmidrule(lr){4-5}   \cmidrule(lr){6-7}
+            Accelerometer       & 4.14                                & 3.06                                & 4.75                                & 1.75                          & -10.41                        & 2.11                          \\
+            Gyroscope           & 4.97                                & 2.23                                & 4.30                                & 2.20                          & -9.11                         & 0.81                          \\
+            Acceleration method & 6.15                                & 1.05                                & 6.18                                & 0.32                          & -9.52                         & 1.22                          \\
+            Complementary       & 5.42                                & 1.78                                & 6.12                                & 0.38                          & -9.01                         & 0.71                          \\
+            \bottomrule
+        \end{tabular}
+    }
 \end{table}
 As discussed in \cref{ssec:ramp_detection_imu}, the length of the ramp can be estimated by integrating the velocity of the car over the time interval between the start and end of the ramp.
 The velocity can be estimated in two different ways.
@@ -273,22 +273,22 @@ As mentioned in \cref{sec:car}, this is only possible when driving down.
 Ramp D is used for this evaluation, the first part of the drive show in \cref{fig:imu_all_angles}.\\
 In \cref{fig:imu_distance_velocity} different methods to estimate the velocity of the car are shown.
 \begin{figure}[htb]
-	\centering
-	\begin{subfigure}{1\textwidth}
-		\centering
-		\includegraphics[width=.9\linewidth]{imu_distance_velocity.pdf}
-		\caption[Car velocity estimation]{Estimated car velocity calculated from the wheel speed measurements and different methods using the accelerometer data.}
-		\label{fig:imu_distance_velocity}
-	\end{subfigure}
-	
-	% \bigskip
-	\begin{subfigure}{1\textwidth}
-		\centering
-		\includegraphics[width=.9\linewidth]{imu_distance_position.pdf}
-		\caption[Car travelled distance estimation]{The integration of the velocity leads to the travelled distance. The length of the ramp can then be calculated from the difference between the position at the end and start of the ramp.}
-		\label{fig:imu_distance_position}
-	\end{subfigure}
-	\caption[Ramp length estimation using various methods]{Comparison of different methods to estimate the length of the ramp.}
+    \centering
+    \begin{subfigure}{1\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{imu_distance_velocity.pdf}
+        \caption[Car velocity estimation]{Estimated car velocity calculated from the wheel speed measurements and different methods using the accelerometer data.}
+        \label{fig:imu_distance_velocity}
+    \end{subfigure}
+    
+    % \bigskip
+    \begin{subfigure}{1\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{imu_distance_position.pdf}
+        \caption[Car travelled distance estimation]{The integration of the velocity leads to the travelled distance. The length of the ramp can then be calculated from the difference between the position at the end and start of the ramp.}
+        \label{fig:imu_distance_position}
+    \end{subfigure}
+    \caption[Ramp length estimation using various methods]{Comparison of different methods to estimate the length of the ramp.}
 \end{figure}
 $v_\mathrm{odom}$ is the velocity calculated from the wheel speed measurements using \cref{eq:v_car}.
 The other three methods are based on the integration of the accelerometer measurements.
@@ -312,20 +312,20 @@ The only usable results are produced by the method using the odometer measuremen
 The actual length of the ramp is calculated by subtracting the position of the car at the end of the ramp from the position at the start of the ramp.
 The calculated length for the different methods and the corresponding error are shown in \cref{tab:ramp_length}.
 \begin{table}[htb]
-	\centering
-	\caption[Ramp length estimation]{The estimation of the ramp length using different methods.}
-	\label{tab:ramp_length}
-	\begin{tabular}{lSS}
-		\toprule
-		\textbf{Method}                & {\textbf{Length} [\si{\metre}]} & {\textbf{Error} [\si{\metre}]} \\
-		\midrule
-		$d_\mathrm{odom} $             & 11.88                           & 0.63                           \\
-		$d_\mathrm{acc} $              & -8.44                           & 20.69                          \\
-		$d_\mathrm{acc, grav, } $      & 4.52                            & 7.73                           \\
-		$d_\mathrm{acc, grav, later} $ & 11.85                           & 0.60                           \\
-		$d_\mathrm{ref} $              & 11.25                           & 0                              \\
-		\bottomrule
-	\end{tabular}
+    \centering
+    \caption[Ramp length estimation]{The estimation of the ramp length using different methods.}
+    \label{tab:ramp_length}
+    \begin{tabular}{lSS}
+        \toprule
+        \textbf{Method}                & {\textbf{Length} [\si{\metre}]} & {\textbf{Error} [\si{\metre}]} \\
+        \midrule
+        $d_\mathrm{odom} $             & 11.88                           & 0.63                           \\
+        $d_\mathrm{acc} $              & -8.44                           & 20.69                          \\
+        $d_\mathrm{acc, grav, } $      & 4.52                            & 7.73                           \\
+        $d_\mathrm{acc, grav, later} $ & 11.85                           & 0.60                           \\
+        $d_\mathrm{ref} $              & 11.25                           & 0                              \\
+        \bottomrule
+    \end{tabular}
 \end{table}
 
 
@@ -337,22 +337,22 @@ Due to the setup it was only possible to mount one \gls{lidar} at a time.
 To get the best possible results the \gls{lidar} with the best resolution, especially in vertical direction, should be used.
 A comparison of the resolution of the two \glspl{lidar} can be seen in \cref{fig:lidar_resolution_eval}.
 \begin{figure}[htb]
-	\centering
-	\begin{subfigure}{1\textwidth}
-		\centering
-		\includegraphics[width=.9\linewidth]{lidar_resolution_velodyne_eval.pdf}
-		\caption{Velodyne}
-		\label{fig:lidar_resolution_velodyne_eval}
-	\end{subfigure}
-	
-	\begin{subfigure}{1\textwidth}
-		\centering
-		\includegraphics[width=.9\linewidth]{lidar_resolution_robos_eval.pdf}
-		\caption{Robosense}
-		\label{fig:lidar_resolution_robos_eval}
-	\end{subfigure}
-	\caption[Resolution comparison of the two \glsentryplural{lidar}]{Resolution comparison of the two \glsentryplural{lidar}. The ramp region is framed in black.}
-	\label{fig:lidar_resolution_eval}
+    \centering
+    \begin{subfigure}{1\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{lidar_resolution_velodyne_eval.pdf}
+        \caption{Velodyne}
+        \label{fig:lidar_resolution_velodyne_eval}
+    \end{subfigure}
+    
+    \begin{subfigure}{1\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{lidar_resolution_robos_eval.pdf}
+        \caption{Robosense}
+        \label{fig:lidar_resolution_robos_eval}
+    \end{subfigure}
+    \caption[Resolution comparison of the two \glsentryplural{lidar}]{Resolution comparison of the two \glsentryplural{lidar}. The ramp region is framed in black.}
+    \label{fig:lidar_resolution_eval}
 \end{figure}
 Here, a top-down view on the ramp of the points measured by the \gls{lidar} at a distance of \SI{7}{\metre} to the ramp is shown.
 The blue points visualize all the points which were visible to the ramp detection algorithm after the downsampling and pass through filter has been applied.
@@ -377,39 +377,39 @@ Beside the three ramps, data consisting of 252 frames were recorded of an enviro
 One frame was wrongly labeled as a ramp (\gls{fp}), which results together with the other recordings in a precision score of \SI{99.97}{\percent} and recall score of \SI{96.54}{\percent}.\par
 \renewcommand{\arraystretch}{1}
 \begin{table}[htb]
-	\centering
-	\caption[\glsentryshort{lidar} ramp detection evaluation]{Ramp detection and property estimation evaluation of the \glsentryshort{lidar} algorithm. The precision increases the closer the car gets to the ramp.}
-	\label{tab:eval_lidar}
-	\resizebox{\textwidth}{!}{
-		\begin{tabular}{ccccccccc}
-			\toprule
-			\textbf{Ramp}        & \textbf{Distance} [\si{\metre}] & \textbf{Frames}         & \textbf{TP}[\%]   & \textbf{FN}[\%]   & \multicolumn{4}{c}{\textbf{RMSE}}                       \\
-			\cmidrule(lr){6-9}
-			\multicolumn{4}{c}{} &                                 & $\theta [\si{\degree}]$ & $d [\si{\metre}]$ & $w [\si{\metre}]$ & $l [\si{\metre}]$                                       \\
-			\midrule
-			\multirow{6}{*}{A}   & \SIrange{0}{5}{}                & 116                     & 100.00            & 0.00              & 0.31                              & 0.70 & 0.03 & 1.27  \\
-			                     & \SIrange{5}{10}{}               & 117                     & 100.00            & 0.00              & 0.30                              & 0.77 & 0.04 & 0.94  \\
-			                     & \SIrange{10}{15}{}              & 116                     & 100.00            & 0.00              & 0.34                              & 0.81 & 0.07 & 1.03  \\
-			                     & \SIrange{15}{20}{}              & 123                     & 100.00            & 0.00              & 0.27                              & 1.01 & 0.05 & 1.84  \\
-			                     & \SIrange{20}{25}{}              & 140                     & 99.23             & 0.77              & 0.65                              & 1.70 & 0.12 & 6.28  \\
-			                     & \SIrange{25}{30}{}              & 50                      & 59.78             & 40.22             & 1.79                              & 1.21 & 0.25 & 10.04 \\
-			\addlinespace
-			\multirow{6}{*}{B}   & \SIrange{0}{5}{}                & 62                      & 100.00            & 0.00              & 0.52                              & 0.71 & 0.02 & 0.81  \\
-			                     & \SIrange{5}{10}{}               & 62                      & 100.00            & 0.00              & 0.53                              & 0.77 & 0.02 & 0.78  \\
-			                     & \SIrange{10}{15}{}              & 59                      & 100.00            & 0.00              & 0.51                              & 0.86 & 0.02 & 0.85  \\
-			                     & \SIrange{15}{20}{}              & 61                      & 97.92             & 2.08              & 0.49                              & 1.23 & 0.02 & 3.30  \\
-			                     & \SIrange{20}{25}{}              & 61                      & 97.83             & 2.17              & 0.83                              & 2.18 & 0.12 & 9.33  \\
-			                     & \SIrange{25}{30}{}              & 59                      & 42.75             & 57.25             & 1.82                              & 4.35 & 0.90 & 11.98 \\
-			\addlinespace
-			\multirow{6}{*}{C}   & \SIrange{0}{5}{}                & 21                      & 100.00            & 0.00              & 0.64                              & 0.87 & 0.05 & 2.58  \\
-			                     & \SIrange{5}{10}{}               & 23                      & 100.00            & 0.00              & 0.50                              & 0.89 & 0.11 & 4.40  \\
-			                     & \SIrange{10}{15}{}              & 28                      & 100.00            & 0.00              & 0.44                              & 0.70 & 0.10 & 1.23  \\
-			                     & \SIrange{15}{20}{}              & 27                      & 37.04             & 62.96             & 0.66                              & 0.79 & 0.19 & 1.27  \\
-			                     & \SIrange{20}{25}{}              & 29                      & 0.00              & 100.00            &                                   &      &      &       \\
-			                     & \SIrange{25}{30}{}              & 28                      & 10.71             & 89.29             & 1.91                              & 1.40 & 0.25 & 10.78 \\
-			\bottomrule
-		\end{tabular}
-	}
+    \centering
+    \caption[\glsentryshort{lidar} ramp detection evaluation]{Ramp detection and property estimation evaluation of the \glsentryshort{lidar} algorithm. The precision increases the closer the car gets to the ramp.}
+    \label{tab:eval_lidar}
+    \resizebox{\textwidth}{!}{
+        \begin{tabular}{ccccccccc}
+            \toprule
+            \textbf{Ramp}        & \textbf{Distance} [\si{\metre}] & \textbf{Frames}         & \textbf{TP}[\%]   & \textbf{FN}[\%]   & \multicolumn{4}{c}{\textbf{RMSE}}                       \\
+            \cmidrule(lr){6-9}
+            \multicolumn{4}{c}{} &                                 & $\theta [\si{\degree}]$ & $d [\si{\metre}]$ & $w [\si{\metre}]$ & $l [\si{\metre}]$                                       \\
+            \midrule
+            \multirow{6}{*}{A}   & \SIrange{0}{5}{}                & 116                     & 100.00            & 0.00              & 0.31                              & 0.70 & 0.03 & 1.27  \\
+                                 & \SIrange{5}{10}{}               & 117                     & 100.00            & 0.00              & 0.30                              & 0.77 & 0.04 & 0.94  \\
+                                 & \SIrange{10}{15}{}              & 116                     & 100.00            & 0.00              & 0.34                              & 0.81 & 0.07 & 1.03  \\
+                                 & \SIrange{15}{20}{}              & 123                     & 100.00            & 0.00              & 0.27                              & 1.01 & 0.05 & 1.84  \\
+                                 & \SIrange{20}{25}{}              & 140                     & 99.23             & 0.77              & 0.65                              & 1.70 & 0.12 & 6.28  \\
+                                 & \SIrange{25}{30}{}              & 50                      & 59.78             & 40.22             & 1.79                              & 1.21 & 0.25 & 10.04 \\
+            \addlinespace
+            \multirow{6}{*}{B}   & \SIrange{0}{5}{}                & 62                      & 100.00            & 0.00              & 0.52                              & 0.71 & 0.02 & 0.81  \\
+                                 & \SIrange{5}{10}{}               & 62                      & 100.00            & 0.00              & 0.53                              & 0.77 & 0.02 & 0.78  \\
+                                 & \SIrange{10}{15}{}              & 59                      & 100.00            & 0.00              & 0.51                              & 0.86 & 0.02 & 0.85  \\
+                                 & \SIrange{15}{20}{}              & 61                      & 97.92             & 2.08              & 0.49                              & 1.23 & 0.02 & 3.30  \\
+                                 & \SIrange{20}{25}{}              & 61                      & 97.83             & 2.17              & 0.83                              & 2.18 & 0.12 & 9.33  \\
+                                 & \SIrange{25}{30}{}              & 59                      & 42.75             & 57.25             & 1.82                              & 4.35 & 0.90 & 11.98 \\
+            \addlinespace
+            \multirow{6}{*}{C}   & \SIrange{0}{5}{}                & 21                      & 100.00            & 0.00              & 0.64                              & 0.87 & 0.05 & 2.58  \\
+                                 & \SIrange{5}{10}{}               & 23                      & 100.00            & 0.00              & 0.50                              & 0.89 & 0.11 & 4.40  \\
+                                 & \SIrange{10}{15}{}              & 28                      & 100.00            & 0.00              & 0.44                              & 0.70 & 0.10 & 1.23  \\
+                                 & \SIrange{15}{20}{}              & 27                      & 37.04             & 62.96             & 0.66                              & 0.79 & 0.19 & 1.27  \\
+                                 & \SIrange{20}{25}{}              & 29                      & 0.00              & 100.00            &                                   &      &      &       \\
+                                 & \SIrange{25}{30}{}              & 28                      & 10.71             & 89.29             & 1.91                              & 1.40 & 0.25 & 10.78 \\
+            \bottomrule
+        \end{tabular}
+    }
 \end{table}
 \renewcommand{\arraystretch}{1.2}
 The estimated ramp properties and distance to the ramp for one exemplary ride are shown in \cref{fig:lidar_eval}.
@@ -434,42 +434,42 @@ Finally, the estimated length of the ramp is shown in \cref{fig:lidar_length_eva
 At a great distance not enough lines fall into the ramp region, which leads to an underestimation of the length at first.
 However, the estimation improves at a distance of about \SI{17}{\metre} to the ramp, after which the estimation fluctuates around the measured value.\par
 \begin{figure}[htbp]
-	\centering
-	\begin{subfigure}{1\textwidth}
-		\centering
-		\includegraphics[width=.9\linewidth]{lidar_distance_eval.pdf}
-		\caption{Distance to the ramp}
-		\label{fig:lidar_distance_eval}
-	\end{subfigure}
-	
-	\begin{subfigure}{1\textwidth}
-		\centering
-		\includegraphics[width=.9\linewidth]{lidar_angle_eval.pdf}
-		\caption{Angle of the ramp}
-		\label{fig:lidar_angle_eval}
-	\end{subfigure}
-	
-	\begin{subfigure}{1\textwidth}
-		\centering
-		\includegraphics[width=.9\linewidth]{lidar_width_eval.pdf}
-		\caption{Width of the ramp}
-		\label{fig:lidar_width_eval}
-	\end{subfigure}
-	
-	\begin{subfigure}{1\textwidth}
-		\centering
-		\includegraphics[width=.9\linewidth]{lidar_length_eval.pdf}
-		\caption{Length of the ramp}
-		\label{fig:lidar_length_eval}
-	\end{subfigure}
-	\caption[Estimation of ramp properties at different distances]{Estimated ramp properties and tracking of the distance to the ramp at different distances to the ramp.}
-	\label{fig:lidar_eval}
+    \centering
+    \begin{subfigure}{1\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{lidar_distance_eval.pdf}
+        \caption{Distance to the ramp}
+        \label{fig:lidar_distance_eval}
+    \end{subfigure}
+    
+    \begin{subfigure}{1\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{lidar_angle_eval.pdf}
+        \caption{Angle of the ramp}
+        \label{fig:lidar_angle_eval}
+    \end{subfigure}
+    
+    \begin{subfigure}{1\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{lidar_width_eval.pdf}
+        \caption{Width of the ramp}
+        \label{fig:lidar_width_eval}
+    \end{subfigure}
+    
+    \begin{subfigure}{1\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{lidar_length_eval.pdf}
+        \caption{Length of the ramp}
+        \label{fig:lidar_length_eval}
+    \end{subfigure}
+    \caption[Estimation of ramp properties at different distances]{Estimated ramp properties and tracking of the distance to the ramp at different distances to the ramp.}
+    \label{fig:lidar_eval}
 \end{figure}
 \begin{figure}[htbp]
-	\centering
-	\includegraphics[width=1\linewidth]{points_projection.pdf}
-	\caption[2D visualization of the \glsentryshort{lidar} point cloud]{Lidar points projected onto the camera image. The green points were identified as part of a ramp by the algorithm.}
-	\label{fig:points_projection}
+    \centering
+    \includegraphics[width=1\linewidth]{points_projection.pdf}
+    \caption[2D visualization of the \glsentryshort{lidar} point cloud]{Lidar points projected onto the camera image. The green points were identified as part of a ramp by the algorithm.}
+    \label{fig:points_projection}
 \end{figure}
 A visualization of the detection algorithm can be seen in \cref{fig:points_projection}.
 Here, the 3D point cloud generated by the \gls{lidar} is projected onto the 2D camera image.
@@ -496,26 +496,26 @@ After this initial test, the best hyperparameters ranges were tested in combinat
 In \cref{tab:detection_eval} the \gls{map} scores for different hyperparameters are listed.
 LR is the learning rate and SR is the sample rate and determines the number of \gls{roi} proposals, as described in \cref{ssec:training}.\par
 \begin{table}[htb]
-	\centering
-	\caption[Detection evaluation]{Testing of different training hyperparameters and their influence on the \acrshort{ap} score.}
-	\label{tab:detection_eval}
-	\begin{tabular}{ccccccc}
-		\toprule
-		% \textbf{Epochs} & \textbf{LR} & \textbf{SR} & \textbf{Box mAP} & \textbf{Mask mAP} \\
-		\multicolumn{3}{c}{\textbf{Parameter} } & \multicolumn{2}{c}{\textbf{Scores} }                                                      \\
-		\cmidrule(lr){1-3}                       \cmidrule(lr){4-5}
-		\textbf{Epochs}                         & \textbf{LR}                          & \textbf{SR} & \textbf{Box mAP} & \textbf{Mask mAP} \\
-		\midrule
-		1                                       & 0.001                                & 128         & 69.3             & 83.4              \\
-		1                                       & 0.001                                & 512         & 84.8             & 85.7              \\
-		1                                       & 0.003                                & 128         & 73.3             & 76.8              \\
-		1                                       & 0.003                                & 512         & 83.1             & 89.6              \\
-		3                                       & 0.001                                & 128         & 77.6             & 90.1              \\
-		3                                       & 0.001                                & 512         & 87.3             & 90.8              \\
-		3                                       & 0.003                                & 128         & 83.9             & 89.0              \\
-		3                                       & 0.003                                & 512         & 84.9             & 87.6              \\
-		\bottomrule
-	\end{tabular}
+    \centering
+    \caption[Detection evaluation]{Testing of different training hyperparameters and their influence on the \acrshort{ap} score.}
+    \label{tab:detection_eval}
+    \begin{tabular}{ccccccc}
+        \toprule
+        % \textbf{Epochs} & \textbf{LR} & \textbf{SR} & \textbf{Box mAP} & \textbf{Mask mAP} \\
+        \multicolumn{3}{c}{\textbf{Parameter} } & \multicolumn{2}{c}{\textbf{Scores} }                                                      \\
+        \cmidrule(lr){1-3}                       \cmidrule(lr){4-5}
+        \textbf{Epochs}                         & \textbf{LR}                          & \textbf{SR} & \textbf{Box mAP} & \textbf{Mask mAP} \\
+        \midrule
+        1                                       & 0.001                                & 128         & 69.3             & 83.4              \\
+        1                                       & 0.001                                & 512         & 84.8             & 85.7              \\
+        1                                       & 0.003                                & 128         & 73.3             & 76.8              \\
+        1                                       & 0.003                                & 512         & 83.1             & 89.6              \\
+        3                                       & 0.001                                & 128         & 77.6             & 90.1              \\
+        3                                       & 0.001                                & 512         & 87.3             & 90.8              \\
+        3                                       & 0.003                                & 128         & 83.9             & 89.0              \\
+        3                                       & 0.003                                & 512         & 84.9             & 87.6              \\
+        \bottomrule
+    \end{tabular}
 \end{table}
 Since the configuration using a learning rate of 0.001, sample rate of 512 and 3 epochs achieved the best results, all the following images and calculations were generated using this configuration.
 A visualization of the prediction for some example frames when driving straight and from an angle at a ramp can be seen in \cref{fig:camera_prediction_straight} and \cref{fig:camera_prediction_angled} respectively.
@@ -524,22 +524,22 @@ The annotation inside the image describes how confident the network is about the
 All images used for the training and evaluation are colored, but are visualized as grayscale image in this case, to allow for an easier distinction between the segmented region and the background.
 
 \begin{figure}[htb]
-	\centering
-	\begin{subfigure}{1\textwidth}
-		\centering
-		\includegraphics[width=1\linewidth]{camera_prediction_straight}
-		\caption{Driving straight at the ramp.}
-		\label{fig:camera_prediction_straight}
-	\end{subfigure}
-	
-	% \bigskip
-	\begin{subfigure}{1\textwidth}
-		\centering
-		\includegraphics[width=1\linewidth]{camera_prediction_angled}
-		\caption{Driving at an angle to the ramp.}
-		\label{fig:camera_prediction_angled}
-	\end{subfigure}
-	\caption[Visualization examples of predicted segmentation masks]{Predicted bounding box and mask when driving at a ramp. The class of the object and the confidence are shown in the top left corner of the box.}
+    \centering
+    \begin{subfigure}{1\textwidth}
+        \centering
+        \includegraphics[width=1\linewidth]{camera_prediction_straight}
+        \caption{Driving straight at the ramp.}
+        \label{fig:camera_prediction_straight}
+    \end{subfigure}
+    
+    % \bigskip
+    \begin{subfigure}{1\textwidth}
+        \centering
+        \includegraphics[width=1\linewidth]{camera_prediction_angled}
+        \caption{Driving at an angle to the ramp.}
+        \label{fig:camera_prediction_angled}
+    \end{subfigure}
+    \caption[Visualization examples of predicted segmentation masks]{Some examples of the predicted bounding box and mask when driving at a ramp. The class of the object and the confidence score are annotated as well. All those images were not used for the training of the network.}
 \end{figure}
 
 \subsection{Point Cloud}
@@ -572,37 +572,37 @@ The points on the ramp do not build a planar surface, that is why the \gls{ransa
 The \gls{lidar} on the other hand produced an accurate point cloud and achieved good results.
 
 \begin{figure}[htb]
-	\centering
-	\begin{subfigure}{1\textwidth}
-		\centering
-		\includegraphics[width=.9\linewidth]{points_projection_mask_zed.pdf}
-		\caption{Projection using the by the ZED camera generated point cloud.}
-		\label{fig:points_projection_mask_zed}
-	\end{subfigure}
-	
-	% \bigskip
-	\begin{subfigure}{1\textwidth}
-		\centering
-		\includegraphics[width=.9\linewidth]{points_projection_mask_lidar.pdf}
-		\caption{Projection using the by the \acrshort{lidar} generated point cloud.}
-		\label{fig:points_projection_mask_lidar}
-	\end{subfigure}
-	\caption[Point cloud extraction using the predicted segmentation mask]{Predicted bounding ion of the 3D point cloud onto a 2D image. Using the predicted segmentation mask, the points that lie in the ramp regions can now be extracted from the point cloud.}
+    \centering
+    \begin{subfigure}{1\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{points_projection_mask_zed.pdf}
+        \caption{Projection using the by the ZED camera generated point cloud.}
+        \label{fig:points_projection_mask_zed}
+    \end{subfigure}
+    
+    % \bigskip
+    \begin{subfigure}{1\textwidth}
+        \centering
+        \includegraphics[width=.9\linewidth]{points_projection_mask_lidar.pdf}
+        \caption{Projection using the by the \acrshort{lidar} generated point cloud.}
+        \label{fig:points_projection_mask_lidar}
+    \end{subfigure}
+    \caption[Point cloud extraction using the predicted segmentation mask]{Predicted bounding ion of the 3D point cloud onto a 2D image. Using the predicted segmentation mask, the points that lie in the ramp regions can now be extracted from the point cloud.}
 \end{figure}
 \begin{table}[H]
-	\centering
-	\caption[Ramp length]{Estimation of different ramp properties using the extracted point cloud.}
-	\label{tab:cloud_extraction_estimation}
-	\resizebox{\textwidth}{!}{
-		\begin{tabular}{lSSSSSS}
-			\toprule
-			\textbf{Method}            & {\textbf{Angle} [\si{\degree}]} & {\textbf{Error} [\si{\degree}]} & {\textbf{Width} [\si{\metre}]} & {\textbf{Error} [\si{\metre}]} & {\textbf{Length} [\si{\metre}]} & {\textbf{Error} [\si{\metre}]} \\
-			\midrule
-			$\text{Box}_\text{Zed}$    & 8.84                            & 1.64                            & 3.74                           & 0.95                           & 13.18                           & 1.21                           \\
-			$\text{Mask}_\text{Zed}$   & 8.72                            & 1.52                            & 2.53                           & 0.26                           & 12.61                           & 0.64                           \\
-			$\text{Box}_\text{LiDAR}$  & 7.78                            & 0.58                            & 5.10                           & 2.31                           & 10.98                           & 0.99                           \\
-			$\text{Mask}_\text{LiDAR}$ & 7.64                            & 0.44                            & 2.82                           & 0.03                           & 10.19                           & 1.78                           \\
-			\bottomrule
-		\end{tabular}
-	}
+    \centering
+    \caption[Ramp length]{Estimation of different ramp properties using the extracted point cloud.}
+    \label{tab:cloud_extraction_estimation}
+    \resizebox{\textwidth}{!}{
+        \begin{tabular}{lSSSSSS}
+            \toprule
+            \textbf{Method}            & {\textbf{Angle} [\si{\degree}]} & {\textbf{Error} [\si{\degree}]} & {\textbf{Width} [\si{\metre}]} & {\textbf{Error} [\si{\metre}]} & {\textbf{Length} [\si{\metre}]} & {\textbf{Error} [\si{\metre}]} \\
+            \midrule
+            $\text{Box}_\text{Zed}$    & 8.84                            & 1.64                            & 3.74                           & 0.95                           & 13.18                           & 1.21                           \\
+            $\text{Mask}_\text{Zed}$   & 8.72                            & 1.52                            & 2.53                           & 0.26                           & 12.61                           & 0.64                           \\
+            $\text{Box}_\text{LiDAR}$  & 7.78                            & 0.58                            & 5.10                           & 2.31                           & 10.98                           & 0.99                           \\
+            $\text{Mask}_\text{LiDAR}$ & 7.64                            & 0.44                            & 2.82                           & 0.03                           & 10.19                           & 1.78                           \\
+            \bottomrule
+        \end{tabular}
+    }
 \end{table}

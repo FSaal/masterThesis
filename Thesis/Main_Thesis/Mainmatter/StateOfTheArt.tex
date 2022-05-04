@@ -9,20 +9,20 @@ In the second section different approaches to detect objects or shapes in 3D poi
 \section{Road Grade Measurement}
 In ref.~\cite{Jauch2018} different methods to estimate the road grade angle are discussed.
 There exist methods without Inertial Sensors relying on a model describing the longitudinal movement of the vehicle and the topology of the road.
-Both models are fused using a Kalman filter to improve the accuracy of the estimation \cite{Sahlholm2007}.
+Both models are fused using a Kalman filter to improve the accuracy of the estimation~\cite{Sahlholm2007}.
 A Kalman filter is also used in ref.~\cite{Sahlholm2010}, where vehicle sensor data and \gls{gps} data are fused.
-Besides the road grade, the vehicle mass is often also unknown and estimated as well, using common sensors of heavy-duty vehicles \cite{Sahlholm2010, Maleej2014}.
+Besides the road grade, the vehicle mass is often also unknown and estimated as well, using common sensors of heavy-duty vehicles~\cite{Sahlholm2010, Maleej2014}.
 More methods such as recursive least squares, extended Kalman filtering and a dynamic grade observer are discussed in ref.~\cite{Kidambi2014}
 Another method using \gls{gps} data and \glspl{imu} to calculate the vertical and horizontal velocity change respectively and thereby the road grade is proposed in ref.~\cite{Ryu2004}.
 \cite{YazdaniBoroujeni2014} omits the \gls{imu} and relies on a \gls{gps} sensor and a barometer.
 
-\gls{gps} satellites broadcast information about their position and exact time to a \gls{gps} receiver, which than can calculate its position using triangulation \cite{Mainetti2014}.
+\gls{gps} satellites broadcast information about their position and exact time to a \gls{gps} receiver, which than can calculate its position using triangulation~\cite{Mainetti2014}.
 While an accuracy of up to \SI{1}{\metre} can be achieved when outside, the performance significantly drops when used indoors.
-The radio waves sent from the satellites are scattered, attenuated or blocked completely by walls and other obstacles, resulting in a very weak or even a complete loss of the signal \cite{Ozdenizci2015}.
+The radio waves sent from the satellites are scattered, attenuated or blocked completely by walls and other obstacles, resulting in a very weak or even a complete loss of the signal~\cite{Ozdenizci2015}.
 Most of the previously described methods are not suitable for the road grade estimation in indoor requirement, due to the reliance on \gls{gps}.
 Furthermore, many internal measurements such as the engine torque, brake system usage, selected gear etc. can not easily be accessed and thus might not be available.
 
-A method which does not rely on \gls{gps}, but only accelerometers and wheel odometers instead is described in ref.~\cite{Nilsson2012} and \cite{Palella2016}.
+A method which does not rely on \gls{gps}, but only accelerometers and wheel odometers instead is described in ref.~\cite{Nilsson2012} and~\cite{Palella2016}.
 The vehicle acceleration, calculated by deriving the wheel speed measurements in respect to time, is subtracted from the accelerometer signal in longitudinal direction.
 The remaining part is then the gravitational acceleration, which is zero if driving on flat ground, but non-zero if driving on an elevated road, and can be used to calculate the road grade angle.
 A similar approach is used in ref.~\cite{Sentouh2008}.
@@ -47,32 +47,32 @@ Structures in point cloud can be either identified by using an object detection 
 Many methods use manually crafted features to identify the objects in the point cloud.
 In some approaches the point cloud is projected into a perspective view, on which then similar feature extraction as used for 2D images is applied
 \cite{Premebida2014, Li2016}.
-Other approaches use handcrafted features on a rasterized point cloud to extract the objects \cite{Song2014, Song2016}.
-There are also more sophisticated approaches, based on deep learning \cite{Qi2017, Qi2017b, Zhuo2018}.
+Other approaches use handcrafted features on a rasterized point cloud to extract the objects~\cite{Song2014, Song2016}.
+There are also more sophisticated approaches, based on deep learning~\cite{Qi2017, Qi2017b, Zhuo2018}.
 
 Segmentation on the other hand is typically used to classify the point cloud into different geometric shapes, e.g. the ground or a wall in the case of autonomous driving.
 Several techniques to detect planes in a point cloud exist.
 
-As mentioned in ref. \cite{Nguyen2013} the methods to segment 3D point clouds can be divided into five categories: edge based methods, region based methods, attributes based methods, model based methods and graph based methods.
-Edge based methods segment objects by their shape, by identifying points with a rapid change in intensity \cite{Sappa2001}. While they allow for fast segmentation, their accuracy is very limited due to their sensitivity to noise and uneven populated point clouds.
+As mentioned in ref.~\cite{Nguyen2013} the methods to segment 3D point clouds can be divided into five categories: edge based methods, region based methods, attributes based methods, model based methods and graph based methods.
+Edge based methods segment objects by their shape, by identifying points with a rapid change in intensity~\cite{Sappa2001}. While they allow for fast segmentation, their accuracy is very limited due to their sensitivity to noise and uneven populated point clouds.
 The region growing algorithms start from certain seed points and add neighboring points to the region if they share a similar model.
 Different patches can then be merged together, if they are consistent with each other.
 Disadvantages are that in the initial implementations~\cite{Besl1988, Taubin1991}, the performance was highly dependent on a good selection of the starting points.
-This is why \cite{Chen2008} introduced a new type of region based method, which is based on a top-down approach, where all points are grouped into one region, which is then successively divided into smaller regions.
+This is why~\cite{Chen2008} introduced a new type of region based method, which is based on a top-down approach, where all points are grouped into one region, which is then successively divided into smaller regions.
 
 The attributes based methods are more robust and cluster points with similar attributes.
 An advantage is that the attributes can be chosen according to the problem, but this also means that a bad choice of attributes can lead to a bad segmentation.
 The fourth type of segmentation method is the model based method, which will also be used in this thesis.
 It uses geometric primitive shapes such as planes, cylinders, spheres or cones to group points together.
-Almost all of those methods are based on the \gls{ransac} algorithm \cite{Fischler1981}.
+Almost all of those methods are based on the \gls{ransac} algorithm~\cite{Fischler1981}.
 It is an iterative algorithm which randomly selects some points to build a shape (e.g. plane, circle or line) and then calculates the error of the other points to the proposed shape.
 If a good model has been found, all the inliers are extracted and the next biggest shape is searched for.
 More about the \gls{ransac} algorithm will also be described in \cref{ssec:calibration_lidar}.
-There exist several improvements such as the efficient \gls{ransac} algorithm \cite{Schnabel2007}, which improves the performance, or the method proposed \cite{li2011}, which allows for the detection of slippable shapes (e.g. helix).
+There exist several improvements such as the efficient \gls{ransac} algorithm~\cite{Schnabel2007}, which improves the performance, or the method proposed~\cite{li2011}, which allows for the detection of slippable shapes (e.g. helix).
 Attribute based methods are fast and very robust to outliers, the biggest drawback is that they are inaccurate when dealing with different point cloud sources.
 Lastly, the graph based methods consider the point cloud as a graph.
 Each vertex corresponds to one point in the point cloud and the edges connect to certain neighboring points.
-The FH algorithm \cite{Felzenszwalb2004} is one of the most well known.
+The FH algorithm~\cite{Felzenszwalb2004} is one of the most well known.
 They are very accurate, but can usually not be run in real-time.
 
 For the task of detecting a ramp, using a segmentation approach is sufficient, since a ramp can be seen as a planar surface.
@@ -93,7 +93,7 @@ Since they are active sensors, they can also be used in low light conditions and
 But they are not as accurate as \gls{lidar} sensors.
 
 There is also some research on detecting ramp specifically in a point cloud.
-Ref. \cite{Sakenas2007} introduces a new algorithm, to extract planar maps from 3D data.
+Ref.~\cite{Sakenas2007} introduces a new algorithm, to extract planar maps from 3D data.
 The point cloud is divided into 3D cells and a histogram over the z-axis is created.
 Ramps can then be detected by searching for neighboring cells, where the height increases gradually.
 Ref.~\cite{Nejati2016} used an RGB-D sensor (camera image + depth sensor) to detect ramps for wheelchairs.
@@ -108,7 +108,7 @@ Either using classical approaches like APPROACH or by using machine learning tec
 
 \section{Outlook?}
 Due to the available sensor stack, not all mentioned methods can be tested.
-While a Kalman filter achieves very good results, it is generally complex and the precise knowledge of process and measurement noise is necessary \cite{Higgins1975}
+While a Kalman filter achieves very good results, it is generally complex and the precise knowledge of process and measurement noise is necessary~\cite{Higgins1975}
 The gravity method and complementary filter will be tested for the \gls{imu}.
 Because no method to detect ramps using a \gls{lidar} could be found, an own method has to be implemented.
 For the plane detection the \gls{ransac} algorithm will be used, since it is already implemented in the PCL library ADD LINK.

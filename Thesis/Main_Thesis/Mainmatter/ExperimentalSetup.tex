@@ -17,14 +17,14 @@ Finally, in \cref{sec:garage}, the different type of ramps and their properties 
     \begin{subfigure}[b]{0.4\textwidth}
         \centering
         \includegraphics[width=\textwidth]{myAHRS}
-        \caption{Withrobot myAHRS+ \cite{Withrobot2017}}
+        \caption{Withrobot myAHRS+~\cite{Withrobot2017}}
         \label{fig:imu_myahrs}
     \end{subfigure}
     % \hfill
     \begin{subfigure}[b]{0.4\textwidth}
         \centering
         \includegraphics[width=\textwidth]{zed2i}
-        \caption{Stereolabs ZED 2i camera \cite{Stereolabs2019}}
+        \caption{Stereolabs ZED 2i camera~\cite{Stereolabs2019}}
         \label{fig:imu_zed}
     \end{subfigure}
     \caption[\glsentryplural{imu} used in the experiment]{The two \glspl{imu} which will be used for the recordings. The Stereolabs ZED 2i camera has an integrated \gls{imu}.}
@@ -38,13 +38,13 @@ The second \gls{imu} used during the experiment is integrated in the Stereolabs 
 A picture of the camera can be seen in \cref{fig:imu_zed}.
 More information about the ZED 2i camera and their other integrated sensors and functionalities will be described in \cref{ssec:camera}.\\
 Both sensors are connected to a computer via USB.
-The specifications of each \gls{imu} can be read in \cref{tab:imu_datasheets}.
+The specifications of each \gls{imu} is provided in \cref{tab:imu_datasheets}.
 Because no information about the noise density or random walk of the myAHRS+ \gls{imu} could be found, a manual estimation of the error was done using the package \texttt{allan\_variance\_ros}~\footnote{\url{https://github.com/gaowenliang/imu_utils}}.
 It analyzes the Allan variance from \gls{imu} measurement data recorded over a two-hour period, during which the \gls{imu} has not been moved.
 The smaller values of the ZED 2i \gls{imu} indicate, that it is the better sensor.
 \begin{table}[ht]
     \centering
-    \caption[Comparison of the two used \glsentryplural{imu}]{Comparison of the two used \glsentryplural{imu} \cite{Withrobot2017, Stereolabs2019}}
+    \caption[Comparison of the two used \glsentryplural{imu}]{Comparison of the two used \glsentryplural{imu}~\cite{Withrobot2017, Stereolabs2019}}
     \label{tab:imu_datasheets}
     \begin{tabular}[t]{lrrc}
         \toprule
@@ -69,14 +69,14 @@ The smaller values of the ZED 2i \gls{imu} indicate, that it is the better senso
     \begin{subfigure}{0.4\textwidth}
         \centering
         \includegraphics[width=\textwidth]{Robosense}
-        \caption{Robosense RS-Bpearl \cite{RoboSense2020}}
+        \caption{Robosense RS-Bpearl~\cite{RoboSense2020}}
         \label{fig:lidar_robosense}
     \end{subfigure}
     % \hfill
     \begin{subfigure}{0.4\textwidth}
         \centering
         \includegraphics[width=\textwidth]{Velodyne}
-        \caption{Velodyne Ultra puck \cite{Velodyne2018}}
+        \caption{Velodyne Ultra puck~\cite{Velodyne2018}}
         \label{fig:lidar_velodyne}
     \end{subfigure}
     \caption[\glsentryplural{lidar} used in the experiment]{The two \glsentryplural{lidar} which will be used for the recordings.}
@@ -92,7 +92,7 @@ Both \glspl{lidar} need an external power supply and the data transfer to the PC
 Due to the setup of the test car it is only possible to mount one \gls{lidar} at a time.
 \begin{table}[ht]
     \centering
-    \caption[\glsentryplural{lidar} used in the experiment]{Comparison of the two used \acrshort{lidar}s \cite{RoboSense2020, Velodyne2018}}
+    \caption[\glsentryplural{lidar} used in the experiment]{Comparison of the two used \acrshort{lidar}s~\cite{RoboSense2020, Velodyne2018}}
     \label{tab:lidar_datasheets}
     \begin{tabular}[t]{lrrc}
         \toprule
