@@ -18,20 +18,20 @@ Finally, a ramp detection algorithm using a camera and a trained neural network 
 \section{Road Grade Definition}
 \label{sec:road_grade_definition}
 \begin{figure}[htb]
-	\centering
-	\input{Graphics/TikZ/car_tilt.tex}
-	\caption[Ramp angle definition]{Car driving on a ramp. Due to forward acceleration the car tilts back.}
-	\label{fig:tikz_car_tilt}
+    \centering
+    \input{Graphics/TikZ/car_tilt.tex}
+    \caption[Ramp angle definition]{Car driving on a ramp. Due to forward acceleration the car tilts back.}
+    \label{fig:tikz_car_tilt}
 \end{figure}
 The road grade $\gls{ramp_ang}$ is the angle between the road plane and the ground plane.
 The ground plane is perpendicular to the gravity vector.
 The road grade can be represented as an angle
 \begin{equation}
-	\gls{ramp_ang} = \arctan(\frac{h}{d})
+    \gls{ramp_ang} = \arctan(\frac{h}{d})
 \end{equation}
 or in percentage
 \begin{equation}
-	r = 100\cdot\tan(\gls{ramp_ang}).
+    r = 100\cdot\tan(\gls{ramp_ang}).
 \end{equation}
 The pitch angle $\theta$ of the car is defined as the angle between the ground plane and the longitudinal axis of the car.
 If the car accelerates or decelerates the suspension does get compressed in the back or respectively front, which makes the pitch angle not in alignment with the road grade anymore.
@@ -49,15 +49,16 @@ But the translation difference between the coordinate frames can not be easily e
 The coordinate frame of the car has the x-axis pointing forward in the direction of travel, the y-axis to the left and the z-axis upwards.
 The center of the coordinate system of the car is located at the center in the front of the car at the height of the wheel axle.
 \begin{figure}[htb]
-	\centering
-	\input{Graphics/TikZ/car_frames.tex}
-	\caption[Sensor coordinate frames]{Example of a typical sensor setup. All measurements of the sensors are recorded in the sensor frame and must be transformed to the car frame.}
-	\label{fig:tikz_car_frames}
+    \centering
+    \input{Graphics/TikZ/car_frames.tex}
+    \caption[Sensor coordinate frames]{Example of a typical sensor setup. All measurements of the sensors are recorded in the sensor frame and must be transformed to the car frame.}
+    \label{fig:tikz_car_frames}
 \end{figure}
 
 
 
 \section{\glsentryshort{imu} based}
+\isug{ausfuehrlichere ueberschrift (z.B. IMU based position measurements)}
 \label{sec:methods_imu}
 Before being able to apply the different methods, a transformation from the sensor frame to the car frame is necessary.
 This is described in \cref{ssec:calibration_imu}.
@@ -69,29 +70,29 @@ Furthermore, a method to estimate the average ramp angle and length of the ramp 
 \subsection{Calibration}
 \label{ssec:calibration_imu}
 \begin{figure}[htb]
-	\centering
-	\begin{subfigure}[b]{0.3\textwidth}
-		\centering
-		\input{Graphics/TikZ/frame_transformation_init.tex}
-		\caption{No axes are aligned}
-		\label{fig:tikz_frame_transformation_init}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}[b]{0.3\textwidth}
-		\centering
-		\input{Graphics/TikZ/frame_transformation_intermediate.tex}
-		\caption{Z axes are aligned}
-		\label{fig:tikz_frame_transformation_intermediate}
-	\end{subfigure}
-	\hfill
-	\begin{subfigure}[b]{0.3\textwidth}
-		\centering
-		\input{Graphics/TikZ/frame_transformation_final.tex}
-		\caption{All axes are aligned}
-		\label{fig:tikz_frame_transformation_final}
-	\end{subfigure}
-	\caption[Frame transformation]{Frame transformation from the \gls{imu} frame \textcolor{red}{$\mathcal{I}$}, over the intermediate frame \textcolor{blue}{$\mathcal{B}$} to the car frame \textcolor{green}{$\mathcal{C}$}.}
-	\label{fig:tikz_frame_transformation}
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \input{Graphics/TikZ/frame_transformation_init.tex}
+        \caption{No axes are aligned}
+        \label{fig:tikz_frame_transformation_init}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \input{Graphics/TikZ/frame_transformation_intermediate.tex}
+        \caption{Z axes are aligned}
+        \label{fig:tikz_frame_transformation_intermediate}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \input{Graphics/TikZ/frame_transformation_final.tex}
+        \caption{All axes are aligned}
+        \label{fig:tikz_frame_transformation_final}
+    \end{subfigure}
+    \caption[Frame transformation]{Frame transformation from the \gls{imu} frame \textcolor{red}{$\mathcal{I}$}, over the intermediate frame \textcolor{blue}{$\mathcal{B}$} to the car frame \textcolor{green}{$\mathcal{C}$}.}
+    \label{fig:tikz_frame_transformation}
 \end{figure}
 The \gls{imu} is usually not placed in such a way, that the coordinate frame of the device $\mathcal{I}$ aligns with that of the car $\mathcal{C}$, see \cref{fig:tikz_frame_transformation_init}.
 Because of that, a transformation between the two frames must be found.
@@ -103,52 +104,52 @@ Assuming the car stands on flat ground, the gravity acceleration in the car fram
 Using this information, a transformation from the \gls{imu} frame $\mathcal{I}$ to the intermediate frame $\mathcal{B}$ can be found.
 In the new $\mathcal{B}$ frame, both z-axes are aligned $\vincs{z}{b} = \vincs{z}{c}$ and thus the pitch and roll angle between the two frames become zero.
 Note that this is not necessarily true for the other axes, $\vincs{x}{b}\neq\vincs{x}{c}$ and $\vincs{y}{b}\neq\vincs{y}{c}$, see \cref{fig:tikz_frame_transformation_intermediate}.
-According to Euler's rotation theorem \cite{Euler1776}, which says that any arbitrary rotation of a rigid body while holding one point (origin) fixed, can be achieved by a rotation around a single fixed axis passing through the origin, there exists one rotation axis $\mathbf{j}$ and rotation angle $\alpha$ to achieve this.\par
+According to Euler's rotation theorem~\cite{Euler1776}, which says that any arbitrary rotation of a rigid body while holding one point (origin) fixed, can be achieved by a rotation around a single fixed axis passing through the origin, there exists one rotation axis $\mathbf{j}$ and rotation angle $\alpha$ to achieve this.\par
 As described in \cref{subsec:vector_projection}, the rotation axis needed for the transformation can be calculated by
 \begin{equation}
-	\vb{j} = \frac{\vincs{\vu{a}}{i} \cp \vincs{\vu{z}}{c}}{\norm{\vincs{\vu{a}}{i} \cp \vincs{\vu{z}}{c}}}
+    \vb{j} = \frac{\vincs{\vu{a}}{i} \cp \vincs{\vu{z}}{c}}{\norm{\vincs{\vu{a}}{i} \cp \vincs{\vu{z}}{c}}}
 \end{equation}
 and the rotation angle with
 \begin{equation}
-	\alpha = \arccos(\vincs{\vu{a}}{i}\vdot \vincs{\vu{z}}{c})
+    \alpha = \arccos(\vincs{\vu{a}}{i}\vdot \vincs{\vu{z}}{c})
 \end{equation}
 with $\vincs{\vu{a}}{i} \in \mathbb{R}^{1\times3}$ being the normalized measured linear acceleration in the \gls{imu} frame and \vincs{\vu{z}}{c} the (normalized) z-axis of the car.\par
 The quaternion
 \begin{equation}
-	\qtf{i}{b} =
-	\begin{pmatrix}
-		\vb{j}\vdot\sin(\frac{\alpha}{2}) \\
-		\cos(\frac{\alpha}{2})
-	\end{pmatrix}
+    \qtf{i}{b} =
+    \begin{pmatrix}
+        \vb{j}\vdot\sin(\frac{\alpha}{2}) \\
+        \cos(\frac{\alpha}{2})
+    \end{pmatrix}
 \end{equation}
 then describes the rotation between the two frames.\par
 Now that the z-axes of the $\mathcal{I}$ and $\mathcal{C}$ frame are aligned, the x- and y-axis can be aligned by a rotation $\beta$ around the z-axis.
-This yaw correction could usually be achieved using the magnetometer measurements, but because those are heavily obscured indoors and especially in the parking garage \cite{Li2012}, another solution must be found.
+This yaw correction could usually be achieved using the magnetometer measurements, but because those are heavily obscured indoors and especially in the parking garage~\cite{Li2012}, another solution must be found.
 A possible solution to this problem is accelerating the car straightforward and then using the accelerometer to measure along which axis the acceleration occurred.
 Assuming the car tilt (pitch) during the acceleration is minimal, the acceleration is only being measured along the x- and y-axis.
 The resulting vector is being aligned with the forward axis of the car, such that $\vincs{\hat{a}}{b} = \vincs{x}{c}$, in the same way as before.
-Resulting in the rotation angle
+This results in the rotation angle
 \begin{equation}
-	\beta = \arccos(\vincs{\vu{a}}{b} \vdot \vincs{\hat{x}}{c})
+    \beta = \arccos(\vincs{\vu{a}}{b} \vdot \vincs{\hat{x}}{c})
 \end{equation}
 and the quaternion
 \begin{equation}
-	\qtf{b}{c} =
-	\begin{pmatrix}
-		\vincs{\hat{z}}{c}\vdot\sin(\frac{\beta}{2}) \\
-		\cos(\frac{\beta}{2})
-	\end{pmatrix}.
+    \qtf{b}{c} =
+    \begin{pmatrix}
+        \vincs{\hat{z}}{c}\vdot\sin(\frac{\beta}{2}) \\
+        \cos(\frac{\beta}{2})
+    \end{pmatrix}.
 \end{equation}
 The two quaternions can then be concatenated (in reverse order) to get the final quaternion
 \begin{equation}
-	\qtf{i}{c} = \qtf{b}{c} \otimes  \qtf{i}{b},
+    \qtf{i}{c} = \qtf{b}{c} \otimes  \qtf{i}{b},
 \end{equation}
 which transforms the measurements of the \gls{imu} to the car frame.\par
 The quaternion is then converted into a rotation matrix using \cref{eq:q_to_M}, because it reduces the computation time.
 Each new measurement is then transformed from the sensor frame to the car frame using
 \begin{align}
-	{}_{\mathcal{C}}\mathbf{a}_k                   & = \mtf{i}{c} \vdot {}_{\mathcal{I}}\mathbf{a}_k                    \\
-	{}_{\mathcal{C}}\mathbf{\boldsymbol{\omega}}_k & = \mtf{i}{c} \vdot {}_{\mathcal{I}}\mathbf{\boldsymbol{\omega}}_k.
+    {}_{\mathcal{C}}\mathbf{a}_k                   & = \mtf{i}{c} \vdot {}_{\mathcal{I}}\mathbf{a}_k                    \\
+    {}_{\mathcal{C}}\mathbf{\boldsymbol{\omega}}_k & = \mtf{i}{c} \vdot {}_{\mathcal{I}}\mathbf{\boldsymbol{\omega}}_k.
 \end{align}
 
 
@@ -163,8 +164,8 @@ But when the car is tilted, e.g. on a ramp, the gravity is measured also by the 
 % So if the car is accelerating forward, resulting the measured acceleration is negative.
 The proportion of the acceleration measured along the x-axis $\vb{a}_\mathrm{x} $ of the overall gravity $\vb{g}$ can then be used to determine the pitch angle in the following way
 \begin{equation}
-	\label{eq:ang_from_acc}
-	\theta_\mathrm{acc}  = \arcsin(\frac{\vb{a}_x}{\norm{\vb{g}}})
+    \label{eq:ang_from_acc}
+    \theta_\mathrm{acc}  = \arcsin(\frac{\vb{a}_x}{\norm{\vb{g}}})
 \end{equation}
 with $\norm{\vb{g}}$ being the magnitude of the overall measured acceleration.
 According to the definition, the angle is zero if the car is parallel to the ground and \ang{90} if the front of the car would be pointing straight up.
@@ -172,26 +173,26 @@ Thus, the angle is positive when driving up a ramp and negative if driving down.
 Disadvantages of this method are that the acceleration measurements are quite noisy and that no other accelerations are taken into account, e.g. the on track acceleration $\vb{a}_\mathrm{car}$ caused by the motor.
 This is a problem when the car has a non-zero acceleration, because the acceleration measured by the \gls{imu} along the x-axis is given by
 \begin{equation}
-	\vb{a}_\mathrm{x} = \vb{a}_\mathrm{car} + \vb{g}_\mathrm{x}
+    \vb{a}_\mathrm{x} = \vb{a}_\mathrm{car} + \vb{g}_\mathrm{x}
 \end{equation}
 and $\vb{a}_\mathrm{x} = \vb{g}_\mathrm{x} $ only holds true, when the car is driving with constant velocity or standing still.
 A better approach, which incorporates the accelerations caused by the car, is described in \cref{subsubsec:gravity_method}.
 \begin{figure}[htb]
-	\centering
-	\input{Graphics/TikZ/car_gravity.tex}
-	\caption[Prevailing accelerations on a ramp]{The prevailing accelerations when a car is accelerating on a ramp.}
-	\label{fig:tikz_car_gravity}
+    \centering
+    \input{Graphics/TikZ/car_gravity.tex}
+    \caption[Prevailing accelerations on a ramp]{The prevailing accelerations when a car is accelerating on a ramp.}
+    \label{fig:tikz_car_gravity}
 \end{figure}
 \subsubsection{Gyroscope}
 The gyroscope measures the angular velocity, which must be integrated with respect to time, to get a rotation angle.
 The angular velocity describes the rate of change of an angle and is defined as
 \begin{equation}
-	% \boldsymbol{\omega}  = \frac{\Delta\theta}{\Delta t}
-	\boldsymbol{\omega}  =  \dv{\boldsymbol{\theta}}{t}.
+    % \boldsymbol{\omega}  = \frac{\Delta\theta}{\Delta t}
+    \boldsymbol{\omega}  =  \dv{\boldsymbol{\theta}}{t}.
 \end{equation}
 Assuming that the measurements of the gyroscope are continuous in time, the current angle $\boldsymbol{\theta}(t)$ at time $T$ can be computed with the integral
 \begin{equation}
-	\boldsymbol{\theta}(t = T) = \boldsymbol{\theta}_0 + \int_0^T \boldsymbol{\omega}(t)\dd{t}
+    \boldsymbol{\theta}(t = T) = \boldsymbol{\theta}_0 + \int_0^T \boldsymbol{\omega}(t)\dd{t}
 \end{equation}
 with $\boldsymbol{\theta}_0$ being the initial angle.\par
 In practice, however, the \gls{imu} provides samples at discrete times $k$ and $k-1$.
@@ -199,18 +200,18 @@ Assuming that the signal remains constant during the time $\Delta t$ between the
 An error will be introduced by the approximation, but it will be small if the sample rate is sufficiently high.
 The new angle after a change between two samples can be calculated with
 \begin{equation}
-	\boldsymbol{\theta}_k = \boldsymbol{\theta}_\mathrm{k - 1} + \boldsymbol{\omega}_k\Delta t.
+    \boldsymbol{\theta}_k = \boldsymbol{\theta}_\mathrm{k - 1} + \boldsymbol{\omega}_k\Delta t.
 \end{equation}
 Similarly, the angle based on multiple consecutive measurements can be calculated by the sum of all the previous measurements
 \begin{equation}
-	\boldsymbol{\theta}_k = \boldsymbol{\theta}_0 + \sum_{i = 1}^k \boldsymbol{\omega}_i \Delta t
+    \boldsymbol{\theta}_k = \boldsymbol{\theta}_0 + \sum_{i = 1}^k \boldsymbol{\omega}_i \Delta t
 \end{equation}
 with $\boldsymbol{\theta}_0$ being the initial angle at the start of the measurement, which must be known beforehand.\par
 To get the pitch angle $\theta_\mathrm{gyr}$, only the measurements around the y-axis are of interest (see \cref{fig:tikz_car_frames}).
 The pitch angle at time $k$ is given by
 \begin{equation}
-	\label{eq:ang_from_gyro}
-	\theta_\mathrm{k, gyr} = \theta_{0, \mathrm{gyr} } + \sum_{i = 1}^{k} \boldsymbol{\omega}_\mathrm{i, y} \Delta t.
+    \label{eq:ang_from_gyro}
+    \theta_\mathrm{k, gyr} = \theta_{0, \mathrm{gyr} } + \sum_{i = 1}^{k} \boldsymbol{\omega}_\mathrm{i, y} \Delta t.
 \end{equation}
 Disadvantages of using only the angular velocity are that the estimations are not reliable over a long period of time.
 The random walk introduced by integrating white noise or a constant bias causes the estimation to drift away from the true value.
@@ -221,72 +222,74 @@ The complementary filter uses both the linear acceleration and angular velocity 
 The angle estimation obtained from the linear acceleration measurements is reliable in the long-term, but is quite noisy.
 The estimation from the angular velocity measurements on the other hand provide good short-term accuracy, but should not be used for longer estimations due to drift.\par
 These properties can be interpreted in the frequency domain.
-The error from the accelerometer data is subject to high frequency noise, whereas the estimation error from the gyroscope is mostly due to low frequency noise \cite{2007Colton}.
+The error from the accelerometer data is subject to high frequency noise, whereas the estimation error from the gyroscope is mostly due to low frequency noise~\cite{2007Colton}.
 To minimize the error of the linear acceleration estimate, a \gls{lpf} should be used.
 A \gls{lpf} passes all signals with frequency lower than a certain cut-off frequency $f_0$ and attenuates signals with a frequency above $f_0$.
 In contrast, a \gls{hpf} should be used on the estimate of the gyroscope.
 A \gls{hpf} works exactly opposite to a \gls{lpf}.
-It blocks signals with a frequency below $f_0$ while allowing signals over this frequency to pass through \cite{Lyons1996}. A block diagram of the complementary filter is shown in \cref{fig:tikz_complementary_filter}.\par
+It blocks signals with a frequency below $f_0$ while allowing signals over this frequency to pass through~\cite{Lyons1996}. A block diagram of the complementary filter is shown in \cref{fig:tikz_complementary_filter}.\par
 \begin{figure}[htb]
-	\centering
-	\input{Graphics/TikZ/complementary_filter.tex}
-	\caption[Block diagram of the complementary filter]{The block diagram of the complementary filter.}
-	\label{fig:tikz_complementary_filter}
+    \centering
+    \input{Graphics/TikZ/complementary_filter.tex}
+    \caption[Block diagram of the complementary filter]{The block diagram of the complementary filter.}
+    \label{fig:tikz_complementary_filter}
 \end{figure}
 The pitch angle estimation obtained from the linear acceleration (\cref{eq:ang_from_acc}) will be referred to as $\theta_\mathrm{acc}$, the pitch angle estimation from the gyroscope estimation as $\theta_\mathrm{gyr}$ and the fused estimation of the complementary filter will be denoted as $\hat{\theta}$.
 As seen in \cref{eq:ang_from_gyro}, $\theta_\mathrm{gyr}$ is calculated by integrating the angular velocity $\boldsymbol{\omega} $ measured by the gyroscope.\par
 The Laplace transformation can be used to transform the angles from the time domain to the frequency domain.
 The angles $\theta_\mathrm{acc}$, $\theta_\mathrm{gyr}$ and $\hat{\theta}$ will be denoted as $\Theta_\mathrm{acc}(s)$, $\Theta_\mathrm{gyr}(s)$ and $\hat{\Theta}(s)$ in the frequency domain, the gyroscope measurements $\boldsymbol{\omega} $ as $\Omega (s)$.
+$s$ is a complex variable and is defined as $s=j\omega$.
 The complimentary filter estimate is computed by
 \begin{align}
-	\label{eq:compl_filter_laplace}
-	\hat{\Theta}(s) & = G_\mathrm{low}(s)\Theta_\mathrm{acc}(s) + (1 - G_\mathrm{low}(s))\Theta_\mathrm{gyr}(s) \nonumber \\
-	                & = G_\mathrm{low}(s)\Theta_\mathrm{acc}(s) + (1 - G_\mathrm{low}(s))\frac{1}{s}\Omega (s)
+    \label{eq:compl_filter_laplace}
+    \hat{\Theta}(s) & = G_\mathrm{low}(s)\Theta_\mathrm{acc}(s) + (1 - G_\mathrm{low}(s))\Theta_\mathrm{gyr}(s) \nonumber \\
+                    & = G_\mathrm{low}(s)\Theta_\mathrm{acc}(s) + (1 - G_\mathrm{low}(s))\frac{1}{s}\Omega (s)
 \end{align}
-where $G_\mathrm{low}(s)$ is the transfer function of a \gls{lpf} and $1-G_\mathrm{low}(s) = G_\mathrm{high}(s)$ the of a \gls{hpf} \cite{Kok2017}.
+where $G_\mathrm{low}(s)$ is the transfer function of a \gls{lpf} and $1-G_\mathrm{low}(s) = G_\mathrm{high}(s)$ the of a \gls{hpf}~\cite{Kok2017}.
 The sum of $G_\mathrm{low}(s)$ and $1-G_\mathrm{low}(s)$ is equal to one, which means that the cut-off frequency of both filters must be the same.
 The transfer functions are defined as
 \begin{equation}
-	\label{eq:lpf}
-	G_\mathrm{low} (s) = \frac{1}{1 + \alpha s}
+    \label{eq:lpf}
+    G_\mathrm{low} (s) = \frac{1}{1 + \alpha s}
 \end{equation}
 for the \gls{lpf} and
 \begin{equation}
-	\label{eq:hpf}
-	G_\mathrm{high} (s) = \frac{\alpha s}{1 + \alpha s}
+    \label{eq:hpf}
+    G_\mathrm{high} (s) = \frac{\alpha s}{1 + \alpha s}
 \end{equation}
 for the \gls{hpf}, when using a first-order filter.
 $\alpha$ is the filter coefficient and is dependent on the cut-off frequency in the following way
+\itodo{Sth is wrong here, unit dont add up}
 \begin{equation}
-	\alpha
-	= \frac{\tau}{\tau + T}
-	% = \frac{1}{w_0}
-	= \frac{1}{2\pi f_0}
-	\label{eq:filter_f0}
+    \alpha
+    = \frac{\tau}{\tau + T}
+    % = \frac{1}{w_0}
+    = \frac{1}{2\pi f_0}
+    \label{eq:filter_f0}
 \end{equation}
 with $\tau$ being the time constant of the filter and $T$ being the sample period.
 Inserting \cref{eq:lpf} and \cref{eq:hpf} in \cref{eq:compl_filter_laplace} and using inverse Laplace transformation as well as Euler backward discretization, the complementary filter can be written in discrete time as
 \begin{equation}
-	\hat{\theta}_k = \gamma\left(\hat{\theta}_{k - 1} + T \omega_{k, \mathrm{gyr}}\right) + (1 - \gamma) \theta_{k, \mathrm{acc}},
+    \hat{\theta}_k = \zeta\left(\hat{\theta}_{k - 1} + T \omega_{k, \mathrm{gyr}}\right) + (1 - \zeta) \theta_{k, \mathrm{acc}},
 \end{equation}
 with
 \begin{equation}
-	\label{eq:filter_gain}
-	\gamma = \frac{\alpha}{\alpha + T} \in [0,1]
+    \label{eq:filter_gain}
+    \zeta = \frac{\alpha}{\alpha + T} \in [0,1]
 \end{equation}
 being the filter gain.
-The choice of the parameter $\alpha$ (and hence $\gamma$) determines, how much each of the two measurements should be trusted.
-Selecting a small $\alpha$ ($\gamma$ close to zero) results in a high cut-off frequency.
+The choice of the parameter $\alpha$ (and hence $\zeta$) determines, how much each of the two measurements should be trusted.
+Selecting a small $\alpha$ ($\zeta$ close to zero) results in a high cut-off frequency.
 The estimation then mostly uses the accelerometer data.
-Contrary, a high value of $\alpha$ leads to a $\gamma$ close to one and low cut-off frequency, where the gyroscope estimation is trusted more \cite{1997Baerveldt}.\par
+Contrary, a high value of $\alpha$ leads to a $\zeta$ close to one and low cut-off frequency, where the gyroscope estimation is trusted more~\cite{1997Baerveldt}.\par
 % A decrease of $\alpha$ leads to a smoother signal, but at the cost of adding some additional time delay.
 Selecting the right filter coefficient is a known problem and is usually solved by calculating an initial guess followed by a fine-tuning by hand to get the desired result.
 One option to get an initial guess is by measuring the drift of the gyroscope and selecting the filter coefficient accordingly.
 The time $T_\mathrm{free}$ where the drift of the angle estimation from the gyroscope is negligible, is inversely proportional to the cut-off frequency $f_0 = \frac{1}{T_\mathrm{free}}$.
 E.g. if the drift from the gyroscope is only negligible for \SI{10}{\second} then the cut-off frequency should be chosen at $f_0 = \frac{1}{\SI{10}{\second}} = \SI{0.1}{\hertz}$ or higher.
 The filter gain can then be calculated using \cref{eq:filter_f0} and \cref{eq:filter_gain}.
-Using the previous example and assuming a sample frequency of \SI{100}{\hertz}, the filter gain would then be $\gamma = 0.9938$.
-For the experiment different gains were tested, the best results were achieved using a filter gain of $\gamma = 0.99$.
+Using the previous example and assuming a sample frequency of \SI{100}{\hertz}, the filter gain would then be $\zeta = 0.9938$.
+For the experiments done in this work different gains were tested, the best results were achieved using a filter gain of $\zeta = 0.99$.
 
 \subsubsection{Gravity Method}
 \label{subsubsec:gravity_method}
@@ -301,36 +304,36 @@ To get the correct estimation, the car's acceleration must be subtracted from th
 Using the wheel speed measurements, the velocity of the vehicle can be calculated.
 Because the wheel speed sensors only deliver the speed of each wheel, a model has to be used to estimate the velocity of the car.
 This is necessary, because during turns the left and right wheels travel at different speeds, the wheel on the inner side of the turn travels slower, than the outer wheel.
-A simple yet sufficiently accurate model to calculate the car velocity from the wheel speeds is the linear single track model \cite{Mitschke2014}.
+A simple yet sufficiently accurate model to calculate the car velocity from the wheel speeds is the linear single track model~\cite{Mitschke2014}.
 In this model both wheels on one axis are replaced with one wheel in the middle.
 The linear assumption holds true for low lateral accelerations (up to \SI{4}{\metre\per\second}), which will not be surpassed in the experiments.
 Using the assumptions from above, the car velocity $v_\mathrm{car}(t)$ in forward direction can be calculated by
 \begin{align}
-	\alpha(t)         & = \frac{v_\mathrm{rl}(t) - v_\mathrm{rr}(t)}{d}                  \\
-	\gamma(t)         & = \frac{\alpha(t)}{f}                                            \\
-	v_\mathrm{car}(t) & = \frac{v_\mathrm{rl}(t) + v_\mathrm{rr}(t)}{2}\cdot\cos(\gamma)
-	\label{eq:v_car}
+    \alpha(t)         & = \frac{v_\mathrm{rl}(t) - v_\mathrm{rr}(t)}{d}                  \\
+    \gamma(t)         & = \frac{\alpha(t)}{f}                                            \\
+    v_\mathrm{car}(t) & = \frac{v_\mathrm{rl}(t) + v_\mathrm{rr}(t)}{2}\cdot\cos(\gamma)
+    \label{eq:v_car}
 \end{align}
 with $v_\mathrm{rl} \text{ and } v_\mathrm{rr}$ being the wheel speeds of the rear right and rear left wheel respectively, $d$ the track width, $f$ the rate of the measurements and $\gamma$ is the yaw angle of the car, which can be calculated from the steering wheel angle.\par
 To calculate the acceleration of the vehicle, the first derivative of the velocity must be taken, using
 \begin{equation}
-	a_\mathrm{car}(t) = \dv{t}v_\mathrm{car}(t).
+    a_\mathrm{car}(t) = \dv{t}v_\mathrm{car}(t).
 \end{equation}
 But because all measurements are discrete, numerical differentiation is necessary, it can be approximated using the backward difference
 \begin{equation}
-	a_\mathrm{k, car} = \frac{v_\mathrm{k, car} - v_\mathrm{k - 1, car}}{T}
+    a_\mathrm{k, car} = \frac{v_\mathrm{k, car} - v_\mathrm{k - 1, car}}{T}
 \end{equation}
 with $k$ being the current time step and $T=\frac{1}{f}$ being the step size.\par
 Because the from the wheel speed sensors calculated velocity is discrete in time, quantized and not free of noise, a simple numerical derivation would amplify the noise.
 Hence, the measurements must first be filtered.
 One solution is to use a moving average filter, which is a simple average of the last $N$ measurements
 \begin{equation}
-	\hat{v}_{k, \mathrm{car}} = \frac{1}{N}\sum_{i=1}^N v_{k - i, \mathrm{car}}.
+    \hat{v}_{k, \mathrm{car}} = \frac{1}{N}\sum_{i=1}^N v_{k - i, \mathrm{car}}.
 \end{equation}
 The finite difference of the approximation can then be calculated as
 \begin{equation}
-	\label{eq:v_car_diff}
-	\hat{a}_\mathrm{k, car} = \frac{\hat{v}_\mathrm{k, car} - \hat{v}_\mathrm{k - 1, car}}{T}.
+    \label{eq:v_car_diff}
+    \hat{a}_\mathrm{k, car} = \frac{\hat{v}_\mathrm{k, car} - \hat{v}_\mathrm{k - 1, car}}{T}.
 \end{equation}
 
 \paragraph{Angle calculation}\mbox{}\par
@@ -338,8 +341,8 @@ The prevailing accelerations during a positive acceleration can be seen in \cref
 When the car brakes, the direction of $\vb{a}_\mathrm{car}$ inverts.
 The car pitch angle calculation is the same as in \cref{eq:ang_from_acc}, just that now the car acceleration $\vb{a}_\mathrm{car}$ is taken into account.
 \begin{equation}
-	\label{eq:ang_from_acc_gravity}
-	\theta_\mathrm{grav}  = \arcsin\left(\frac{\vb{a}_\mathrm{x} - \hat{a}_\mathrm{car}}{\norm{\vb{g}}}\right)
+    \label{eq:ang_from_acc_gravity}
+    \theta_\mathrm{grav}  = \arcsin\left(\frac{\vb{a}_\mathrm{x} - \hat{a}_\mathrm{car}}{\norm{\vb{g}}}\right)
 \end{equation}
 with $\vb{a}_\mathrm{x}$ being the acceleration measured by the x-axis of the \gls{imu} and $\norm{\vb{g}}$ being the magnitude of the overall measured acceleration.
 It is important that both the \gls{imu} and odometer measurements are synchronized in time, otherwise a change in acceleration leads to a wrong estimation.
@@ -364,19 +367,19 @@ The problem when using the accelerometer data is that also other accelerations t
 For example if the car is on a ramp, the acceleration due to gravity is measured as well by the \gls{imu}.
 But by using \cref{eq:ang_from_acc} and transforming it to
 \begin{equation}
-	\label{eq:acc_from_imu_wo_grav}
-	\hat{a}_\mathrm{car} = \vb{a}_\mathrm{x} - \sin(\theta) \norm{\vb{g}}
+    \label{eq:acc_from_imu_wo_grav}
+    \hat{a}_\mathrm{car} = \vb{a}_\mathrm{x} - \sin(\theta) \norm{\vb{g}}
 \end{equation}
 the acceleration due to gravity can effectively be removed from the measurements, under the assumption, that the estimated car pitch angle is close to the true value.
 The length $l$ of the ramp can then be calculated by first integrating the acceleration in x-direction with respect to the time to get the velocity
 \begin{equation}
-	\label{eq:v_car_acc}
-	\hat{v}_\mathrm{i, car} = \hat{a}_\mathrm{0, car} + \sum_{i = 1}^k \hat{a}_\mathrm{i, car} \Delta t                         \\
+    \label{eq:v_car_acc}
+    \hat{v}_\mathrm{i, car} = \hat{a}_\mathrm{0, car} + \sum_{i = 1}^k \hat{a}_\mathrm{i, car} \Delta t                         \\
 \end{equation}
 and then integrating the velocity to get the length
 \begin{equation}
-	\label{eq:l_ramp}
-	l = \sum_{i = 1}^k v_\mathrm{i, car} \Delta t                         \\
+    \label{eq:l_ramp}
+    l = \sum_{i = 1}^k v_\mathrm{i, car} \Delta t                         \\
 \end{equation}
 where the velocity $v_\mathrm{1, car}$ is the velocity at the start of the ramp and $v_\mathrm{k, car}$ is the velocity at the end of the ramp.
 $\Delta t$ is the sample time.
@@ -392,14 +395,14 @@ Finally, it is described how different ramp properties such as the angle, width,
 
 \subsection{Calibration}
 \label{ssec:calibration_lidar}
-Same as for the \gls{imu}, a transformation from the sensor frame to the car frame is necessary.
+Same as for the \gls{imu} measurements, a transformation from the sensor frame to the car frame is necessary.
 The calibration procedure is very similar to that of the \gls{imu}.
 At first both z-axes will be aligned.
 This is achieved by detecting the ground plane in the point cloud and projecting it onto the xy-plane of the car frame.
 In other words, the necessary rotation to align the normal vector of the ground plane with the z-axis of the car is found.
 Now the only remaining rotation is the rotation around the z-axis of the car, also known as yaw angle.
 The yaw angle can not be easily determined and is assumed to be equal to zero, but can also be measured by hand and given as parameter.\par
-For the ground plane detection the \gls{ransac} algorithm \cite{Fischler1981} is used.
+For the ground plane detection the \gls{ransac} algorithm~\cite{Fischler1981} is used.
 \gls{ransac} is a non-deterministic algorithm to remove outliers and is often used in computer vision.
 \gls{ransac} can also be used for plane segmentation in 3D point clouds.
 Consider a point cloud with $n$ points, where point $i$ has the coordinates $x_i, y_i, z_i$.
@@ -407,12 +410,12 @@ In a first step, three random points from the point cloud are selected.
 Three, because this is the minimum number of points necessary to form a plane.
 Now the parameters $a, b, c, d$ of the plane equation
 \begin{equation}
-	ax + by + cz + d = 0
+    ax + by + cz + d = 0
 \end{equation}
 can be calculated.
 Then for every other point the deviation $r$ from the proposed plane can be calculated by
 \begin{equation}
-	r = \frac{ax_i + by_i + cz_i + d}{\sqrt{a^2 + b^2 + c^2}}
+    r = \frac{ax_i + by_i + cz_i + d}{\sqrt{a^2 + b^2 + c^2}}
 \end{equation}
 and is then summed up.
 If the distance is within a certain threshold, the point counts as an inlier.
@@ -421,7 +424,7 @@ This process is then repeated until the maximal number of iterations are reached
 The plane with the greatest number of inliers is then selected.\par
 After applying the \gls{ransac} algorithm and receiving a plane equation, the normal vector of the proposed plane, which can be conducted from the plane equation as follows
 \begin{equation}
-	\vb{n} = \begin{pmatrix} a & b & c \end{pmatrix}^{\intercal},
+    \vb{n} = \begin{pmatrix} a & b & c \end{pmatrix}^{\intercal},
 \end{equation}
 is projected onto the z-axis of the car.
 The necessary rotation is then applied to the detected plane.
@@ -454,29 +457,29 @@ The passthrough filter then removes all the points which lie outside the specifi
 Because the car drives forward, only points in front of the car are of interest.
 Furthermore, the points further away than a certain threshold are neglected, because the resolution and accuracy of the measurements of the \gls{lidar} decreases with increasing distance.
 The ceiling points are removed by limiting the points in z-direction.\par
-The next step in reducing the point cloud size is the voxel grid filter \cite{Vosselman2004}.
+The next step in reducing the point cloud size is the voxel grid filter~\cite{Vosselman2004}.
 The point cloud is converted into a 3D grid consisting of small cubes called voxels.
 Each cube can contain multiple points or none, the size of the voxels (also known as leaf size) determines the resolution.
 All the points inside a cube are then reduced to their most centroid point.
 If the cube does not contain any points, it is neglected.
 The exact values used for the passthrough filter and the voxel filter are listed in \cref{tab:lidar_preprocessing_params}
 \begin{table}[htb]
-	\centering
-	\caption[Parameters for the preprocessing of the point cloud]{The parameters used for the preprocessing of the point cloud.}
-	\label{tab:lidar_preprocessing_params}
-	\begin{tabular}[t]{lSc}
-		\toprule
-		\textbf{Parameter} & {\textbf{Value} } & \textbf{Unit} \\
-		\midrule
-		\emph{Passthrough filter}                              \\
-		x                  & \SIrange{0}{30}{} & \si{\metre}   \\
-		y                  & \SIrange{-2}{2}{} & \si{\metre}   \\
-		z                  & \SIrange{-1}{2}{} & \si{\metre}   \\
-		\addlinespace
-		\emph{Voxel filter}                                    \\
-		leaf size          & \SI{0.1}{}        & \si{\metre}   \\
-		\bottomrule
-	\end{tabular}
+    \centering
+    \caption[Parameters for the preprocessing of the point cloud]{The parameters used for the preprocessing of the point cloud.}
+    \label{tab:lidar_preprocessing_params}
+    \begin{tabular}[t]{lSc}
+        \toprule
+        \textbf{Parameter} & {\textbf{Value} } & \textbf{Unit} \\
+        \midrule
+        \emph{Passthrough filter}                              \\
+        x                  & \SIrange{0}{30}{} & \si{\metre}   \\
+        y                  & \SIrange{-2}{2}{} & \si{\metre}   \\
+        z                  & \SIrange{-1}{2}{} & \si{\metre}   \\
+        \addlinespace
+        \emph{Voxel filter}                                    \\
+        leaf size          & \SI{0.1}{}        & \si{\metre}   \\
+        \bottomrule
+    \end{tabular}
 \end{table}
 
 \subsubsection{Ramp Detection and Classification}
@@ -487,14 +490,14 @@ It usually detects the following types of planes: ceiling, ground, side wall or 
 \gls{ransac} is applied iteratively until a plane of type ramp has been found.
 If a plane of different type has been found, it gets removed and the \gls{ransac} algorithm is applied again.
 To prevent an infinite loop, the algorithm will exit after either a certain number of iterations has been performed, or if after the removal of a plane not enough points to form a sizeable plane are left in the point cloud.
-For the implementation of the \gls{ransac} algorithm and the voxel grid filter the PCL library \cite{Rusu2011}, and more specifically the python binding \texttt{python-pcl}~\footnote{\url{https://github.com/strawlab/python-pcl}}, has been used.\par
+For the implementation of the \gls{ransac} algorithm and the voxel grid filter the PCL library~\cite{Rusu2011}, and more specifically the python binding \texttt{python-pcl}~\footnote{\url{https://github.com/strawlab/python-pcl}}, has been used.\par
 The accidental detection of the ceiling was already prevented during the passthrough filter step, where the ceiling points have been removed from the point cloud.
 Wrong detections of the ground plane or side walls as ramp plane can be prevented by requiring the roll and pitch angle respectively to be in a certain range.
 Since the \gls{ransac} algorithm provides the normal vector of the plane, the angle of the detected plane can be compared to the normal vector of the ground plane, which is $\smqty(0 & 0 & 1)^\intercal$ after the calibration.
 The normal vector of the detected plane is then projected on the ground vector and the rotation between both is calculated as described in \cref{subsec:vector_projection}.
 The rotation is then converted to Euler angles.\par
 Since the \gls{lidar} generates a 3D model of the environment, other properties of the ramp can be estimated as well.
-Beside using the angle of the detected plane to determine whether the detected plane is the ramp, the width of the ramp is used as well.
+Besides using the angle of the detected plane to determine whether the detected plane is the ramp, the width of the ramp is used as well.
 The width of the ramp is calculated by taking the mean of the $m$ most left and right points (y-axis) respectively and calculating the absolute difference between them.
 It is used to classify the ramp as a proper drivable ramp for cars.
 If the width is not greater than a certain threshold, it could also be a small ramp for e.g. wheelchairs and should not be labeled as a ramp.
@@ -511,10 +514,10 @@ If it fulfills the angle and width requirements, it is classified as a ramp and 
 Otherwise, the plane is removed from the point cloud and the \gls{ransac} algorithm is applied again.
 This process is repeated until either not enough points are left in the point cloud for the \gls{ransac} algorithm to find a plane or if a certain number of iterations has been exceeded.
 \begin{figure}[htb]
-	\centering
-	\includegraphics{Graphics/TikZ/flowchart_lidar.pdf}
-	\caption[Flow chart of the \glsentryshort{lidar} algorithm]{Flow chart of the ramp detection algorithm using the \acrshort{lidar} sensor.}
-	\label{fig:flowchart_lidar}
+    \centering
+    \includegraphics{Graphics/TikZ/flowchart_lidar.pdf}
+    \caption[Flow chart of the \glsentryshort{lidar} algorithm]{Flow chart of the ramp detection algorithm using the \acrshort{lidar} sensor.}
+    \label{fig:flowchart_lidar}
 \end{figure}
 
 
@@ -541,15 +544,15 @@ Both segmentation approaches on the other hand create a mask around the object, 
 \isug{Rewrite "would probably be enough"}
 For the specific task of detecting ramps in parking garages the semantic segmentation would probably be enough since most times only one ramp will be visible, in which case the semantic and instance segmentation will be the same.
 But the instance segmentation approach is more general and can be adapted more easily to support also the detection of other objects.\par
-That is why the mask \gls{rcnn} architecture is used in this thesis.
+That is why the Mask \gls{rcnn} architecture~\cite{He2017} is used in this thesis.
 It allows for instance segmentation, which means that multiple objects of the same class can be detected as distinct objects.
 While for this task only one class is used (ramp) and most times only one object will be visible, the network can be easily expanded to support multiple classes and is already supporting the detection of multiple ramps at once.
 Furthermore, it is well documented, and different implementations are already available for use.\par
-For this thesis the open-source library \texttt{Detectron2}~\footnote{\url{https://github.com/facebookresearch/detectron2}} \cite{Wu2019} developed by Facebook is chosen as the framework.
+For this thesis the open-source library \texttt{Detectron2}~\footnote{\url{https://github.com/facebookresearch/detectron2}}~\cite{Wu2019} developed by Facebook is chosen as the framework.
 It is widely used and also provides a number of pretrained networks, which can be used for transfer learning.
 Transfer learning is the process of training a new model on top of an existing one.
 This provides multiple advantages over training a new model from scratch, such as a great reduction of the training time and hence also the use of resources, a better accuracy and reducing the risk of overfitting.\par
-A model trained on the \gls{coco} dataset \cite{Lin2014} is used as the basis for the training of the network.
+A model trained on the \gls{coco} dataset~\cite{Lin2014} is used as the basis for the training of the network.
 \gls{coco} is a large-scale dataset consisting of more than \num{200000} labeled images with various annotations (e.g. bounding boxes, segmentation masks, image captions) of 80 different object categories (e.g. car, chair, dog, person, train).
 It is often used to benchmark neural network algorithms and to compare their performance.\par
 Since no class of type ramp already exists in the \gls{coco} dataset, an own dataset has to be created.
@@ -565,69 +568,69 @@ The images were taken from a video with a frame rate of 30, but since the car ap
 Since many pictures of the more or less same scenery do not provide any extra information, while increasing the training time and the potential of overfitting, only every 30th image (one every second) was used.
 In the end, 144 different images of three ramps were collected.\par
 Since the training of the network is based on supervised learning, the images have to be labelled manually.
-For this task the tool \texttt{labelme}~\footnote{\url{https://github.com/wkentaro/labelme}} \cite{Wada2018} is used.
+For this task the tool \texttt{labelme}~\footnote{\url{https://github.com/wkentaro/labelme}}~\cite{Wada2018} is used.
 Each ramp is labelled using a polygon consisting of four points, placed at the corners of the ramp.
 Only the drivable area of the ramp is marked, and the curbsides are not considered.
 The \texttt{labelme} tool creates an annotation containing the coordinate of each point and the class of the marking.
 The format of the annotation has to be converted to the \gls{coco} format, to allow for the training using the \texttt{Detectron2} library.
 The bounding box format is
 \[
-	\begin{pmatrix}
-		x_\mathrm{min} & y_\mathrm{min} & w & h,
-	\end{pmatrix}
+    \begin{pmatrix}
+        x_\mathrm{min} & y_\mathrm{min} & w & h
+    \end{pmatrix}
 \]
 where $x_\mathrm{min}$ and $y_\mathrm{min}$ are the coordinates of the upper left corner of the bounding box and $w$ and $h$ are the width and height of the box.
 The \gls{coco} format contains information about the segmentation mask consisting of the coordinates of the polygon, the bounding box and the class of the object.
 \begin{figure}[htb]
-	\centering
-	\begin{subfigure}{.47\linewidth}
-		\centering
-		\includegraphics[width=1\linewidth]{orig.jpg}
-		\caption{Original image}
-	\end{subfigure}
-	% \hfill
-	\begin{subfigure}{.47\linewidth}
-		\centering
-		\includegraphics[width=1\linewidth]{aug.jpg}
-		\caption{Augmented image}
-	\end{subfigure}
-	\\
-	% \hfill
-	\begin{subfigure}{.47\linewidth}
-		\centering
-		\includegraphics[width=1\linewidth]{orig2.jpg}
-		\caption{Original image}
-	\end{subfigure}
-	\begin{subfigure}{.47\linewidth}
-		\centering
-		\includegraphics[width=1\linewidth]{aug2.jpg}
-		\caption{Augmented image}
-	\end{subfigure}
-	\\
-	% \hfill
-	\begin{subfigure}{.47\linewidth}
-		\centering
-		\includegraphics[width=1\linewidth]{orig3.jpg}
-		\caption{Original image}
-	\end{subfigure}
-	\begin{subfigure}{.47\linewidth}
-		\centering
-		\includegraphics[width=1\linewidth]{aug3.jpg}
-		\caption{Augmented image}
-	\end{subfigure}
-	\caption[Examples of augmented images]{The three ramps used for the training. The augmented images are shown on the right-hand side and the manually created label is marked green.}
-	\label{fig:img_augmentated}
+    \centering
+    \begin{subfigure}{.47\linewidth}
+        \centering
+        \includegraphics[width=1\linewidth]{orig.jpg}
+        \caption{Original image}
+    \end{subfigure}
+    % \hfill
+    \begin{subfigure}{.47\linewidth}
+        \centering
+        \includegraphics[width=1\linewidth]{aug.jpg}
+        \caption{Augmented image}
+    \end{subfigure}
+    \\
+    % \hfill
+    \begin{subfigure}{.47\linewidth}
+        \centering
+        \includegraphics[width=1\linewidth]{orig2.jpg}
+        \caption{Original image}
+    \end{subfigure}
+    \begin{subfigure}{.47\linewidth}
+        \centering
+        \includegraphics[width=1\linewidth]{aug2.jpg}
+        \caption{Augmented image}
+    \end{subfigure}
+    \\
+    % \hfill
+    \begin{subfigure}{.47\linewidth}
+        \centering
+        \includegraphics[width=1\linewidth]{orig3.jpg}
+        \caption{Original image}
+    \end{subfigure}
+    \begin{subfigure}{.47\linewidth}
+        \centering
+        \includegraphics[width=1\linewidth]{aug3.jpg}
+        \caption{Augmented image}
+    \end{subfigure}
+    \caption[Examples of augmented images]{The three ramps used for the training. The augmented images are shown on the right-hand side and the manually created label is marked green.}
+    \label{fig:img_augmentated}
 \end{figure}
 
 
 \subsection{Training}
 \label{ssec:training}
-Since the size of the dataset is not very great, the training of the network is challenging, because it increases the risk of overfitting.
+Since the size of the dataset is not very large, the training of the network is challenging, because it increases the risk of overfitting.
 To alleviate the problem, data augmentation is used in addition to the previously mentioned transfer learning.
-Data augmentation provides a good alternative to when the collection of more data is not feasible or possible \cite{Shorten2019}.
+Data augmentation provides a good alternative to when the collection of more data is not feasible or possible~\cite{Shorten2019}.
 It increases the size of the dataset by adding slightly modified versions of the original images.
 Common transformations are horizontal or vertical flipping of the image, cropping, adding noise, blur or changing the brightness and contrast of the image.
-The library \texttt{imgaug}~\footnote{\url{https://github.com/aleju/imgaug}} \cite{Jung2018} is used for this task.
+The library \texttt{imgaug}~\footnote{\url{https://github.com/aleju/imgaug}}~\cite{Jung2018} is used for this task.
 In addition to editing the image, it automatically adapts the annotation according to the new position of the label, e.g. when flipping the image.\par
 The following augmentations techniques are used to artificially increase the dataset: horizontal flipping of the image (with a probability of 50\%), changing the brightness by \SIrange{-20}{20}{\percent}, changing the contrast by \SIrange{-20}{10}{\percent}, adding motion blur with a kernel size of 3 and adding salt and pepper (turning some pixels black or white, simulating dead pixels).
 \isug{Convert to table (hatte ich auch ueberlegt aber ist komisch mit Probability und so)}
@@ -647,7 +650,7 @@ Is the learning rate too low, the training of the network takes a longer time an
 The learning rate is often initially set to a high value and then slowly reduced, which helps both optimization and generalization.
 The speed of the decay of the learning rate can be based on many things, such as the number of steps in the training, the time, or it can be reduced exponentially.
 % In this thesis, an approach where the learning rate is decayed after every $n$ steps is used.
-Another parameter, specifically for the mask \gls{rcnn} neural network architecture, is the number of \gls{roi} proposals.
+Another parameter, specifically for the Mask \gls{rcnn} neural network architecture, is the number of \gls{roi} proposals.
 As described in \cref{sssec:rcnn}, the image is divided into a grid of \glspl{roi}.
 The number of \gls{roi} proposals determines how many of those \glspl{roi} are taken into account for the calculation of the loss function.
 It can be chosen lower than the size of the grid to accelerate the training.
@@ -660,9 +663,9 @@ Because the dataset is small, has only one class and contains similar images, th
 The ZED 2i stereo camera used in this thesis also generates a point cloud.
 More information about the camera will be described in \cref{ssec:camera}.
 The 3D point cloud can be projected onto the 2D camera image.
-For the projection, the rotation vector and translation from the point cloud frame to the camera frame is necessary, as well as the intrinsic camera matrix $A$.
+For the projection, the rotation vector and translation from the point cloud frame to the camera frame is necessary, as well as the intrinsic camera matrix $\vb{A}$.
 Because the ZED 2i stereo camera records both the point cloud and camera image at once, the rotation and translation between the two frames is zero.
-Using the \texttt{projectPoints} function of the \texttt{opencv}~\footnote{\url{https://github.com/opencv/opencv}} library \cite{Bradski2000}, the point cloud is projected onto the camera image.
+Using the \texttt{projectPoints} function of the \texttt{opencv}~\footnote{\url{https://github.com/opencv/opencv}} library~\cite{Bradski2000}, the point cloud is projected onto the camera image.
 The camera image is then fed into the network, which predicts a bounding box and segmentation mask of the ramp.
 The bounding box is in the form  $\smqty(x_\mathrm{min} & x_\mathrm{max} & w & h)$ with $x_\mathrm{min}, y_\mathrm{min} $ being the coordinates of the upper left corner and $w, h$ the width and height of the bounding box.
 The segmentation mask is stored as a boolean array of the same size as the image.
