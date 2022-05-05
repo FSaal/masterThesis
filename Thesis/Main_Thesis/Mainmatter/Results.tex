@@ -140,7 +140,7 @@ The time frame during which the car was on the ramp is marked by the yellow colo
 The beginning of the ramp is classified as the point, where the reference data surpasses \ang{1.5}.\par
 The gravity method tries to overcome the problem of the accelerometer of also detecting other accelerations than gravity, by subtracting the car's acceleration from the accelerometer measurement.
 The car's acceleration $\vb{a}_\mathrm{odom,x} $ was calculated by calculating the derivate of the low-pass filtered car velocity $v_\mathrm{car} $, which was calculated from the wheel speed measurements.
-Figure \ref{fig:imu_odometer_acc} shows the (low-pass filtered) acceleration measured by the \gls{imu} along the x-axis and the (low-pass filtered) car's acceleration.
+\Cref{fig:imu_odometer_acc} shows the (low-pass filtered) acceleration measured by the \gls{imu} along the x-axis and the (low-pass filtered) car's acceleration.
 \begin{figure}[htb]
     \centering
     \includegraphics[width=.9\linewidth]{imu_odometer_acc.pdf}
@@ -422,7 +422,7 @@ Because the vertical resolution is not linear, the most lines are centered aroun
 Hence, only few lines fall into the region at the start of the ramp.
 The distance to the ramp is calculated by measuring the distance from the car to the $n$ closest points which have been identified as part of the ramp.
 Therefore, the distance can only be updated if a line which has previously hit the ground now hits the ramp.\par
-Fig. \ref{fig:lidar_angle_eval} shows the difference between the estimated angle and the measured average angle.
+\Cref{fig:lidar_angle_eval} shows the difference between the estimated angle and the measured average angle.
 It can be seen that the estimation varies by about \ang{1} if the distance is less than \SI{20}{\metre}.
 The angle is almost exclusively underestimated, which could be due to the fact that the reference value measurement is not perfect.\par
 The estimated width at different distances to the ramp can be seen in \cref{fig:lidar_width_eval}.
@@ -488,6 +488,7 @@ This makes the precise tracking of the distance to the ramp difficult.
 
 \section{Camera}
 \label{sec:eval_camera}
+\subsection{Object Recognition}
 The camera was used to detect the ramp and mask the corresponding region in the image.
 As described in \cref{sec:performance_measures}, the \gls{map} score is used to evaluate the performance of the neural network.
 Since transfer learning is used and the dataset is fairly small, different hyperparameters could be tested.
@@ -542,7 +543,7 @@ All images used for the training and evaluation are colored, but are visualized 
     \caption[Visualization examples of predicted segmentation masks]{Some examples of the predicted bounding box and mask when driving at a ramp. The class of the object and the confidence score are annotated as well. All those images were not used for the training of the network.}
 \end{figure}
 
-\subsection{Point Cloud}
+\subsection{Point Cloud Extraction}
 As described in \cref{ssec:point_cloud_extraction}, the predicted segmentation mask can be used to only extract the points that are part of the ramp from the point cloud.
 Different ramp properties can then be calculated from the point cloud.
 In a first step, the points must be projected from 3D space into 2D space.
