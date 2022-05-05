@@ -41,21 +41,21 @@
     \draw[draw=black,fill=gray!80,semithick] (w) ++(\cl*0.55,0) circle (.35);
 
     % Car middle point
-    \coordinate (m) at (\cl*1, \bh*0.2);
-    \filldraw (m) circle (2pt) node[below right, xshift=-0.5cm, yshift=-0.3cm] {Car ($\mathcal{C}$)};
+    \coordinate (m) at (\cl*0.25, \bh*0.05);
+    \filldraw (m) circle (2pt) node[below right, xshift=0.7cm, yshift=-0.3cm] {Car ($\mathcal{C}$)};
     % Coordinate frames
-    \draw[thick,->, red] (m) -- ++(0.7,0,0) node[anchor=north east]{$x$};
-    \draw[thick,->, black!35!green] (m) -- ++(0,0,-0.7) node[anchor=west]{$y$};
-    \draw[thick,->, blue] (m) -- ++(0,0.7,0) node[anchor=south]{$z$};
+    \draw[thick,->, red] (m) -- ++(0.9,0,0) node[anchor=north east]{$x$};
+    \draw[thick,->, black!35!green] (m) -- ++(0,0,-1.05) node[anchor=west]{$y$};
+    \draw[thick,->, blue] (m) -- ++(0,0.9,0) node[anchor=south]{$z$};
 
     % IMU middle point (random)
     \begin{scope}[rotate=15]
-        \coordinate (mi) at (\cl*0.2, \bh*0.5);
-        \filldraw (mi) circle (2pt) node[below] {\glsentryshort{imu} ($\mathcal{I}$)};
+        \coordinate (mi) at (\cl*0.1, \bh*0.57);
+        \filldraw (mi) circle (2pt) node[below, xshift=0.4cm] {\glsentryshort{imu} ($\mathcal{I}$)};
         % Coordinate frames
-        \draw[thick,->, red] (mi) -- ++(0.7,0,0) node[anchor=north east]{$x$};
-        \draw[thick,->, black!35!green] (mi) -- ++(0,0,-0.7) node[anchor=west]{$y$};
-        \draw[thick,->, blue] (mi) -- ++(0,0.7,0) node[anchor=south]{$z$};
+        \draw[thick,->, red] (mi) -- ++(0.6,0,0) node[anchor=north east]{$x$};
+        \draw[thick,->, black!35!green] (mi) -- ++(0,0,-0.6) node[anchor=west]{$y$};
+        \draw[thick,->, blue] (mi) -- ++(0,0.6,0) node[anchor=south]{$z$};
     \end{scope}
 
     % LIDAR middle point (random)
