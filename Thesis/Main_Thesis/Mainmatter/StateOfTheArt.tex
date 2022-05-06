@@ -39,13 +39,13 @@ The estimated quaternions using the accelerometer and angular velocity measureme
 \section[Plane segmentation]{Object Detection and Plane Segmentation}
 While the in the previous section mentioned methods allow for the estimation of the current road grade angle, they can not be used to detect changes in the road grade ahead of the vehicle.
 For this purpose, \gls{radar}, \gls{lidar} or camera sensors, to name a few, must be used instead.
-Since no \gls{radar} sensors were available for the experiments of this thesis, the focus will be on the \gls{lidar} and camera instead.
+Since no \gls{radar} sensors were available for the experiments conducted in this thesis, the focus will be on the \gls{lidar} and camera instead.
 
 As described in \cref{ssec:lidar}, the \gls{lidar} generates a 3D point cloud of the environment.
-Structures in point cloud can be either identified by using an object detection approach, which allows for the identification of complex objects (e.g. cars or people), or a segmentation approach, in which points are grouped into homogeneous regions.
+Structures in point clouds can be either identified by using an object detection approach, which allows for the identification of complex objects (e.g. cars or people), or a segmentation approach, in which points are grouped into homogeneous regions.
 
 Many methods use manually crafted features to identify the objects in the point cloud.
-In some approaches the point cloud is projected into a perspective view, on which then similar feature extraction as used for 2D images is applied
+In some approaches the point cloud is projected into a perspective view, on which then similar feature extraction methods, as used for 2D images, are applied
 \cite{Premebida2014, Li2016}.
 Other approaches use handcrafted features on a rasterized point cloud to extract the objects~\cite{Song2014, Song2016}.
 There are also more sophisticated approaches, based on deep learning~\cite{Qi2017, Qi2017b, Zhuo2018}.
@@ -68,7 +68,7 @@ Almost all of those methods are based on the \gls{ransac} algorithm~\cite{Fischl
 It is an iterative algorithm which randomly selects some points to build a shape (e.g. plane, circle or line) and then calculates the error of the other points to the proposed shape.
 If a good model has been found, all the inliers are extracted and the next biggest shape is searched for.
 More about the \gls{ransac} algorithm will also be described in \cref{ssec:calibration_lidar}.
-There exist several improvements such as the efficient \gls{ransac} algorithm~\cite{Schnabel2007}, which improves the performance, or the method proposed~\cite{li2011}, which allows for the detection of slippable shapes (e.g. helix).
+There exist several improvements such as the efficient \gls{ransac} algorithm~\cite{Schnabel2007}, which improves the performance, or the method proposed in~\cite{li2011}, which allows for the detection of slippable shapes (e.g. a helix).
 Attribute based methods are fast and very robust to outliers, the biggest drawback is that they are inaccurate when dealing with different point cloud sources.
 Lastly, the graph based methods consider the point cloud as a graph.
 Each vertex corresponds to one point in the point cloud and the edges connect to certain neighboring points.
@@ -86,23 +86,36 @@ If the baseline (the distance between the two cameras), the focal length and the
 A common problem is the finding of the differences between the two images, since it requires a well light environment and does not work well when the scene has very few textures.
 Furthermore, they tend to only work in a short range.
 
-\gls{tof} cameras are active sensors, unlike stereo-cameras.
-They work similarly as a \gls{lidar}, by sending out light and measuring the time it takes to reflect back.
+Those problems are not present when using \gls{tof} cameras.
+They are active sensors, unlike stereo-cameras, and work similarly as a \gls{lidar}, by sending out light and measuring the time it takes to reflect back.
 But they are scannerless, which means that they capture the entire scene with a single light pulse.
 Since they are active sensors, they can also be used in low light conditions and do not depend on well textured scene.
 But they are not as accurate as \gls{lidar} sensors.
 
-There is also some research on detecting ramp specifically in a point cloud.
+There was also some research done on detecting ramps specifically in a point cloud.
 Ref.~\cite{Sakenas2007} introduces a new algorithm, to extract planar maps from 3D data.
 The point cloud is divided into 3D cells and a histogram over the z-axis is created.
 Ramps can then be detected by searching for neighboring cells, where the height increases gradually.
 Ref.~\cite{Nejati2016} used an RGB-D sensor (camera image + depth sensor) to detect ramps for wheelchairs.
 Ramp properties such as angle, width, length and the orientation of the ramp are determined as well.
 
-While the image from a monocular camera does not provide any 3D information, it can also be used to detect objects.
-Either using classical approaches like APPROACH or by using machine learning techniques, as described in \cref{sec:computer_vision}.
-\itodo{Briefly describe 2D methods}
+While the image from a monocular camera does not provide any 3D information, it can also be used to detect and localize objects.
+A brief overview into the field of computer vision was already given in \cref{sec:computer_vision}.
+While traditional object detection approaches were build on handcrafted features, nowadays most are based on deep learning \cite{Zhao2019}.
+Due to the rapid development in deep learning, they consistently outperform traditional computer vision approaches \cite{Mahony2019}.
+Thanks to the rise of deep neural networks \cite{Krizhevsky2017}, and specifically the \gls{rcnn}~\cite{Girshick2014} the prediction accuracy could be improved significantly.
+As mentioned in \cref{sssec:rcnn}, there exist several improvements of the initially proposed \gls{rcnn} algorithm, such as the Fast \gls{rcnn}~\cite{Girshick2015}, Faster \gls{rcnn}~\cite{Ren2017} or the \gls{yolo} algorithm~\cite{Redmon2016}, which detects objects using fixed-grid regression.
+While the mentioned methods allow for real time detection of objects, they only localize them using a bounding box.
 
+Image segmentation expands the object detection, by detecting all objects in the image, and also segmenting each instance in a pixel-to-pixel manner.
+This allows for a more accurate localization of the objects.
+As described in \cref{sssec:rcnn}, one of the most popular ones is the Mask \gls{rcnn}, which builds on the Faster \gls{rcnn}~\cite{Ren2017} and adds a layer to the network, in which a segmentation mask is predicted.
+\texttt{Detectron2}~\footnote{\url{https://github.com/facebookresearch/detectron2}}~\cite{Wu2019} is an open-source library developed by Facebook and supports many state-of-the-art detection and segmentation algorithms.
+It also supports the Mask \gls{rcnn} algorithm.
+Due to its very good documentation and popularity, many pretrained models are already available.
+Using transfer learning, they can be used as a basis for the training of a new model.
+This allows for a great reduction in training time and increase in accuracy.
+\itodo{Briefly describe 2D methods (More?)}
 
 
 
@@ -110,5 +123,10 @@ Either using classical approaches like APPROACH or by using machine learning tec
 Due to the available sensor stack, not all mentioned methods can be tested.
 While a Kalman filter achieves very good results, it is generally complex and the precise knowledge of process and measurement noise is necessary~\cite{Higgins1975}
 The gravity method and complementary filter will be tested for the \gls{imu}.
+
 Because no method to detect ramps using a \gls{lidar} could be found, an own method has to be implemented.
 For the plane detection the \gls{ransac} algorithm will be used, since it is already implemented in the PCL library ADD LINK.
+
+For the experiments, a stereo camera is available.
+A slightly adapted version of the algorithm used for the \gls{lidar} will be applied to the point cloud generated by the stereo camera.
+Furthermore, \texttt{Detectron2} is used to detect objects in the stereo image.
