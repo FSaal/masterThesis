@@ -1,72 +1,173 @@
- \documentclass[12pt]{standalone}
+ \documentclass[11pt]{standalone}
 \usepackage{tikz}
-\usetikzlibrary{calc}
+\usetikzlibrary{calc, positioning, patterns, snakes}
+
+\definecolor{violet}{rgb}{0.56, 0.0, 1.0}
 
 \begin{document}
 \begin{tikzpicture}
-    % Define ...
-    % Mass plates size
-    \def\mp_size{0.5};
-    % Horizontal displacement
-    \def\x_offset{-0.1};
+    % Define some lengths
+    \def \w{8cm};
+    \def \h{4cm};
+    % \begin{scope}
+    %     % Outer shape
+    %     \node[rectangle,
+    %         draw = black,
+    %         % fill = lightgray,
+    %         line width = 2pt,
+    %         minimum width = \w,
+    %         minimum height = \h] (outer) at (0,0) {};
+    %     % Mass
+    %     \node[rectangle,
+    %         draw = black,
+    %         fill = lightgray,
+    %         minimum width = \w*0.5,
+    %         minimum height = \h*0.1] (inner) at (0,0) {$m$};
 
-    % Mass
-    \node[rectangle,
-        draw = black,
-        fill = lightgray,
-        minimum width = 4cm,
-        minimum height = 1cm] (r) at (0,0) {Mass};
-    % Mass fingers
-    \foreach \i in {0.2, 0.5, 0.8}
-        {
+    %     % Connect mass with fix points
+    %     \draw [snake=coil, segment amplitude=1pt, segment length=1.5pt](outer.north west) -- (inner.north west);
+    %     \draw [snake=coil, segment amplitude=1pt, segment length=1.5pt](outer.north east) -- (inner.north east);
+    %     \draw [snake=coil, segment amplitude=1pt, segment length=1.5pt](outer.south west) -- (inner.south west);
+    %     \draw [snake=coil, segment amplitude=1pt, segment length=1.5pt](outer.south east) -- (inner.south east);
+
+
+    %     % Mass fingers (Electrodes connected to mass)
+    %     \foreach \i in {0.2, 0.5, 0.8}
+    %         {
+    %             \node[rectangle,
+    %                 draw = black,
+    %                 fill = pink,
+    %                 minimum height = .75cm,
+    %                 anchor = north,
+    %                 draw=black] (f1) at ($(inner.south east)!\i!(inner.south west)$) {};
+    %             \node[rectangle,
+    %                 draw = black,
+    %                 fill = pink,
+    %                 minimum height = .75cm,
+    %                 anchor = south,
+    %                 draw=black] (f1) at ($(inner.north east)!\i!(inner.north west)$) {};
+    %         }
+
+    %     % Fixed capacitors (Electrodes connected to fix points)
+    %     \foreach \i [count=\idx] in {0.65, 0.35}
+    %         {
+    %             \node[rectangle,
+    %                 % draw = lightgray,
+    %                 fill = white!60!green,
+    %                 minimum height = 1.1cm,
+    %             ] (cap) at ($(inner.south east)!\i!(inner.south west) + (0, -.65)$) {};
+    %             % Fixed plates at the bottom
+    %             \node[rectangle,
+    %                 % draw = lightgray,
+    %                 fill = white!60!green,
+    %                 minimum height = 0.4cm,
+    %                 minimum width = 0.6cm,
+    %                 anchor = north,
+    %             ] (cap) at (cap.south) {$C_\idx$};
+    %         }
+    %     % Same for the top
+    %     \foreach \i [count=\idx] in {0.65, 0.35}
+    %         {
+    %             \node[rectangle,
+    %                 % draw = lightgray,
+    %                 fill = white!60!green,
+    %                 minimum height = 1.1cm,
+    %             ] (cap) at ($(inner.north east)!\i!(inner.north west) + (0, .65)$) {};
+    %             % Fixed plates at the bottom
+    %             \node[rectangle,
+    %                 % draw = lightgray,
+    %                 fill = white!60!green,
+    %                 minimum height = 0.4cm,
+    %                 minimum width = 0.6cm,
+    %                 anchor = south,
+    %             ] (cap_fix) at (cap.north) {$C_\idx$};
+
+    %         }
+
+
+    %     % \draw[->, blue] ($(outer.west)!.5!(outer.north west)$) --++ (-1, 0) node[left]{$a(t)$};
+    %     % \draw[->, blue] ($(r.east)!.5!(r.north east)$) --++ (1, 0) node[right]{$\Delta x(t)$};
+    %     % \draw[->, red] ($(r.west)!.5!(r.south west)$) --++ (-1, 0) node[left]{$a(t)$};
+    %     % \draw[->, red] ($(r.east)!.5!(r.south east)$) --++ (1, 0) node[right]{$\Delta x(t)$};
+    % \end{scope}
+
+    % In motion
+    \begin{scope}[shift={(7,0)}]
+        % Outer shape
+        \node[rectangle,
+            draw = black,
+            % fill = lightgray,
+            line width = 2pt,
+            minimum width = \w,
+            minimum height = \h] (outer) at (0,0) {};
+
+        \begin{scope}[shift={(0.25,0)},]
+            % Mass
             \node[rectangle,
-                minimum height = 1cm,
-                anchor = north,
-                draw=black] (f1) at ($(r.south east)!\i!(r.south west)$) {};
-            \node[rectangle,
-                minimum height = 1cm,
-                anchor = south,
-                draw=black] (f1) at ($(r.north east)!\i!(r.north west)$) {};
-        }
-    % Capacitor
-    \foreach \i in {0.30, 0.60, 0.9}
-        {
-            \node[rectangle,
-                draw = lightgray,
-                minimum height = 1.5cm,
-            ] (cap) at ($(r.south east)!\i!(r.south west) + (0, -1)$) {$C$};
-        }
+                draw = black,
+                fill = lightgray,
+                minimum width = \w*0.5,
+                minimum height = \h*0.1] (inner) at (0,0) {$m$};
 
-    % Mass plates
-    \node[rectangle,
-        draw = lightgray,
-        minimum width = \mp_size,
-        minimum height = \mp_size] (mp_nw) at ($(r.north west) + (\x_offset, 1)$) {};
-    \node[rectangle,
-        draw = lightgray,
-        minimum width = \mp_size,
-        minimum height = \mp_size] (mp_ne) at ($(r.north east) + (\x_offset, 1)$) {};
-    \node[rectangle,
-        draw = lightgray,
-        minimum width = \mp_size,
-        minimum height = \mp_size] (mp_sw) at ($(r.south west) + (\x_offset, -1)$) {};
-    \node[rectangle,
-        draw = lightgray,
-        minimum width = \mp_size,
-        minimum height = \mp_size] (mp_se) at ($(r.south east) + (\x_offset, -1)$) {};
+            % Connect mass with fix points
+            \draw [snake=coil, segment amplitude=1pt, segment length=1.5pt](outer.north west) -- (inner.north west);
+            \draw [snake=coil, segment amplitude=1pt, segment length=1.5pt](outer.north east) -- (inner.north east);
+            \draw [snake=coil, segment amplitude=1pt, segment length=1.5pt](outer.south west) -- (inner.south west);
+            \draw [snake=coil, segment amplitude=1pt, segment length=1.5pt](outer.south east) -- (inner.south east);
 
-    % Connect mass with fix points
-    \draw (mp_nw) -- (r.north west);
-    \draw (mp_ne) to (r.north east);
-    \draw (mp_sw) to (r.south west);
-    \draw (mp_se) to (r.south east);
-    \draw[]
+            % Mass fingers (Electrodes connected to mass)
+            \foreach \i in {0.2, 0.5, 0.8}
+                {
+                    \node[rectangle,
+                        draw = black,
+                        fill = pink,
+                        minimum height = .75cm,
+                        anchor = north,
+                        draw=black] (f1) at ($(inner.south east)!\i!(inner.south west)$) {};
+                    \node[rectangle,
+                        draw = black,
+                        fill = pink,
+                        minimum height = .75cm,
+                        anchor = south,
+                        draw=black] (f1) at ($(inner.north east)!\i!(inner.north west)$) {};
+                }
+        \end{scope}
+        % Fixed capacitors (Electrodes connected to fix points)
+        \foreach \i [count=\idx] in {0.575, 0.425}
+            {
+                \node[rectangle,
+                    % draw = lightgray,
+                    fill = white!60!green,
+                    minimum height = 1.1cm,
+                ] (cap) at ($(outer.south east)!\i!(outer.south west) + (0, 1.2)$) {};
+                % Fixed plates at the bottom
+                \node[rectangle,
+                    % draw = lightgray,
+                    fill = white!60!green,
+                    minimum height = 0.4cm,
+                    minimum width = 0.6cm,
+                    anchor = north,
+                ] (cap) at ($(cap.south) + (0,.1)$) {$C_\idx$};
+                % Same for the top
+                \node[rectangle,
+                    % draw = lightgray,
+                    fill = white!60!green,
+                    minimum height = 1.1cm,
+                ] (cap) at ($(outer.north east)!\i!(outer.north west) + (0, -1.2)$) {};
+                % Fixed plates at the bottom
+                \node[rectangle,
+                    % draw = lightgray,
+                    fill = white!60!green,
+                    minimum height = 0.4cm,
+                    minimum width = 0.6cm,
+                    anchor = south,
+                ] (cap) at ($(cap.north) + (0,-.1)$) {$C_\idx$};
+            }
 
-    \draw[->, blue] ($(r.west)!.5!(r.north west)$) --++ (-1, 0) node[left]{$a(t)$};
-    \draw[->, blue] ($(r.east)!.5!(r.north east)$) --++ (1, 0) node[right]{$\Delta x(t)$};
-    % \draw[->, red] ($(r.west)!.5!(r.south west)$) --++ (-1, 0) node[left]{$a(t)$};
-    % \draw[->, red] ($(r.east)!.5!(r.south east)$) --++ (1, 0) node[right]{$\Delta x(t)$};
-
+        \draw[->, red] (outer.west) --++ (-1, 0) node[left] {$a(t)$};
+        \draw[->, blue] (inner.east) --++ (.5, 0) node[right]{$\Delta x(t)$};
+    \end{scope}
 
 \end{tikzpicture}
+
 \end{document}
