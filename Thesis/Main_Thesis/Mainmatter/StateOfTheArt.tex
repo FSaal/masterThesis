@@ -32,7 +32,7 @@ The angle from the angular velocity is accurate in short-term, but is suspect to
 The drift can be corrected by using the accelerometer signal, which is accurate in the long-term, but unlike the gyroscope not accurate in the short-term.
 \cite{Wu2016} uses all components of an \gls{imu} (meaning also the magnetometer) and fuses them using a complementary filter.
 The estimated quaternions using the accelerometer and angular velocity measurements respectively are fused, and the magnetometer data is used to improve the quaternion estimation from the accelerometer, but only if there are no magnetic disturbances.
-\cite{Euston2008,Jauch2018} also use a complementary, but fuse the estimated angle from the accelerometer and gyroscope instead of the quaternions.
+\cite{Euston2008} also use a complementary, but fuse the estimated angle from the accelerometer and gyroscope instead of the quaternions.
 
 
 
@@ -53,7 +53,7 @@ There are also more sophisticated approaches, based on deep learning~\cite{Qi201
 Segmentation on the other hand is typically used to classify the point cloud into different geometric shapes, e.g. the ground or a wall in the case of autonomous driving.
 Several techniques to detect planes in a point cloud exist.
 
-As mentioned in ref.~\cite{Nguyen2013} the methods to segment 3D point clouds can be divided into five categories: edge based methods, region based methods, attributes based methods, model based methods and graph based methods.
+As described in ref.~\cite{Nguyen2013} the methods to segment 3D point clouds can be divided into five categories: edge based methods, region based methods, attributes based methods, model based methods and graph based methods.
 Edge based methods segment objects by their shape, by identifying points with a rapid change in intensity~\cite{Sappa2001}. While they allow for fast segmentation, their accuracy is very limited due to their sensitivity to noise and uneven populated point clouds.
 The region growing algorithms start from certain seed points and add neighboring points to the region if they share a similar model.
 Different patches can then be merged together, if they are consistent with each other.
@@ -61,7 +61,7 @@ Disadvantages are that in the initial implementations~\cite{Besl1988, Taubin1991
 This is why~\cite{Chen2008} introduced a new type of region based method, which is based on a top-down approach, where all points are grouped into one region, which is then successively divided into smaller regions.
 
 The attributes based methods are more robust and cluster points with similar attributes.
-An advantage is that the attributes can be chosen according to the problem, but this also means that a bad choice of attributes can lead to a bad segmentation.
+An advantage is that the attributes can be chosen according to the problem, but this also means that the quality of the segmentation is highly dependent on a good selection of the attributes.
 The fourth type of segmentation method is the model based method, which will also be used in this thesis.
 It uses geometric primitive shapes such as planes, cylinders, spheres or cones to group points together.
 Almost all of those methods are based on the \gls{ransac} algorithm~\cite{Fischler1981}.
@@ -92,7 +92,7 @@ But they are scannerless, which means that they capture the entire scene with a 
 Since they are active sensors, they can also be used in low light conditions and do not depend on well textured scene.
 But they are not as accurate as \gls{lidar} sensors.
 
-There was also some research done on detecting ramps specifically in a point cloud.
+There is also some research done on detecting ramps specifically in a point cloud.
 Ref.~\cite{Sakenas2007} introduces a new algorithm, to extract planar maps from 3D data.
 The point cloud is divided into 3D cells and a histogram over the z-axis is created.
 Ramps can then be detected by searching for neighboring cells, where the height increases gradually.
@@ -109,13 +109,14 @@ While the mentioned methods allow for real time detection of objects, they only 
 
 Image segmentation expands the object detection, by detecting all objects in the image, and also segmenting each instance in a pixel-to-pixel manner.
 This allows for a more accurate localization of the objects.
-As described in \cref{sssec:rcnn}, one of the most popular ones is the Mask \gls{rcnn}, which builds on the Faster \gls{rcnn}~\cite{Ren2017} and adds a layer to the network, in which a segmentation mask is predicted.
-\texttt{Detectron2}~\footnote{\url{https://github.com/facebookresearch/detectron2}}~\cite{Wu2019} is an open-source library developed by Facebook and supports many state-of-the-art detection and segmentation algorithms.
+As described in \cref{sssec:rcnn}, one of the most popular ones is the Mask \gls{rcnn}~\cite{He2017}, which builds on the Faster \gls{rcnn}~\cite{Ren2017} and adds a layer to the network, in which a segmentation mask is predicted.
+There exist several object detection libraries such as \texttt{ImageAI}~\footnote{\url{https://github.com/OlafenwaMoses/ImageAI}}~\cite{Olafenwa2018} , \texttt{GluonCV}~\footnote{\url{https://github.com/dmlc/gluon-cv}}~\cite{Guo2020} or \texttt{Detectron2}~\footnote{\url{https://github.com/facebookresearch/detectron2}}~\cite{Wu2019} to name a few.
+\texttt{Detectron2} is an open-source library developed by Facebook and supports many state-of-the-art detection and segmentation algorithms.
 It also supports the Mask \gls{rcnn} algorithm.
 Due to its very good documentation and popularity, many pretrained models are already available.
 Using transfer learning, they can be used as a basis for the training of a new model.
 This allows for a great reduction in training time and increase in accuracy.
-\itodo{Briefly describe 2D methods (More?)}
+Hence, this library will be used in this thesis.
 
 
 
@@ -130,3 +131,5 @@ For the plane detection the \gls{ransac} algorithm will be used, since it is alr
 For the experiments, a stereo camera is available.
 A slightly adapted version of the algorithm used for the \gls{lidar} will be applied to the point cloud generated by the stereo camera.
 Furthermore, \texttt{Detectron2} is used to detect objects in the stereo image.
+
+\itodo{Either here or directly after subsection}
