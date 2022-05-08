@@ -1,10 +1,15 @@
 %\pagestyle{fancy}
 \chapter{State of the Art}
 \label{ch:StateOfTheArt}
+% Do not write long version of imu or lidar acronym again
+\glslocalunset{imu}
+\glslocalunset{lidar}
+\glslocalunset{radar}
+
 In this chapter an overview of different existing methods, on which a ramp detection algorithm can be build on, will be described.
 Since a ramp is the connection between two different levels, it must have a measurable slope compared to the ground.
-The road grade can be measured by an \gls{imu}, different methods using it will be described in the first section.
-In the second section different approaches to detect objects or shapes in 3D point cloud or 2D image will be described.
+Different methods to estimate the road grade are described in the first section.
+In the second section different approaches to detect objects or shapes in a 3D point cloud or a 2D image will be described.
 
 \section{Road Grade Measurement}
 In ref.~\cite{Jauch2018} different methods to estimate the road grade angle are discussed.
@@ -22,7 +27,7 @@ The radio waves sent from the satellites are scattered, attenuated or blocked co
 Most of the previously described methods are not suitable for the road grade estimation in indoor requirement, due to the reliance on \gls{gps}.
 Furthermore, many internal measurements such as the engine torque, brake system usage, selected gear etc. can not easily be accessed and thus might not be available.
 
-A method which does not rely on \gls{gps}, but only accelerometers and wheel odometers instead is described in ref.~\cite{Nilsson2012} and~\cite{Palella2016}.
+A method which does not rely on \gls{gps}, but only on accelerometers and wheel odometers instead is described in ref.~\cite{Nilsson2012} and~\cite{Palella2016}.
 The vehicle acceleration, calculated by deriving the wheel speed measurements in respect to time, is subtracted from the accelerometer signal in longitudinal direction.
 The remaining part is then the gravitational acceleration, which is zero if driving on flat ground, but non-zero if driving on an elevated road, and can be used to calculate the road grade angle.
 A similar approach is used in ref.~\cite{Sentouh2008}.
@@ -33,6 +38,13 @@ The drift can be corrected by using the accelerometer signal, which is accurate 
 \cite{Wu2016} uses all components of an \gls{imu} (meaning also the magnetometer) and fuses them using a complementary filter.
 The estimated quaternions using the accelerometer and angular velocity measurements respectively are fused, and the magnetometer data is used to improve the quaternion estimation from the accelerometer, but only if there are no magnetic disturbances.
 \cite{Euston2008} also use a complementary, but fuse the estimated angle from the accelerometer and gyroscope instead of the quaternions.
+
+Due to the available sensor stack, not all mentioned methods can be tested.
+Only an \gls{imu} and wheel speed sensors are available for the experiments.
+Different \gls{imu} based methods will be tested and compared to each other.
+The most promising results were achieved using the gravity filter, a complementary filter or a Kalman filter.
+While a Kalman filter achieves very good results, it is generally complex and the precise knowledge of process and measurement noise is necessary~\cite{Higgins1975}.
+Hence, only the gravity method and complementary filter will be tested and compared to each other, as well as to the estimation when using only the accelerometer or gyroscope data.
 
 
 
@@ -52,14 +64,12 @@ There are also more sophisticated approaches, based on deep learning~\cite{Qi201
 
 Segmentation on the other hand is typically used to classify the point cloud into different geometric shapes, e.g. the ground or a wall in the case of autonomous driving.
 Several techniques to detect planes in a point cloud exist.
-
 As described in ref.~\cite{Nguyen2013} the methods to segment 3D point clouds can be divided into five categories: edge based methods, region based methods, attributes based methods, model based methods and graph based methods.
 Edge based methods segment objects by their shape, by identifying points with a rapid change in intensity~\cite{Sappa2001}. While they allow for fast segmentation, their accuracy is very limited due to their sensitivity to noise and uneven populated point clouds.
 The region growing algorithms start from certain seed points and add neighboring points to the region if they share a similar model.
 Different patches can then be merged together, if they are consistent with each other.
 Disadvantages are that in the initial implementations~\cite{Besl1988, Taubin1991}, the performance was highly dependent on a good selection of the starting points.
 This is why~\cite{Chen2008} introduced a new type of region based method, which is based on a top-down approach, where all points are grouped into one region, which is then successively divided into smaller regions.
-
 The attributes based methods are more robust and cluster points with similar attributes.
 An advantage is that the attributes can be chosen according to the problem, but this also means that the quality of the segmentation is highly dependent on a good selection of the attributes.
 The fourth type of segmentation method is the model based method, which will also be used in this thesis.
@@ -77,7 +87,10 @@ They are very accurate, but can usually not be run in real-time.
 
 For the task of detecting a ramp, using a segmentation approach is sufficient, since a ramp can be seen as a planar surface.
 By also detecting the ground plane, the angle of the ramp and the distance to it can be estimated.
-
+Furthermore, they tend to be faster than object detection approaches.
+Due to the simplicity of the object of interest, the \gls{ransac} algorithm will be used.
+Since it only detects planes in the point cloud, a method to robustly identify ramps in the point cloud and estimate the ramp properties must be implemented.
+\bigbreak
 Cameras can also be used to generate a point cloud, on which the same methods as described above can be applied.
 The point clouds can be generated in different ways, some of the most common technologies are stereo-cameras and \gls{tof} cameras.
 Stereo-cameras consist of two slightly shifted cameras.
@@ -116,20 +129,4 @@ It also supports the Mask \gls{rcnn} algorithm.
 Due to its very good documentation and popularity, many pretrained models are already available.
 Using transfer learning, they can be used as a basis for the training of a new model.
 This allows for a great reduction in training time and increase in accuracy.
-Hence, this library will be used in this thesis.
-
-
-
-\section{Outlook?}
-Due to the available sensor stack, not all mentioned methods can be tested.
-While a Kalman filter achieves very good results, it is generally complex and the precise knowledge of process and measurement noise is necessary~\cite{Higgins1975}
-The gravity method and complementary filter will be tested for the \gls{imu}.
-
-Because no method to detect ramps using a \gls{lidar} could be found, an own method has to be implemented.
-For the plane detection the \gls{ransac} algorithm will be used, since it is already implemented in the PCL library ADD LINK.
-
-For the experiments, a stereo camera is available.
-A slightly adapted version of the algorithm used for the \gls{lidar} will be applied to the point cloud generated by the stereo camera.
-Furthermore, \texttt{Detectron2} is used to detect objects in the stereo image.
-
-\itodo{Either here or directly after subsection}
+Hence, the \texttt{Detectron2} library and the Mask \gls{rcnn} network will be used in this thesis.
