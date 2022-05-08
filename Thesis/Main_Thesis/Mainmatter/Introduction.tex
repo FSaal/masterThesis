@@ -5,10 +5,12 @@
 
 \section{Motivation}
 \iimprov{Just copied this from the expose, needs improvement\\
-	maybe some more sections about the specific topics or about goals}
-Parking is one of the most challenging driving tasks and the cause of almost half of the car accidents \cite{accident}.
+    maybe some more sections about the specific topics or about goals}
+Autonomous driving \dots
+
+Parking is one of the most challenging driving tasks and the cause of almost half of the car accidents~\cite{accident}.
 Current cars are already able to fully automated park on their own in parallel or perpendicular parking spaces.
-But due to the very limited space in cities, parking garages are often used in central areas \cite{Banzhaf2017}.
+But due to the very limited space in cities, parking garages are often used in central areas~\cite{Banzhaf2017}.
 \gls{avp} allows for a fully automated parking experience.
 The car is left in a drop-off zone and finds a parking spot on its own.
 Afterwards the driver can give a command and the car leaves the parking spot again and picks up the driver.
@@ -21,6 +23,15 @@ To solve this problem, a ramp detection has to be implemented.
 
 
 
+\section{Goals}
+The goal of this thesis is the development of a ramp detection system.
+The system should be able to detect the presence of a ramp and the position of the ramp.
+Furthermore, ramp properties such as the slope and the length of the ramp should be estimated.
+Different sensors will be used and compared to each other.
+
+
+
+
 \section{Outline}
 This thesis is structured in the following way.
 In \cref{ch:Background} the theoretical foundations needed for the methods used in this thesis are described.
@@ -30,5 +41,5 @@ Other existing methods and approaches to solve the problem posed in this thesis 
 The different implemented methods are described in \cref{ch:Methods}.
 Different approaches to estimate the road grade using an \gls{imu} are presented in \cref{sec:methods_imu}, one method using a \gls{lidar} in \cref{sec:methods_lidar} and finally using a camera in \cref{sec:methods_camera}.
 The exact type of sensors used for the recording of the data and the environment in which they were taken, is described in \cref{ch:ExperimentalSetup}.
-\cref{ch:Results} contains the results of the different methods.
+\Cref{ch:Results} contains the results of the different methods.
 A summary of the thesis and potential future work is given in \cref{ch:Conclusion}.
