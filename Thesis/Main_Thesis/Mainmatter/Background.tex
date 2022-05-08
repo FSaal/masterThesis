@@ -11,7 +11,7 @@ Lastly, in \cref{sec:ros} the \gls{ros} framework, which allows for the communic
 \subsection{Mathematical Representations of 3D Orientations}
 Different sensors will be used in this thesis and each sensor will make its measurements in its own coordinate frame.
 In order to obtain meaningful results, all frames must be aligned to one common frame.
-The necessary 3D rotations can be expressed in several ways, I will briefly describe the ones used in this thesis.
+The necessary 3D rotations can be expressed in several ways, the ones used in this thesis will be briefly described.
 
 \subsubsection{Rotation Matrix}
 A rotation matrix \mtf{b}{a} $\in \mathbb{R}^{3\times3}$ transforms an arbitrary vector from the coordinate system $\mathcal{B}$ to the coordinate system $\mathcal{A}$.
@@ -129,7 +129,7 @@ The rotation axis is perpendicular to both vectors and can thus be calculated us
 \begin{equation}
     \vb{j} = \frac{\vu{v}_1 \cp \vu{v}_2}{\norm{\vu{v}_1 \cp \vu{v}_2}}.
 \end{equation}
-The angle between two vectors can be calculated by
+The angle between the two vectors can be calculated by
 \begin{equation}
     \cos(\alpha) = \frac{\vu{v}_1 \vdot \vu{v}_2}{\norm{\vu{v}_1} \cdot \norm{\vu{v}_2}}
     = \vu{v}_1 \vdot \vu{v}_2 \implies
@@ -137,7 +137,7 @@ The angle between two vectors can be calculated by
 \end{equation}
 The denominator is equal to 1 (because the norm of a unit vector is 1) and thus omitted.
 Using \cref{eq:quaternion} the rotation can then be expressed as a quaternion.
-
+% \newpage
 
 
 \section{Sensors}
@@ -147,7 +147,7 @@ In this section the functionality and advantages and disadvantages of each senso
 
 \subsection{\glsentryfull{imu}}
 An \gls{imu} is used to track the orientation and position of an object.
-Common uses are in the aerospace or automotive industry, often in combination with other sensors, to give information about the pose and position of a vehicle.
+Common uses are in the aerospace or automotive industry, often in combination with other sensors, to give information about the pose (position and orientation) of a vehicle.
 More recently with the invention of \gls{mems} and specifically \gls{mems}-\glspl{imu} which allow for a very small form factor at a low cost, \glspl{imu} are also used in consumer electronics such as smartphones or fitness tracker.
 An \gls{imu} usually consists of the three following sensors.\par
 The acceleration is measured using an accelerometer and can be used to determine the velocity and the covered distance by integrating the acceleration with respect to time once respectively twice.
@@ -155,16 +155,16 @@ The gyroscope gives information about the change of orientation.
 The third part is the magnetometer, which is able to measure the earth's magnetic field and is used to correct the measurements of the gyroscope.
 It allows for the determination of the absolute heading, whereas the gyroscope can only measure relative change. But because it is very sensitive to other magnetic objects, it is often omitted.
 \glspl{imu} can be typically divided into the two following categories.\par
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.4\linewidth]{stable_platform_imu}
-    \caption[Setup of a stable platform \acrshort{imu}]{Setup of a stable platform \acrshort{imu}~\cite{Woodman2007}.}
-    \label{fig:stable_platform_imu}
-\end{figure}
 In the first type, the stable platform systems, the inertial sensors are mounted in such way, that they are always aligned with the reference frame.
 This is achieved using gimbals, which allow movement along all three axes.
 The gyroscopes on the platform measure the rotation and send them to torque motors, which rotate the gimbals to keep the platform in alignment with the reference frame.
 A typical setup of a stable platform system can be seen in \cref{fig:stable_platform_imu}.
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.52\linewidth]{stable_platform_imu}
+    \caption[Setup of a stable platform \acrshort{imu}]{Setup of a stable platform \acrshort{imu}~\cite{Woodman2007}. The platform always stays in alignment with the reference frame due to the gimbals.}
+    \label{fig:stable_platform_imu}
+\end{figure}
 The advantage of a stable platform systems is that the calculation of orientation and position is straightforward.
 The angles of the gimbals can be measured to receive the orientation and position, the accelerometer measurements have to be corrected for gravity and be integrated two times.
 No coordinate transformation is necessary.
@@ -181,31 +181,19 @@ Other characteristics of \gls{mems} are that they can easily be mass-produced al
 Almost all consumer grade electronics uses \gls{mems}-\glspl{imu} nowadays, but they also find more and more use in many industry segments, as their accuracy continues to improve~\cite{Perlmutter2016}.
 
 \subsubsection{\glsentryshort{mems} Accelerometer}
-\begin{figure}[htb]
-    \centering
-    \begin{subfigure}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{MEMS_Accelerometer}
-        \caption{\acrshort{mems} accelerometer}
-        \label{fig:MEMS_Accelerometer}
-    \end{subfigure}
-    % \hfill
-    \begin{subfigure}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{MEMS_Gyroscope}
-        \caption{\acrshort{mems} gyroscope}
-        \label{fig:MEMS_Gyroscope}
-    \end{subfigure}
-    \caption[Micro structure of a \acrshort{mems} accelerometer and gyroscope]{Micro structure of a \acrshort{mems} accelerometer and gyroscope. \color{red}TODO: Better images (with ref or make own)}
-    \label{fig:MEMS_design}
-\end{figure}
 The accelerometer is used to measure the acceleration.
 Additional to the dynamic acceleration there is the static and constant gravity acceleration on earth, which is measured by the \gls{imu} in upward direction.
 This allows for the determination of one axis of the \gls{imu}, even if it is not moving.
 Often times only the dynamic accelerations are of interest and to get them the acceleration data during stand still must be measured and subtracted.\par
-The microstructure of a \gls{mems} accelerometer is shown in \cref{fig:MEMS_Accelerometer}.
-A mass is suspended by springs along one axis and if an acceleration along this axis occurs, the mass moves in the opposite direction due to Newton's second law.
-The mass has little fingers perpendicular to the axis along which the movement occurs, which affect the capacity between the fixed plates.
+The microstructure of a \gls{mems} accelerometer is shown in \cref{fig:mems_accelerometer}.
+\begin{figure}[htb]
+    \centering
+    \input{Graphics/TikZ/mems_accelerometer.tex}
+    \caption[Microstructure of a \acrshort{mems} accelerometer]{The microstructure of a \acrshort{mems} accelerometer. The proof mass is suspended and moves delayed, in relation to the outer case and fixed capacitors plates, due to its inertia. The acceleration can be calculated from the change in capacity.}
+    \label{fig:mems_accelerometer}
+\end{figure}
+A mass (gray) is suspended by springs along one axis and if an acceleration along this axis occurs, the mass moves in the opposite direction due to Newton's second law.
+The mass has little fingers (pink) perpendicular to the axis along which the movement occurs, which affect the capacity between the fixed plates (green).
 The change of capacity and thus voltage can be measured, from which the acceleration can be calculated.
 To be able to measure the acceleration along all three axis the same setup is used three times, perpendicular to each other.\par
 The accelerations $\hat{\vb{a}}$ measured with a \gls{mems} accelerometer are not free of noise and can be modeled according to~\cite{Lefferts1982} in a simplified way as
@@ -261,7 +249,7 @@ Stochastic errors change at every measurement and can be modeled using a statist
 The turn-on bias is different every time the \gls{imu} is powered up, but can be eliminated after a rest period.
 Errors due to temperature fluctuations influencing the measurements are also common, but because most \glspl{imu} are equipped with a temperature sensor, the introduced error can be eliminated.
 Harder to correct is the introduced error due to thermo-mechanical noise, which is measured as white noise.
-The integration of white noise leads than to a random walk.\par
+The integration of white noise leads to a random walk.
 Angle errors introduced by random walk are usually the hardest to correct and are the reason, why the measurements of the gyroscope can not be trusted over a long period of time~\cite{Woodman2007}.
 
 
@@ -280,18 +268,18 @@ Basically all applications which use \gls{radar} can also be used with a \gls{li
 There are different \gls{lidar} types, but their working principles are similar.
 A transmitter generates a signal and sends it into the environment using a scanning system and a transmission optic.
 As transmitter a laser with a wavelength of \SIrange{850}{950}{\nano\metre} (near-infrared) is typically used.
-The scanning system allows the laser to explore a large area instead of only a single point by steering the light at different azimuths and vertical angles and can be divided in mechanical spinning or solid state systems.
-Mechanical spinning systems is the oldest technology and is still mainly used today.
-A mirror which can be rotated around an axis is used, allowing for a greater vertical \gls{fov}.
-Moreover, the whole \gls{lidar} base on which the laser is mounted can be rotated independently from the mirror, allowing for a \SI{360}{\degree} horizontal \gls{fov}.
-To get a sufficient resolution the \gls{lidar} has to spin at a high speed, but some \glspl{lidar} also use additionally a vertical array of lasers instead of only one, to further increase the density of the generated point cloud.
-The working principle of a \gls{lidar} using the mechanical spinning method is shown in \cref{fig:lidar}.
 \begin{figure}[htb]
     \centering
     \includegraphics[width=0.5\textwidth]{Lidar.png}
     \caption[Setup of a mechanical spinning \acrshort{lidar}]{Setup of a mechanical spinning \acrshort{lidar}~\cite{Li2020}. The laser is reflected off a tilting mirror and is received through a transmission optic by the receiver. A rotation of the base independently of the mirror allows for a \SI{360}{\degree} horizontal \gls{fov}.}
     \label{fig:lidar}
 \end{figure}
+The scanning system allows the laser to explore a large area instead of only a single point by steering the light at different azimuths and vertical angles and can be divided in mechanical spinning or solid state systems.
+Mechanical spinning systems is the oldest technology and is still mainly used today.
+A mirror which can be rotated around an axis is used, allowing for a greater vertical \gls{fov}.
+Moreover, the whole \gls{lidar} base on which the laser is mounted can be rotated independently from the mirror, allowing for a \SI{360}{\degree} horizontal \gls{fov}.
+To get a sufficient resolution the \gls{lidar} has to spin at a high speed, but some \glspl{lidar} also use additionally a vertical array of lasers instead of only one, to further increase the density of the generated point cloud.
+The working principle of a \gls{lidar} using the mechanical spinning method is shown in \cref{fig:lidar}.
 While mechanical spinning systems are very precise and offer a great \gls{fov}, they are bulky, need a lot of power and are expensive~\cite{Fujii2005}.\par
 Solid state systems and especially \gls{mems} \glspl{lidar} try to overcome those problems.
 \gls{mems}-\gls{lidar} are quasi-static, the only part that moves is the on the chip embedded mirror, but because of the small size (\SIrange{1}{7}{\milli\metre} diameter), very little power has to be used to move it.
@@ -306,15 +294,15 @@ A processing unit then generates a 3D point cloud from all the received measurem
 The wheel speed sensors measure the speed of each wheel and allow for the calculation of the car velocity.
 The measurements are also used by many driver assistance systems such as \gls{esp} or \gls{abs} to be able to detect wheel slip.
 Different techniques exist to measure the speed with the most common ones being magnetoelectric and Hall type wheel speed sensors.\par
-\begin{figure}[htb]
-    \centering
-    \includegraphics[width=0.5\linewidth]{wheel_speed_sensor_active.pdf}
-    \caption[Setup of an active wheel speed sensor]{Setup of an active wheel speed sensor~\cite{Re2011}. The sensor head measures the alternating magnetic field. The amplitude of the induced voltage can then be used to determine the wheel speed.}
-    \label{fig:wheel_speed_sensor_active}
-\end{figure}
 The magnetoelectric sensor is composed of a sensor head and a ring gear.
 The head is mounted stationary on the car frame while the ring gear is mounted on the wheel hub or axle and rotates with the wheel.
 The sensor head is composed of a permanent magnet core and a coil.
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.6\linewidth]{wheel_speed_sensor_active.pdf}
+    \caption[Setup of an active wheel speed sensor]{Setup of an active wheel speed sensor~\cite{Re2011}. The sensor head measures the alternating magnetic field. The amplitude of the induced voltage can then be used to determine the wheel speed.}
+    \label{fig:wheel_speed_sensor_active}
+\end{figure}
 When the wheel and thus the ring gear turns the teeth and gaps of the wheel pass by the sensor head and change the magnetic field which induces an alternating voltage in the coil.
 The amplitude and frequency of the induced voltage increases with increasing wheel speed.
 Advantages of the technique are the low cost, robustness and good performance even in the presence of mud etc.
@@ -352,21 +340,26 @@ It can be divided into the three categories semantic segmentation, instance segm
 In semantic segmentation all pixels corresponding to the same class are clustered together and assigned a label.
 Multiple different classes can be detected, but no difference is made between multiple instances of the same class.
 Every pixel is associated with a class.\par
+Instance segmentation goes one step further by also differentiating between different individual objects of the same class.
+It combines objection detection, objection localization and object classification.
+However, it does not classify every pixel anymore, things that are hard to enumerate such as walls and roads are ignored.
+The panoptic segmentation combines both methods.
+A visualization of the different mentioned methods is shown in \cref{fig:object_recognition}.
 \begin{figure}[htb]
     \centering
-    \begin{subfigure}{0.3\textwidth}
+    \begin{subfigure}{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{1_object_detection}
         \caption{Object detection}
         \label{fig:object_detection}
     \end{subfigure}
-    \begin{subfigure}{0.3\textwidth}
+    \begin{subfigure}{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{2_semantic_segmentation}
         \caption{Semantic segmentation}
         \label{fig:semantic_segmentation}
     \end{subfigure}
-    \begin{subfigure}{0.3\textwidth}
+    \begin{subfigure}{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{3_instance_segmentation}
         \caption{Instance segmentation}
@@ -375,11 +368,6 @@ Every pixel is associated with a class.\par
     \caption[Evolution of object recognition]{The evolution of object recognition~\cite{Garcia2017}.}
     \label{fig:object_recognition}
 \end{figure}
-Instance segmentation goes one step further by also differentiating between different individual objects of the same class.
-It combines objection detection, objection localization and object classification.
-However, it does not classify every pixel anymore, things that are hard to enumerate such as walls and roads are ignored.
-The panoptic segmentation combines both methods.
-A visualization of the different mentioned methods is shown in \cref{fig:object_recognition}.
 
 
 
@@ -409,17 +397,17 @@ While a \gls{cnn} provides great improvement, in more complex situations with mu
 That is why in 2014 a deep convolutional network called \gls{rcnn} has been introduced~\cite{Girshick2014}, which can detect up to 80 different types of objects in images.
 \gls{rcnn} is a type of machine learning model designed for computer vision tasks, specifically for object detection.
 It sets bounding boxes across the object regions and then applies convolutional networks independently on all the \glspl{roi}.
-The working principle is shown in \cref{fig:rcnn}.
+The working principle is shown in \cref{fig:rcnn}.\par
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=.75\linewidth]{rcnn.png}
+    \caption[\acrshort{rcnn} framework]{The \acrshort{rcnn} framework~\cite{Girshick2014}. The image is divided into subregions and each subregion is classified as one of the object classes or the background independently.}
+    \label{fig:rcnn}
+\end{figure}
 In the first step the image is divided into approximately 2000 region proposals using the selective search algorithm.
 The selective search algorithm groups similar regions based on their color, texture, size and shape compatibility.
 After extracting a feature vector from each region proposal a pretrained \gls{svm} algorithm is applied to each region and classifies the proposal either to the background or to one of the object classes.
 Disadvantages of \gls{rcnn} are that the training of the network requires a lot of storage, and it is not possible to run \gls{rcnn} in real time.
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=.7\linewidth]{rcnn.png}
-    \caption[\acrshort{rcnn} framework]{The \acrshort{rcnn} framework~\cite{Girshick2014}. The image is divided into subregions and each subregion is classified as one of the object classes or the background independently.}
-    \label{fig:rcnn}
-\end{figure}
 There exist multiple improvement methods with Fast \gls{rcnn}~\cite{Girshick2015} and Faster \gls{rcnn}~\cite{Ren2017}.
 Fast \gls{rcnn} greatly improves the performance by using a new \gls{roi} pooling layer, which allows sharing computations across all proposals instead of doing it for each proposal individually.
 Furthermore, it reduces the necessary storage for training the network while also providing better results.
