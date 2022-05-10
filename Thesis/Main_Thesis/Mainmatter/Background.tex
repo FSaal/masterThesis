@@ -1,5 +1,6 @@
 \chapter{Background}
 \label{ch:Background}
+
 In this chapter the fundamentals to understand the methods used in this thesis are explained.
 The first section gives some mathematical background for different ways to represent orientations.
 In \cref{sec:sensors} the functionality of the different sensors used in this thesis are explained.
@@ -32,7 +33,8 @@ Euler angles are the closest to intuition but mathematically the worst way to re
 Every orientation can be produced by a concatenation of three rotations around each of the coordinate axes.
 Because the resulting orientation depends on the order of which the rotations were performed, there are different conventions.
 Furthermore, the conventions can be divided into intrinsic and extrinsic.
-Intrinsic rotation means that the coordinate system moves with the moving object, whereas with extrinsic rotations the original coordinate system remains static.\par
+Intrinsic rotation means that the coordinate system moves with the moving object, whereas with extrinsic rotations the original coordinate system remains static.
+
 The most common convention is the zyx (intrinsic), which first rotates an angle $\psi$ around the z-axis, followed by a rotation of $\theta$ around the y-axis and finally an angle $\phi$ around the x-axis, see \cref{fig:tikz_euler_angles}.
 \begin{figure}[htpb]
     \centering
@@ -40,8 +42,8 @@ The most common convention is the zyx (intrinsic), which first rotates an angle 
     \caption[zxy Euler convention]{Definition of the zyx Euler convention. The rotation starts with a rotation $\psi$ around the z-axis and ends with a rotation $\phi$ around the x-axis.}
     \label{fig:tikz_euler_angles}
 \end{figure}
+The angles are called yaw (or heading), pitch and roll respectively. Roll and pitch angle together are also often referred to as inclination.
 
-The angles are called yaw (or heading), pitch and roll respectively. Roll and pitch angle together are also often referred to as inclination.\par
 The disadvantages of Euler angles are the many conventions and the possibility of singularity.
 Unlike rotation matrices, Euler angles do not uniquely describe a rotation.
 Singularity, which is also referred to as gimbal lock when occurring in mechanical gyroscopes, occurs when the pitch angle is set to $\theta = \frac{\pi}{2}$.
@@ -118,7 +120,7 @@ A quaternion can be converted to a rotation matrix with
         2(q_x q_z-q_y q_w)   & 2(q_y q_z+ q_x q_w) & 1 - 2 q_x^2- 2 q_y^2
     \end{pmatrix}.
 \end{equation}
-More information about quaternions can be found in~\cite{Kok2017,Trawny2005}.\\
+More information about quaternions can be found in~\cite{Trawny2005, Kok2017}.
 
 \subsection{Vector Projection}
 \label{subsec:vector_projection}
@@ -137,7 +139,7 @@ The angle between the two vectors can be calculated by
 \end{equation}
 The denominator is equal to 1 (because the norm of a unit vector is 1) and thus omitted.
 Using \cref{eq:quaternion} the rotation can then be expressed as a quaternion.
-% \newpage
+
 
 
 \section{Sensors}
@@ -149,12 +151,14 @@ In this section the functionality and advantages and disadvantages of each senso
 An \gls{imu} is used to track the orientation and position of an object.
 Common uses are in the aerospace or automotive industry, often in combination with other sensors, to give information about the pose (position and orientation) of a vehicle.
 More recently with the invention of \gls{mems} and specifically \gls{mems}-\glspl{imu} which allow for a very small form factor at a low cost, \glspl{imu} are also used in consumer electronics such as smartphones or fitness tracker.
-An \gls{imu} usually consists of the three following sensors.\par
+An \gls{imu} usually consists of the three following sensors.
+
 The acceleration is measured using an accelerometer and can be used to determine the velocity and the covered distance by integrating the acceleration with respect to time once respectively twice.
 The gyroscope gives information about the change of orientation.
 The third part is the magnetometer, which is able to measure the earth's magnetic field and is used to correct the measurements of the gyroscope.
 It allows for the determination of the absolute heading, whereas the gyroscope can only measure relative change. But because it is very sensitive to other magnetic objects, it is often omitted.
-\glspl{imu} can be typically divided into the two following categories.\par
+\glspl{imu} can be typically divided into the two following categories.
+
 In the first type, the stable platform systems, the inertial sensors are mounted in such way, that they are always aligned with the reference frame.
 This is achieved using gimbals, which allow movement along all three axes.
 The gyroscopes on the platform measure the rotation and send them to torque motors, which rotate the gimbals to keep the platform in alignment with the reference frame.
@@ -168,14 +172,17 @@ A typical setup of a stable platform system can be seen in \cref{fig:stable_plat
 The advantage of a stable platform systems is that the calculation of orientation and position is straightforward.
 The angles of the gimbals can be measured to receive the orientation and position, the accelerometer measurements have to be corrected for gravity and be integrated two times.
 No coordinate transformation is necessary.
-The disadvantages are that the mechanical structure of the setup is complex, needs regular maintenance, requires a lot of space and has high costs.\par
+The disadvantages are that the mechanical structure of the setup is complex, needs regular maintenance, requires a lot of space and has high costs.
+
 The second type are strap down systems, which are mostly used today.
 As the name suggests all the parts are fixed onto the device and are thus not anymore always aligned with the reference frame.
 Advantages are that due to the lack of gimbals and motors a significantly smaller build is possible while also being cheaper to mass produce.
 A disadvantage is that the calculation of the orientation and position is more complex, the rate gyroscopes have to be integrated to get the orientation and can then be used to transform the accelerometer signals into the reference frame.
-But with the decrease of computational cost this disadvantages continues to diminish.\par
+But with the decrease of computational cost this disadvantages continues to diminish.
+
 There are many types of gyroscopes and accelerometers such as mechanical, optical or solid state, but only the functionality of \gls{mems} will be described, because those will also be used in the experiment.
-Information about the working principle of other systems and also much more information about \glspl{imu} in general can be found in~\cite{Woodman2007}.\par
+Information about the working principle of other systems and also much more information about \glspl{imu} in general can be found in~\cite{Woodman2007}.
+
 \gls{mems} consist of electrical and/or mechanical components in the size of \SI{100}{\nano\metre} to \SI{1}{\milli\metre}, allowing for a very small form factor.
 Other characteristics of \gls{mems} are that they can easily be mass-produced allowing for low cost and usually also need less power than traditional systems, because everything is integrated on the chip~\cite{Shaeffer2013}.
 Almost all consumer grade electronics uses \gls{mems}-\glspl{imu} nowadays, but they also find more and more use in many industry segments, as their accuracy continues to improve~\cite{Perlmutter2016}.
@@ -184,7 +191,8 @@ Almost all consumer grade electronics uses \gls{mems}-\glspl{imu} nowadays, but 
 The accelerometer is used to measure the acceleration.
 Additional to the dynamic acceleration there is the static and constant gravity acceleration on earth, which is measured by the \gls{imu} in upward direction.
 This allows for the determination of one axis of the \gls{imu}, even if it is not moving.
-Often times only the dynamic accelerations are of interest and to get them the acceleration data during stand still must be measured and subtracted.\par
+Often times only the dynamic accelerations are of interest and to get them the acceleration data during stand still must be measured and subtracted.
+
 The microstructure of a \gls{mems} accelerometer is shown in \cref{fig:mems_accelerometer}.
 \begin{figure}[htb]
     \centering
@@ -195,7 +203,8 @@ The microstructure of a \gls{mems} accelerometer is shown in \cref{fig:mems_acce
 A mass (gray) is suspended by springs along one axis and if an acceleration along this axis occurs, the mass moves in the opposite direction due to Newton's second law.
 The mass has little fingers (pink) perpendicular to the axis along which the movement occurs, which affect the capacity between the fixed plates (green).
 The change of capacity and thus voltage can be measured, from which the acceleration can be calculated.
-To be able to measure the acceleration along all three axis the same setup is used three times, perpendicular to each other.\par
+To be able to measure the acceleration along all three axis the same setup is used three times, perpendicular to each other.
+
 The accelerations $\hat{\vb{a}}$ measured with a \gls{mems} accelerometer are not free of noise and can be modeled according to~\cite{Lefferts1982} in a simplified way as
 \begin{equation}
     \hat{\vb{a}} = \vb{a} + \vb{b}_\mathrm{a} + \vb{n}_\mathrm{a}.
@@ -216,7 +225,8 @@ If the mass is oscillating along one axis and a rotation is applied, a second os
 E.g.\ if the mass oscillates along the x-axis and a rotation around the z-axis is applied, a vibration along the y-axis can be observed.
 By measuring the amplitude and phase of the secondary oscillation the absolute value and direction of the angular velocity can be calculated.
 While \gls{mems} gyroscopes do not achieve the same accuracy as optical gyroscopes they offer many advantages such as smaller physical properties (weight and size), lower power consumption and startup time as well as a significantly lower cost.
-\gls{mems} gyroscopes have replaced other gyroscope types in most areas, but in areas where the highest precision possible is necessary, typically in military industry, optical gyroscopes are still used today~\cite{Perlmutter2016}.\par
+\gls{mems} gyroscopes have replaced other gyroscope types in most areas, but in areas where the highest precision possible is necessary, typically in military industry, optical gyroscopes are still used today~\cite{Perlmutter2016}.
+
 Similar to the accelerometer, the measurements $\hat{\boldsymbol{\omega}}$ of the \gls{mems} gyroscope are influenced by errors, which can be modeled according to~\cite{Lefferts1982} as
 \begin{equation}
     \hat{\boldsymbol{\omega}} = \boldsymbol{\omega} + \vb{b}_\mathrm{g} + \vb{n}_\mathrm{g}.
@@ -228,10 +238,12 @@ A magnetometer measures the local magnetic field.
 Most sensors work using the Hall effect.
 A current is set to flow through a conductive plate.
 Without the presence of a magnetic field the electrons flow in a straight line, but if a magnetic field is introduced the electrons do get deflected to one side.
-The voltage between the two sides can then be measured, from which the strength and direction of the magnetic field can be determined.\par
+The voltage between the two sides can then be measured, from which the strength and direction of the magnetic field can be determined.
+
 Without any magnetic disturbances, the magnetometer measures a constant local magnetic field vector.
 The vector points to magnetic North and can thus be used to determine the heading.
-Because the magnitude of the earth's magnetic field is very low (\SIrange{25}{65}{\micro\tesla}), the magnetometer readings can easily be influenced by other objects~\cite{Kok2016}.\par
+Because the magnitude of the earth's magnetic field is very low (\SIrange{25}{65}{\micro\tesla}), the magnetometer readings can easily be influenced by other objects~\cite{Kok2016}.
+
 The distortions can be divided into two categories: hard or soft iron.
 Hard iron distortions are created by objects which actively produce a magnetic field, causing a permanent bias.
 Soft iron disturbances are due to deflections or altercations of an existing magnetic field.
@@ -240,11 +252,13 @@ Every time the sensor is placed in a (magnetically) new environment, a recalibra
 
 \subsubsection{Typical \glsentryshort{mems} Errors}
 \label{sse:mems_errors}
-The errors can be divided into two categories: systematic and stochastic errors~\cite{Zhang2019}.\par
+The errors can be divided into two categories: systematic and stochastic errors~\cite{Zhang2019}.
+
 Systematic errors or also known as calibration errors are constant over time and can be eliminated by calibration.
 Typical examples are bias (offset), scaling or axis misalignment.
 Integrating a constant bias once or twice leads to a drift (error grows linearly with respect to time) or a second-order drift (error grows quadratically) respectively.
-Hence, the elimination of the bias is necessary to get reliable estimations of the orientation, velocity or position, which are calculated by integrating the angular velocity or the accelerometer measurements.\par
+Hence, the elimination of the bias is necessary to get reliable estimations of the orientation, velocity or position, which are calculated by integrating the angular velocity or the accelerometer measurements.
+
 Stochastic errors change at every measurement and can be modeled using a statistical approach.
 The turn-on bias is different every time the \gls{imu} is powered up, but can be eliminated after a rest period.
 Errors due to temperature fluctuations influencing the measurements are also common, but because most \glspl{imu} are equipped with a temperature sensor, the introduced error can be eliminated.
@@ -256,7 +270,7 @@ Angle errors introduced by random walk are usually the hardest to correct and ar
 \subsection{\glsentryfull{lidar}}
 \label{ssec:lidar}
 \gls{lidar} is a method to measure distance to objects.
-Similar to other systems such as \gls{sonar} or \gls{radar}, \gls{lidar} uses the time-of-flight principle.
+Similar to other systems such as \gls{sonar} or \gls{radar}, \gls{lidar} uses the \gls{tof} principle.
 A short laser pulse with the velocity of light $c$ is sent into the environment and the reflected light is analyzed.
 The duration $\Delta t$ it took from sending to receiving can then be used to calculate the distance $s$ between the \gls{lidar} and the object that the light hit with
 \begin{equation}
@@ -264,7 +278,8 @@ The duration $\Delta t$ it took from sending to receiving can then be used to ca
 \end{equation}
 The change of intensity and wavelength of the returning light are measured as well and can provide information about the reflectivity of the object (intensity) or the chemical composition of the air (wavelength).
 Common uses of \gls{lidar} are the analysis of earth's atmosphere, 3D mapping of environments or in the field of autonomous driving for object detection, tracking and \gls{slam}.
-Basically all applications which use \gls{radar} can also be used with a \gls{lidar} instead, allowing for a greater accuracy.\par
+Basically all applications which use \gls{radar} can also be used with a \gls{lidar} instead, allowing for a greater accuracy.
+
 There are different \gls{lidar} types, but their working principles are similar.
 A transmitter generates a signal and sends it into the environment using a scanning system and a transmission optic.
 As transmitter a laser with a wavelength of \SIrange{850}{950}{\nano\metre} (near-infrared) is typically used.
@@ -280,12 +295,14 @@ A mirror which can be rotated around an axis is used, allowing for a greater ver
 Moreover, the whole \gls{lidar} base on which the laser is mounted can be rotated independently from the mirror, allowing for a \SI{360}{\degree} horizontal \gls{fov}.
 To get a sufficient resolution the \gls{lidar} has to spin at a high speed, but some \glspl{lidar} also use additionally a vertical array of lasers instead of only one, to further increase the density of the generated point cloud.
 The working principle of a \gls{lidar} using the mechanical spinning method is shown in \cref{fig:lidar}.
-While mechanical spinning systems are very precise and offer a great \gls{fov}, they are bulky, need a lot of power and are expensive~\cite{Fujii2005}.\par
+While mechanical spinning systems are very precise and offer a great \gls{fov}, they are bulky, need a lot of power and are expensive~\cite{Fujii2005}.
+
 Solid state systems and especially \gls{mems} \glspl{lidar} try to overcome those problems.
 \gls{mems}-\gls{lidar} are quasi-static, the only part that moves is the on the chip embedded mirror, but because of the small size (\SIrange{1}{7}{\milli\metre} diameter), very little power has to be used to move it.
 The mirror can be rotated on up to two axes, but because the base cannot be rotated as with mechanical systems, a horizontal view of \SI{360}{\degree} is not possible.
 Though by using multiple lasers with different incident angles the \gls{fov} can be increased.
-Advantages of \gls{mems}-\glspl{lidar} compared to mechanical systems are the smaller form factor and lower cost~\cite{Wang2020}.\par
+Advantages of \gls{mems}-\glspl{lidar} compared to mechanical systems are the smaller form factor and lower cost~\cite{Wang2020}.
+
 After transmitting the laser signal the reflected light passes through the receiving optic and is received by photodetectors.
 A processing unit then generates a 3D point cloud from all the received measurements.
 
@@ -293,7 +310,8 @@ A processing unit then generates a 3D point cloud from all the received measurem
 \subsection{Wheel Speed Sensor}
 The wheel speed sensors measure the speed of each wheel and allow for the calculation of the car velocity.
 The measurements are also used by many driver assistance systems such as \gls{esp} or \gls{abs} to be able to detect wheel slip.
-Different techniques exist to measure the speed with the most common ones being magnetoelectric and Hall type wheel speed sensors.\par
+Different techniques exist to measure the speed with the most common ones being magnetoelectric and Hall type wheel speed sensors.
+
 The magnetoelectric sensor is composed of a sensor head and a ring gear.
 The head is mounted stationary on the car frame while the ring gear is mounted on the wheel hub or axle and rotates with the wheel.
 The sensor head is composed of a permanent magnet core and a coil.
@@ -306,7 +324,8 @@ The sensor head is composed of a permanent magnet core and a coil.
 When the wheel and thus the ring gear turns the teeth and gaps of the wheel pass by the sensor head and change the magnetic field which induces an alternating voltage in the coil.
 The amplitude and frequency of the induced voltage increases with increasing wheel speed.
 Advantages of the technique are the low cost, robustness and good performance even in the presence of mud etc.
-A disadvantage is the frequency dependency, very low speeds can not be measured due to the induced voltage being too small, while at very high speeds the changes can not be picked anymore up by the head~\cite{AutoReif2014}.\par
+A disadvantage is the frequency dependency, very low speeds can not be measured due to the induced voltage being too small, while at very high speeds the changes can not be picked anymore up by the head~\cite{AutoReif2014}.
+
 Nowadays, almost exclusively the hall wheel speed sensor is used.
 The functionality is similar to that of the magnetoelectric sensor, but instead of a ring gear, a ring, on which alternating north and south magnets are placed, is used.
 The hall element in the sensor head measures the alternating magnetic field.
@@ -327,7 +346,7 @@ Most of the following information is from ref.~\cite{Szeliski2022}, which gives 
 
 \subsection{Object Detection}
 Object detection is a common task in the field of computer vision and is used to detect, localize and classify objects in images or videos.
-In contrast to image classification, which only assigns a label to an image, objection detection allows for the detection of multiple objects by drawing a bounding box around each individual object.\par
+In contrast to image classification, which only assigns a label to an image, objection detection allows for the detection of multiple objects by drawing a bounding box around each individual object.
 Object detection can be divided into machine learning-based methods and deep learning-based methods.
 In the traditional machine learning-based methods, features from the image must be chosen manually.
 This process is very time-consuming and tedious, that is why nowadays almost exclusively deep learning-based approaches based on \gls{cnn} are used.
@@ -336,13 +355,16 @@ Here, the features are extracted automatically.
 
 \subsection{Image Segmentation}
 Image segmentation partitions an image into multiple segments or objects.
-It can be divided into the three categories semantic segmentation, instance segmentation or panoptic segmentation~\cite{Minaee2021}.\par
+It can be divided into the three categories semantic segmentation, instance segmentation or panoptic segmentation~\cite{Minaee2021}.
+
 In semantic segmentation all pixels corresponding to the same class are clustered together and assigned a label.
 Multiple different classes can be detected, but no difference is made between multiple instances of the same class.
-Every pixel is associated with a class.\par
+Every pixel is associated with a class.
+
 Instance segmentation goes one step further by also differentiating between different individual objects of the same class.
 It combines objection detection, objection localization and object classification.
 However, it does not classify every pixel anymore, things that are hard to enumerate such as walls and roads are ignored.
+
 The panoptic segmentation combines both methods.
 A visualization of the different mentioned methods is shown in \cref{fig:object_recognition}.
 \begin{figure}[htb]
@@ -368,7 +390,6 @@ A visualization of the different mentioned methods is shown in \cref{fig:object_
     \caption[Evolution of object recognition]{The evolution of object recognition~\cite{Garcia2017}.}
     \label{fig:object_recognition}
 \end{figure}
-
 
 
 \subsection{Neural Networks}
@@ -397,7 +418,8 @@ While a \gls{cnn} provides great improvement, in more complex situations with mu
 That is why in 2014 a deep convolutional network called \gls{rcnn} has been introduced~\cite{Girshick2014}, which can detect up to 80 different types of objects in images.
 \gls{rcnn} is a type of machine learning model designed for computer vision tasks, specifically for object detection.
 It sets bounding boxes across the object regions and then applies convolutional networks independently on all the \glspl{roi}.
-The working principle is shown in \cref{fig:rcnn}.\par
+The working principle is shown in \cref{fig:rcnn}.
+
 \begin{figure}[htb]
     \centering
     \includegraphics[width=.75\linewidth]{rcnn.png}
@@ -414,7 +436,8 @@ Furthermore, it reduces the necessary storage for training the network while als
 Faster \gls{rcnn} improves the performance even further.
 It uses a \gls{rpn} instead of the selective search algorithm to generate region proposals.
 Advantages of \gls{rpn} over the selective search algorithm are that the network can be specifically trained and customized for the detection task.
-And by using the same convolutional layers for the \gls{rpn} and the Fast \gls{rcnn} detection network, the region proposal does not take any extra time.\par
+And by using the same convolutional layers for the \gls{rpn} and the Fast \gls{rcnn} detection network, the region proposal does not take any extra time.
+
 Mask \gls{rcnn}~\cite{He2017} is an extension of Faster \gls{rcnn} and is a form of instance segmentation, which combines objection detection and semantic segmentation.
 It adds a third branch to the Faster \gls{rcnn}, by also returning an object mask in addition to the bounding box and class label.
 The process can be seen in \cref{fig:mask_rcnn}.
@@ -442,7 +465,8 @@ The communication between nodes is done using messages.
 There are different type of messages, but they all consist of standard types such as integer, float or bool, but can also contain other messages.
 The messages are published on a specific topic.
 The topic can then be subscribed by other nodes, to retrieve the messages.
-Services allow for a synchronized communication, instead of the broadcast type topics.\par
+Services allow for a synchronized communication, instead of the broadcast type topics.
+
 A typical communication setup between two nodes can be seen in \cref{fig:ros_framework}.
 Node 1 publishes data, e.g. the position of a robot, on a topic.
 Node 2 listens to the published data and can then process it.
