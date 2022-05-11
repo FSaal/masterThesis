@@ -38,7 +38,7 @@ It is based on 3D graph \gls{slam} and uses the \gls{lidar} data to map the envi
 It uses \gls{ndt} scan matching-based odometry estimation with loop detection.
 The point cloud of common features at time $t$ is compared to the point cloud from the time $t-1$ and matched against each other.
 The algorithm then estimates the translation and orientation difference between those two point clouds.
-In ref.~\cite{Akpnar2021} the accuracy of the HDL Graph \gls{slam} was tested and a mean error of \SI{4}{\cm} and a standard deviation of \SI{5}{\cm} was measured for an indoor scenario.\par
+In \cite{Akpnar2021} the accuracy of the HDL Graph \gls{slam} was tested and a mean error of \SI{4}{\cm} and a standard deviation of \SI{5}{\cm} was measured for an indoor scenario.\par
 From the pose information of the HDL Graph \gls{slam} the pitch angle of the car can be calculated and be used as a reference for the road grade, to evaluate the performance of the different \gls{imu}-based methods.
 Because the \gls{lidar} only records at \SI{10}{\hertz} and thus the estimation of the HDL Graph \gls{slam} also only updates at a rate of \SI{10}{\hertz}, but the other sensors record from \SIrange{100}{400}{\hertz}, the estimate was upsampled using a Fourier method.
 Beside estimating the road grade, the \gls{imu} is used to estimate the angle and length of the ramp.
@@ -501,11 +501,9 @@ This makes the precise tracking of the distance to the ramp difficult.
 The camera was used to detect the ramp and mask the corresponding region in the image.
 As described in \cref{sec:performance_measures}, the \gls{map} score is used to evaluate the performance of the neural network.
 Since transfer learning is used and the dataset is fairly small, different hyperparameters could be tested.
-At first, the different hyperparameters were varied independently of each other to get a rough idea of their influence on the performance.
-After this initial test, the best hyperparameters ranges were tested in combination with each other.
-In \cref{tab:detection_eval} the \gls{map} scores for different hyperparameters are listed.
+As described in \cref{ssec:training}, grid search was used to find the best hyperparameters.
+In \cref{tab:detection_eval} the \gls{map} scores for different hyperparameter combinations are listed.
 LR is the learning rate and SR is the sample rate and determines the number of \gls{roi} proposals, as described in \cref{ssec:training}.\par
-\itodo{Either here or in methods: Say that grid search was used}
 \begin{table}[htb]
     \centering
     \caption[Detection evaluation]{Testing of different training hyperparameters and their influence on the \acrshort{ap} score.}
@@ -528,7 +526,7 @@ LR is the learning rate and SR is the sample rate and determines the number of \
         \bottomrule
     \end{tabular}
 \end{table}
-Since the configuration using a learning rate of 0.001, sample rate of 512 and 3 epochs achieved the best results, all the following images and calculations were generated using this configuration.
+Since the configuration with a learning rate of 0.001, sample rate of 512 and 3 epochs achieved the best results, all the following images and calculations were generated using this configuration.
 A visualization of the prediction for some example frames when driving straight and from an angle at a ramp can be seen in \cref{fig:camera_prediction_straight} and \cref{fig:camera_prediction_angled} respectively.
 In all those cases the detection of the ramp was successful and seems to be fairly accurate.
 The annotation inside the image describes how confident the network is about the detection.
