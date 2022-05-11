@@ -696,12 +696,13 @@ It describes how often the network is trained on the entire dataset, a higher nu
 Because the dataset is small, has only one class and contains similar images, the number of epochs can be chosen fairly small.
 
 For the hyperparameter optimization a grid search is performed.
-\itodo{Explain a bit more what grid search is.}
+Grid search is an exhaustive search method, which tests combinations of different hyperparameters.
 At first, the influence of the different parameters on the score is tested by randomly testing some values.
 Also, the rough lower and upper bounds of each parameter, after which the performance decreases, are determined.
 During this process it was also found out, that a decay of the learning rate does not significantly affect the score, due to the low number of epochs, and therefore the learning rate will not be varied in the grid search.
 After this the grid search is performed.
-The tested values and the resulting scores will be presented in \cref{sec:eval_camera}
+The lower and upper bound of each parameter together with the number of steps are specified for each parameter and then all the combinations of the parameters are tested.
+The tested combinations and the resulting scores will be presented in \cref{sec:eval_camera}
 
 
 \subsection{Point Cloud Extraction}
