@@ -43,7 +43,7 @@
 \pagestyle{fancy}				% Activate fancy style
 \setlength{\headheight}{15pt}	% To prevent warning
 \setlength\parindent{0pt}		% No indentation when starting new paragraph
-\setcounter{secnumdepth}{4}     % Level to which (sub)sections are numbered
+\setcounter{secnumdepth}{3}     % Level to which (sub)sections are numbered
 \setcounter{tocdepth}{3}        % Level to which (sub)sections are displayed in toc
 % \fancyhead[<position specifiers>]{<text>} and same for fancyfoot
 % pos specifier: left (L), right (R), centre (C), odd (O), even (E) pages
@@ -70,14 +70,15 @@
 	\else Cited on pages #2%
 	\fi%
 ]}}
+% Change color of glossar hyperlinks
 \renewcommand*{\glstextformat}[1]{\textcolor{black}{#1}}
 % Change hyperlink colors
 \definecolor{winered}{rgb}{0,0,128}
 \hypersetup{
-  colorlinks   = true, %Colours links instead of ugly boxes
-  urlcolor     = blue, %Colour for external hyperlinks
-  linkcolor    = RoyalPurple, %Colour of internal links
-  citecolor   = OliveGreen %Colour of citations
+  colorlinks   = true,          % Colours links instead of ugly boxes
+  urlcolor     = blue,          % Colour for external hyperlinks
+  linkcolor    = RoyalPurple,   % Colour of internal links
+  citecolor   = OliveGreen      % Colour of citations
 }
 
 % My own commands
@@ -140,5 +141,5 @@
 % References
 \bibliographystyle{ieeetr}
 \bibliography{References/library.bib}
-\input{Endmatter/Appendix}
+% \input{Endmatter/Appendix}
 \end{document}
