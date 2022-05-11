@@ -1,7 +1,7 @@
 %\pagestyle{fancy}
 \chapter{State of the Art}
 \label{ch:StateOfTheArt}
-% Do not write long version of imu or lidar acronym again
+% Do not write long version of some acronyms again
 \glslocalunset{imu}
 \glslocalunset{lidar}
 \glslocalunset{radar}
@@ -11,14 +11,15 @@ Since a ramp is the connection between two different levels, it must have a meas
 Different methods to estimate the road grade are described in the first section.
 In the second section different approaches to detect objects or shapes in a 3D point cloud or a 2D image will be described.
 
+
 \section{Road Grade Measurement}
-In ref.~\cite{Jauch2018} different methods to estimate the road grade angle are discussed.
+In \cite{Jauch2018} different methods to estimate the road grade angle are discussed.
 There exist methods without Inertial Sensors relying on a model describing the longitudinal movement of the vehicle and the topology of the road.
 Both models are fused using a Kalman filter to improve the accuracy of the estimation~\cite{Sahlholm2007}.
-A Kalman filter is also used in ref.~\cite{Sahlholm2010}, where vehicle sensor data and \gls{gps} data are fused.
+A Kalman filter is also used in \cite{Sahlholm2010}, where vehicle sensor data and \gls{gps} data are fused.
 Besides the road grade, the vehicle mass is often also unknown and estimated as well, using common sensors of heavy-duty vehicles~\cite{Sahlholm2010, Maleej2014}.
-More methods such as recursive least squares, extended Kalman filtering and a dynamic grade observer are discussed in ref.~\cite{Kidambi2014}
-Another method using \gls{gps} data and \glspl{imu} to calculate the vertical and horizontal velocity change respectively and thereby the road grade is proposed in ref.~\cite{Ryu2004}.
+More methods such as recursive least squares, extended Kalman filtering and a dynamic grade observer are discussed in \cite{Kidambi2014}
+Another method using \gls{gps} data and \glspl{imu} to calculate the vertical and horizontal velocity change respectively and thereby the road grade is proposed in \cite{Ryu2004}.
 \cite{YazdaniBoroujeni2014} omits the \gls{imu} and relies on a \gls{gps} sensor and a barometer.
 
 \gls{gps} satellites broadcast information about their position and exact time to a \gls{gps} receiver, which than can calculate its position using triangulation~\cite{Mainetti2014}.
@@ -27,10 +28,10 @@ The radio waves sent from the satellites are scattered, attenuated or blocked co
 Most of the previously described methods are not suitable for the road grade estimation in indoor requirement, due to the reliance on \gls{gps}.
 Furthermore, many internal measurements such as the engine torque, brake system usage, selected gear etc. can not easily be accessed and thus might not be available.
 
-A method which does not rely on \gls{gps}, but only on accelerometers and wheel odometers instead is described in ref.~\cite{Nilsson2012} and~\cite{Palella2016}.
+A method which does not rely on \gls{gps}, but only on accelerometers and wheel odometers instead is described in \cite{Nilsson2012} and~\cite{Palella2016}.
 The vehicle acceleration, calculated by deriving the wheel speed measurements in respect to time, is subtracted from the accelerometer signal in longitudinal direction.
 The remaining part is then the gravitational acceleration, which is zero if driving on flat ground, but non-zero if driving on an elevated road, and can be used to calculate the road grade angle.
-A similar approach is used in ref.~\cite{Sentouh2008}.
+A similar approach is used in \cite{Sentouh2008}.
 \cite{He2020} adds a gyroscope to the accelerometer and fuses their estimations using a quaternion unscented Kalman filter.
 The gyroscope measurements get integrated over time to receive the pitch angle.
 The angle from the angular velocity is accurate in short-term, but is suspect to drifting over time.
@@ -64,7 +65,7 @@ There are also more sophisticated approaches, based on deep learning~\cite{Qi201
 
 Segmentation on the other hand is typically used to classify the point cloud into different geometric shapes, e.g. the ground or a wall in the case of autonomous driving.
 Several techniques to detect planes in a point cloud exist.
-As described in ref.~\cite{Nguyen2013} the methods to segment 3D point clouds can be divided into five categories: edge based methods, region based methods, attributes based methods, model based methods and graph based methods.
+As described in \cite{Nguyen2013} the methods to segment 3D point clouds can be divided into five categories: edge based methods, region based methods, attributes based methods, model based methods and graph based methods.
 Edge based methods segment objects by their shape, by identifying points with a rapid change in intensity~\cite{Sappa2001}. While they allow for fast segmentation, their accuracy is very limited due to their sensitivity to noise and uneven populated point clouds.
 The region growing algorithms start from certain seed points and add neighboring points to the region if they share a similar model.
 Different patches can then be merged together, if they are consistent with each other.
@@ -92,24 +93,24 @@ Due to the simplicity of the object of interest, the \gls{ransac} algorithm will
 Since it only detects planes in the point cloud, a method to robustly identify ramps in the point cloud and estimate the ramp properties must be implemented.
 \bigbreak
 Cameras can also be used to generate a point cloud, on which the same methods as described above can be applied.
-The point clouds can be generated in different ways, some of the most common technologies are stereo-cameras and \gls{tof} cameras.
-Stereo-cameras consist of two slightly shifted cameras.
+The point clouds can be generated in different ways, some of the most common technologies are stereo cameras and \gls{tof} cameras.
+Stereo cameras consist of two slightly shifted cameras.
 The difference between the two images is used to generate a disparity map.
 If the baseline (the distance between the two cameras), the focal length and the image size are known, the depth can be calculated from the disparity map.
 A common problem is the finding of the differences between the two images, since it requires a well light environment and does not work well when the scene has very few textures.
 Furthermore, they tend to only work in a short range.
 
 Those problems are not present when using \gls{tof} cameras.
-They are active sensors, unlike stereo-cameras, and work similarly as a \gls{lidar}, by sending out light and measuring the time it takes to reflect back.
+They are active sensors, unlike stereo cameras, and work similarly as a \gls{lidar}, by sending out light and measuring the time it takes to reflect back.
 But they are scannerless, which means that they capture the entire scene with a single light pulse.
 Since they are active sensors, they can also be used in low light conditions and do not depend on well textured scene.
 But they are not as accurate as \gls{lidar} sensors.
 
 There is also some research done on detecting ramps specifically in a point cloud.
-Ref.~\cite{Sakenas2007} introduces a new algorithm, to extract planar maps from 3D data.
+\cite{Sakenas2007} introduces a new algorithm, to extract planar maps from 3D data.
 The point cloud is divided into 3D cells and a histogram over the z-axis is created.
 Ramps can then be detected by searching for neighboring cells, where the height increases gradually.
-Ref.~\cite{Nejati2016} used an RGB-D sensor (camera image + depth sensor) to detect ramps for wheelchairs.
+\cite{Nejati2016} used an RGB-D sensor (camera image + depth sensor) to detect ramps for wheelchairs.
 Ramp properties such as angle, width, length and the orientation of the ramp are determined as well.
 
 While the image from a monocular camera does not provide any 3D information, it can also be used to detect and localize objects.
