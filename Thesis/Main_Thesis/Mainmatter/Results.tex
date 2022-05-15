@@ -41,7 +41,7 @@ The algorithm then estimates the translation and orientation difference between 
 In \cite{Akpnar2021} the accuracy of the HDL Graph \gls{slam} was tested and a mean error of \SI{4}{\cm} and a standard deviation of \SI{5}{\cm} was measured for an indoor scenario.\par
 From the pose information of the HDL Graph \gls{slam} the pitch angle of the car can be calculated and be used as a reference for the road grade, to evaluate the performance of the different \gls{imu}-based methods.
 Because the \gls{lidar} only records at \SI{10}{\hertz} and thus the estimation of the HDL Graph \gls{slam} also only updates at a rate of \SI{10}{\hertz}, but the other sensors record from \SIrange{100}{400}{\hertz}, the estimate was upsampled using a Fourier method.
-Beside estimating the road grade, the \gls{imu} is used to estimate the angle and length of the ramp.
+Besides estimating the road grade, the \gls{imu} is used to estimate the angle and length of the ramp.
 The reference value for the length can be extracted from the generated point cloud map, by measuring the distance between the corresponding points.
 Because the ramp angle is not constant, the average angle of the ramp is used as reference.
 The average angle \gls{ramp_ang} is calculated by measuring the length and height of the ramp and using the law of sines
@@ -139,7 +139,7 @@ The result of using only the raw measurements of the \gls{imu} for the pitch ang
 \begin{figure}[htb]
     \centering
     \includegraphics[width=.9\linewidth]{imu_raw_angle.pdf}
-    \caption[Angle estimation using raw measurements]{Pitch angle estimation from the raw accelerometer and gyroscope measurements. The drive did start from stand still and did end in the middle of the ramp.}
+    \caption[\glsentryshort{imu} angle estimation using raw measurements]{Pitch angle estimation from the raw accelerometer and gyroscope measurements. The drive did start from stand still and did end in the middle of the ramp.}
     \label{fig:imu_raw_angle}
 \end{figure}
 The measurement by the accelerometer is very noisy and is easily influenced by accelerations other than gravity, which can be seen at time \SIrange{2}{4}{\second}, where the car started driving.
@@ -153,7 +153,7 @@ The car's acceleration $\vb{a}_\mathrm{odom,x} $ was calculated by calculating t
 \begin{figure}[htb]
     \centering
     \includegraphics[width=.9\linewidth]{imu_odometer_acc.pdf}
-    \caption[Measured acceleration from \glsentryshort{imu} and odometer]{The measured acceleration in x-direction by the \glsentryshort{imu} and the acceleration derived from the wheel speed measurements and the difference between both.}
+    \caption[\glsentryshort{imu} and wheel speed sensors measured acceleration]{The measured acceleration in x-direction by the \glsentryshort{imu} and the acceleration derived from the wheel speed measurements and the difference between both.}
     \label{fig:imu_odometer_acc}
 \end{figure}
 And $\vb{a}_\mathrm{grav,x} $ is the acceleration measured by the \gls{imu} from which the car acceleration $\vb{a}_\mathrm{odom,x} $ was subtracted.
@@ -168,7 +168,7 @@ The resulting angles calculated from the accelerations can be seen in \cref{fig:
 \begin{figure}[htb]
     \centering
     \includegraphics[width=.9\linewidth]{imu_odometer_angle.pdf}
-    \caption[Angle estimation using the gravity method]{Pitch angle estimation using only the accelerometer compared to the gravity method, which additionally uses the wheel speed measurements.}
+    \caption[\glsentryshort{imu} angle estimation using the gravity method]{Pitch angle estimation using only the accelerometer compared to the gravity method, which additionally uses the wheel speed measurements.}
     \label{fig:imu_odometer_angle}
 \end{figure}
 It can be seen that the gravity method improves the estimation accuracy, compared to when only the accelerometer data is used.
@@ -181,7 +181,7 @@ Those are the results of a new drive, where the car was driven the ramp D and af
 \begin{figure}[htb]
     \centering
     \includegraphics[width=.9\linewidth]{imu_all_angles.pdf}
-    \caption[Angle estimation comparison of all methods]{Comparison of different methods to estimate the pitch angle. Two different ramps were driven down successively.}
+    \caption[\glsentryshort{imu} angle estimation comparison of all methods]{Comparison of different methods to estimate the pitch angle. Two different ramps were driven down successively.}
     \label{fig:imu_all_angles}
 \end{figure}
 The complementary filter uses the estimation of the gyroscope measurements and corrects them using the accelerometer measurements to prevent drift.
@@ -202,7 +202,7 @@ The acceleration method performs well, but is negatively influenced by the accel
 The best results are achieved using the complementary filter.
 \begin{table}[htb]
     \centering
-    \caption[Road grade estimation for uphill drives]{Road grade estimation when driving ramps up, using different methods.}
+    \caption[\glsentryshort{imu} road grade estimation for uphill drives]{Road grade estimation when driving ramps up.}
     \label{tab:eval_imu_up}
     \resizebox{\textwidth}{!}{
         \begin{tabular}{lcccccc}
@@ -230,7 +230,7 @@ All methods perform significantly worse in the second part of the drive (ramp A)
 But when looking at the graph in \cref{fig:imu_all_angles} it can be seen, that the gravity method and especially the complementary filter closely follows the reference data.
 \begin{table}[htb]
     \centering
-    \caption[Road grade estimation for downhill drives]{Road grade estimation when driving ramps down, using different methods.}
+    \caption[\glsentryshort{imu} road grade estimation for downhill drives]{Road grade estimation when driving ramps down.}
     \label{tab:eval_imu_down}
     \resizebox{\textwidth}{!}{
         \begin{tabular}{lcccccc}
@@ -257,7 +257,7 @@ Because ramp A and B could only be driven half-way up, it could be possible that
 Overall it can be seen that the complementary filter and the acceleration method perform the best.\par
 \begin{table}[htb]
     \centering
-    \caption{Estimation of ramp angle.}
+    \caption[\glsentryshort{imu} ramp angle estimation]{Estimation of the average ramp angle.}
     \label{tab:eval_imu_angle}
     \resizebox{\textwidth}{!}{
         \begin{tabular}{lcccccc}
@@ -289,7 +289,7 @@ In \cref{fig:imu_distance_velocity} different methods to estimate the velocity o
         \caption[Car velocity estimation]{Estimated car velocity calculated from the wheel speed measurements and different methods using the accelerometer data.}
         \label{fig:imu_distance_velocity}
     \end{subfigure}
-    
+
     % \bigskip
     \begin{subfigure}{1\textwidth}
         \centering
@@ -322,7 +322,7 @@ The actual length of the ramp is calculated by subtracting the position of the c
 The calculated length for the different methods and the corresponding error are shown in \cref{tab:ramp_length}.
 \begin{table}[htb]
     \centering
-    \caption[Ramp length estimation]{The estimation of the ramp length using different methods.}
+    \caption[\glsentryshort{imu} ramp length estimation]{Estimation of the ramp length.}
     \label{tab:ramp_length}
     \begin{tabular}{lSS}
         \toprule
@@ -353,14 +353,14 @@ A comparison of the resolution of the two \glspl{lidar} can be seen in \cref{fig
         \caption{Velodyne}
         \label{fig:lidar_resolution_velodyne_eval}
     \end{subfigure}
-    
+
     \begin{subfigure}{1\textwidth}
         \centering
         \includegraphics[width=.9\linewidth]{lidar_resolution_robos_eval.pdf}
         \caption{Robosense}
         \label{fig:lidar_resolution_robos_eval}
     \end{subfigure}
-    \caption[Resolution comparison of the two \glsentryplural{lidar}]{Resolution comparison of the two \glsentryplural{lidar}. The ramp region is framed in black.}
+    \caption[Resolution comparison of the two \glsentryshortpl{lidar}]{Resolution comparison of the two \acrshortpl{lidar}. The ramp region is framed in black.}
     \label{fig:lidar_resolution_eval}
 \end{figure}
 Here, a top-down view on the ramp of the points measured by the \gls{lidar} at a distance of \SI{7}{\metre} to the ramp is shown.
@@ -382,12 +382,12 @@ It can also be observed, that the deviation of the width estimation is significa
 This can be explained by the working principle of the \gls{lidar}, which sends out laser points in horizontal lines, as depicted in \cref{fig:lidar_resolution_eval}.
 The horizontal resolution is thus greater than the vertical resolution.
 Furthermore, it must be noted that all calculations are done one the downsampled point cloud, which reduced the resolution to \SI{10}{\cm}.\par
-Beside the three ramps, data consisting of 252 frames were recorded of an environment where no ramp was visible.
+Besides the three ramps, data consisting of 252 frames were recorded of an environment where no ramp was visible.
 One frame was wrongly labeled as a ramp (\gls{fp}), which results together with the other recordings in a precision score of \SI{99.97}{\percent} and recall score of \SI{96.54}{\percent}.\par
 \renewcommand{\arraystretch}{1}
 \begin{table}[htb]
     \centering
-    \caption[\glsentryshort{lidar} ramp detection evaluation]{Ramp detection and property estimation evaluation of the \glsentryshort{lidar} algorithm. The precision increases the closer the car gets to the ramp.}
+    \caption[\glsentryshort{lidar} ramp detection evaluation]{Evaluation of the ramp detection and estimation of properties of the \glsentryshort{lidar} algorithm.}
     \label{tab:eval_lidar}
     \resizebox{\textwidth}{!}{
         \begin{tabular}{ccccccccc}
@@ -450,34 +450,34 @@ However, the estimation improves at a distance of about \SI{17}{\metre} to the r
         \caption{Distance to the ramp}
         \label{fig:lidar_distance_eval}
     \end{subfigure}
-    
+
     \begin{subfigure}{1\textwidth}
         \centering
         \includegraphics[width=.9\linewidth]{lidar_angle_eval.pdf}
         \caption{Angle of the ramp}
         \label{fig:lidar_angle_eval}
     \end{subfigure}
-    
+
     \begin{subfigure}{1\textwidth}
         \centering
         \includegraphics[width=.9\linewidth]{lidar_width_eval.pdf}
         \caption{Width of the ramp}
         \label{fig:lidar_width_eval}
     \end{subfigure}
-    
+
     \begin{subfigure}{1\textwidth}
         \centering
         \includegraphics[width=.9\linewidth]{lidar_length_eval.pdf}
         \caption{Length of the ramp}
         \label{fig:lidar_length_eval}
     \end{subfigure}
-    \caption[Estimation of ramp properties at different distances]{Estimated ramp properties and tracking of the distance to the ramp at different distances to the ramp.}
+    \caption[\glsentryshort{lidar} estimation of ramp properties at different distances]{Estimated ramp properties and tracking of the distance to the ramp at different distances to the ramp.}
     \label{fig:lidar_eval}
 \end{figure}
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=1\linewidth]{points_projection.pdf}
-    \caption[2D visualization of the \glsentryshort{lidar} point cloud]{Lidar points projected onto the camera image. The green points were identified as part of a ramp by the algorithm.}
+    \caption[2D visualization of the \glsentryshort{lidar} point cloud]{\acrshort{lidar} points projected onto the camera image. The green points were identified as part of a ramp by the algorithm.}
     \label{fig:points_projection}
 \end{figure}
 A visualization of the detection algorithm can be seen in \cref{fig:points_projection}.
@@ -506,7 +506,7 @@ In \cref{tab:detection_eval} the \gls{map} scores for different hyperparameter c
 LR is the learning rate and SR is the sample rate and determines the number of \gls{roi} proposals, as described in \cref{ssec:training}.\par
 \begin{table}[htb]
     \centering
-    \caption[Detection evaluation]{Testing of different training hyperparameters and their influence on the \acrshort{ap} score.}
+    \caption[Performance of the network for different hyperparameter]{Testing of different training hyperparameters and their influence on the \acrshort{ap} score.}
     \label{tab:detection_eval}
     \begin{tabular}{ccccccc}
         \toprule
@@ -540,7 +540,7 @@ All images used for the training and evaluation are colored, but are visualized 
         \caption{Driving straight at the ramp.}
         \label{fig:camera_prediction_straight}
     \end{subfigure}
-    
+
     % \bigskip
     \begin{subfigure}{1\textwidth}
         \centering
@@ -548,7 +548,7 @@ All images used for the training and evaluation are colored, but are visualized 
         \caption{Driving at an angle to the ramp.}
         \label{fig:camera_prediction_angled}
     \end{subfigure}
-    \caption[Visualization examples of predicted segmentation masks]{Some examples of the predicted bounding box and mask when driving at a ramp. The class of the object and the confidence score are annotated as well. All those images were not used for the training of the network.}
+    \caption[Visualization examples of predicted segmentation masks]{Some examples of the predicted bounding box and mask when driving at a ramp. The class of the object and the confidence score are annotated as well. All those images were part of the validation set.}
 \end{figure}
 
 \subsection{Point Cloud Extraction}
@@ -589,7 +589,7 @@ The \gls{lidar} on the other hand produced an accurate point cloud and achieved 
         \caption{Projection using the by the ZED camera generated point cloud.}
         \label{fig:points_projection_mask_zed}
     \end{subfigure}
-    
+
     % \bigskip
     \begin{subfigure}{1\textwidth}
         \centering
@@ -601,7 +601,7 @@ The \gls{lidar} on the other hand produced an accurate point cloud and achieved 
 \end{figure}
 \begin{table}[H]
     \centering
-    \caption[Ramp length]{Estimation of different ramp properties using the extracted point cloud.}
+    \caption[Estimation of ramp properties using the extracted point cloud]{Estimation of different ramp properties using the extracted point cloud.}
     \label{tab:cloud_extraction_estimation}
     \resizebox{\textwidth}{!}{
         \begin{tabular}{lSSSSSS}
