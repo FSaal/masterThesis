@@ -96,7 +96,7 @@
         % Outer shape
         \node[rectangle,
             draw = black,
-            % fill = lightgray,
+            fill = white!99!black,
             line width = 2pt,
             minimum width = \w,
             minimum height = \h] (outer) at (0,0) {};
@@ -105,7 +105,7 @@
             % Mass
             \node[rectangle,
                 draw = black,
-                fill = lightgray,
+                fill = pink,
                 minimum width = \w*0.5,
                 minimum height = \h*0.1] (inner) at (0,0) {$m$};
 
@@ -121,47 +121,55 @@
                     \node[rectangle,
                         draw = black,
                         fill = pink,
-                        minimum height = .75cm,
+                        minimum height = .85cm,
                         anchor = north,
-                        draw=black] (f1) at ($(inner.south east)!\i!(inner.south west)$) {};
+                    ] (f1) at ($(inner.south east)!\i!(inner.south west) + (0,.02)$) {};
                     \node[rectangle,
                         draw = black,
                         fill = pink,
-                        minimum height = .75cm,
+                        minimum height = .85cm,
                         anchor = south,
-                        draw=black] (f1) at ($(inner.north east)!\i!(inner.north west)$) {};
+                    ] (f2) at ($(inner.north east)!\i!(inner.north west) - (0,.02)$) {};
+                    % Remove black lines seperating fingers from shape
+                    \draw[pink, thick] ([shift={(0,-.005)}]f1.north west) -- ([shift={(0,-.005)}]f1.north east);
+                    \draw[pink, thick] ([shift={(0,.005)}]f2.south west) -- ([shift={(0,.005)}]f2.south east);
+                    % \draw[blue] (f2.south west) -- (f2.south east);
                 }
         \end{scope}
         % Fixed capacitors (Electrodes connected to fix points)
         \foreach \i [count=\idx] in {0.575, 0.425}
             {
+                % Fingers at the bottom
                 \node[rectangle,
-                    % draw = lightgray,
+                    draw = black,
                     fill = white!60!green,
                     minimum height = 1.1cm,
-                ] (cap) at ($(outer.south east)!\i!(outer.south west) + (0, 1.2)$) {};
+                ] (caplongtop) at ($(outer.south east)!\i!(outer.south west) + (0, 1.2)$) {};
                 % Fixed plates at the bottom
                 \node[rectangle,
-                    % draw = lightgray,
+                    draw = black,
                     fill = white!60!green,
                     minimum height = 0.4cm,
                     minimum width = 0.6cm,
                     anchor = north,
-                ] (cap) at ($(cap.south) + (0,.1)$) {$C_\idx$};
-                % Same for the top
+                ] (cap) at ($(caplongtop.south) + (0,.1)$) {$C_\idx$};
+                % Same for the top (fingers)
                 \node[rectangle,
-                    % draw = lightgray,
+                    draw = black,
                     fill = white!60!green,
                     minimum height = 1.1cm,
-                ] (cap) at ($(outer.north east)!\i!(outer.north west) + (0, -1.2)$) {};
-                % Fixed plates at the bottom
+                ] (caplongbottom) at ($(outer.north east)!\i!(outer.north west) + (0, -1.2)$) {};
+                % Fixed plates at the top
                 \node[rectangle,
-                    % draw = lightgray,
+                    draw = black,
                     fill = white!60!green,
                     minimum height = 0.4cm,
                     minimum width = 0.6cm,
                     anchor = south,
-                ] (cap) at ($(cap.north) + (0,-.1)$) {$C_\idx$};
+                ] (cap) at ($(caplongbottom.north) + (0,-.1)$) {$C_\idx$};
+                % Remove black lines seperating ? from fixed plates
+                \draw[white!60!green, thick] ([shift={(0.015,.09)}]caplongtop.south west) -- ([shift={(-0.015,.09)}]caplongtop.south east);
+                \draw[white!60!green, thick] ([shift={(0.015,-.09)}]caplongbottom.north west) -- ([shift={(-0.015,-.09)}]caplongbottom.north east);
             }
 
         \draw[->, red] (outer.west) --++ (-1, 0) node[left] {$a(t)$};
