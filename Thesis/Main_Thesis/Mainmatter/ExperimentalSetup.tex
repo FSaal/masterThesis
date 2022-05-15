@@ -30,13 +30,16 @@ Finally, in \cref{sec:garage}, the different type of ramps and their properties 
     \caption[\glsentryplural{imu} used in the experiment]{The two \glspl{imu} which will be used for the recordings. The Stereolabs ZED 2i camera has an integrated \gls{imu}.}
     \label{fig:imus_used}
 \end{figure}
-Two different \glspl{imu} will be used for the experiment.\\
+Two different \glspl{imu} will be used for the experiment.
+
 The first one being the Withrobot myAHRS+ (see \cref{fig:imu_myahrs}), a low-cost high performance \gls{ahrs}.
 An \gls{ahrs} contains an \gls{imu} and outputs the raw measurements of the sensors, but also has an on-board processing system which estimates attitude and heading.
-The myAHRS+ uses an extended Kalman filter for the estimation and outputs the estimation in quaternion form and also in Euler angles.\\
+The myAHRS+ uses an extended Kalman filter for the estimation and outputs the estimation in quaternion form and also in Euler angles.
+
 The second \gls{imu} used during the experiment is integrated in the Stereolabs ZED 2i stereo camera and is also an \gls{ahrs}.
 A picture of the camera can be seen in \cref{fig:imu_zed}.
-More information about the ZED 2i camera and their other integrated sensors and functionalities will be described in \cref{ssec:camera}.\\
+More information about the ZED 2i camera and their other integrated sensors and functionalities will be described in \cref{ssec:camera}.
+
 Both sensors are connected to a computer via USB.
 The specifications of each \gls{imu} is provided in \cref{tab:imu_datasheets}.
 Because no information about the noise density or random walk of the myAHRS+ \gls{imu} could be found, a manual estimation of the error was done using the package \texttt{allan\_variance\_ros}~\footnote{\url{https://github.com/gaowenliang/imu_utils}}.
@@ -44,7 +47,7 @@ It analyzes the Allan variance from \gls{imu} measurement data recorded over a t
 The smaller values of the ZED 2i \gls{imu} indicate, that it is the better sensor.
 \begin{table}[ht]
     \centering
-    \caption[Comparison of the two used \glsentryplural{imu}]{Comparison of the two used \glsentryplural{imu}~\cite{Withrobot2017, Stereolabs2019}}
+    \caption[Comparison of the two used \glsentryplural{imu}]{Comparison of the two used \glsentryplural{imu}~\cite{Withrobot2017, Stereolabs2019}.}
     \label{tab:imu_datasheets}
     \begin{tabular}[t]{lrrc}
         \toprule
@@ -84,22 +87,23 @@ The smaller values of the ZED 2i \gls{imu} indicate, that it is the better senso
 \end{figure}
 Two different \glspl{lidar} will be used during the experiment.
 The RS-Bpearl and the Velodyne UltraPuck, see \cref{fig:lidars_used}.
-The most relevant specifications of the two \glspl{lidar} can be seen in \cref{tab:lidar_datasheets}.
-Both are mechanical \glspl{lidar} and have the same number of laser channels, but the Velodyne has a significant better vertical resolution, due to the smaller vertical \gls{fov}.
+The most relevant specifications of the two \glspl{lidar} are listed in \cref{tab:lidar_datasheets}.
+Both are mechanical \glspl{lidar} and have the same number of laser channels, but the Velodyne has a significantly better vertical resolution, due to the smaller vertical \gls{fov}.
 This is because the RS-Bpearl is intended to be used as near-field blind-spots detection \gls{lidar} mounted on the side where coverage is more important than resolution.
-The Velodyne UltraPuck on the other hand has been specifically designed for being mounted on the roof and hence also has a greater range.\\
+The Velodyne UltraPuck on the other hand has been specifically designed for being mounted on the roof and hence also has a greater range.
+
 Both \glspl{lidar} need an external power supply and the data transfer to the PC is done via Ethernet connection.
 Due to the setup of the test car it is only possible to mount one \gls{lidar} at a time.
 \begin{table}[ht]
     \centering
-    \caption[\glsentryplural{lidar} used in the experiment]{Comparison of the two used \acrshort{lidar}s~\cite{RoboSense2020, Velodyne2018}}
+    \caption[Comparison of the two used \glsentryplural{lidar}]{Comparison of the two used \acrshort{lidar}s~\cite{RoboSense2020, Velodyne2018}.}
     \label{tab:lidar_datasheets}
     \begin{tabular}[t]{lrrc}
         \toprule
         \textbf{Property}     & \textbf{RS-Bpearl}   & \textbf{Velodyne Ultra Puck}    & \textbf{Unit}     \\
         \midrule
         Channels              & 32                   & 32                              &                   \\
-        Points per second     & 576,000              & 600,000                         & \si{}             \\
+        Points per second     & \num{576000}         & \num{600000   }                 &                   \\
         Laser wavelength      & \SI{905}{}           & \SI{903}{}                      & \si{\nano\metre}  \\
         Frame rate            & \SIrange{10}{20}{}   & \SIrange{5}{20}{}               & \si{\hertz}       \\
         Range                 & \SI{100}{}           & \SI{200}{}                      & \si{\metre}       \\
@@ -118,9 +122,10 @@ Due to the setup of the test car it is only possible to mount one \gls{lidar} at
 The ZED 2i camera from Stereolabs as seen in \cref{fig:imu_zed} will be used during the experiment to record the camera image.
 The camera has two horizontally displaced lenses, allowing for stereo vision and thus also depth estimation.
 A barometer, temperature sensor and an \gls{imu} are integrated as well.
-It also provides many more features such as 3D positional tracking, mapping, object detection and point cloud generation.\\
+It also provides many more features such as 3D positional tracking, mapping, object detection and point cloud generation.
+
 Because only one image is needed, only the image of the left camera is used.
-The resolution is set to 1280x720 and a frame rate of 30 \gls{fps} is used.
+The resolution is set to 1280x720 and a frame rate per second of 30 is used.
 The camera is connected to the PC through USB.
 
 
@@ -131,7 +136,8 @@ The \gls{imu} must be placed on a rigid point of the car, such that the \gls{imu
 Other than that it should also be placed in the transversal center of the car to guarantee that the centripetal acceleration is not skewed towards one side when driving around a corner.
 The placement of the \gls{imu} integrated in the ZED 2i camera is limited, because the camera images are needed as well.
 It was placed on the roof of the car, which is sturdy enough to not be suspect to flexion, while also allowing for a good \gls{fov} for the camera.
-The myAHRS+ \gls{imu} was mounted on the floor of the car trunk.\\
+The myAHRS+ \gls{imu} was mounted on the floor of the car trunk.
+
 The \gls{lidar} is placed on top of the car, to get a greater \gls{fov}.
 The pitch angle $\beta$ at which the \gls{lidar} will be mounted should be chosen such that the number of points in the area at the beginning of the ramp are maximized.
 This allows for the most accurate distinction between planes of different inclination angles.
@@ -141,10 +147,11 @@ A visualization of the different variables can be seen in \cref{fig:tikz_lidar_m
 \begin{figure}[htb]
     \centering
     \input{Graphics/TikZ/lidar_mount.tex}
-    \caption[\acrshort{lidar} placement on the car]{Calculation of the best mounting angle of the \acrshort{lidar} on the car. Variable description in \cref{tab:lidar_mount}.}
+    \caption[\acrshort{lidar} placement on the car]{Calculation of the best mounting angle of the \acrshort{lidar} on the car. The used variables are described in \cref{tab:lidar_mount}.}
     \label{fig:tikz_lidar_mount}
 \end{figure}
-The coordinates at which the laser lines of the \gls{lidar} hit the ground can be calculated in the following way.\\
+The coordinates at which the laser lines of the \gls{lidar} hit the ground can be calculated in the following way.
+
 The angle $\kappa$ between the plane parallel to the ground at \gls{lidar} height and each laser wave is defined as
 \begin{equation}
     \kappa = \beta - i\epsilon
@@ -204,6 +211,7 @@ A detailed description of all the variables used for the calculation can be foun
 \end{table}
 
 
+
 \section{Data Recording}
 All the sensors are connected to a PC in the car, located in the booth.
 A notebook is connected to the PC using a \gls{ssh} connection and is used to start the different sensor streams.
@@ -213,6 +221,7 @@ While \gls{ros} allows for real-time running of nodes it is also possible to rec
 A rosbag contains the serialized message data and can later be used as a dataset.
 The rosbag can be played back in \gls{ros}, simulating the same conditions as during the recording, by publishing the same topics again which were initially subscribed to during the recording.
 The different algorithms can then be tested and perhaps improved, without having to physically do the test drive again.
+
 
 
 \section{Car}
@@ -227,7 +236,7 @@ Before driving down, the mode was switched again to also provide the wheel speed
 A picture of the car with the mounted \gls{lidar} and ZED 2i camera can be found in \cref{fig:eGolf}.
 \begin{figure}[htb]
     \centering
-    \includegraphics[trim={0, 5cm, 0, 5cm}, clip, width=0.6\linewidth]{eGolf}
+    \input{Graphics/TikZ/eGolf_annotation.tex}
     \caption[Car with mounted sensors]{The car used for the recordings with the full sensor setup mounted on the roof.}
     \label{fig:eGolf}
 \end{figure}
@@ -284,4 +293,3 @@ Because the ramps do not have a constant angle, because the change of the angle 
         \bottomrule
     \end{tabular}
 \end{table}
-\itodo{Add curb ramp width}
