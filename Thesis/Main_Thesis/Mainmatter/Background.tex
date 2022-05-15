@@ -36,7 +36,7 @@ Furthermore, the conventions can be divided into intrinsic and extrinsic.
 Intrinsic rotation means that the coordinate system moves with the moving object, whereas with extrinsic rotations the original coordinate system remains static.
 
 The most common convention is the zyx (intrinsic), which first rotates an angle $\psi$ around the z-axis, followed by a rotation of $\theta$ around the y-axis and finally an angle $\phi$ around the x-axis, see \cref{fig:tikz_euler_angles}.
-\begin{figure}[htpb]
+\begin{figure}[t]
     \centering
     \input{Graphics/TikZ/euler_angles.tex}
     \caption[zxy Euler convention]{Definition of the zyx Euler convention. The rotation starts with a rotation $\psi$ around the z-axis and ends with a rotation $\phi$ around the x-axis.}
@@ -150,7 +150,7 @@ In this section the functionality and advantages and disadvantages of each senso
 \subsection{\glsentryfull{imu}}
 An \gls{imu} is used to track the orientation and position of an object.
 Common uses are in the aerospace or automotive industry, often in combination with other sensors, to give information about the pose (position and orientation) of a vehicle.
-More recently with the invention of \gls{mems} and specifically \gls{mems}-\glspl{imu} which allow for a very small form factor at a low cost, \glspl{imu} are also used in consumer electronics such as smartphones or fitness tracker.
+More recently with the invention of \gls{mems} and specifically \gls{mems} \glspl{imu} which allow for a very small form factor at a low cost, \glspl{imu} are also used in consumer electronics such as smartphones or fitness tracker.
 An \gls{imu} usually consists of the three following sensors.
 
 The acceleration is measured using an accelerometer and can be used to determine the velocity and the covered distance by integrating the acceleration with respect to time once respectively twice.
@@ -166,7 +166,7 @@ A typical setup of a stable platform system can be seen in \cref{fig:stable_plat
 \begin{figure}[htb]
     \centering
     \includegraphics[width=0.52\linewidth]{stable_platform_imu}
-    \caption[Setup of a stable platform \acrshort{imu}]{Setup of a stable platform \acrshort{imu}~\cite{Woodman2007}. The platform always stays in alignment with the reference frame due to the gimbals.}
+    \caption[Setup of a stable platform \glsentryshort{imu}]{Setup of a stable platform \acrshort{imu}~\cite{Woodman2007}. The platform always stays in alignment with the reference frame due to the gimbals.}
     \label{fig:stable_platform_imu}
 \end{figure}
 The advantage of a stable platform systems is that the calculation of orientation and position is straightforward.
@@ -185,7 +185,7 @@ Information about the working principle of other systems and also much more info
 
 \gls{mems} consist of electrical and/or mechanical components in the size of \SI{100}{\nano\metre} to \SI{1}{\milli\metre}, allowing for a very small form factor.
 Other characteristics of \gls{mems} are that they can easily be mass-produced allowing for low cost and usually also need less power than traditional systems, because everything is integrated on the chip~\cite{Shaeffer2013}.
-Almost all consumer grade electronics uses \gls{mems}-\glspl{imu} nowadays, but they also find more and more use in many industry segments, as their accuracy continues to improve~\cite{Perlmutter2016}.
+Almost all consumer grade electronics uses \gls{mems} \glspl{imu} nowadays, but they also find more and more use in many industry segments, as their accuracy continues to improve~\cite{Perlmutter2016}.
 
 \subsubsection{\glsentryshort{mems} Accelerometer}
 The accelerometer is used to measure the acceleration.
@@ -194,13 +194,7 @@ This allows for the determination of one axis of the \gls{imu}, even if it is no
 Often times only the dynamic accelerations are of interest and to get them the acceleration data during stand still must be measured and subtracted.
 
 The microstructure of a \gls{mems} accelerometer is shown in \cref{fig:mems_accelerometer}.
-\begin{figure}[htb]
-    \centering
-    \input{Graphics/TikZ/mems_accelerometer.tex}
-    \caption[Microstructure of a \acrshort{mems} accelerometer]{The microstructure of a \acrshort{mems} accelerometer during an acceleration. The proof mass is suspended and moves delayed, in relation to the outer case and fixed capacitors plates, due to its inertia. The acceleration can be calculated from the change in capacity.}
-    \label{fig:mems_accelerometer}
-\end{figure}
-A mass (gray) is suspended by springs along one axis and if an acceleration along this axis occurs, the mass moves in the opposite direction due to Newton's second law.
+A mass (pink) is suspended by springs along one axis and if an acceleration along this axis occurs, the mass moves in the opposite direction due to Newton's second law.
 The mass has little fingers (pink) perpendicular to the axis along which the movement occurs, which affect the capacity between the fixed plates (green).
 The change of capacity and thus voltage can be measured, from which the acceleration can be calculated.
 To be able to measure the acceleration along all three axis the same setup is used three times, perpendicular to each other.
@@ -211,6 +205,12 @@ The accelerations $\hat{\vb{a}}$ measured with a \gls{mems} accelerometer are no
 \end{equation}
 The measurement differs from the true acceleration $\vb{a}$ due to random noise $\vb{n}_\mathrm{a}$ and a slowly time-varying bias $\vb{b}_\mathrm{a}$.
 More about the specific error terms can be read in \cref{sse:mems_errors}.
+\begin{figure}[htb]
+    \centering
+    \input{Graphics/TikZ/mems_accelerometer.tex}
+    \caption[Microstructure of a \glsentryshort{mems} accelerometer]{The microstructure of a \acrshort{mems} accelerometer during an acceleration. The proof mass is suspended and moves delayed, in relation to the outer case and fixed capacitors plates, due to its inertia. The acceleration can be calculated from the change in capacity.}
+    \label{fig:mems_accelerometer}
+\end{figure}
 
 \subsubsection{\glsentryshort{mems} Gyroscopes}
 A gyroscope measures the angular velocity.
@@ -283,10 +283,10 @@ Basically all applications which use \gls{radar} can also be used with a \gls{li
 There are different \gls{lidar} types, but their working principles are similar.
 A transmitter generates a signal and sends it into the environment using a scanning system and a transmission optic.
 As transmitter a laser with a wavelength of \SIrange{850}{950}{\nano\metre} (near-infrared) is typically used.
-\begin{figure}[htb]
+\begin{figure}[b]
     \centering
     \includegraphics[width=0.5\textwidth]{Lidar.png}
-    \caption[Setup of a mechanical spinning \acrshort{lidar}]{Setup of a mechanical spinning \acrshort{lidar}~\cite{Li2020}. The laser is reflected off a tilting mirror and is received through a transmission optic by the receiver. A rotation of the base independently of the mirror allows for a \SI{360}{\degree} horizontal \gls{fov}.}
+    \caption[Setup of a mechanical spinning \glsentryshort{lidar}]{Setup of a mechanical spinning \acrshort{lidar}~\cite{Li2020}. The laser is reflected off a tilting mirror and is received through a transmission optic by the receiver. A rotation of the base independently of the mirror allows for a \SI{360}{\degree} horizontal \acrshort{fov}.}
     \label{fig:lidar}
 \end{figure}
 The scanning system allows the laser to explore a large area instead of only a single point by steering the light at different azimuths and vertical angles and can be divided in mechanical spinning or solid state systems.
@@ -298,10 +298,10 @@ The working principle of a \gls{lidar} using the mechanical spinning method is s
 While mechanical spinning systems are very precise and offer a great \gls{fov}, they are bulky, need a lot of power and are expensive~\cite{Fujii2005}.
 
 Solid state systems and especially \gls{mems} \glspl{lidar} try to overcome those problems.
-\gls{mems}-\gls{lidar} are quasi-static, the only part that moves is the on the chip embedded mirror, but because of the small size (\SIrange{1}{7}{\milli\metre} diameter), very little power has to be used to move it.
+\gls{mems} \gls{lidar} are quasi-static, the only part that moves is the on the chip embedded mirror, but because of the small size (\SIrange{1}{7}{\milli\metre} diameter), very little power has to be used to move it.
 The mirror can be rotated on up to two axes, but because the base cannot be rotated as with mechanical systems, a horizontal view of \SI{360}{\degree} is not possible.
 Though by using multiple lasers with different incident angles the \gls{fov} can be increased.
-Advantages of \gls{mems}-\glspl{lidar} compared to mechanical systems are the smaller form factor and lower cost~\cite{Wang2020}.
+Advantages of \gls{mems} \glspl{lidar} compared to mechanical systems are the smaller form factor and lower cost~\cite{Wang2020}.
 
 After transmitting the laser signal the reflected light passes through the receiving optic and is received by photodetectors.
 A processing unit then generates a 3D point cloud from all the received measurements.
@@ -422,7 +422,7 @@ The working principle is shown in \cref{fig:rcnn}.
 \begin{figure}[htb]
     \centering
     \includegraphics[width=.75\linewidth]{rcnn.png}
-    \caption[\acrshort{rcnn} framework]{The \acrshort{rcnn} framework~\cite{Girshick2014}. The image is divided into subregions and each subregion is classified as one of the object classes or the background independently.}
+    \caption[\glsentryshort{rcnn} framework]{The \acrshort{rcnn} framework~\cite{Girshick2014}. The image is divided into subregions and each subregion is classified as one of the object classes or the background independently.}
     \label{fig:rcnn}
 \end{figure}
 In the first step the image is divided into approximately 2000 region proposals using the selective search algorithm.
@@ -446,7 +446,7 @@ But in the second stage, a binary mask is predicted for each \gls{roi} in parall
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=.7\linewidth]{mask_rcnn.png}
-    \caption[Mask \acrshort{rcnn} framework]{The Mask \acrshort{rcnn} framework~\cite{He2017}. It also generates a segmentation mask in addition to the bounding box and class label.}
+    \caption[Mask \glsentryshort{rcnn} framework]{The Mask \acrshort{rcnn} framework~\cite{He2017}. It also generates a segmentation mask in addition to the bounding box and class label.}
     \label{fig:mask_rcnn}
 \end{figure}
 
@@ -473,6 +473,6 @@ All the communication is running through the \gls{ros} master.
 \begin{figure}[htb]
     \centering
     \input{Graphics/TikZ/ros_framework.tex}
-    \caption[\acrshort{ros} communication]{\acrshort{ros} communication between two nodes.}
+    \caption[\glsentryshort{ros} communication]{\acrshort{ros} communication between two nodes.}
     \label{fig:ros_framework}
 \end{figure}
