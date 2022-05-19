@@ -64,6 +64,7 @@
 \sisetup{per-mode=fraction}
 \renewcommand{\arraystretch}{1.2} % Increase space between rows in tables
 \renewcommand*{\backref}[1]{}
+% Backref in bibliography with cited pages
 \renewcommand*{\backrefalt}[4]{{\footnotesize [%
     \ifcase #1 Not cited.%
 	\or Cited on page~#2%
@@ -101,6 +102,8 @@
 \newcommand{\qtf}[2]{\ensuremath{{}_{\mathcal{\MakeUppercase{#2}}}^{\mathcal{\MakeUppercase{#1}}}{\vb{q}}}}
 % Rotation matrix to transform from cs #1 to cs #2
 \newcommand{\mtf}[2]{\ensuremath{{}_{\mathcal{\MakeUppercase{#2}}}^{\mathcal{\MakeUppercase{#1}}}\mathbf{{M}}}}
+% Bold numbers in table without making them wider
+\newcommand{\bftab}{\fontseries{b}\selectfont}
 
 % Start document and load all parts
 \input{Frontmatter/Glossary.tex}
@@ -139,7 +142,7 @@
 \input{Mainmatter/Results}
 \input{Mainmatter/Conclusion}
 % References
-\bibliographystyle{IEEEtran}
+\bibliographystyle{References/IEEEtranURL}
 \bibliography{References/library.bib}
 % \input{Endmatter/Appendix}
 \end{document}
