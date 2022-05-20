@@ -1,10 +1,7 @@
-%% IEEEtranUrldate.bst
-%% BibTeX Bibliography Style file for IEEE Journals and Conferences (unsorted)
-%% Version 1.15 (2016/04/04)
 %%
-%% Edited by Ian Ooi
-%% Added urldate field, with accompanying default and CTLname variables to
-%% allow for last accessed date on urls
+%% IEEEtran.bst
+%% BibTeX Bibliography Style file for IEEE Journals and Conferences (unsorted)
+%% Version 1.14 (2015/08/26)
 %%
 %% Copyright (c) 2003-2015 Michael Shell
 %%
@@ -128,7 +125,7 @@ FUNCTION {default.ALTinterwordstretchfactor} { "4" }
 % #0 turns off the "dashification" of repeated (i.e., identical to those
 % of the previous entry) names. The IEEE normally does this.
 % #1 enables
-FUNCTION {default.is.dash.repeated.names} { #0 }
+FUNCTION {default.is.dash.repeated.names} { #1 }
 
 
 % The default name format control string.
@@ -141,9 +138,6 @@ FUNCTION {default.name.latex.cmd}{ "" }
 
 % The default URL prefix.
 FUNCTION {default.name.url.prefix}{ "[Online]. Available:" }
-
-% The default URLDATE prefix
-FUNCTION {default.name.urldate.prefix}{ "Last accessed on:" }
 
 
 % Other controls that cannot be accessed via IEEEtranBSTCTL entry type.
@@ -291,7 +285,6 @@ ENTRY
     title
     type
     url
-	urldate
     volume
     year
     yearfiled
@@ -307,7 +300,6 @@ ENTRY
     CTLname_format_string
     CTLname_latex_cmd
     CTLname_url_prefix
-	CTLname_urldate_prefix
   }
   {}
   { label }
@@ -354,8 +346,7 @@ STRINGS { bibinfo
           ALTinterwordstretchfactor
           name.format.string
           name.latex.cmd
-          name.url.prefix
-		  name.urldate.prefix}
+          name.url.prefix}
 
 
 
@@ -377,7 +368,6 @@ FUNCTION {initialize.controls}
   default.name.format.string 'name.format.string :=
   default.name.latex.cmd 'name.latex.cmd :=
   default.name.url.prefix 'name.url.prefix :=
-  default.name.urldate.prefix 'name.urldate.prefix :=
 }
 
 
@@ -1936,29 +1926,6 @@ FUNCTION {format.url}
   if$
 }
 
-%% URLDATE
-
-FUNCTION {format.urldate}
-{ is.use.url
-  { urldate empty$
-    { "" }
-    { this.to.prev.status
-      this.status.std
-      cap.yes  'status.cap :=
-      " (" name.urldate.prefix * " " * urldate * ")" *
-      punct.period 'this.status.punct :=
-	  %use this line if you want the url to have a period after it before the date accessed
-      %punct.period 'prev.status.punct :=
-	  space.normal 'this.status.space :=
-      quote.no 'this.status.quote :=
-  }
-  if$
-  }
-  {""}
-  if$
-}
-
-
 
 
 
@@ -1984,7 +1951,6 @@ FUNCTION {article}
   format.date "year" output.warn
   format.note output
   format.url output
-  format.urldate output
   fin.entry
   if.url.std.interword.spacing
 }
@@ -2009,7 +1975,6 @@ FUNCTION {book}
   format.number output
   format.note output
   format.url output
-  format.urldate output
   fin.entry
   if.url.std.interword.spacing
 }
@@ -2027,7 +1992,6 @@ FUNCTION {booklet}
   format.date output
   format.note output
   format.url output
-  format.urldate output
   fin.entry
   if.url.std.interword.spacing
 }
@@ -2043,9 +2007,8 @@ FUNCTION {electronic}
   format.howpublished "howpublished" bibinfo.check output
   format.organization "organization" bibinfo.check output
   format.address "address" bibinfo.check output
-  format.note outputmanual
   format.url output
-  format.urldate output
+  format.note output
   fin.entry
   empty.entry.warn
   if.url.std.interword.spacing
@@ -2069,7 +2032,6 @@ FUNCTION {inbook}
   format.pages output
   format.note output
   format.url output
-  format.urldate output
   fin.entry
   if.url.std.interword.spacing
 }
@@ -2091,7 +2053,6 @@ FUNCTION {incollection}
   format.pages output
   format.note output
   format.url output
-  format.urldate output
   fin.entry
   if.url.std.interword.spacing
 }
@@ -2118,7 +2079,6 @@ FUNCTION {inproceedings}
   format.pages output
   format.note output
   format.url output
-  format.urldate output
   fin.entry
   if.url.std.interword.spacing
 }
@@ -2136,7 +2096,6 @@ FUNCTION {manual}
   format.date output
   format.note output
   format.url output
-  format.urldate output
   fin.entry
   if.url.std.interword.spacing
 }
@@ -2154,7 +2113,6 @@ FUNCTION {mastersthesis}
   format.date "year" output.warn
   format.note output
   format.url output
-  format.urldate output
   fin.entry
   if.url.std.interword.spacing
 }
@@ -2171,9 +2129,8 @@ FUNCTION {misc}
   format.address "address" bibinfo.check output
   format.pages output
   format.date output
-  format.note output
   format.url output
-  format.urldate output
+  format.note output
   fin.entry
   empty.entry.warn
   if.url.std.interword.spacing
@@ -2190,7 +2147,6 @@ FUNCTION {patent}
   format.patent.date output
   format.note output
   format.url output
-  format.urldate output
   fin.entry
   empty.entry.warn
   if.url.std.interword.spacing
@@ -2210,7 +2166,6 @@ FUNCTION {periodical}
   format.date "year" output.warn
   format.note output
   format.url output
-  format.urldate output
   fin.entry
   if.url.std.interword.spacing
 }
@@ -2228,7 +2183,6 @@ FUNCTION {phdthesis}
   format.date "year" output.warn
   format.note output
   format.url output
-  format.urldate output
   fin.entry
   if.url.std.interword.spacing
 }
@@ -2251,7 +2205,6 @@ FUNCTION {proceedings}
   if$
   format.note output
   format.url output
-  format.urldate output
   fin.entry
   if.url.std.interword.spacing
 }
@@ -2269,7 +2222,6 @@ FUNCTION {standard}
   format.date output
   format.note output
   format.url output
-  format.urldate output
   fin.entry
   if.url.std.interword.spacing
 }
@@ -2288,7 +2240,6 @@ FUNCTION {techreport}
   format.date "year" output.warn
   format.note output
   format.url output
-  format.urldate output
   fin.entry
   if.url.std.interword.spacing
 }
@@ -2303,7 +2254,6 @@ FUNCTION {unpublished}
   format.date output
   format.note "note" output.warn
   format.url output
-  format.urldate output
   fin.entry
   if.url.std.interword.spacing
 }
@@ -2413,14 +2363,6 @@ FUNCTION {IEEEtranBSTCTL}
       'name.url.prefix :=
     }
   if$
-%  TODO figure out a way to add in this control without exceeding the function length limit
-%  CTLname_urldate_prefix
-%  missing$
-%    { skip$ }
-%    { CTLname_urldate_prefix
-%      'name.urldate.prefix :=
-%    }
-%  if$
 
 
   num.names.shown.with.forced.et.al max.num.names.before.forced.et.al >
