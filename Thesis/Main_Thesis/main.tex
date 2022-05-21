@@ -79,7 +79,8 @@
   colorlinks   = true,          % Colours links instead of ugly boxes
   urlcolor     = blue,          % Colour for external hyperlinks
   linkcolor    = RoyalPurple,   % Colour of internal links
-  citecolor   = OliveGreen      % Colour of citations
+  citecolor   = OliveGreen,     % Colour of citations
+  pdftitle={Master Thesis Felix Saalfrank},
 }
 
 % My own commands
@@ -124,6 +125,9 @@
 {
     % Hide hyperlinks for toc, lof and lot
     \hypersetup{hidelinks}
+    % Add content section to contents of pdf file
+    \clearpage
+    \pdfbookmark{\contentsname}{toc}
     \tableofcontents
     \listoffigures
     \listoftables
@@ -143,6 +147,6 @@
 \input{Mainmatter/Conclusion}
 % References
 \bibliographystyle{References/IEEEtranURL}
-\bibliography{References/library.bib}
+\bibliography{References/library}
 % \input{Endmatter/Appendix}
 \end{document}
