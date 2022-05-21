@@ -1,0 +1,39 @@
+\documentclass[11pt]{standalone}
+\usepackage{tikz}
+
+\usetikzlibrary{calc}
+\begin{document}
+\begin{tikzpicture}
+    % Include the image in a node
+    \node[anchor=south west, inner sep=0] (image) at (0,0) {
+        \includegraphics[width=0.77\textwidth]{eGolfPro}
+    };
+
+    % Create scope with normalized axes
+    \begin{scope}[
+            x={($0.1*(image.south east)$)},
+            y={($0.1*(image.north west)$)}]
+
+        % Grid (for easier positioning of nodes)
+        % \draw[lightgray,step=1] (image.south west) grid (image.north east);
+        % % Axes' labels
+        % \foreach \x in {0,1,...,10} { \node [below] at (\x,0) {\x}; }
+        % \foreach \y in {0,1,...,10} { \node [left] at (0,\y) {\y};}
+
+        % Rectangles to mark sensors
+        \draw[green] (5.1,8.2) rectangle (5.7,9.1);
+        % node[below left,black,]{1};
+        \draw[green] (4.5,7.5) rectangle (5.0,8.0);
+        % \draw[very thick,green] (3.3,8.7) rectangle (3.9,9.5);
+
+        % Labels
+        \draw[latex-, green] (5.1,8.65) -- ++(-3.4,0)
+        node[right,black,fill=white, rounded corners=.07cm]{\footnotesize LiDAR};
+        \draw[latex-, green] (4.5,7.7) -- ++(-2.8,0)
+        node[right,black,fill=white, rounded corners=.07cm]{\footnotesize Camera \& IMU};
+
+
+    \end{scope}
+
+\end{tikzpicture}
+\end{document}
