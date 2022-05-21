@@ -11,21 +11,26 @@ Recent advantages in the field of autonomous driving try to make the life of the
 
 One of the most promising applications of autonomous driving is the \gls{avp}.
 \gls{avp} allows for a fully automated parking experience.
-The car is left in a drop-off zone and finds a parking spot on its own.
+The car is left in a drop-off zone and drives to its assigned parking spot on its own.
 Afterwards the driver can give a command and the car leaves the parking spot again and picks up the driver.
 \gls{avp} saves time, the hassle of remembering the parking level and spot and also minimizes the risk of collisions.
 Furthermore, it allows for a more efficient use of the parking space, since no space for the opening of the doors is needed.
+Other services such as an automated car wash or automated charging of electrics vehicles are also imaginable.
 \gls{avp} has the potential to become one of the first fully automated driving task, due to the closed environment, low speeds and the possibility to equip the environment with additional sensors~\cite{Banzhaf2017}.
 
-But to autonomously navigate an exact mapping of the environment and localization of the car is necessary.
-This can be done either by \gls{slam} or the area can be mapped beforehand, in which case only a localization of the car is necessary.
+Autonomous driving relies on a good localization of the vehicle in a map of the environment.
+The environment can either be mapped beforehand, or by using \gls{slam} if the environment is unknown.
+Typically, the necessary sensors for the perception of the environment are allocated to the car, but in the case of \gls{avp} they can also be allocated to the infrastructure, or also a combination of both is possible.
+The smart vehicle approach (type 1) has the advantage, that it can theoretically be used in any parking garage, whereas the smart infrastructure approach (type 2) is limited to one specific parking garage.
+But the type 2 approach offers the advantage that the sensors and computational power are not limited by size and weight restrictions.
+
 While the mapping of the environment can be done in 3D, the localization is usually done in 2D and a change of levels would thus not be detected.
 Hence, if the car is driven up or down a ramp, the new map of the corresponding floor has to be loaded.
-To solve this problem, a ramp detection has to be implemented.
-Furthermore, the ramp detection can be used to increase or reduce the motor output of the vehicle, if it is nearing a ramp going up or down respectively.
-Another potential use of the detection algorithm is for the creation of a semantic map of the environment.
+The driving on ramps is also an especially difficult driving task, due to the tight space and change of the necessary motor power.
+Another potential use of a ramp detection algorithm would be the creation of a semantic map of the environment.
 In this map, areas are classified in different classes, e.g. ground, obstacle or ramp \cite{Sakenas2007}.
-The properties of the ramp could also be stored and used to adapt the speed of the vehicle accordingly.
+The properties of the ramp could also be stored in the map and be used to adapt the speed of the vehicle accordingly, before entering the ramp.
+To solve all those problems, a ramp detection has to be implemented.
 
 
 
@@ -37,8 +42,10 @@ Furthermore, ramp properties such as the slope, width and the length of the ramp
 Different sensors and methods will be used and compared to each other.
 An \gls{imu} will be used to detect if the car is currently on a ramp and to measure the ramp properties.
 A \gls{lidar} and a camera will be used to detect a ramp before entering it and the \gls{lidar} will also be used to estimate the distance to the ramp and other ramp properties.
+All the sensor will be attached to the vehicle.
 To evaluate the system, experiments in a real world scenario are conducted.
 The tests are performed in a parking garage with different types of ramps.
+\iquest{What kind of tense to use?}
 
 
 
