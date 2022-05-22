@@ -37,10 +37,11 @@ Intrinsic rotation means that the coordinate system moves with the moving object
 
 The most common convention is the zyx (intrinsic), which first rotates an angle $\psi$ around the z-axis, followed by a rotation of $\theta$ around the y-axis and finally an angle $\phi$ around the x-axis, see \cref{fig:tikz_euler_angles}.
 \begin{figure}[t]
-    \centering
-    \input{Graphics/TikZ/euler_angles.tex}
-    \caption[zxy Euler convention]{Definition of the zyx Euler convention. The rotation starts with a rotation $\psi$ around the z-axis and ends with a rotation $\phi$ around the x-axis.}
-    \label{fig:tikz_euler_angles}
+    \fcapside[\FBwidth]{
+        \caption[zxy Euler convention]{Definition of the zyx Euler convention. The rotation starts with a rotation $\psi$ around the z-axis, followed by a rotation $\theta$ around the y-axis and ends with a rotation $\phi$ around the x-axis.}
+        \label{fig:tikz_euler_angles}
+    }
+    {\input{Graphics/TikZ/euler_angles.tex}}
 \end{figure}
 The angles are called yaw (or heading), pitch and roll respectively. Roll and pitch angle together are also often referred to as inclination.
 
@@ -120,7 +121,7 @@ A quaternion can be converted to a rotation matrix with
         2(q_x q_z-q_y q_w)   & 2(q_y q_z+ q_x q_w) & 1 - 2 q_x^2- 2 q_y^2
     \end{pmatrix}.
 \end{equation}
-More information about quaternions can be found in~\cite{Trawny2005, Kok2017}.
+More information about quaternions can be found in~\cite{Kok2017, Trawny2005}.
 
 \subsection{Vector Projection}
 \label{subsec:vector_projection}
@@ -164,8 +165,7 @@ This is achieved using gimbals, which allow movement along all three axes.
 The gyroscopes on the platform measure the rotation and send them to torque motors, which rotate the gimbals to keep the platform in alignment with the reference frame.
 A typical setup of a stable platform system can be seen in \cref{fig:stable_platform_imu}.
 \begin{figure}[htb]
-    \centering
-    \includegraphics[width=0.52\linewidth]{stable_platform_imu}
+    \includegraphics[width=0.47\textwidth]{stable_platform_imu}
     \caption[Setup of a stable platform \glsentryshort{imu}]{Setup of a stable platform \acrshort{imu}~\cite{Woodman2007}. The platform always stays in alignment with the reference frame due to the gimbals.}
     \label{fig:stable_platform_imu}
 \end{figure}
@@ -233,7 +233,7 @@ Similar to the accelerometer, the measurements $\hat{\boldsymbol{\omega}}$ of th
 \end{equation}
 The measurement differs from the true angular velocity $\boldsymbol{\omega}$ due to the slowly time-varying bias vector $\vb{b}_\mathrm{g}$ and the random noise vector $\vb{n}_\mathrm{g}$, which has a mean of zero.
 
-\subsubsection{(\glsentryshort{mems}) Magnetometer}
+\subsubsection{\glsentryshort{mems} Magnetometer}
 A magnetometer measures the local magnetic field.
 Most sensors work using the Hall effect.
 A current is set to flow through a conductive plate.
@@ -315,11 +315,12 @@ Different techniques exist to measure the speed with the most common ones being 
 The magnetoelectric sensor is composed of a sensor head and a ring gear.
 The head is mounted stationary on the car frame while the ring gear is mounted on the wheel hub or axle and rotates with the wheel.
 The sensor head is composed of a permanent magnet core and a coil.
-\begin{figure}[htb]
-    \centering
-    \includegraphics[width=0.6\linewidth]{wheel_speed_sensor_active.pdf}
-    \caption[Setup of an active wheel speed sensor]{Setup of an active wheel speed sensor~\cite{Re2011}. The sensor head measures the alternating magnetic field. The amplitude of the induced voltage can then be used to determine the wheel speed.}
-    \label{fig:wheel_speed_sensor_active}
+\begin{figure}[b]
+    \fcapside[\FBwidth]{
+        \caption[Setup of an active wheel speed sensor]{Setup of an active wheel speed sensor~\cite{Re2011}. The sensor head measures the alternating magnetic field. The amplitude of the induced voltage can then be used to determine the wheel speed.}
+        \label{fig:wheel_speed_sensor_active}
+    }
+    {\includegraphics[width=0.5\textwidth]{wheel_speed_sensor_active.pdf}}
 \end{figure}
 When the wheel and thus the ring gear turns the teeth and gaps of the wheel pass by the sensor head and change the magnetic field which induces an alternating voltage in the coil.
 The amplitude and frequency of the induced voltage increases with increasing wheel speed.
@@ -421,7 +422,7 @@ The working principle is shown in \cref{fig:rcnn}.
 
 \begin{figure}[htb]
     \centering
-    \includegraphics[width=.75\linewidth]{rcnn.png}
+    \includegraphics[width=.7\linewidth]{rcnn.png}
     \caption[\glsentryshort{rcnn} framework]{The \acrshort{rcnn} framework~\cite{Girshick2014}. The image is divided into subregions and each subregion is classified as one of the object classes or the background independently.}
     \label{fig:rcnn}
 \end{figure}
@@ -445,7 +446,7 @@ The network has only to be run once on the image.
 But in the second stage, a binary mask is predicted for each \gls{roi} in parallel to predicting the class and bounding box.
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=.7\linewidth]{mask_rcnn.png}
+    \includegraphics[width=.63\linewidth]{mask_rcnn.png}
     \caption[Mask \glsentryshort{rcnn} framework]{The Mask \acrshort{rcnn} framework~\cite{He2017}. It also generates a segmentation mask in addition to the bounding box and class label.}
     \label{fig:mask_rcnn}
 \end{figure}
