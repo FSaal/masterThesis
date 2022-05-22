@@ -24,7 +24,7 @@ Finally, a comparison of the different sensors is described in \cref{sec:methods
 \begin{figure}[b]
     \centering
     \input{Graphics/TikZ/car_tilt.tex}
-    \caption[Ramp angle definition]{Car driving on a ramp. Due to forward acceleration the car tilts back.}
+    \caption[Ramp angle definition]{Car driving on a ramp. Due to the forward acceleration the car tilts back.}
     \label{fig:tikz_car_tilt}
 \end{figure}
 The road grade $\gls{ramp_ang}$ is the angle between the road plane and the ground plane.
@@ -495,18 +495,18 @@ It usually detects the following types of planes: ceiling, ground, side wall or 
 If a plane of different type has been found, it gets removed and the \gls{ransac} algorithm is applied again.
 To prevent an infinite loop, the algorithm will exit after either a certain number of iterations has been performed, or if after the removal of a plane not enough points to form a sizeable plane are left in the point cloud.
 For the implementation of the \gls{ransac} algorithm and the voxel grid filter the PCL library~\cite{Rusu2011}, and more specifically the python binding \texttt{python-pcl}~\footnote{\url{https://github.com/strawlab/python-pcl}}, has been used.
-\begin{figure}[h]
-    \centering
-    \includegraphics{Graphics/TikZ/flowchart_lidar.pdf}
-    \caption[Flow chart of the \glsentryshort{lidar} algorithm]{Flow chart of the ramp detection algorithm using the \acrshort{lidar} sensor.}
-    \label{fig:flowchart_lidar}
-\end{figure}
 
 The accidental detection of the ceiling was already prevented during the passthrough filter step, where the ceiling points have been removed from the point cloud.
 Wrong detections of the ground plane or side walls as ramp plane can be prevented by requiring the roll and pitch angle respectively to be in a certain range.
 Since the \gls{ransac} algorithm provides the normal vector of the plane, the angle of the detected plane can be compared to the normal vector of the ground plane, which is $\smqty(0 & 0 & 1)^\intercal$ after the calibration.
 The normal vector of the detected plane is then projected on the ground vector and the rotation between both is calculated as described in \cref{subsec:vector_projection}.
 The rotation is then converted to Euler angles.
+\begin{figure}[h]
+    \centering
+    \includegraphics{Graphics/TikZ/flowchart_lidar.pdf}
+    \caption[Flow chart of the \glsentryshort{lidar} algorithm]{Flow chart of the ramp detection algorithm using the \acrshort{lidar} sensor.}
+    \label{fig:flowchart_lidar}
+\end{figure}
 
 Since the \gls{lidar} generates a 3D model of the environment, other properties of the ramp can be estimated as well.
 Besides using the angle of the detected plane to determine whether the detected plane is the ramp, the width of the ramp is used as well.
@@ -629,7 +629,7 @@ The \gls{coco} format contains information about the segmentation mask consistin
         \includegraphics[width=1\linewidth]{aug3.jpg}
         \caption{Augmented image}
     \end{subfigure}
-    \caption[Examples of augmented images]{The three ramps used for the training. The augmented images are shown on the right-hand side and the manually created labels are marked green.}
+    \caption[Examples of augmented images]{The three ramps used for the training of the network. The augmented images are shown on the right-hand side and the manually created labels are marked green.}
     \label{fig:img_augmentated}
 \end{figure}
 
