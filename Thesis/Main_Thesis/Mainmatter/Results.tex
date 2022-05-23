@@ -10,7 +10,7 @@
 
 In this chapter the results of the different proposed methods will be presented.
 At first, the collection of the reference data will be explained.
-The different metrics used for the evaluation of the results will be described in \cref{sec:performance_measures}.
+The metrics used for the evaluation of the results will be described in \cref{sec:performance_measures}.
 The different methods using the \gls{imu} are analyzed in \cref{sec:eval_imu}.
 Afterwards the performance of the \gls{lidar} algorithm will be discussed in \cref{sec:eval_lidar} and finally the results of the object detection using the camera will be presented in \cref{sec:eval_camera}.
 
@@ -47,7 +47,7 @@ Because the \gls{lidar} only records at \SI{10}{\hertz} and thus the estimation 
 Besides estimating the road grade, the \gls{imu} is used to estimate the angle and length of the ramp.
 The reference value for the length can be extracted from the generated point cloud map, by measuring the distance between the corresponding points.
 Because the ramp angle is not constant, the average angle of the ramp is used as reference.
-The average angle \gls{ramp_ang} is calculated by measuring the length and height of the ramp and using the law of sines
+The average angle \gls{ramp_ang} is calculated by measuring the height and length of the ramp and using the law of sines
 \begin{equation}
     \gls{ramp_ang} = \arcsin\left(\frac{h_\mathrm{ramp}}{l_\mathrm{ramp}}\right).
 \end{equation}
@@ -98,7 +98,7 @@ Analogously, a frame is classified as \gls{fn}, if a ramp is visible but less th
 Furthermore, when a ramp was detected even though none was visible, the frame is labeled as \gls{fp}.
 
 The performance of the neural network can be evaluated in several ways.
-One commonly used metric in the field of computer vision is the \gls{ap}.
+One often used metric in the field of computer vision is the \gls{ap}.
 It is a detection evaluation metric, commonly used by the \gls{coco} dataset.
 It is based on the precision and recall score, which can be calculated by
 \begin{equation}
@@ -142,10 +142,10 @@ Multiple recordings of different ramps were made, but the results will be discus
 Furthermore, two different \glspl{imu} were used, but only the measurements of one \gls{imu} will be used to present the results, since both produced similar results.
 Because the \gls{imu} of the ZED camera is slightly more accurate as shown in \cref{tab:imu_datasheets}, only those measurements will be used.
 
-In the first drive the car was accelerated from stand still and drove up ramp A about half-way up.
+In the first drive the car was accelerated from stand still and driven up ramp A about half-way up.
 As explained in \cref{sec:car}, the ramp could not be driven completely, due to the need of the odometer readings, which are only available when the motor output is limited.
 The result of using only the raw measurements of the \gls{imu} for the pitch angle calculation is illustrated in \cref{fig:imu_raw_angle}.
-\begin{figure}[htb]
+\begin{figure}[b!]
     \centering
     \includegraphics[width=.9\linewidth]{imu_raw_angle.pdf}
     \caption[\glsentryshort{imu} angle estimation using raw measurements]{Pitch angle estimation from the raw accelerometer and gyroscope measurements. The drive did start from stand still and did end in the middle of the ramp.}
@@ -190,12 +190,6 @@ Here, the subtraction leads to a negative value, which neither sensor had measur
 Another way to improve the estimation is using a complementary filter.
 The results of which, together with all other methods, are shown in \cref{fig:imu_all_angles}.
 Those are the results of a new drive, where the car was driven the ramp D and afterwards ramp A down.
-\begin{figure}[htb]
-    \centering
-    \includegraphics[width=.9\linewidth]{imu_all_angles.pdf}
-    \caption[\glsentryshort{imu} angle estimation comparison of all methods]{Comparison of different methods to estimate the pitch angle. Two different ramps were driven down successively.}
-    \label{fig:imu_all_angles}
-\end{figure}
 The complementary filter uses the estimation of the gyroscope measurements and corrects them using the accelerometer measurements to prevent drift.
 It can be seen that the estimation using the complementary filter closely follows the reference except for the part between the two ramps (\SIrange{30}{60}{\second}).
 Also, it has no offset at the end, unlike the estimation from the gyroscope data.
@@ -203,6 +197,12 @@ The results of the other methods applied to the recordings of the same ride are 
 Using the gyroscope measurements, the angle estimation follows the reference data very closely for the first ramp.
 But at the end a drift can be observed.
 The gravity method reduces the spikes of the raw accelerometer estimation, but introduces a new error at the beginning, due to the odometer readings being slightly shifted in time in regard to the accelerometer readings.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.9\linewidth]{imu_all_angles.pdf}
+    \caption[\glsentryshort{imu} angle estimation comparison of all methods]{Comparison of different methods to estimate the pitch angle. Two different ramps were driven down successively.}
+    \label{fig:imu_all_angles}
+\end{figure}
 
 While a visual inspection gives a first impression on which method performs the best, the use of different metrics allows for a more accurate evaluation.
 The \gls{rmse}, $R^2$ as well as the maximal error of the different methods when driving up, for two kinds of ramps, are shown in \cref{tab:eval_imu_up}.
@@ -214,7 +214,7 @@ Using the gyroscope the deviation from the reference data is fairly small, which
 But due to the drifting the errors cumulate, resulting in a high \gls{rmse} value.
 The acceleration method performs well, but is negatively influenced by the acceleration from stand still, during which the accelerometer and wheel speed data are not properly aligned.
 The best results are achieved using the complementary filter.
-\begin{table}[htb]
+\begin{table}[t]
     \centering
     \caption[\glsentryshort{imu} road grade estimation for uphill drives]{Road grade estimation when driving ramps up.}
     \label{tab:eval_imu_up}
@@ -293,9 +293,10 @@ The velocity can be estimated in two different ways.
 Either by using the wheel speed measurements, or by integrating the accelerometer measurements.
 For the evaluation of the accuracy of the estimation, recordings of a drive with a full traverse of a ramp is necessary.
 As mentioned in \cref{sec:car}, this is only possible when driving down.
-Ramp D is used for this evaluation, the first part of the drive is show in \cref{fig:imu_all_angles}.\\
+Ramp D is used for this evaluation, the first part of the drive is show in \cref{fig:imu_all_angles}.
+
 In \cref{fig:imu_distance_velocity} different methods to estimate the velocity of the car are shown.
-\begin{figure}[htb]
+\begin{figure}[b!]
     \centering
     \begin{subfigure}{1\textwidth}
         \centering
@@ -328,7 +329,7 @@ Due to the integration the error is cumulated over time and increases with the t
 This error can be fixed by introducing a new method, which ignores the angle estimation during the acceleration phase and instead assumes an angle of zero during this phase.
 The result is visualized by $v_\mathrm{acc, grav, delayed}$.
 For the sake of consistency, the reference data is once again calculated from the pose provided by the \texttt{hdl\_graph\_slam} package.
-But it must be noted, that the data from the wheel sensors is most likely more accurate, but the results will still be compared to the reference data.
+But it must be noted, that the data from the wheel sensors are most likely more accurate, but the results will still be compared to the reference data.
 
 The estimation of the travelled distance for the different methods is shown in \cref{fig:imu_distance_position}.
 Since the distance is calculated by integrating the velocity, an error is cumulated over time.
@@ -377,13 +378,13 @@ A comparison of the resolution of the two \glspl{lidar} can be seen in \cref{fig
         \caption{Robosense}
         \label{fig:lidar_resolution_robos_eval}
     \end{subfigure}
-    \caption[Resolution comparison of the two \glsentryshortpl{lidar}]{Resolution comparison of the two \acrshortpl{lidar}. The ramp region is framed in black.}
+    \caption[Resolution comparison of the two \glsentryshortpl{lidar}]{Resolution comparison of the two \acrshortpl{lidar}. Points that were detected as part of the ramp by the algorithm are marked red. The ramp region is framed in black.}
     \label{fig:lidar_resolution_eval}
 \end{figure}
 Here, a top-down view on the ramp of the points measured by the \gls{lidar} at a distance of \SI{7}{\metre} to the ramp is shown.
 The blue points visualize all the points which were visible to the ramp detection algorithm after the downsampling and pass through filter has been applied.
 The points marked red symbolize the points that were then detected as part of the ramp by the algorithm.
-The ramp region is framed in black and was drawn manually by visually inspecting the by the \texttt{hdl\_graph\_slam} package generated point cloud.
+The ramp region is framed in black and was drawn manually by visually inspecting the by the \texttt{hdl\_graph\_slam} package generated point cloud map.
 The Velodyne \gls{lidar}, shown in \cref{fig:lidar_resolution_velodyne_eval}, provides many more lines compared to the Robosense, shown in \cref{fig:lidar_resolution_robos_eval}.
 Hence, only the results produced using the Velodyne \gls{lidar} will be discussed from here on.
 
@@ -400,7 +401,7 @@ Due to the passthrough filter the ramp was thus not visible to the algorithm, an
 It can also be observed, that the deviation of the width estimation is significantly smaller than the deviation of the distance and length estimation.
 This can be explained by the working principle of the \gls{lidar}, which sends out laser points in horizontal lines, as depicted in \cref{fig:lidar_resolution_eval}.
 The horizontal resolution is thus greater than the vertical resolution.
-Furthermore, it must be noted that all calculations are done one the downsampled point cloud, which reduced the resolution to \SI{10}{\cm}.
+Furthermore, it must be noted that all calculations are done on the downsampled point cloud, which reduced the resolution to \SI{10}{\cm}.
 
 Besides the three ramps, data consisting of 252 frames were recorded of an environment where no ramp was visible.
 One frame was wrongly labeled as a ramp (\gls{fp}), which results together with the other recordings in a precision score of \SI{99.97}{\percent} and recall score of \SI{96.54}{\percent}.
@@ -408,35 +409,35 @@ One frame was wrongly labeled as a ramp (\gls{fp}), which results together with 
 \renewcommand{\arraystretch}{1}
 \begin{table}[htb]
     \centering
-    \caption[\glsentryshort{lidar} ramp detection evaluation]{Evaluation of the ramp detection and estimation of properties of the \glsentryshort{lidar} algorithm.}
+    \caption[\glsentryshort{lidar} ramp detection evaluation]{Evaluation of the ramp detection accuracy and estimation of ramp properties of the \glsentryshort{lidar} algorithm.}
     \label{tab:eval_lidar}
     \resizebox{\textwidth}{!}{
         \begin{tabular}{ccccccccc}
             \toprule
-            \textbf{Ramp}        & \textbf{Distance} [\si{\metre}] & \textbf{Frames}         & \textbf{TP}[\%]   & \textbf{FN}[\%]   & \multicolumn{4}{c}{\textbf{RMSE}}                       \\
+            \textbf{Ramp}        & \textbf{Distance} [\si{\metre}] & \textbf{Frames}         & \textbf{\gls{tp}}[\%] & \textbf{\gls{fn}}[\%] & \multicolumn{4}{c}{\textbf{RMSE}}                       \\
             \cmidrule(lr){6-9}
-            \multicolumn{4}{c}{} &                                 & $\theta [\si{\degree}]$ & $d [\si{\metre}]$ & $w [\si{\metre}]$ & $l [\si{\metre}]$                                       \\
+            \multicolumn{4}{c}{} &                                 & $\theta [\si{\degree}]$ & $d [\si{\metre}]$     & $w [\si{\metre}]$     & $l [\si{\metre}]$                                       \\
             \midrule
-            \multirow{6}{*}{A}   & \SIrange{0}{5}{}                & 116                     & 100.00            & 0.00              & 0.31                              & 0.70 & 0.03 & 1.27  \\
-                                 & \SIrange{5}{10}{}               & 117                     & 100.00            & 0.00              & 0.30                              & 0.77 & 0.04 & 0.94  \\
-                                 & \SIrange{10}{15}{}              & 116                     & 100.00            & 0.00              & 0.34                              & 0.81 & 0.07 & 1.03  \\
-                                 & \SIrange{15}{20}{}              & 123                     & 100.00            & 0.00              & 0.27                              & 1.01 & 0.05 & 1.84  \\
-                                 & \SIrange{20}{25}{}              & 140                     & 99.23             & 0.77              & 0.65                              & 1.70 & 0.12 & 6.28  \\
-                                 & \SIrange{25}{30}{}              & 50                      & 59.78             & 40.22             & 1.79                              & 1.21 & 0.25 & 10.04 \\
+            \multirow{6}{*}{A}   & \SIrange{0}{5}{}                & 116                     & 100.00                & 0.00                  & 0.31                              & 0.70 & 0.03 & 1.27  \\
+                                 & \SIrange{5}{10}{}               & 117                     & 100.00                & 0.00                  & 0.30                              & 0.77 & 0.04 & 0.94  \\
+                                 & \SIrange{10}{15}{}              & 116                     & 100.00                & 0.00                  & 0.34                              & 0.81 & 0.07 & 1.03  \\
+                                 & \SIrange{15}{20}{}              & 123                     & 100.00                & 0.00                  & 0.27                              & 1.01 & 0.05 & 1.84  \\
+                                 & \SIrange{20}{25}{}              & 140                     & 99.23                 & 0.77                  & 0.65                              & 1.70 & 0.12 & 6.28  \\
+                                 & \SIrange{25}{30}{}              & 50                      & 59.78                 & 40.22                 & 1.79                              & 1.21 & 0.25 & 10.04 \\
             \addlinespace
-            \multirow{6}{*}{B}   & \SIrange{0}{5}{}                & 62                      & 100.00            & 0.00              & 0.52                              & 0.71 & 0.02 & 0.81  \\
-                                 & \SIrange{5}{10}{}               & 62                      & 100.00            & 0.00              & 0.53                              & 0.77 & 0.02 & 0.78  \\
-                                 & \SIrange{10}{15}{}              & 59                      & 100.00            & 0.00              & 0.51                              & 0.86 & 0.02 & 0.85  \\
-                                 & \SIrange{15}{20}{}              & 61                      & 97.92             & 2.08              & 0.49                              & 1.23 & 0.02 & 3.30  \\
-                                 & \SIrange{20}{25}{}              & 61                      & 97.83             & 2.17              & 0.83                              & 2.18 & 0.12 & 9.33  \\
-                                 & \SIrange{25}{30}{}              & 59                      & 42.75             & 57.25             & 1.82                              & 4.35 & 0.90 & 11.98 \\
+            \multirow{6}{*}{B}   & \SIrange{0}{5}{}                & 62                      & 100.00                & 0.00                  & 0.52                              & 0.71 & 0.02 & 0.81  \\
+                                 & \SIrange{5}{10}{}               & 62                      & 100.00                & 0.00                  & 0.53                              & 0.77 & 0.02 & 0.78  \\
+                                 & \SIrange{10}{15}{}              & 59                      & 100.00                & 0.00                  & 0.51                              & 0.86 & 0.02 & 0.85  \\
+                                 & \SIrange{15}{20}{}              & 61                      & 97.92                 & 2.08                  & 0.49                              & 1.23 & 0.02 & 3.30  \\
+                                 & \SIrange{20}{25}{}              & 61                      & 97.83                 & 2.17                  & 0.83                              & 2.18 & 0.12 & 9.33  \\
+                                 & \SIrange{25}{30}{}              & 59                      & 42.75                 & 57.25                 & 1.82                              & 4.35 & 0.90 & 11.98 \\
             \addlinespace
-            \multirow{6}{*}{C}   & \SIrange{0}{5}{}                & 21                      & 100.00            & 0.00              & 0.64                              & 0.87 & 0.05 & 2.58  \\
-                                 & \SIrange{5}{10}{}               & 23                      & 100.00            & 0.00              & 0.50                              & 0.89 & 0.11 & 4.40  \\
-                                 & \SIrange{10}{15}{}              & 28                      & 100.00            & 0.00              & 0.44                              & 0.70 & 0.10 & 1.23  \\
-                                 & \SIrange{15}{20}{}              & 27                      & 37.04             & 62.96             & 0.66                              & 0.79 & 0.19 & 1.27  \\
-                                 & \SIrange{20}{25}{}              & 29                      & 0.00              & 100.00            &                                   &      &      &       \\
-                                 & \SIrange{25}{30}{}              & 28                      & 10.71             & 89.29             & 1.91                              & 1.40 & 0.25 & 10.78 \\
+            \multirow{6}{*}{C}   & \SIrange{0}{5}{}                & 21                      & 100.00                & 0.00                  & 0.64                              & 0.87 & 0.05 & 2.58  \\
+                                 & \SIrange{5}{10}{}               & 23                      & 100.00                & 0.00                  & 0.50                              & 0.89 & 0.11 & 4.40  \\
+                                 & \SIrange{10}{15}{}              & 28                      & 100.00                & 0.00                  & 0.44                              & 0.70 & 0.10 & 1.23  \\
+                                 & \SIrange{15}{20}{}              & 27                      & 37.04                 & 62.96                 & 0.66                              & 0.79 & 0.19 & 1.27  \\
+                                 & \SIrange{20}{25}{}              & 29                      & 0.00                  & 100.00                &                                   &      &      &       \\
+                                 & \SIrange{25}{30}{}              & 28                      & 10.71                 & 89.29                 & 1.91                              & 1.40 & 0.25 & 10.78 \\
             \bottomrule
         \end{tabular}
     }
@@ -520,7 +521,7 @@ This makes the precise tracking of the distance to the ramp difficult.
 
 
 
-\section{Camera}
+\section{Detection by Camera}
 \label{sec:eval_camera}
 \subsection{Object Recognition}
 The camera was used to detect the ramp and mask the corresponding region in the image.
@@ -531,32 +532,33 @@ In \cref{tab:detection_eval} the \gls{map} scores for different hyperparameter c
 LR is the learning rate and SR is the sample rate and determines the number of \gls{roi} proposals, as described in \cref{ssec:training}.
 
 \begin{table}[htb]
-    \centering
-    \caption[Performance of the network for different hyperparameter]{Testing of different training hyperparameters and their influence on the \acrshort{ap} score.}
-    \label{tab:detection_eval}
-    \begin{tabular}{ccccccc}
-        \toprule
-        % \textbf{Epochs} & \textbf{LR} & \textbf{SR} & \textbf{Box mAP} & \textbf{Mask mAP} \\
-        \multicolumn{3}{c}{\textbf{Parameter} } & \multicolumn{2}{c}{\textbf{Scores} }                                                      \\
-        \cmidrule(lr){1-3}                       \cmidrule(lr){4-5}
-        \textbf{Epochs}                         & \textbf{LR}                          & \textbf{SR} & \textbf{Box mAP} & \textbf{Mask mAP} \\
-        \midrule
-        1                                       & 0.001                                & 128         & 69.3             & 83.4              \\
-        1                                       & 0.001                                & 512         & 84.8             & 85.7              \\
-        1                                       & 0.003                                & 128         & 73.3             & 76.8              \\
-        1                                       & 0.003                                & 512         & 83.1             & 89.6              \\
-        3                                       & 0.001                                & 128         & 77.6             & 90.1              \\
-        3                                       & 0.001                                & 512         & \bftab 87.3      & \bftab 90.8       \\
-        3                                       & 0.003                                & 128         & 83.9             & 89.0              \\
-        3                                       & 0.003                                & 512         & 84.9             & 87.6              \\
-        \bottomrule
-    \end{tabular}
+    \ttabbox[\FBwidth]{
+        \caption[Performance of the network for different hyperparameter]{Testing of different training hyperparameters and their influence on the \acrshort{ap} score.}
+        \label{tab:detection_eval}
+    }{
+        \begin{tabular}{ccccccc}
+            \toprule
+            \multicolumn{3}{c}{\textbf{Parameter} } & \multicolumn{2}{c}{\textbf{Scores} }                                                                  \\
+            \cmidrule(lr){1-3}                       \cmidrule(lr){4-5}
+            \textbf{Epochs}                         & \textbf{LR}                          & \textbf{SR} & \textbf{Box \gls{map}} & \textbf{Mask \gls{map}} \\
+            \midrule
+            1                                       & 0.001                                & 128         & 69.3                   & 83.4                    \\
+            1                                       & 0.001                                & 512         & 84.8                   & 85.7                    \\
+            1                                       & 0.003                                & 128         & 73.3                   & 76.8                    \\
+            1                                       & 0.003                                & 512         & 83.1                   & 89.6                    \\
+            3                                       & 0.001                                & 128         & 77.6                   & 90.1                    \\
+            3                                       & 0.001                                & 512         & \bftab 87.3            & \bftab 90.8             \\
+            3                                       & 0.003                                & 128         & 83.9                   & 89.0                    \\
+            3                                       & 0.003                                & 512         & 84.9                   & 87.6                    \\
+            \bottomrule
+        \end{tabular}}
 \end{table}
 Since the configuration with a learning rate of 0.001, sample rate of 512 and 3 epochs achieved the best results, all the following images and calculations were generated using this configuration.
 A visualization of the prediction for some example frames when driving straight and from an angle at a ramp can be seen in \cref{fig:camera_prediction_straight} and \cref{fig:camera_prediction_angled} respectively.
 In all those cases the detection of the ramp was successful and seems to be fairly accurate.
 The annotation inside the image describes how confident the network is about the detection.
 All images used for the training and evaluation are colored, but are visualized as grayscale image in this case, to allow for an easier distinction between the segmented region and the background.
+The detection works surprisingly well, considering that the texture difference between the ramp and the ground is minimal and the lightning conditions are not ideal.
 
 \begin{figure}[htb]
     \centering
@@ -571,10 +573,10 @@ All images used for the training and evaluation are colored, but are visualized 
     \begin{subfigure}{1\textwidth}
         \centering
         \includegraphics[width=1\linewidth]{camera_prediction_angled}
-        \caption{Driving at an angle to the ramp.}
+        \caption{Driving at an angle at the ramp.}
         \label{fig:camera_prediction_angled}
     \end{subfigure}
-    \caption[Visualization examples of predicted segmentation masks]{Some examples of the predicted bounding box and mask when driving at a ramp. The class of the object and the confidence score are annotated as well. All those images were part of the validation set.}
+    \caption[Visualization examples of predicted segmentation masks]{Some examples of the predicted bounding box and mask when driving at a ramp. The class of the object and the confidence score are annotated as well. All images shown were part of the validation set and not used for the training.}
 \end{figure}
 
 \subsection{Point Cloud Extraction}
@@ -587,22 +589,21 @@ The blue box is the corresponding bounding box.
 It can be seen that detection works very well and also only the actual drivable part of the ramp is marked, unlike when just the \gls{lidar} is used (see \cref{fig:points_projection}).
 While most of the area is covered by the point cloud, objects further away than \SI{20}{\metre} are not detected.
 This can be seen in the area above the ramp, which is too far away for the sensor to detect.
-But since the car is not far away from the ramp, most of the ramp could be covered by points.
+But since the car is not far away from the ramp in this example frame, most of the ramp could be covered by points.
 
 This problem is not present, when the point cloud of the \gls{lidar} is used instead.
 The projection is shown in \cref{fig:points_projection_mask_lidar}.
 It can be seen that the vertical resolution is worse at most opening angles, but the horizontal resolution is better.
 This is especially apparent at the beginning of the ramp.
-The neural network marked the pixels where the bounding box ends as part of the ramp, but because the \gls{lidar} does not have any points near this line, the nearest marked points are multiple \si{\cm} further away.
-\isug{Maybe add specific range}
+The neural network marked the pixels where the bounding box ends as part of the ramp, but because the \gls{lidar} does not have any points near this line, the nearest marked points are more than \SI{10}{\cm} further away.
 This leads to a wrong distance and perhaps length estimation.
 
 Projecting the point cloud back into 3D space allows for the calculation of the properties of the ramp.
 The results for both sensors are shown in \cref{tab:cloud_extraction_estimation}.
 The box method uses the bounding box to extract the points from the point cloud and the mask method uses the mask to extract the points from the point cloud.
 The \gls{ransac} algorithm has been applied in both cases to the extracted points, to remove outliers.
-The used sensor is written in the subscript of the method name.
-Since in the neural network is trained to only detect the drivable part of the ramp, the width had to be measured again.
+The used sensor is written in the subscript of the methods name.
+Since the neural network is trained to only detect the drivable part of the ramp, the width had to be measured again.
 For the ramp A, the width between the curbs was measured as \SI{2.79}{\metre}.
 
 It can be seen that the point cloud generated by the ZED camera produces worse results than the point cloud generated by the lidar.
@@ -610,7 +611,7 @@ While it can not be seen very well in \cref{fig:points_projection_mask_zed}, the
 The points on the ramp do not build a planar surface, that is why the \gls{ransac} algorithm had trouble to find an optimal plane.
 The \gls{lidar} on the other hand produced an accurate point cloud and achieved good results.
 
-\begin{figure}[htb]
+\begin{figure}[t]
     \centering
     \begin{subfigure}{1\textwidth}
         \centering
