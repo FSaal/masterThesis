@@ -1,4 +1,15 @@
 %\pagestyle{fancy}
 \chapter*{Kurzfassung}
 \label{ch:Kurzfassung}
-\todoin{100-200 W\"orter Kurzfassung (deutsch)}
+\gls{avp} ist eine vielversprechende Anwendung des autonomen Fahrens, bei der ein Auto selbstst\"andig in einem Parkhaus navigiert.
+Die Navigation in einem Parkhaus ist anspruchsvoll, insbesondere Rampen stellen aufgrund der beengten Platzverh\"altnisse ein Problem dar.
+In dieser Arbeit wird ein Rampenerkennungssystem entwickelt.
+Es werden drei verschiedene Sensoren verwendet und miteinander verglichen.
+Eine Inertiale Messeinheit  (engl. \gls{imu}) wird verwendet, um die Steigung der Stra\ss e zu messen und anhand dessen festzustellen, ob sich das Fahrzeug auf einer Rampe befindet.
+Es werden verschiedene Methoden getestet, darunter eine, bei der die Messungen des Raddrehzahlsensors mit den \gls{imu}-Daten fusioniert werden.
+Um festzustellen, ob sich das Fahrzeug einer Rampe n\"ahert, werden ein \gls{lidar}-Sensor und eine Kamera verwendet.
+Anhand der \gls{lidar}-Daten kann der Abstand zur Rampe und die Eigenschaften der Rampe, wie Winkel, Breite und L\"ange, bestimmt werden.
+Die Erkennung mit der Kamera basiert auf einem neuralen Netzwerk, dem Mask \gls{rcnn}.
+F\"ur das Training des Netzwerks wird ein eigener Datensatz erstellt.
+Anhand der Daten von echten Testfahrten werden die Ergebnisse der verschiedenen Methoden miteinander verglichen.
+Die Rampenerkennung mit dem \gls{lidar} und der Kamera funktionierte sehr gut, aber die Ergebnisse unter Verwendung der \gls{imu} waren aufgrund der Qualit\"at des Sensors beschr\"ankt.
