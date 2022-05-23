@@ -4,7 +4,7 @@
 
 \section{Motivation}
 Parking is one of the most challenging driving tasks and the cause of almost half of the car accidents~\cite{accident2015}.
-Current premium cars are already able to park on their own in sufficiently big parallel or perpendicular parking spaces.
+Current premium cars are already able to park on their own in sufficiently large parallel or perpendicular parking spaces.
 But due to the very limited space in cities, multi-storey parking garages are often used in central areas~\cite{Khalid2021}.
 Navigating through a parking garage is a challenging task for an inexperienced driver, due to the tight turns and limited space.
 Recent advantages in the field of autonomous driving try to make the life of the driver easier.
@@ -15,8 +15,8 @@ The car is left in a drop-off zone and drives to its assigned parking spot on it
 Afterwards the driver can give a command and the car leaves the parking spot again and picks up the driver.
 \gls{avp} saves time, the hassle of remembering the parking level and spot and also minimizes the risk of collisions.
 Furthermore, it allows for a more efficient use of the parking space, since no space for the opening of the doors is needed.
-Other services such as an automated car wash or automated charging of electrics vehicles are also imaginable.
-\gls{avp} has the potential to become one of the first fully automated driving task, due to the closed environment, low speeds and the possibility to equip the environment with additional sensors~\cite{Banzhaf2017}.
+Other services such as an automated car wash or automated charging of electric vehicles are also imaginable.
+\gls{avp} has the potential to become one of the first fully automated driving tasks, due to the closed environment, low speeds and the possibility to equip the environment with additional sensors~\cite{Banzhaf2017}.
 
 Autonomous driving relies on a good localization of the vehicle in a map of the environment.
 The environment can either be mapped beforehand, or by using \gls{slam} if the environment is unknown.
@@ -35,29 +35,28 @@ To solve all those problems, a ramp detection has to be implemented.
 
 
 \section{Goals}
-The goal of this thesis is the development of a ramp detection system.
+The goal of this thesis is to develop of a ramp detection system.
 The system should be able to detect the presence of a ramp and estimate the distance of the car to the ramp.
 The detection should work with minimal delay and should be able to handle different types of ramps.
 Furthermore, ramp properties such as the slope, width and the length of the ramp should be estimated.
 Different sensors and methods will be used and compared to each other.
 An \gls{imu} will be used to detect if the car is currently on a ramp and to measure the ramp properties.
 A \gls{lidar} and a camera will be used to detect a ramp before entering it and the \gls{lidar} will also be used to estimate the distance to the ramp and other ramp properties.
-All the sensor will be attached to the vehicle.
+All the sensors will be attached to the vehicle.
 To evaluate the system, experiments in a real world scenario are conducted.
 The tests are performed in a parking garage with different types of ramps.
-\iquest{What kind of tense to use?}
 
 
 
 \section{Outline}
-This thesis is structured in the following way.
+This thesis is structured as follows.
 In \cref{ch:Background} the theoretical foundations needed for the methods used in this thesis are described.
 A brief mathematical overview is followed by a description and explanation of the working principle of the different sensors used in this thesis.
 Lastly, a short introduction into the field of computer vision and especially in neural networks is given.
 Other existing methods and approaches to solve the problem posed in this thesis are reviewed in \cref{ch:StateOfTheArt}.
 The different implemented methods are described in \cref{ch:Methods}.
-Different approaches to estimate the road grade using an \gls{imu} are presented in \cref{sec:methods_imu}.
-A method to detect a ramp using a \gls{lidar} is described in \cref{sec:methods_lidar} and in \cref{sec:methods_camera} the detection method using an on camera images trained \gls{ann} is described.
-The exact type of sensors used for the recording of the data and the environment in which they were taken, is described in \cref{ch:ExperimentalSetup}.
+Several approaches to estimate the road grade using an \gls{imu} are presented in \cref{sec:methods_imu}.
+A method to detect a ramp using a \gls{lidar} is reported in \cref{sec:methods_lidar} and in \cref{sec:methods_camera} the detection method using an on camera images trained \gls{ann} is explained.
+The exact type of sensors used for the recording of the data and the environment in which they were taken, are described in \cref{ch:ExperimentalSetup}.
 \Cref{ch:Results} contains the results of the different methods.
 A summary of the thesis and potential future work is given in \cref{ch:Conclusion}.
