@@ -145,8 +145,8 @@ The pitch angle $\beta$ at which the \gls{lidar} will be mounted should be chose
 This allows for the most accurate distinction between planes of different inclination angles.
 Because the distance to the ramp is not constant due to the movement of the car, the optimization can only be done for a specific distance.
 The coordinates at which the lasers hit the ground and ramp depend on the height of the \gls{lidar} $h_\mathrm{l}$, the distance to the ramp $d$, the angle of the ramp \gls{ramp_ang}, the angle $\beta$ at which the \gls{lidar} has been mounted on the car and finally on the vertical resolution $\epsilon$ and \gls{fov} of the \gls{lidar}.
-A visualization of the different variables can be seen in \cref{fig:tikz_lidar_mount}.
-\begin{figure}[htb]
+A visualization of the problem setup and the different variables can be seen in \cref{fig:tikz_lidar_mount}.
+\begin{figure}[t]
     \centering
     \input{Graphics/TikZ/lidar_mount.tex}
     \caption[\glsentryshort{lidar} placement on the car]{Calculation of the best mounting angle of the \acrshort{lidar} on the car. The used variables are described in \cref{tab:lidar_mount}.}
